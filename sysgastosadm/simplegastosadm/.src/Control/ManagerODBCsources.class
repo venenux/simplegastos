@@ -1,0 +1,72 @@
+' Gambas class file
+
+' TYRON ESTE ES SOLO UN EJEMPLO, solo lee el archivo y revisa si tiene una seccion que se llame odbc
+
+
+'' retorna true si existe una conexcion odbc que cumpla con la tarea #427
+Public Function retornedatasource(Optional lugar As String = User.Home) As Boolean
+    ' el lugar por defecto es el home del usuario que ejecuta el programa, es grafico no, pa brutico
+    Dim hfile As File
+    Dim nfile As String = ".odbc.ini"
+    Dim wline As String
+    Dim archo As String = lugar & "/" & nfile
+    ' si hay algun malo, o no puedo escribir en disco, lchao pescado
+    If Not Access(lugar, gb.Write) Then
+        Return False
+    Endif
+    ' si existe un odbc bueno, es que estaba usandome(hablador-demo)
+        If Exist(archo) Then
+            hfile = Open archo For Read
+            Seek #hfile, 0
+            Line Input #hfile, wline    ' ojo si estoy aqui, no habia respaldo, veo si el existnte es mio
+            Close #hfile
+            If wline == "[odbcgastossaint]"
+                Return True
+            Else
+                Return False
+            Endif
+        Else
+            Return False ' no esta ninguno, no voy hacer milagros
+        Endif
+    ' respaldado el original con lo configurado, creo el mio(odbc del hablador) propio
+End
+
+'' crea datasource con credenciales DB oasis, si un odbc y deveulve false si no pudo o no existe
+Public Function createdatasource(Optional ipodbc As String = "170.10.1.100", Optional lugar As String = User.Home) As Boolean
+    ' el lugar por defecto es el home del usuario que ejecuta el programa, es grafico, pa brutico
+    Dim hfile As File
+    Dim nfile As String = ".odbc.ini"
+    Dim wline As String
+    Dim archi As String = lugar & "/" & nfile
+    ' si hay algun malo, o no puedo escribir en disco, lchao pescado
+    If Not Access(lugar, gb.Write) Then
+        Return False
+    Endif
+    ' si el archivo existe, ver si es mio o no, respaldar si no es mio(habladordemo)
+    If Exist(archi) Then
+        Return retornedatasource()     ' el archivo estaba, algo salio mal, intento rtornar y salgo
+    Else
+    ' err parece todo bien, dele duro al file
+        Wait 0.5
+        hfile = Open archi For Write Create
+        Print #hfile, "[odbcgastossaint]"
+        Print #hfile, "Description = TDS sybase SQL oasis" 
+        Print #hfile, "Driver = FreeTDS"
+        Print #hfile, "Trace = Yes"
+        Print #hfile, "TraceFile = /tmp/tdsqlodbcoasis.log"
+        Print #hfile, "Database = sa"
+        Print #hfile, "Server = " & ipodbc
+        Print #hfile, "Port = 1433"
+        Print #hfile, "UserName ="
+        Print #hfile, "Password ="
+        Print #hfile, "ReadOnly = Yes"
+        Print #hfile, "ConnSettings ="
+        Close #hfile
+        Return True     ' si en el proceso ocurrio algo, atrapa el error
+    Endif
+    Catch
+        Debug ("Error: " & DConv(Error.Text))   '  y lo escupe en stdout o algun lugar por ahi
+End
+
+
+' ================ FIN funciones de preparacion a conexcion y odbc ==================
