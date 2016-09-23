@@ -1,0 +1,26 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,109,55)
+  { panelvistaanual Panel
+    MoveScaled(1,2,103,52)
+    { tdatagastoanioporcat DataView
+      MoveScaled(3,8,98,43)
+      Columns = ["4"]
+    }
+    { panelselecanio Panel
+      MoveScaled(3,2,95,5)
+      { boxanioactual DateBox
+        MoveScaled(20,1,22,3)
+      }
+      { baniosiguiente Button
+        MoveScaled(44,1,15,3)
+        Text = ("Button2")
+      }
+      { banioanterior Button
+        MoveScaled(4,1,13,3)
+        Text = ("Button1")
+      }
+    }
+  }
+}

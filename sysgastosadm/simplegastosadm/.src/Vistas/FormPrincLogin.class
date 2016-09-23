@@ -1,0 +1,68 @@
+' Gambas class file
+
+Public usuarioname As String
+Private usuariocuan As Integer
+Private usuariopass As String
+Private usuariosess As String
+Private usuariointr As String
+Private usuariologi As String
+Private usuariocodg As String
+Private $conn As Connection
+'' ***********------    Configuración formulario PrincLogin           : -------*********
+
+Public Sub Form_Open()
+'mostrar el formulario con su propósito
+  Me.Center
+  Me.Caption = "INICIAR SESIÓN"
+End
+
+''veo quien es y establesco variables de usuario y clave, si existen, hubo acceso positivo
+Public Sub btnformloginok_Click()
+
+  Dim login, password As String
+
+  If IsNull(informloginUsername.Text) Or IsNull(informloginUserpass.Text) Then
+    Message.Warning("¡No deje ningún cuadro vacío!")
+  Else
+  '       primero veremos si se permite el ingreso... 
+        login = informloginUsername.Text 
+        password = informloginUserpass.Text
+            ' If Val(rs["cuantos"]) > 0
+            '     usuariocuan = rs["cuantos"] 
+            '     usuariopass = informloginUserpass.Text
+            '     usuariosess = rs["sessionflag"]
+            '     usuariointr = rs["intranet"]
+            '     usuariologi = rs["nombre"]
+            '     usuariocodg = rs["codger"]
+            ' Else 
+            '     Message.Error(" Usuario Desconocido. Acceso Denegado al Sistema nerv-byro.")
+            '     informloginUsername.Text = ""
+            '     informloginUserpass.Text = ""
+            '     informloginUsername.SetFocus
+            ' Endif 
+    Endif
+    
+
+End
+
+Public Sub btnformloginCancel_Click()
+    
+    Me.Close
+
+End
+
+Public Sub informloginUsername_KeyPress()
+    
+    If (key.Code = 65421 Or Key.Code = Key.Return) Then
+        informloginUserpass.SetFocus
+    Endif     
+    
+End
+
+Public Sub informloginUserpass_KeyPress()
+    
+    If (key.Code = 65421 Or Key.Code = Key.Return) Then
+        btnformloginok_Click
+    Endif
+    
+End

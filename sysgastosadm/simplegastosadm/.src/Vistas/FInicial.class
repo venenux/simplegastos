@@ -1,0 +1,50 @@
+' Gambas class file
+
+'' default constructor whe instaniated, if not managed statically
+Public Sub _new()
+
+  panelytablaprincipal_inicializar
+
+End
+
+'' when window open here comes
+Public Sub Form_Open()
+
+  tablaprincipal_aniocambia(0)
+
+End
+
+Public Sub banioanterior_Click()
+
+  tablaprincipal_aniocambia(1)
+
+End
+
+Public Sub baniosiguiente_Click()
+
+  tablaprincipal_aniocambia(2)
+
+End
+
+Public Function tablaprincipal_aniocambia(Optional tipocambio As Integer = 1)
+
+  If tipocambio = 0 Then
+    boxanioactual.Value = Now
+  Endif
+  If tipocambio = 1 Then
+    boxanioactual.Value = boxanioactual.Value - 365
+  Endif
+  If tipocambio = 2 Then
+    boxanioactual.Value = boxanioactual.Value + 365
+  Endif
+
+End
+
+Private Sub panelytablaprincipal_inicializar()
+  
+  tablaprincipal_aniocambia(0)
+  banioanterior.text = "<<<"
+  baniosiguiente.text = ">>>"
+  
+End
+

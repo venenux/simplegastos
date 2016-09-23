@@ -1,0 +1,53 @@
+# Gambas Form File 3.0
+
+{ Form Form
+  MoveScaled(0,0,73,35)
+  Text = ("Login - Nerv-byro SGA")
+  Resizable = False
+  Maximized = True
+  { Framelogin Frame
+    MoveScaled(1,2,70,32)
+    Font = Font["Liberation Sans,+3"]
+    Text = (" LOGIN")
+    { informloginUsername TextBox
+      MoveScaled(20,15,46,4)
+    }
+    { informloginUserpass TextBox
+      MoveScaled(20,20,46,4)
+      Password = True
+    }
+    { btnformloginok Button
+      MoveScaled(11,27,13,4)
+      Text = ("OK")
+    }
+    { btnformloginCancel Button
+      MoveScaled(46,27,13,4)
+      Text = ("Cancel")
+    }
+    { lblformloginUsername Label
+      MoveScaled(4,15,13,4)
+      Text = ("Usuario:")
+      Alignment = Align.Right
+    }
+    { lblformloginUserpass Label
+      MoveScaled(3,20,13,4)
+      Text = ("Clave:")
+      Alignment = Align.Right
+    }
+    { lblinfologin Label
+      MoveScaled(13,6,55,6)
+      Font = Font["Liberation Sans,+2"]
+      Text = ("Se requiere Login y contraseña INTRANET")
+    }
+    { blinfologin2 Label
+      MoveScaled(13,11,56,3)
+      Font = Font["Liberation Sans,+2"]
+      Text = ("(Su cédula funciona tambíen como login)")
+    }
+    { LabelInfo Label
+      MoveScaled(2,3,65,4)
+      Font = Font["Liberation Sans,+3"]
+      Text = ("Ingreso al Sistema de Gestión de Gastos")
+    }
+  }
+}

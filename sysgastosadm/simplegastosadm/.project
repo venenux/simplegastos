@@ -1,0 +1,22 @@
+# Gambas Project File 3.0
+# Compiled with Gambas 3.4.0
+Title=gastos
+Startup=MMain
+Version=0.0.1
+Component=gb.image
+Component=gb.gtk
+Component=gb.form
+Component=gb.db
+Component=gb.db.form
+Component=gb.settings
+Component=gb.image.effect
+Component=gb.net
+Component=gb.net.curl
+Component=gb.net.smtp
+Component=gb.vb
+TabSize=2
+Translate=1
+Language=es_VE.UTF-8
+ControlPublic=1
+ModulePublic=1
+Packager=1

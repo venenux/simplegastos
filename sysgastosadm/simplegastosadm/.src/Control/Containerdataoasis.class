@@ -1,0 +1,524 @@
+' Gambas class file
+
+'' Código en gambas que emula un bean de java
+'' Abstracción de todos los procesos en donde se requiere interactuar con bases de datos
+'' ya sea sqlite, postgres, mariadb. mysql, ODBC 
+
+'*********** Segmento de Código general para todos los formularios ******************
+
+'' Permite crear una conexion sqlite 
+Private $conexionlocal As Connection
+'' TEMPORAL PARA DATOS ODBC OASIS
+Private $conexionremota As Connection
+
+
+Public Function getConexionsqlite(Optional databasename As String = Application.path & "/nerv-byro-cliente-db") As Connection
+    
+    If Not IsNull($conexionlocal) Then
+        $conexionlocal.Host = "" ' definimos directorio donde se encuentra la base de datos
+        $conexionlocal.Type = "sqlite3"
+        $conexionlocal.Name = databasename
+        If Not $conexionlocal.opened Then
+            If Exist(databasename) Then
+                $conexionlocal.Open
+            Else
+                $conexionlocal = Null
+            Endif
+        Endif
+    Endif
+    If IsNull($conexionlocal) Then
+        Print "Creando conexión a la Base de Datos..."
+        $conexionlocal = New Connection
+        $conexionlocal.Host = "" ' definimos directorio donde se encuentra la base de datos
+        $conexionlocal.Type = "sqlite3"
+        If Exist(databasename) Then
+            $conexionlocal.Name = databasename
+            $conexionlocal.Open
+             Print "Conexión a la Base de Datos fué establecida."
+        Else
+            Message.Error("Base de Datos no encontrada, revisar ruta: " & databasename)
+        Endif
+    Endif
+    Return $conexionlocal
+    
+End
+
+Public Function getConexionodbc() As Connection
+    
+    If Not IsNull($conexionremota) Then
+        
+        $conexionremota.Type = "ODBC"
+        $conexionremota.Name = "oasis0"
+        $conexionremota.Host = "oasis0" 'el host esquivale al name
+        $conexionremota.Login = "ordendespacho" 
+        $conexionremota.Password = "ordendespacho.1. com"
+        
+    Endif
+    If IsNull($conexionremota) Then
+        Print "Creando conexión a la Base de Datos..."
+        $conexionremota = New Connection
+        $conexionremota.Type = "ODBC"
+        $conexionremota.Name = "oasis0"
+        $conexionremota.Host = "oasis0" 'el host esquivale al name
+        $conexionremota.Login = "ordendespacho" 
+        $conexionremota.Password = "ordendespacho.1. com"
+        
+    Endif
+    $conexionremota.Open
+    Return $conexionremota
+    
+End
+
+''************************* Formulario FormSecDespacho ******************* 
+
+'' Permite cargar un objeto collection que contiene el resultado de un query
+''  selecquery : numero entero de 1 a 4 para seleccionar el query a ejecutar según sea el filtro
+''   filtro1: la cadena que será el filtro por departamento
+''   filtro2: la cadena que será el filtro por división
+'' cuando  selecquery vale 1  es filtro por departamento
+'' cuando vale2 es filtro por división
+'' cuando vale 3 es por departamento y por división
+'' cuando vale 4 es query para todos los productos         
+Public Function getPedidogeneralxtiendas(Optional filtro As String) As Collection
+    
+    Dim queryl As String
+    Dim rset As Result
+    Dim columnas As Collection
+    Dim filas As Collection
+    
+    filas = New Collection(gb.IgnoreCase)
+    columnas = New Collection(gb.IgnoreCase)
+    ' ' esto esta demasiado complicado... hay que simplificar
+    ' ' preparar el resultado con los nombres de los campos, primer file es columnas nombres el resto valores
+    ' columnas.Add("Codigo", "codigo")
+    ' columnas.Add("Prooveedor", "prooveedor")
+    ' columnas.Add("Division", "division")
+    ' columnas.Add("Departamento", "departamento")
+    ' columnas.Add("Descripcion", "descripcion")
+    ' columnas.Add("Referencia", "referencia")
+    ' columnas.Add("Empaque", "empaque")
+    ' columnas.Add("Precio ", "precio")
+    ' columnas.Add("Listado", "listado")
+    ' columnas.Add("Bloqueado", "bloquear")
+    ' columnas.Add("Exist", "existencia")
+    ' ' columnas.Add("BTOXII ", "bultoval12")
+    ' ' columnas.Add("EXISTXII", "existval12")
+    ' ' columnas.Add("BTONVO", "bultonvo")
+    ' ' columnas.Add("EXISNVO", "existnvo")
+    ' ' columnas.Add("BTOEXTEN", "bultoexten")
+    ' ' columnas.Add("EXISTEXTEN", "existexten")
+    ' ' columnas.Add("INVINIC4RET", "inventario")
+    ' ' columnas.Add("VENTAS", "ventas")
+    ' ' columnas.Add("ROT", "rot")
+    ' ' columnas.Add("SUG", "sugerencia")
+    ' columnas.Add("Despacho", "despachoactual")
+    ' columnas.Add("Ultimo Despacho", "despachoultimo")
+    ' columnas.Add("Cantidad", "cantidad") ' en piezas o bultos
+    ' filas.Add(columnas, "titulos")
+    ' conectarse a la bd
+    ' 
+    $conexionlocal = getConexionsqlite()
+    ' hacer el query     
+    'TODO: revisar compatiblidad con odbc , sybase y postgres de este query
+    'TODO: este query es dummie y será reemplazado... necesitaré hacerlo de cero con los datos de Oasis0
+         'pero  no tengo acceso a oasis0 y mejor me invento unos datos parecidos
+    'rset = cx.Exec("select  RIGHT('0000000000'+CAST('  400111' AS VARCHAR(10)),10)  As codigo, '000GB'  As prooveedor,'NAVIDAD'  As division,'DecoracionNavideña' As departamento,'FF FIGURA ANGEL C/ NUBES ' As descripcion,'XD802' As referencia, '288'  As empaque, '6,20' As precio,'Despachar' As listado,'No '  As bloquear,'5' As existencia,'0,01' As bultoval12,'0,01' As existval12,'4' As bultonvo,'4' As existnvo,'0.01' As BTOSABAL,'3' As EXISTSABAL,'4' As bultoexten,'1'  As existexten,'4' As inventario,'2' As ventas,'0,125' As rot,'0,005' As sugerencia,'-140' As despachoactual,'NO DESP' As despachoultimo,'10 Pzas (edit) '  As cantidad")
+    ' queryl = "select  SUBSTR( '0000000000' || REPLACE('  400111', ' ', ''), -10, 10)  As codigo, '000GB'  As prooveedor,'NAVIDAD'  As division,'DecoracionNavideña' As departamento,'FF FIGURA ANGEL C/ NUBES ' As descripcion,'XD802' As referencia, '288'  As empaque, '870' As precio,'Despachar' As listado,'No '  As bloquear,'20' As existencia,'0,01' As bultoval12,'0,01' As existval12,'4' As bultonvo,'4' As existnvo,'0.01' As BTOSABAL,'3' As EXISTSABAL,'4' As bultoexten,'1'  As existexten,'4' As inventario,'2' As ventas,'0,125' As rot,'0,005' As sugerencia,'-140' As despachoactual,'NO DESP' As despachoultimo,'10 Pzas (edit) '  As cantidad"
+    ' queryl = queryl & " union "
+    ' queryl = queryl & "Select SUBSTR( '0000000000' || REPLACE('  400112', ' ', ''), -10, 10)  As codigo, '000GE'  As prooveedor,'NAVIDAD'  As division,'DecoracionNavideña' As departamento,'FF FIGURA ANGEL C/ NUBES 2' As descripcion,'XD803' As referencia, '289'  As empaque, '890' As precio,'Despachar' As listado,'No '  As bloquear,'30' As existencia,'0,01' As bultoval12,'0,01' As existval12,'4' As bultonvo,'4' As existnvo,'0.01' As BTOSABAL,'3' As EXISTSABAL,'4' As bultoexten,'1'  As existexten,'4' As inventario,'2' As ventas,'0,125' As rot,'0,005' As sugerencia,'-140' As despachoactual,'NO DESP' As despachoultimo,'10 Pzas (edit) '  As cantidad"
+    ' queryl = queryl & " union "
+    ' queryl = queryl & "Select SUBSTR( '0000000000' || REPLACE('  400113', ' ', ''), -10, 10)  As codigo, '000GF'  As prooveedor,'NAVIDAD'  As division,'DecoracionNavideña' As departamento,'FF FIGURA ANGEL C/ NUBES 3' As descripcion,'XD804' As referencia, '290'  As empaque, '860' As precio,'Despachar' As listado,'No '  As bloquear,'15' As existencia,'0,01' As bultoval12,'0,01' As existval12,'4' As bultonvo,'4' As existnvo,'0.01' As BTOSABAL,'3' As EXISTSABAL,'4' As bultoexten,'1'  As existexten,'4' As inventario,'2' As ventas,'0,125' As rot,'0,005' As sugerencia,'-140' As despachoactual,'NO DESP' As despachoultimo,'10 Pzas (edit) '  As cantidad"
+     
+         queryl = "select codigo,prooveedor,division,departamento,descripcion,referencia,empaque, precio from productos_prueba"
+           
+           
+            
+    rset = $conexionlocal.Exec(queryl)
+    If rset.Available Then
+        For Each rset ' estas columnas van a ser cambiadas otra vez... no tengo de donde sacar estas cosas
+            columnas = New Collection(gb.IgnoreCase)
+            columnas.Add(Trim(rset!codigo), "codigo")
+            columnas.Add(rset!prooveedor, "prooveedor")
+            columnas.Add(rset!descripcion, "descripcion")
+            columnas.Add(rset!departamento, "departamento")
+            columnas.Add(rset!division, "division")
+            columnas.Add(rset!referencia, "referencia")
+            columnas.Add(rset!empaque, "empaque")
+            columnas.Add(rset!precio, "precio")
+            ' columnas.Add(rset!listado, "listado")
+            ' columnas.Add(rset!bloquear, "bloquear")
+            ' columnas.Add(rset!existencia, "existencia")
+            ' columnas.Add(rset!bultoval12, "bultoval12")
+            ' columnas.Add(rset!existval12, "existval12")
+            ' columnas.Add(rset!bultonvo, "bultonvo")
+            ' columnas.Add(rset!existnvo, "existnvo")
+            ' columnas.Add(rset!bultoexten, "bultoexten")
+            ' columnas.Add(rset!existexten, "existexten")
+            ' columnas.Add(rset!inventario, "inventario")
+            ' columnas.Add(rset!ventas, "ventas")
+            ' columnas.Add(rset!rot, "rot")
+            ' columnas.Add(rset!sugerencia, "sugerencia")
+            ' columnas.Add(rset!despachoactual, "despachoactual")
+            ' columnas.Add(rset!despachoultimo, "despachoultimo")
+            ' columnas.Add(rset!cantidad, "cantidad") ' en piezas o bultos
+            filas.Add(columnas, rset!codigo) ' el codigo de producto es el indice! ja soy el mejor
+        Next
+    Endif
+    Return filas
+    $conexionlocal.Close
+    $conexionlocal = Null
+
+End
+
+'' Devuelve el precio de un producto que es insertado en el ordenview
+'' Esta función puede ser eliminada en el futuro.. 
+' Public Function getprecio(codprod As String) As String 
+'     ' TODO: aqui se hace un query para obtener el precio de cada producto y se hizo asi
+'     ' porque an no hay una base de datos real y diseñada para el sistema, por lo tanto
+'     ' dicho query y varias cosas deben ser sustituidos o diseñados desde cero
+'     '  o modificados 
+'     ' aqui lo que vale es usar el lenguaje a tu favor... y ser avispado"
+' 
+'     Dim price As String
+'     Dim rs As Result
+'     
+'     $conexionlocal = getConexionsqlite() ' conectar a la base de datos  
+'     
+'     rs = $conexionlocal.Exec(" select precio from precios where SUBSTR( '0000000000' || REPLACE(codeint, ' ', ''), -10, 10) = '" & codprod & "'")
+'     If rs.Available Then
+'         price = rs["precio"] ' si lo encuentra
+'     Else
+'         price = "0" '  N/D es no disponible
+'     Endif
+'     $conexionlocal.Close
+'     $conexionlocal = Null 
+'     Return price
+' 
+' End
+
+
+'' Permite agregar el detalledespacho a la tabla de detallesdespachos <br>
+''  parámetros:
+''   codespdet: el codigo para los detalles
+''   codesp: el código generado para los despachos  
+''   codprod:  código  del producto 
+''   cantidad: la cantidad a despachar de ese producto    
+' Public Sub registrardetalledespacho(codprod As String, cantidad As String)
+'     
+'     Dim $datos As Result
+' 
+'     $conexionlocal = getConexionsqlite() 
+'     $datos = $conexionlocal.Create("detallesdespacho")
+'     $datos["coddespdetalle"] = Format$(Now, "yyyymmddhhnnss")
+'     $datos["codespacho"] = Format$(Now, "yyyymmddhhnnss")
+'     $datos["cod_producto"] = codprod
+'     $datos["cantidad"] = cantidad
+'     $datos.Update
+'     $conexionlocal.Commit  
+'     $conexionlocal.Close
+'     $conexionlocal = Null 
+' 
+' End  
+
+
+'' Permite agregar el despacho a la tabla de despachos, retornoa un colleccion de las mismas lineas procesadas <br>
+'' * fdespacho : la fecha del despacho<br>
+'' * lineas: cuantos items tiene el grip a procesar<br>
+'' * responsable: un nombre del que emite<br>
+'' * turno: flag de sesion = sello+caja/ip3+fecha+ficha/cedula<br>
+'' * matrix: objeto colleccion con las filas del grid o los datos de cada linea<br>
+'' Datos de cada linea:<br>
+'' * filagrid: la fila del grid que representa este elemento en el objeto collecion
+'' * codigoprod codigo del producto con sus digitos hasta el 12
+'' * origen codigo origen del despacho (sello)
+'' * destino codigo destino del despacho (sello)
+'' * precio el precio por ahora el que trae del grid NOTA debe incluir decimales con punto
+'' * cuantos cuantos de este elemento
+'' * cuantosque la tipo de unidad ejemplo bulto, paquete, reempaque
+'' * reempaque si es o el tipo de reempaque
+Public Function RegistrarOrdenDespacho(fdespacho As String, lineas As String, nombreresp As String, turno As String, matrixcontenido As Collection) As Collection
+    
+    Dim eldespacho, filasdeldespacho, matrixfilas As Collection
+    Dim $datos As Result
+    Dim filas, cantidaprocesados As Integer = 0
+    Dim codigodespacho, codigoprod, fecharegistro, fechasalida, responsable, origen, destino, destinos, cuantos, cuantosque, precio, cambioprecio, reempaque As String = ""
+    Dim tabla As Table
+    $conexionlocal = getConexionsqlite() 
+
+    codigodespacho = Format$(Now, "yyyymmddhhnnss")
+    fecharegistro = Format$(Now, "yyyymmddhhnnss")
+    fechasalida = fdespacho
+    cantidaprocesados = 0
+    Error.Clear
+
+    ' 1) ******** insertamos el despacho generados en tabla despachos
+    $conexionlocal.Begin
+    eldespacho = New Collection
+    For filas = 0 To (matrixcontenido.Count - 1)
+        If matrixcontenido.Exist(filas) Then
+            matrixfilas = matrixcontenido[filas]
+            cantidaprocesados = matrixfilas["filagrid"] + 1   ' vamos con cada uno, al fina debe ser igual a lineas
+            codigoprod = matrixfilas["codigoprod"]
+            origen = matrixfilas["origen"]
+            destino = matrixfilas["destino"]
+            destinos = matrixfilas["destino"] & "|"
+            precio = matrixfilas["precio"]
+            cuantos = matrixfilas["cantidad"]
+            cuantosque = matrixfilas["unidad"]
+            reempaque = matrixfilas["reempaque"]
+            ' modificación: si el sistema tiene alzheimer y no encuentra  la tabla habrá que crearla
+             If Not $conexionlocal.Tables.Exist("td_despacho") Then  ' preguntar, si no existe a crearla
+               tabla = $conexionlocal.Tables.Add("td_despacho")
+                With tabla.Fields ' aqui se crea
+                    .Add("codespacho", db.String, 64) 
+                    .Add("codproducto", db.String, 64)
+                    .Add("precio_origen", db.String, 64)
+                    .Add("precio_destino", db.String, 64)
+                    .Add("precio_venta", db.String, 64)
+                    .Add("origen", db.String, 128) 
+                    .Add("destino", db.String, 128)
+                    .Add("tienda", db.String, 64)
+                    .Add("unidad_tipo", db.String, 64)
+                    .Add("unidad_cuanto", db.String, 64)
+                    .Add("turno", db.String, 64)                            
+                End With
+               tabla.Update
+                  If Error Then
+                      Print "Error - no se puede corroborar la tabla verifique esto: " & Error.Code & " " & Error.Text
+                 Else
+                       Print "La tabla  td_despachos fue re-creada."
+                  Endif
+               Else
+                   Print "La tabla  td_despachos existe... se procede a registrar despacho."
+               Endif             
+               
+              '  sea que ya existia la tabla o fué creada, a registrar el despacho 
+            $datos = $conexionlocal.Create("td_despacho")
+                $datos["codespacho"] = codigodespacho ' TEXT, - - codigo del despacho orden generada
+                $datos["codproducto"] = codigoprod '  TEXT, - - producto despachando"
+                $datos["precio_origen"] = precio ' TEXT, - - el precio de donde viene
+                $datos["precio_destino"] = precio ' TEXT, - - el precio a donde se despacha(no es lo mismo al cual se vendera)
+                $datos["precio_venta"] = precio ' TEXT, - - precio(si se desea)del lugar destino donde se vendera
+                $datos["origen"] = origen ' TEXT, - - desde donde se despacha
+                $datos["destino"] = destino ' TEXT, - - hacia donde se despacha
+                $datos["tienda"] = destino ' TEXT, - - si se despacha a un secundario, y este se le desigan a donde enviara
+                $datos["unidad_tipo"] = cuantosque ' TEXT, - - si bulto, empaque, peso, etc, por ahora guarda un string
+                $datos["unidad_cuanto"] = cuantos ' TEXT - - cuantos de este tipo de empacado, o pesado etc
+                $datos["turno"] = turno
+            $datos.Update
+            filasdeldespacho = New Collection
+            filasdeldespacho.Add(codigodespacho, "codespacho")
+            filasdeldespacho.Add(codigoprod, "codproducto")
+            filasdeldespacho.Add(precio, "precio_origen")
+            filasdeldespacho.Add(precio, "precio_destino")
+            filasdeldespacho.Add(precio, "precio_venta")
+            filasdeldespacho.Add(origen, "origen")
+            filasdeldespacho.Add(destino, "destino")
+            filasdeldespacho.Add(destino, "tienda")
+            filasdeldespacho.Add(cuantosque, "unidad_tipo")
+            filasdeldespacho.Add(cuantos, "unidad_cuanto")
+            eldespacho.Add(filasdeldespacho, cantidaprocesados)
+        Endif
+    Next
+    destinos = Mid$(destinos, 1, -1)
+    $datos = $conexionlocal.Create("tm_despacho")
+        $datos["codespacho"] = codigodespacho ' TEXT, - - codigo del despacho orden generada
+        $datos["codproducto"] = codigoprod '  TEXT, - - producto despachando"
+        $datos["origen"] = origen ' TEXT, - - desde donde se despacha
+        $datos["destino"] = destinos ' TEXT, - - aqui se coloca todos los destinos separados por "|"
+        $datos["tienda"] = destinos ' TEXT, - - si se despacha a un secundario, y este se le desigan a donde enviara
+        $datos["fechaemite"] = fecharegistro 'misa fecha turno pero incluye segundos y minutos
+        $datos["fechaenvio"] = fechasalida '   -- xcuando este despacho debe salir
+        $datos["turno"] = turno
+    $datos.Update
+    eldespacho.Add(codigodespacho, "codespacho")
+    eldespacho.Add(origen, "origen")
+    eldespacho.Add(destinos, "destinos")
+    eldespacho.Add(destinos, "tienda")
+    eldespacho.Add(fecharegistro, "fechaemite")
+    eldespacho.Add(fechasalida, "fechaenvio")
+    eldespacho.Add(turno, "turno")
+    eldespacho.Add(cantidaprocesados, "procesados")
+    $conexionlocal.Commit  
+    If Error Then
+        eldespacho = Null
+        $conexionlocal.Rollback
+    Endif
+    If cantidaprocesados <> Val(lineas) Then
+        eldespacho = Null
+        $conexionlocal.Rollback
+    Endif
+    $conexionlocal.Close
+    $conexionlocal = Null 
+    
+    ' 2) ******** rescatamos el despacho generados en tabla despachos para presentarlo
+    ' para que un select, ya devuelvo un objeto collecion completo con mucha info! menos ida a DB! uff!
+    
+    ' 3) ******** devolvemos todo el despacho generado en un objeto collecion recorrible
+    Return eldespacho ' ????????????? 
+End  
+
+'' Devuelve la cantidad de registros en la tabla:
+'' si accion es 1: la tabla despachos
+'' si accion es 2: la tabla detallesdespacho
+'' si accion es 3: la tabla destinosdespacho
+
+' Public Function cuantos(accion As Integer) As Integer
+'     
+'     Dim cuantos As Integer
+'     Dim rs As Result    
+'     
+'     $conexionlocal = getConexionsqlite()
+'     
+'    Select Case accion
+'       Case 1 
+'          rs = $conexionlocal.Exec("Select count(*) From despacho")   
+'     Case 2
+'          rs = $conexionlocal.Exec("Select count(*) From detallesdespacho")      
+'     Case 3
+'          rs = $conexionlocal.Exec("Select count(*) From destinodespachos")      
+'     
+'          
+'    End Select 
+'      
+'     If rs.Available Then 
+'         cuantos = Val(rs["count(*)"])
+'     Endif
+'     
+'     
+'     $conexionlocal.Close
+'     $conexionlocal = Null 
+'     Return cuantos    
+' End
+
+'' Permite agregar en la tabla destinossdespachos cada destino de un despacho 
+''  parámetros:
+''   codespa: el código generado para los despachos  
+''   destino: colección que contiene los destinos 
+Public Sub registrardestinodespacho(destino As String[], codespa As String, codex As Integer)
+    
+    Dim $datos As Result
+    Dim pos As Integer = 0
+    
+    $conexionlocal = getConexionsqlite() 
+    $datos = $conexionlocal.Create("destinodespachos")
+  
+    For pos = 0 To destino.Count - 1
+  
+'            $datos["codestinodesp"] = FormSecDespacho.generarcodigo(codex)   
+           $datos["coddespach"] = codespa
+           $datos["destino"] = destino[pos]
+           $datos.Update
+           codex = codex + 1
+        Next
+   
+   
+    $datos.Update
+    $conexionlocal.Commit  
+    $conexionlocal.Close
+    $conexionlocal = Null 
+    
+End  
+
+
+
+'' Función para determinar si la ruta donde se debe crear un archivo
+'' tiene permiso para escritura.
+Public Function ComprobarAccesoEscritura(ruta As String) As Boolean
+
+    Return Access(ruta, gb.Write)
+Catch
+    Debug ("ERROR-> [ " & DConv(Error.Text) & " ] ")
+    Return False
+
+End
+
+'' Procedimiento para crear el archivo .ini para habilitar conexion ODBC:
+'' el objetivo es cargar el combobox con los origenes  
+Public Sub crear_arch_odbc()
+    ' Este es el contenido del archivo
+    
+    '     [oasis0]
+    ' Description = TDS sybase SQL
+    ' Driver = FreeTDS
+    ' Trace = Yes
+    ' TraceFile = /tmp/tdsqlodbc.log
+    ' Database = oasis
+    ' Server = 37.10.252.253
+    ' Port = 2638
+    ' UserName =
+    ' Password =
+    ' ReadOnly = No
+    ' ConnSettings =
+    ' -------------------------------
+    '   ordendespacho
+    '   ordendespacho.1.com
+    ' - - - - - - - - - - - - - - -
+    
+    Dim mif As File
+    
+    'crear el archivo, ya se determinó que no existe OJO con esta línea  
+    mif = Open User.Home & "/.odbc.ini" For Write Create 
+    
+    Print #mif, "[oasis0]"
+    Print #mif, "Description = TDS sybase SQL"
+    Print #mif, "Driver = FreeTDS"
+    Print #mif, "Trace = Yes"
+    Print #mif, "TraceFile = /tmp/tdsqlodbc.log"
+    Print #mif, "Database = oasis"
+    Print #mif, "Server = 37.10.252.253"
+    Print #mif, "Port = 2638"
+    Print #mif, "UserName = ordendespacho"
+    Print #mif, "Password = ordendespacho.1.com"
+    Print #mif, "ReadOnly = No"
+    Print #mif, "ConnSettings ="
+    
+    Close mif
+    Print "Archivo ODBC creado exitosamente."   
+Catch
+    Print "No fue posible crear el archivo. Detalles: "
+    Debug ("ERROR-> [ " & DConv(Error.Text) & " ] ")
+
+End 
+
+' '' Devuelve una colección con de los origenes de los pedidos 
+' '' para los despachos
+Public Function obtenerorigen() As String[]
+    ' esta funcion sera eliminada cuando se tenga claro el origen
+
+    Dim orig As String[]
+    Dim rs As Result
+    Dim index As Integer
+    Dim item As String
+    'se prepara el query 
+    Dim query As String = "SELECT  nom_sucursal FROM exttiendas ORDER BY nom_sucursal ASC" 
+    ' pedir la conexion al odbc usando la función getconexionodbc
+    $conexionlocal = getConexionsqlite() 
+    rs = $conexionlocal.Exec(query)
+    index = 0
+    orig = New String[]
+    If rs.Available Then
+        For Each rs
+            item = rs!nom_sucursal 
+            orig.Add(item, index) ' se llena el arreglo de cadena con cada item del result
+            index = index + 1
+        Next 
+    Endif  
+    Return orig
+
+End  
+
+''************************* Formulario:  ******************* 
+' colocar el codigo de cada formulario por separado para evitar el caos y hacer este codigo legible 
+
+''************************* Formulario:  ******************* 
+' colocar el codigo de cada formulario por separado para evitar el caos y hacer este codigo legible 
+
+''************************* Formulario:  ******************* 
+' colocar el codigo de cada formulario por separado para evitar el caos y hacer este codigo legible 
+
+''************************* Formulario:  ******************* 
+' colocar el codigo de cada formulario por separado para evitar el caos y hacer este codigo legible 
+
+''************************* Formulario:  ******************* 
+' colocar el codigo de cada formulario por separado para evitar el caos y hacer este codigo legible 

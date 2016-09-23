@@ -1,0 +1,11 @@
+' Gambas module file
+
+Public Sub Main()
+
+  Dim instfinicial As FInicial
+  
+  instfinicial = New FInicial
+  
+  instfinicial.Show
+
+End
