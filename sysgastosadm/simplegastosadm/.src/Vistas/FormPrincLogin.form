@@ -2,7 +2,7 @@
 
 { Form Form
   MoveScaled(0,0,73,35)
-  Text = ("Login - Nerv-byro SGA")
+  Text = ("Login - SimpleGastos-")
   Resizable = False
   Maximized = True
   { Framelogin Frame

@@ -1,26 +1,40 @@
 # Gambas Form File 3.0
 
 { Form Form
-  MoveScaled(0,0,109,55)
+  MoveScaled(0,0,169,121)
+  Expand = True
+  Arrangement = Arrange.Column
+  AutoResize = True
   { panelvistaanual Panel
-    MoveScaled(1,2,103,52)
-    { tdatagastoanioporcat DataView
-      MoveScaled(3,8,98,43)
-      Columns = ["4"]
-    }
+    MoveScaled(0,1,168,119)
+    Expand = True
+    AutoResize = True
     { panelselecanio Panel
-      MoveScaled(3,2,95,5)
+      MoveScaled(1,1,97,7)
       { boxanioactual DateBox
-        MoveScaled(20,1,22,3)
+        MoveScaled(29,1,22,5)
       }
       { baniosiguiente Button
-        MoveScaled(44,1,15,3)
-        Text = ("Button2")
+        MoveScaled(65,1,14,5)
       }
       { banioanterior Button
-        MoveScaled(4,1,13,3)
-        Text = ("Button1")
+        MoveScaled(1,1,14,5)
       }
+      { messiguiente Button
+        MoveScaled(51,1,14,5)
+      }
+      { mesanterior Button
+        MoveScaled(15,1,14,5)
+      }
+    }
+    { tdatagastoanioporcat GridView
+      MoveScaled(2,9,165,103)
+      Expand = True
+      Padding = 0
+    }
+    { btnsalir Button
+      MoveScaled(150,113,14,5)
+      Text = ("Salir")
     }
   }
 }

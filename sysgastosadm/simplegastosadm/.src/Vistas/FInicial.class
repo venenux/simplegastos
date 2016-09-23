@@ -1,50 +1,127 @@
 ' Gambas class file
 
-'' default constructor whe instaniated, if not managed statically
+Private cantiendas As Integer = 48
+Private cantcategorias As Integer = 13
+
+'' default constructor when instanciated, if not managed statically
+'' constructor por omisión,  es instanciado, si no se maneja estáticamente
 Public Sub _new()
-
+  
   panelytablaprincipal_inicializar
-
+  
 End
 
 '' when window open here comes
 Public Sub Form_Open()
+ 
+
 
   tablaprincipal_aniocambia(0)
+  config_tdatagastoanioporcat()
 
 End
 
 Public Sub banioanterior_Click()
-
+  
   tablaprincipal_aniocambia(1)
-
+  
 End
 
 Public Sub baniosiguiente_Click()
-
+  
   tablaprincipal_aniocambia(2)
-
+  
 End
 
-Public Function tablaprincipal_aniocambia(Optional tipocambio As Integer = 1)
+Public Sub tablaprincipal_aniocambia(Optional tipocambio As Integer = 1)
 
-  If tipocambio = 0 Then
-    boxanioactual.Value = Now
-  Endif
-  If tipocambio = 1 Then
-    boxanioactual.Value = boxanioactual.Value - 365
-  Endif
-  If tipocambio = 2 Then
-    boxanioactual.Value = boxanioactual.Value + 365
-  Endif
+  Select Case tipocambio 
+    Case 0
+      boxanioactual.Value = Now
+    Case 1 
+      boxanioactual.Value = boxanioactual.Value - 365
+    Case 2
+      boxanioactual.Value = boxanioactual.Value + 365
+  End Select
 
 End
 
 Private Sub panelytablaprincipal_inicializar()
-  
+
   tablaprincipal_aniocambia(0)
-  banioanterior.text = "<<<"
-  baniosiguiente.text = ">>>"
+  banioanterior.text = "<< Año Ant."
+  baniosiguiente.text = "Año Sig. >>"
+  mesanterior.text = "<< Mes Ant."
+  messiguiente.text = "Mes Sig. >>"
+
+End
+
+Public Sub messiguiente_Click()
+  
+  tablaprincipal_mescambia(2)
   
 End
 
+Public Sub mesanterior_Click()
+
+  tablaprincipal_mescambia()
+  
+End
+
+Public Sub tablaprincipal_mescambia(Optional tipocambio As Integer = 1)
+
+  Select Case tipocambio 
+    Case 0
+      boxanioactual.Value = Now
+    Case 1  
+      boxanioactual.Value = boxanioactual.Value - 30
+    Case 2 
+      boxanioactual.Value = boxanioactual.Value + 30
+  End Select 
+
+End
+
+
+Public Sub config_tdatagastoanioporcat()
+' configurar el dataview tdatagastoanioporcat
+ Dim aux As Integer
+With tdatagastoanioporcat
+   .Header = 1 ' lleva solo categorias  y no numeros
+   .Columns.Count = cantcategorias ' las columnas son las categorias
+   .Rows.Count = cantiendas ' las filas son las tiendas
+   ' configurar los titulos de las cabecera:
+    .Columns[0].text = "Nómina" 
+    .Columns[1].text = "Mantenimiento"
+    .Columns[2].text = "Construcción"
+    .Columns[3].text = "Servicios"
+    .Columns[4].text = "Honorarios"
+    .Columns[5].text = "Transporte"
+    .Columns[6].text = "Proveedores"
+    .Columns[7].text = "Impuestos"
+    .Columns[8].text = "Equipos"
+    .Columns[9].text = "Consumibles"
+   .Columns[10].text = "Publicidad"
+   .Columns[11].text = "Débitos"
+   .Columns[12].text = "Aduana / Aranceles"
+   ' configurar el tamaño
+   For aux = 0 To .Columns.count - 1
+    .Columns[aux].width = 110
+  Next
+   
+End With
+ 
+End
+
+
+Public Sub tdatagastoanioporcat_Click()
+
+  
+
+End
+
+Public Sub btnsalir_Click()
+
+  Me.Close 
+  
+
+End

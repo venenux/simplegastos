@@ -1,7 +1,7 @@
 ' Gambas module file
 
 Public Sub Main()
-
+ 'ojo esto hay que revisar esto 
   Dim instfinicial As FInicial
   
   instfinicial = New FInicial
