@@ -69,158 +69,6 @@ Public Function getConexionodbc() As Connection
     
 End
 
-''************************* Formulario FormSecDespacho ******************* 
-
-'' Permite cargar un objeto collection que contiene el resultado de un query
-''  selecquery : numero entero de 1 a 4 para seleccionar el query a ejecutar según sea el filtro
-''   filtro1: la cadena que será el filtro por departamento
-''   filtro2: la cadena que será el filtro por división
-'' cuando  selecquery vale 1  es filtro por departamento
-'' cuando vale2 es filtro por división
-'' cuando vale 3 es por departamento y por división
-'' cuando vale 4 es query para todos los productos         
-Public Function getPedidogeneralxtiendas(Optional filtro As String) As Collection
-    
-    Dim queryl As String
-    Dim rset As Result
-    Dim columnas As Collection
-    Dim filas As Collection
-    
-    filas = New Collection(gb.IgnoreCase)
-    columnas = New Collection(gb.IgnoreCase)
-    ' ' esto esta demasiado complicado... hay que simplificar
-    ' ' preparar el resultado con los nombres de los campos, primer file es columnas nombres el resto valores
-    ' columnas.Add("Codigo", "codigo")
-    ' columnas.Add("Prooveedor", "prooveedor")
-    ' columnas.Add("Division", "division")
-    ' columnas.Add("Departamento", "departamento")
-    ' columnas.Add("Descripcion", "descripcion")
-    ' columnas.Add("Referencia", "referencia")
-    ' columnas.Add("Empaque", "empaque")
-    ' columnas.Add("Precio ", "precio")
-    ' columnas.Add("Listado", "listado")
-    ' columnas.Add("Bloqueado", "bloquear")
-    ' columnas.Add("Exist", "existencia")
-    ' ' columnas.Add("BTOXII ", "bultoval12")
-    ' ' columnas.Add("EXISTXII", "existval12")
-    ' ' columnas.Add("BTONVO", "bultonvo")
-    ' ' columnas.Add("EXISNVO", "existnvo")
-    ' ' columnas.Add("BTOEXTEN", "bultoexten")
-    ' ' columnas.Add("EXISTEXTEN", "existexten")
-    ' ' columnas.Add("INVINIC4RET", "inventario")
-    ' ' columnas.Add("VENTAS", "ventas")
-    ' ' columnas.Add("ROT", "rot")
-    ' ' columnas.Add("SUG", "sugerencia")
-    ' columnas.Add("Despacho", "despachoactual")
-    ' columnas.Add("Ultimo Despacho", "despachoultimo")
-    ' columnas.Add("Cantidad", "cantidad") ' en piezas o bultos
-    ' filas.Add(columnas, "titulos")
-    ' conectarse a la bd
-    ' 
-    $conexionlocal = getConexionsqlite()
-    ' hacer el query     
-    'TODO: revisar compatiblidad con odbc , sybase y postgres de este query
-    'TODO: este query es dummie y será reemplazado... necesitaré hacerlo de cero con los datos de Oasis0
-         'pero  no tengo acceso a oasis0 y mejor me invento unos datos parecidos
-    'rset = cx.Exec("select  RIGHT('0000000000'+CAST('  400111' AS VARCHAR(10)),10)  As codigo, '000GB'  As prooveedor,'NAVIDAD'  As division,'DecoracionNavideña' As departamento,'FF FIGURA ANGEL C/ NUBES ' As descripcion,'XD802' As referencia, '288'  As empaque, '6,20' As precio,'Despachar' As listado,'No '  As bloquear,'5' As existencia,'0,01' As bultoval12,'0,01' As existval12,'4' As bultonvo,'4' As existnvo,'0.01' As BTOSABAL,'3' As EXISTSABAL,'4' As bultoexten,'1'  As existexten,'4' As inventario,'2' As ventas,'0,125' As rot,'0,005' As sugerencia,'-140' As despachoactual,'NO DESP' As despachoultimo,'10 Pzas (edit) '  As cantidad")
-    ' queryl = "select  SUBSTR( '0000000000' || REPLACE('  400111', ' ', ''), -10, 10)  As codigo, '000GB'  As prooveedor,'NAVIDAD'  As division,'DecoracionNavideña' As departamento,'FF FIGURA ANGEL C/ NUBES ' As descripcion,'XD802' As referencia, '288'  As empaque, '870' As precio,'Despachar' As listado,'No '  As bloquear,'20' As existencia,'0,01' As bultoval12,'0,01' As existval12,'4' As bultonvo,'4' As existnvo,'0.01' As BTOSABAL,'3' As EXISTSABAL,'4' As bultoexten,'1'  As existexten,'4' As inventario,'2' As ventas,'0,125' As rot,'0,005' As sugerencia,'-140' As despachoactual,'NO DESP' As despachoultimo,'10 Pzas (edit) '  As cantidad"
-    ' queryl = queryl & " union "
-    ' queryl = queryl & "Select SUBSTR( '0000000000' || REPLACE('  400112', ' ', ''), -10, 10)  As codigo, '000GE'  As prooveedor,'NAVIDAD'  As division,'DecoracionNavideña' As departamento,'FF FIGURA ANGEL C/ NUBES 2' As descripcion,'XD803' As referencia, '289'  As empaque, '890' As precio,'Despachar' As listado,'No '  As bloquear,'30' As existencia,'0,01' As bultoval12,'0,01' As existval12,'4' As bultonvo,'4' As existnvo,'0.01' As BTOSABAL,'3' As EXISTSABAL,'4' As bultoexten,'1'  As existexten,'4' As inventario,'2' As ventas,'0,125' As rot,'0,005' As sugerencia,'-140' As despachoactual,'NO DESP' As despachoultimo,'10 Pzas (edit) '  As cantidad"
-    ' queryl = queryl & " union "
-    ' queryl = queryl & "Select SUBSTR( '0000000000' || REPLACE('  400113', ' ', ''), -10, 10)  As codigo, '000GF'  As prooveedor,'NAVIDAD'  As division,'DecoracionNavideña' As departamento,'FF FIGURA ANGEL C/ NUBES 3' As descripcion,'XD804' As referencia, '290'  As empaque, '860' As precio,'Despachar' As listado,'No '  As bloquear,'15' As existencia,'0,01' As bultoval12,'0,01' As existval12,'4' As bultonvo,'4' As existnvo,'0.01' As BTOSABAL,'3' As EXISTSABAL,'4' As bultoexten,'1'  As existexten,'4' As inventario,'2' As ventas,'0,125' As rot,'0,005' As sugerencia,'-140' As despachoactual,'NO DESP' As despachoultimo,'10 Pzas (edit) '  As cantidad"
-     
-         queryl = "select codigo,prooveedor,division,departamento,descripcion,referencia,empaque, precio from productos_prueba"
-           
-           
-            
-    rset = $conexionlocal.Exec(queryl)
-    If rset.Available Then
-        For Each rset ' estas columnas van a ser cambiadas otra vez... no tengo de donde sacar estas cosas
-            columnas = New Collection(gb.IgnoreCase)
-            columnas.Add(Trim(rset!codigo), "codigo")
-            columnas.Add(rset!prooveedor, "prooveedor")
-            columnas.Add(rset!descripcion, "descripcion")
-            columnas.Add(rset!departamento, "departamento")
-            columnas.Add(rset!division, "division")
-            columnas.Add(rset!referencia, "referencia")
-            columnas.Add(rset!empaque, "empaque")
-            columnas.Add(rset!precio, "precio")
-            ' columnas.Add(rset!listado, "listado")
-            ' columnas.Add(rset!bloquear, "bloquear")
-            ' columnas.Add(rset!existencia, "existencia")
-            ' columnas.Add(rset!bultoval12, "bultoval12")
-            ' columnas.Add(rset!existval12, "existval12")
-            ' columnas.Add(rset!bultonvo, "bultonvo")
-            ' columnas.Add(rset!existnvo, "existnvo")
-            ' columnas.Add(rset!bultoexten, "bultoexten")
-            ' columnas.Add(rset!existexten, "existexten")
-            ' columnas.Add(rset!inventario, "inventario")
-            ' columnas.Add(rset!ventas, "ventas")
-            ' columnas.Add(rset!rot, "rot")
-            ' columnas.Add(rset!sugerencia, "sugerencia")
-            ' columnas.Add(rset!despachoactual, "despachoactual")
-            ' columnas.Add(rset!despachoultimo, "despachoultimo")
-            ' columnas.Add(rset!cantidad, "cantidad") ' en piezas o bultos
-            filas.Add(columnas, rset!codigo) ' el codigo de producto es el indice! ja soy el mejor
-        Next
-    Endif
-    Return filas
-    $conexionlocal.Close
-    $conexionlocal = Null
-
-End
-
-'' Devuelve el precio de un producto que es insertado en el ordenview
-'' Esta función puede ser eliminada en el futuro.. 
-' Public Function getprecio(codprod As String) As String 
-'     ' TODO: aqui se hace un query para obtener el precio de cada producto y se hizo asi
-'     ' porque an no hay una base de datos real y diseñada para el sistema, por lo tanto
-'     ' dicho query y varias cosas deben ser sustituidos o diseñados desde cero
-'     '  o modificados 
-'     ' aqui lo que vale es usar el lenguaje a tu favor... y ser avispado"
-' 
-'     Dim price As String
-'     Dim rs As Result
-'     
-'     $conexionlocal = getConexionsqlite() ' conectar a la base de datos  
-'     
-'     rs = $conexionlocal.Exec(" select precio from precios where SUBSTR( '0000000000' || REPLACE(codeint, ' ', ''), -10, 10) = '" & codprod & "'")
-'     If rs.Available Then
-'         price = rs["precio"] ' si lo encuentra
-'     Else
-'         price = "0" '  N/D es no disponible
-'     Endif
-'     $conexionlocal.Close
-'     $conexionlocal = Null 
-'     Return price
-' 
-' End
-
-
-'' Permite agregar el detalledespacho a la tabla de detallesdespachos <br>
-''  parámetros:
-''   codespdet: el codigo para los detalles
-''   codesp: el código generado para los despachos  
-''   codprod:  código  del producto 
-''   cantidad: la cantidad a despachar de ese producto    
-' Public Sub registrardetalledespacho(codprod As String, cantidad As String)
-'     
-'     Dim $datos As Result
-' 
-'     $conexionlocal = getConexionsqlite() 
-'     $datos = $conexionlocal.Create("detallesdespacho")
-'     $datos["coddespdetalle"] = Format$(Now, "yyyymmddhhnnss")
-'     $datos["codespacho"] = Format$(Now, "yyyymmddhhnnss")
-'     $datos["cod_producto"] = codprod
-'     $datos["cantidad"] = cantidad
-'     $datos.Update
-'     $conexionlocal.Commit  
-'     $conexionlocal.Close
-'     $conexionlocal = Null 
-' 
-' End  
-
-
 '' Permite agregar el despacho a la tabla de despachos, retornoa un colleccion de las mismas lineas procesadas <br>
 '' * fdespacho : la fecha del despacho<br>
 '' * lineas: cuantos items tiene el grip a procesar<br>
@@ -481,30 +329,97 @@ Catch
 
 End 
 
-' '' Devuelve una colección con de los origenes de los pedidos 
-' '' para los despachos
-Public Function obtenerorigen() As String[]
+
+'' Devuelve una colección con los datos de un usuario, si hay una clave, devuelve si hay validez de estos y la clave, sino devuelve en resultado vacio/n<br>
+'' objeto colleccion: siempre trae un elemento "resultado" si exitoso un numero, sino la palabra ERROR y un mensaje
+''* ficha datos identificativo del usuario para los sistemas y respecto el pais que se ubica
+''* intranet el usuario intranet o id de correo, si no lo posee solo entra al pos de cajero si tiene clave.
+''* clave password o llave para proteger su acceso, debe siempre ser igual al de intranet
+''* status valores permitiodos ACTIVO |CERRADO|VACACIONES, cuando este de vacaciones solo lee
+''* session es un flag que implica ubicacion, fecha, y la ficha, este id se usa en cada transaccion.
+''* accesos modulos de acciones, son excluyentes, si no lee no puede escribir ni crear, segun el form
+''* ubicacion el sello de la tienda, formato: usa el tercer octeto de las direcciones de red
+''* codger sigla ubicacion como se identifica en la nomina, se asocia al sello, solo de referencia
+''* nombres datos identificativos del usuario legibles de forma humana
+Public Function credenciales(Optional ulogin As String = "", Optional uclave As String = "", Optional ubicacion As String = "") As Collection[]
     ' esta funcion sera eliminada cuando se tenga claro el origen
 
-    Dim orig As String[]
-    Dim rs As Result
+    Dim rsusuario As Result
     Dim index As Integer
     Dim item As String
-    'se prepara el query 
-    Dim query As String = "SELECT  nom_sucursal FROM exttiendas ORDER BY nom_sucursal ASC" 
-    ' pedir la conexion al odbc usando la función getconexionodbc
-    $conexionlocal = getConexionsqlite() 
-    rs = $conexionlocal.Exec(query)
-    index = 0
-    orig = New String[]
-    If rs.Available Then
-        For Each rs
-            item = rs!nom_sucursal 
-            orig.Add(item, index) ' se llena el arreglo de cadena con cada item del result
-            index = index + 1
+    Dim query As String
+    Dim resultados As Collection
+
+    ' query de consulta de credenciales basado en usuario o clave
+    query = query & "select "
+	query = query & "   count(*) as cuantos, "             '   calculo si hay duplicados
+	query = query & "   ifnull(ficha, '') as ficha, "      '   obtengo su identificacion en nomina
+	query = query & "   nombre, "                          '   sus datos como son y como le llaman
+	query = query & "   ifnull(intranet,'') as intranet, " '   solo entran quienes tengan intranet
+	query = query & "   clave, "                           '   la clave se compara vs la que ingresa claro
+	query = query & "   ifnull(sessionflag,'') as sessionflag, " '   solo ingresa si ya inicio sesion o no hay sesiones abiertas
+	query = query & "   ifnull(usu.status,'INACTIVO') as status, "  ' solo ingresa si esta activo o de vacaciones
+   	query = query & "   acc_lectura, "    ' si el form o la web aparece aqui, accede, si login no aparece al menos, se sale
+   	query = query & "   acc_escribe, "    ' si el form aparece aqui, solo accede al administrativo si puede escribir y leer
+   	query = query & "   acc_modific, "    ' si el form aparece aqui, altera y administra si puede leer, escribir y modificar
+   	query = query & "   ifnull(usu.cod_ubicacion,000) as usu_ubicacion, " ' si 000 no entra, en caso de administrativo solo entra si pertenece a oficina
+   	query = query & "   ubi.cod_ubicacion as cod_ubicacion, "   ' que ubicacion es la del usuario y si es valida
+   	query = query & "   ubi.txt_ubicacion as txt_ubicacion, "   ' como se llama esa ubicacion si es valida
+   	query = query & "   usu.codger as codger, "   ' ubicacion segun la nomina
+   	query = query & "   usu.codger as usu_codger, "   ' ubicacion segun la nomina del usuario para comparar
+   	query = query & "   ubi.codger as ubi_codger, "   ' ubicacion segun la nomina dela entidad para comparar
+   	query = query & "   ifnull(ubi.status,'INACTIVO') as ubi_status, " ' si la ubicacion esta inactiva en web no se permite cargar nomina por ejemplo
+   	query = query & "   fechaultimavez "          ' ultima vez el usuario salio de sesion: YYYYMMDDhhmmss  
+   	query = query & "from " 
+   	query = query & "  td_usuarios as usu "
+   	query = query & " left join  "                ' left join, asi me trae el usuario asi no tenga ubicacion, la interfaz debera saber que hacer
+   	query = query & "  tm_entidades as ubi "
+   	query = query & " on usu.cod_ubicacion = ubi.cod_ubicacion "
+    query = query & "where usu.ficha <> '' "        'un where por defecto, solo usuarios que tengan documento ficha, sino es datos corruptos
+   	' corroboro se pida usuario y clave, sino es una simple busqueda de cualquier usuario y sus datos
+    If (Comp(ulogin, "", gb.IgnoreCase) <> 0 And Not IsNull(ulogin)) And (Comp(uclave, "", gb.IgnoreCase) <> 0 And Not IsNull(uclave)) Then
+       	query = query & " AND ( "
+       	query = query & " (usu.clave = '" & uclave & "' AND usu.ficha = '" & ulogin & "')  "
+       	query = query & "OR  "
+       	query = query & " (usu.clave = '" & uclave & "' AND usu.intranet = '" & ulogin & "')"
+        query = query & ") "
+    Else
+        If Comp(ulogin, "", gb.IgnoreCase) <> 0 And Not IsNull(ulogin) Then
+           	query = query & " AND ( usu.ficha = '" & ulogin & "' OR  usu.intranet = '" & ulogin & "' )" 
+        Endif
+    Endif
+    If Comp(ubicacion, "", gb.IgnoreCase) <> 0 And Not IsNull(ulogin) Then
+      	query = query & " AND usu.cod_ubicacion = '" & ubicacion & "'  "
+    Endif
+  
+    rsusuario = $conexionlocal.Exec(query)
+    resultados = New Collection
+    If rsusuario.Available Then
+        For Each rsusuario
+            resultados.Add(rsusuario!cuantos, "resultado")
+            resultados.Add(rsusuario!ficha, "ficha")
+            resultados.Add(rsusuario!intranet, "intranet")
+            resultados.Add(rsusuario!nombre, "nombre")
+            resultados.Add(rsusuario!clave, "clave")
+            resultados.Add(rsusuario!sessionflag, "sessionflag")
+            resultados.Add(rsusuario!status, "status")
+            resultados.Add(rsusuario!acc_lectura, "acc_lectura")
+            resultados.Add(rsusuario!acc_escribe, "acc_escribe")
+            resultados.Add(rsusuario!acc_modific, "acc_modific")
+            resultados.Add(rsusuario!usu_ubicacion, "usu_ubicacion")
+            resultados.Add(rsusuario!cod_ubicacion, "cod_ubicacion")
+            resultados.Add(rsusuario!txt_ubicacion, "txt_ubicacion")
+            resultados.Add(rsusuario!codger, "codger")
+            resultados.Add(rsusuario!usu_codger, "usu_codger")
+            resultados.Add(rsusuario!ubi_codger, "ubi_codger")
+            resultados.Add(rsusuario!ubi_status, "ubi_status")
+            resultados.Add(rsusuario!fechaultimavez, "fechaultimavez")
+            Break
         Next 
+    Else
+         resultados.Add("ERROR: no hay resultados o invalido el resultado", "resultado")
     Endif  
-    Return orig
+    Return resultados
 
 End  
 
