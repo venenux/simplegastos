@@ -1,5 +1,6 @@
 ' Gambas module file
 
+Private userdata As Collection
 Public Sub Main()
  'ojo esto hay que revisar esto 
   Dim instfinicial As FInicial
@@ -9,3 +10,7 @@ Public Sub Main()
   instfinicial.Show
 
 End
+'' Aquí será guardado el objeto collection con sus datos 
+Public Sub get_credentials(credenciales As Collection) 
+  userdata = credenciales
+ End

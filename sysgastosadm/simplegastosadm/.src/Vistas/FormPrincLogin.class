@@ -1,12 +1,6 @@
 ' Gambas class file
 
-Public usuarioname As String
-Private usuariocuan As Integer
-Private usuariopass As String
-Private usuariosess As String
-Private usuariointr As String
-Private usuariologi As String
-Private usuariocodg As String
+
 Private $conn As Connection
 '' ***********------    Configuración formulario PrincLogin           : -------*********
 
@@ -16,53 +10,64 @@ Public Sub Form_Open()
   Me.Caption = "INICIAR SESIÓN"
 End
 
-''veo quien es y establesco variables de usuario y clave, si existen, hubo acceso positivo
+''determinar quien es y establecer variables de usuario y clave, si existen, hubo acceso positivo
 Public Sub btnformloginok_Click()
 
   Dim login, password As String
+  Dim contain As New Containerdataoasis
+  Dim acceso As Boolean = False
+  Dim loginok As Boolean = False
+  Dim passok As Boolean = False
+  Dim pos As Integer = 0
+  Dim rs As Collection  
+
 
   If IsNull(informloginUsername.Text) Or IsNull(informloginUserpass.Text) Then
     Message.Warning("¡No deje ningún cuadro vacío!")
   Else
-  '       primero veremos si se permite el ingreso... 
+     '    primero veremos si se permite el ingreso... 
+      '      
         login = informloginUsername.Text 
         password = informloginUserpass.Text
-            ' If Val(rs["cuantos"]) > 0
-            '     usuariocuan = rs["cuantos"] 
-            '     usuariopass = informloginUserpass.Text
-            '     usuariosess = rs["sessionflag"]
-            '     usuariointr = rs["intranet"]
-            '     usuariologi = rs["nombre"]
-            '     usuariocodg = rs["codger"]
-            ' Else 
-            '     Message.Error(" Usuario Desconocido. Acceso Denegado al Sistema nerv-byro.")
-            '     informloginUsername.Text = ""
-            '     informloginUserpass.Text = ""
-            '     informloginUsername.SetFocus
-            ' Endif 
-    Endif
-    
+       ' credenciales(Optional ulogin As String = "", Optional uclave As String = "", Optional ubicacion As String = "") As Collection
+       rs = contain.credenciales(login, password)
+        If Val(rs["resultado"]) = 1 Then
+          ' usuario checkeado en bd, sus datos serán mandados a todos los formularios 
+          MMain.get_credentials(rs)
+               acceso = True
+        Else
+          Print "se fue todo al /dev/null "
+        Endif
 
+   
+    
+  Endif
+ 
+    If acceso = True Then 
+      ' invocar  el formulario FInicial.form 
+         FInicial.show 
+         Me.close
+     Endif    
 End
 
 Public Sub btnformloginCancel_Click()
-    
-    Me.Close
-
+  
+  Me.Close
+  
 End
 
 Public Sub informloginUsername_KeyPress()
-    
-    If (key.Code = 65421 Or Key.Code = Key.Return) Then
-        informloginUserpass.SetFocus
-    Endif     
-    
+  
+  If (key.Code = 65421 Or Key.Code = Key.Return) Then
+    informloginUserpass.SetFocus
+  Endif     
+  
 End
 
 Public Sub informloginUserpass_KeyPress()
-    
-    If (key.Code = 65421 Or Key.Code = Key.Return) Then
-        btnformloginok_Click
-    Endif
-    
+  
+  If (key.Code = 65421 Or Key.Code = Key.Return) Then
+    btnformloginok_Click
+  Endif
+  
 End
