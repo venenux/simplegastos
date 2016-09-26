@@ -6,9 +6,11 @@
 
 '*********** Segmento de Código general para todos los formularios ******************
 
-'' Permite crear una conexion sqlite 
+'' objeto conexion sqlite para desarrollo
 Private $conexionlocal As Connection
-'' TEMPORAL PARA DATOS ODBC OASIS
+'' objeto conexion produccion base de datos principal
+Private $conexionserver As Connection
+'' objeto conexcion db nomina via odbc
 Private $conexionremota As Connection
 
 
@@ -206,129 +208,8 @@ Public Function RegistrarOrdenDespacho(fdespacho As String, lineas As String, no
     Return eldespacho ' ????????????? 
 End  
 
-'' Devuelve la cantidad de registros en la tabla:
-'' si accion es 1: la tabla despachos
-'' si accion es 2: la tabla detallesdespacho
-'' si accion es 3: la tabla destinosdespacho
 
-' Public Function cuantos(accion As Integer) As Integer
-'     
-'     Dim cuantos As Integer
-'     Dim rs As Result    
-'     
-'     $conexionlocal = getConexionsqlite()
-'     
-'    Select Case accion
-'       Case 1 
-'          rs = $conexionlocal.Exec("Select count(*) From despacho")   
-'     Case 2
-'          rs = $conexionlocal.Exec("Select count(*) From detallesdespacho")      
-'     Case 3
-'          rs = $conexionlocal.Exec("Select count(*) From destinodespachos")      
-'     
-'          
-'    End Select 
-'      
-'     If rs.Available Then 
-'         cuantos = Val(rs["count(*)"])
-'     Endif
-'     
-'     
-'     $conexionlocal.Close
-'     $conexionlocal = Null 
-'     Return cuantos    
-' End
-
-'' Permite agregar en la tabla destinossdespachos cada destino de un despacho 
-''  parámetros:
-''   codespa: el código generado para los despachos  
-''   destino: colección que contiene los destinos 
-Public Sub registrardestinodespacho(destino As String[], codespa As String, codex As Integer)
-    
-    Dim $datos As Result
-    Dim pos As Integer = 0
-    
-    $conexionlocal = getConexionsqlite() 
-    $datos = $conexionlocal.Create("destinodespachos")
-  
-    For pos = 0 To destino.Count - 1
-  
-'            $datos["codestinodesp"] = FormSecDespacho.generarcodigo(codex)   
-           $datos["coddespach"] = codespa
-           $datos["destino"] = destino[pos]
-           $datos.Update
-           codex = codex + 1
-        Next
-   
-   
-    $datos.Update
-    $conexionlocal.Commit  
-    $conexionlocal.Close
-    $conexionlocal = Null 
-    
-End  
-
-
-
-'' Función para determinar si la ruta donde se debe crear un archivo
-'' tiene permiso para escritura.
-Public Function ComprobarAccesoEscritura(ruta As String) As Boolean
-
-    Return Access(ruta, gb.Write)
-Catch
-    Debug ("ERROR-> [ " & DConv(Error.Text) & " ] ")
-    Return False
-
-End
-
-'' Procedimiento para crear el archivo .ini para habilitar conexion ODBC:
-'' el objetivo es cargar el combobox con los origenes  
-Public Sub crear_arch_odbc()
-    ' Este es el contenido del archivo
-    
-    '     [oasis0]
-    ' Description = TDS sybase SQL
-    ' Driver = FreeTDS
-    ' Trace = Yes
-    ' TraceFile = /tmp/tdsqlodbc.log
-    ' Database = oasis
-    ' Server = 37.10.252.253
-    ' Port = 2638
-    ' UserName =
-    ' Password =
-    ' ReadOnly = No
-    ' ConnSettings =
-    ' -------------------------------
-    '   ordendespacho
-    '   ordendespacho.1.com
-    ' - - - - - - - - - - - - - - -
-    
-    Dim mif As File
-    
-    'crear el archivo, ya se determinó que no existe OJO con esta línea  
-    mif = Open User.Home & "/.odbc.ini" For Write Create 
-    
-    Print #mif, "[oasis0]"
-    Print #mif, "Description = TDS sybase SQL"
-    Print #mif, "Driver = FreeTDS"
-    Print #mif, "Trace = Yes"
-    Print #mif, "TraceFile = /tmp/tdsqlodbc.log"
-    Print #mif, "Database = oasis"
-    Print #mif, "Server = 37.10.252.253"
-    Print #mif, "Port = 2638"
-    Print #mif, "UserName = ordendespacho"
-    Print #mif, "Password = ordendespacho.1.com"
-    Print #mif, "ReadOnly = No"
-    Print #mif, "ConnSettings ="
-    
-    Close mif
-    Print "Archivo ODBC creado exitosamente."   
-Catch
-    Print "No fue posible crear el archivo. Detalles: "
-    Debug ("ERROR-> [ " & DConv(Error.Text) & " ] ")
-
-End 
-
+' ************** credenciales y datos de usuarios INICIO ******************************************
 
 '' Devuelve una colección con los datos de un usuario, si hay una clave, devuelve si hay validez de estos y la clave, sino devuelve en resultado vacio/n<br>
 '' objeto colleccion: siempre trae un elemento "resultado" si exitoso un numero, sino la palabra ERROR y un mensaje
@@ -341,17 +222,13 @@ End
 ''* ubicacion el sello de la tienda, formato: usa el tercer octeto de las direcciones de red
 ''* codger sigla ubicacion como se identifica en la nomina, se asocia al sello, solo de referencia
 ''* nombres datos identificativos del usuario legibles de forma humana
-Public Function credenciales(Optional ulogin As String = "", Optional uclave As String = "", Optional ubicacion As String = "") As Collection[]
-    ' esta funcion sera eliminada cuando se tenga claro el origen
-
+Public Function credenciales(Optional ulogin As String = "", Optional uclave As String = "", Optional ubicacion As String = "") As Collection
     Dim rsusuario As Result
     Dim index As Integer
     Dim item As String
     Dim query As String
     Dim resultados As Collection
-
-    ' query de consulta de credenciales basado en usuario o clave
-    query = query & "select "
+    query = query & "select "    ' query de consulta de credenciales basado en usuario o clave
 	query = query & "   count(*) as cuantos, "             '   calculo si hay duplicados
 	query = query & "   ifnull(ficha, '') as ficha, "      '   obtengo su identificacion en nomina
 	query = query & "   nombre, "                          '   sus datos como son y como le llaman
@@ -375,7 +252,7 @@ Public Function credenciales(Optional ulogin As String = "", Optional uclave As 
    	query = query & " left join  "                ' left join, asi me trae el usuario asi no tenga ubicacion, la interfaz debera saber que hacer
    	query = query & "  tm_entidades as ubi "
    	query = query & " on usu.cod_ubicacion = ubi.cod_ubicacion "
-    query = query & "where usu.ficha <> '' "        'un where por defecto, solo usuarios que tengan documento ficha, sino es datos corruptos
+    query = query & "where usu.ficha <> '' AND ifnull(usu.ficha,'') <> ''"        'un where por defecto, solo usuarios que tengan documento ficha, sino es datos corruptos
    	' corroboro se pida usuario y clave, sino es una simple busqueda de cualquier usuario y sus datos
     If (Comp(ulogin, "", gb.IgnoreCase) <> 0 And Not IsNull(ulogin)) And (Comp(uclave, "", gb.IgnoreCase) <> 0 And Not IsNull(uclave)) Then
        	query = query & " AND ( "
@@ -391,7 +268,6 @@ Public Function credenciales(Optional ulogin As String = "", Optional uclave As 
     If Comp(ubicacion, "", gb.IgnoreCase) <> 0 And Not IsNull(ulogin) Then
       	query = query & " AND usu.cod_ubicacion = '" & ubicacion & "'  "
     Endif
-  
     rsusuario = $conexionlocal.Exec(query)
     resultados = New Collection
     If rsusuario.Available Then
@@ -417,23 +293,112 @@ Public Function credenciales(Optional ulogin As String = "", Optional uclave As 
             Break
         Next 
     Else
-         resultados.Add("ERROR: no hay resultados o invalido el resultado", "resultado")
+         resultados.Add("0", "resultado")
     Endif  
     Return resultados
-
+Catch
+    resultados = New Collection
+        resultados.Add("Error: " & Error.Text, "resultado")
+    Return resultados
 End  
+' ************** credenciales y datos de usuarios FIN ******************************************
 
-''************************* Formulario:  ******************* 
-' colocar el codigo de cada formulario por separado para evitar el caos y hacer este codigo legible 
 
-''************************* Formulario:  ******************* 
-' colocar el codigo de cada formulario por separado para evitar el caos y hacer este codigo legible 
+''************************* mapeos: INICIO ******************* 
 
-''************************* Formulario:  ******************* 
-' colocar el codigo de cada formulario por separado para evitar el caos y hacer este codigo legible 
+'' retorna una lista de ubicaciones en forma matrix colleccion x colleccion <br>/n
+'' elementos cada elemento es una collecion y el indice es el cod_ubicacion <br>/n
+'' cada colleccion contiene: cod_ubicacion, abr_ubicacion, txt_ubicacion, codger, status, fechamodifica
+Public Function listarubicaciones(Optional filtroini As String = "", Optional codger As String = Null) As Collection
+    
+    Dim rsubicaciones As Result
+    Dim index As Integer
+    Dim item As Collection
+    Dim query As String
+    Dim resultados As Collection
+   	query = "select " 
+   	query = query & "  ifnull(cod_ubicacion, '000') as cod_ubicacion, " 
+   	query = query & "  txt_ubicacion, abr_ubicacion, fechamodifica, " 
+   	query = query & "  ifnull(codger, '') as codger, status "
+   	query = query & "from tm_entidades "
+   	query = query & "  where ifnull(status, '') <> '' and status <> ''"
+    If Comp(filtroini, "", gb.IgnoreCase) <> 0 And Not IsNull(filtroini) Then
+      	query = query & " AND cod_ubicacion = '" & filtroini & "'  "
+    Endif
+    If Comp(codger, "", gb.IgnoreCase) <> 0 And Not IsNull(codger) Then
+      	query = query & " AND codger = '" & codger & "'  "
+    Endif
+    rsubicaciones = $conexionlocal.Exec(query)
+    resultados = New Collection
+    If rsubicaciones.Available Then
+        resultados.Add(rsubicaciones.Count, "resultado")
+        For Each rsubicaciones
+            item = New Collection
+            item.Add(rsubicaciones!cod_ubicacion, "cod_ubicacion")
+            item.Add(rsubicaciones!abr_ubicacion, "abr_ubicacion")
+            item.Add(rsubicaciones!txt_ubicacion, "txt_ubicacion")
+            item.Add(rsubicaciones!codger, "codger")
+            item.Add(rsubicaciones!status, "status")
+            item.Add(rsubicaciones!fechamodifica, "fechamodifica")
+            resultados.Add(item, rsubicaciones!cod_ubicacion)
+            item = Null
+        Next
+    Else
+        resultados.Add(0, "resultado")
+    Endif
+   	Return resultados
+Catch
+    resultados = New Collection
+        resultados.Add("Error: " & Error.Text, "resultado")
+    Return resultados
+End 
 
-''************************* Formulario:  ******************* 
-' colocar el codigo de cada formulario por separado para evitar el caos y hacer este codigo legible 
 
-''************************* Formulario:  ******************* 
-' colocar el codigo de cada formulario por separado para evitar el caos y hacer este codigo legible 
+'' retorna una lista de conceptos en forma matrix colleccion x colleccion <br>/n
+'' elementos cada elemento es una collecion y el indice es el cod_ubicacion <br>/n
+'' cada colleccion contiene: cod_concepto, txt_descriptivo, fichasession, estatus, fechamodifica
+Public Function listarconceptos(Optional tipo As String = "CAT", Optional filtro As String = Null) As Collection
+    
+    Dim rsconceptos As Result
+    Dim index As Integer
+    Dim item As Collection
+    Dim query As String
+    Dim resultados As Collection
+   	query = "select count(*) as cuantos, " 
+   	query = query & " ifnull(cod_concepto,'XXX99999999999999999') as cod_concepto, " '     -- codigo XXX#################[YYY#################]
+   	query = query & " ifnull(txt_descriptivo,'sin_descripcion') as txt_descriptivo, " 
+   	query = query & " ifnull(estatus, 'INVALIDO') as status, "
+   	query = query & " ifnull(fichasession,'') as fichasession, fechamodifica "
+   	query = query & "from td_conceptosgastos "
+   	query = query & "  where ifnull(cod_concepto, '') <> '' and cod_concepto <> ''"
+    If Comp(tipo, "", gb.IgnoreCase) <> 0 And Not IsNull(tipo) Then
+      	query = query & " AND cod_concepto = '" & tipo & "'  "  ' TODO: hacer via base de datos un substring de CAT o SUB
+    Endif
+    If Comp(filtro, "", gb.IgnoreCase) <> 0 And Not IsNull(filtro) Then
+      	query = query & " AND (cod_concepto like '%" & filtro & "%' OR txt_descriptivo = '" & filtro & "') "
+    Endif
+    rsconceptos = $conexionlocal.Exec(query)
+    resultados = New Collection
+    If rsconceptos.Available Then
+        resultados.Add(rsconceptos.Count, "resultado")
+        For Each rsconceptos
+            item = New Collection
+            item.Add(rsconceptos!cod_concepto, "cod_concepto")
+            item.Add(rsconceptos!txt_descriptivo, "txt_descriptivo")
+            item.Add(rsconceptos!estatus, "estatus")
+            item.Add(rsconceptos!fichasession, "fichasession")
+            item.Add(rsconceptos!fechamodifica, "fechamodifica")
+            resultados.Add(item, rsconceptos!cod_concepto)
+            item = Null
+        Next
+    Else
+        resultados.Add(0, "resultado")
+    Endif
+   	Return resultados
+Catch
+    resultados = New Collection
+        resultados.Add("Error: " & Error.Text, "resultado")
+    Return resultados
+End 
+
+''************************* mapeos: FIN ******************* 

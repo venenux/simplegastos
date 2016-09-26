@@ -3,6 +3,68 @@
 ' TYRON ESTE ES SOLO UN EJEMPLO, solo lee el archivo y revisa si tiene una seccion que se llame odbc
 
 
+'' Función para determinar si la ruta donde se debe crear un archivo
+'' tiene permiso para escritura.
+Public Function ComprobarAccesoEscritura(ruta As String) As Boolean
+
+    Return Access(ruta, gb.Write)
+Catch
+    Debug ("ERROR-> [ " & DConv(Error.Text) & " ] ")
+    Return False
+
+End
+
+
+'' Procedimiento para crear el archivo .ini para habilitar conexion ODBC:
+'' el objetivo es cargar el combobox con los origenes  
+Public Sub crear_arch_odbc()
+    ' Este es el contenido del archivo
+    
+    '     [oasis0]
+    ' Description = TDS sybase SQL
+    ' Driver = FreeTDS
+    ' Trace = Yes
+    ' TraceFile = /tmp/tdsqlodbc.log
+    ' Database = oasis
+    ' Server = 37.10.252.253
+    ' Port = 2638
+    ' UserName =
+    ' Password =
+    ' ReadOnly = No
+    ' ConnSettings =
+    ' -------------------------------
+    '   ordendespacho
+    '   ordendespacho.1.com
+    ' - - - - - - - - - - - - - - -
+    
+    Dim mif As File
+    
+    'crear el archivo, ya se determinó que no existe OJO con esta línea  
+    mif = Open User.Home & "/.odbc.ini" For Write Create 
+    
+    Print #mif, "[oasis0]"
+    Print #mif, "Description = TDS sybase SQL"
+    Print #mif, "Driver = FreeTDS"
+    Print #mif, "Trace = Yes"
+    Print #mif, "TraceFile = /tmp/tdsqlodbc.log"
+    Print #mif, "Database = oasis"
+    Print #mif, "Server = 37.10.252.253"
+    Print #mif, "Port = 2638"
+    Print #mif, "UserName = ordendespacho"
+    Print #mif, "Password = ordendespacho.1.com"
+    Print #mif, "ReadOnly = No"
+    Print #mif, "ConnSettings ="
+    
+    Close mif
+    Print "Archivo ODBC creado exitosamente."   
+Catch
+    Print "No fue posible crear el archivo. Detalles: "
+    Debug ("ERROR-> [ " & DConv(Error.Text) & " ] ")
+
+End 
+
+
+
 '' retorna true si existe una conexcion odbc que cumpla con la tarea #427
 Public Function retornedatasource(Optional lugar As String = User.Home) As Boolean
     ' el lugar por defecto es el home del usuario que ejecuta el programa, es grafico no, pa brutico
