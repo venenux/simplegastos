@@ -4,44 +4,69 @@
 '' Abstracción de todos los procesos en donde se requiere interactuar con bases de datos
 '' ya sea sqlite, postgres, mariadb. mysql, ODBC 
 
-'*********** Segmento de Código general para todos los formularios ******************
-
-'' objeto conexion sqlite para desarrollo
-Private $conexionlocal As Connection
-'' objeto conexion produccion base de datos principal
+'' objeto conexion : sqlite para desarrollo, servidor x para produccion, base de datos principal
 Private $conexionserver As Connection
-'' objeto conexcion db nomina via odbc
+'' objeto conexcion db nomina via odbc u/o oasis
 Private $conexionremota As Connection
 
+'' objeto de configuracion de datos
+Private $dbsettings As Settings
 
-Public Function getConexionsqlite(Optional databasename As String = Application.path & "/nerv-byro-cliente-db") As Connection
+
+'' al instanciar la clase se ajusta y configura las conecciones
+Public Sub _new(Optional produccion As Boolean = False)
+  
+  $dbsettings = New Settings(User.Home &/ ".config/simplegastos" &/ Application.Name & ".conf")
+  If produccion Then
+    dbnamedefault = "simplegastosdb"
+  Else
+    dbnamedefault = Application.Path &/ "../../sysgatosmisc/simplegastosdb.sq3"
+  Endif
+  
+End
+
+
+
+Private Function getConeccionDBgastos() As Connection
     
-    If Not IsNull($conexionlocal) Then
-        $conexionlocal.Host = "" ' definimos directorio donde se encuentra la base de datos
-        $conexionlocal.Type = "sqlite3"
-        $conexionlocal.Name = databasename
-        If Not $conexionlocal.opened Then
+    Dim tipo As String = sqlite3
+    
+    tipo = $dbsettings["datoscentral/tipo", "sqlite3"]
+    
+        $conexionserver.Host = $dbsettings["datoscentral/host", ""]
+        $conexionserver.Type = 
+        $conexionserver.Name = $dbsettings["datoscentral/name", dbnamedefault]
+    
+                    $Con.Type = "[..../def/mysql]"       ' Type of connection
+                $Con.Host = "localhost"   ' Name of the server
+                $Con.Login = "root"       ' User's name for the connection
+                $Con.Port = "3306"        ' Port to use in the connection, usually 3306
+                $Con.Name = "Sophia"      ' Name of the database we want to use
+                $Con.Password = "root123" ' User's password
+    
+    If Not IsNull($conexionserver) Then
+        If Not $conexionserver.opened Then
             If Exist(databasename) Then
-                $conexionlocal.Open
+                $conexionserver.Open
             Else
-                $conexionlocal = Null
+                $conexionserver = Null
             Endif
         Endif
     Endif
-    If IsNull($conexionlocal) Then
+    If IsNull($conexionserver) Then
         Print "Creando conexión a la Base de Datos..."
-        $conexionlocal = New Connection
-        $conexionlocal.Host = "" ' definimos directorio donde se encuentra la base de datos
-        $conexionlocal.Type = "sqlite3"
+        $conexionserver = New Connection
+        $conexionserver.Host = "" ' definimos directorio donde se encuentra la base de datos
+        $conexionserver.Type = "sqlite3"
         If Exist(databasename) Then
-            $conexionlocal.Name = databasename
-            $conexionlocal.Open
+            $conexionserver.Name = databasename
+            $conexionserver.Open
              Print "Conexión a la Base de Datos fué establecida."
         Else
             Message.Error("Base de Datos no encontrada, revisar ruta: " & databasename)
         Endif
     Endif
-    Return $conexionlocal
+    Return $conexionserver
     
 End
 
@@ -93,7 +118,7 @@ Public Function RegistrarOrdenDespacho(fdespacho As String, lineas As String, no
     Dim filas, cantidaprocesados As Integer = 0
     Dim codigodespacho, codigoprod, fecharegistro, fechasalida, responsable, origen, destino, destinos, cuantos, cuantosque, precio, cambioprecio, reempaque As String = ""
     Dim tabla As Table
-    $conexionlocal = getConexionsqlite() 
+    $conexionserver = getConexionsqlite() 
 
     codigodespacho = Format$(Now, "yyyymmddhhnnss")
     fecharegistro = Format$(Now, "yyyymmddhhnnss")
@@ -102,7 +127,7 @@ Public Function RegistrarOrdenDespacho(fdespacho As String, lineas As String, no
     Error.Clear
 
     ' 1) ******** insertamos el despacho generados en tabla despachos
-    $conexionlocal.Begin
+    $conexionserver.Begin
     eldespacho = New Collection
     For filas = 0 To (matrixcontenido.Count - 1)
         If matrixcontenido.Exist(filas) Then
@@ -117,8 +142,8 @@ Public Function RegistrarOrdenDespacho(fdespacho As String, lineas As String, no
             cuantosque = matrixfilas["unidad"]
             reempaque = matrixfilas["reempaque"]
             ' modificación: si el sistema tiene alzheimer y no encuentra  la tabla habrá que crearla
-             If Not $conexionlocal.Tables.Exist("td_despacho") Then  ' preguntar, si no existe a crearla
-               tabla = $conexionlocal.Tables.Add("td_despacho")
+             If Not $conexionserver.Tables.Exist("td_despacho") Then  ' preguntar, si no existe a crearla
+               tabla = $conexionserver.Tables.Add("td_despacho")
                 With tabla.Fields ' aqui se crea
                     .Add("codespacho", db.String, 64) 
                     .Add("codproducto", db.String, 64)
@@ -143,7 +168,7 @@ Public Function RegistrarOrdenDespacho(fdespacho As String, lineas As String, no
                Endif             
                
               '  sea que ya existia la tabla o fué creada, a registrar el despacho 
-            $datos = $conexionlocal.Create("td_despacho")
+            $datos = $conexionserver.Create("td_despacho")
                 $datos["codespacho"] = codigodespacho ' TEXT, - - codigo del despacho orden generada
                 $datos["codproducto"] = codigoprod '  TEXT, - - producto despachando"
                 $datos["precio_origen"] = precio ' TEXT, - - el precio de donde viene
@@ -171,7 +196,7 @@ Public Function RegistrarOrdenDespacho(fdespacho As String, lineas As String, no
         Endif
     Next
     destinos = Mid$(destinos, 1, -1)
-    $datos = $conexionlocal.Create("tm_despacho")
+    $datos = $conexionserver.Create("tm_despacho")
         $datos["codespacho"] = codigodespacho ' TEXT, - - codigo del despacho orden generada
         $datos["codproducto"] = codigoprod '  TEXT, - - producto despachando"
         $datos["origen"] = origen ' TEXT, - - desde donde se despacha
@@ -189,17 +214,17 @@ Public Function RegistrarOrdenDespacho(fdespacho As String, lineas As String, no
     eldespacho.Add(fechasalida, "fechaenvio")
     eldespacho.Add(turno, "turno")
     eldespacho.Add(cantidaprocesados, "procesados")
-    $conexionlocal.Commit  
+    $conexionserver.Commit  
     If Error Then
         eldespacho = Null
-        $conexionlocal.Rollback
+        $conexionserver.Rollback
     Endif
     If cantidaprocesados <> Val(lineas) Then
         eldespacho = Null
-        $conexionlocal.Rollback
+        $conexionserver.Rollback
     Endif
-    $conexionlocal.Close
-    $conexionlocal = Null 
+    $conexionserver.Close
+    $conexionserver = Null 
     
     ' 2) ******** rescatamos el despacho generados en tabla despachos para presentarlo
     ' para que un select, ya devuelvo un objeto collecion completo con mucha info! menos ida a DB! uff!
@@ -268,7 +293,7 @@ Public Function credenciales(Optional ulogin As String = "", Optional uclave As 
     If Comp(ubicacion, "", gb.IgnoreCase) <> 0 And Not IsNull(ulogin) Then
       	query = query & " AND usu.cod_ubicacion = '" & ubicacion & "'  "
     Endif
-    rsusuario = $conexionlocal.Exec(query)
+    rsusuario = $conexionserver.Exec(query)
     resultados = New Collection
     If rsusuario.Available Then
         For Each rsusuario
@@ -328,7 +353,7 @@ Public Function listarubicaciones(Optional filtroini As String = "", Optional co
     If Comp(codger, "", gb.IgnoreCase) <> 0 And Not IsNull(codger) Then
       	query = query & " AND codger = '" & codger & "'  "
     Endif
-    rsubicaciones = $conexionlocal.Exec(query)
+    rsubicaciones = $conexionserver.Exec(query)
     resultados = New Collection
     If rsubicaciones.Available Then
         resultados.Add(rsubicaciones.Count, "resultado")
@@ -375,9 +400,9 @@ Public Function listarconceptos(Optional tipo As String = "CAT", Optional filtro
       	query = query & " AND cod_concepto = '" & tipo & "'  "  ' TODO: hacer via base de datos un substring de CAT o SUB
     Endif
     If Comp(filtro, "", gb.IgnoreCase) <> 0 And Not IsNull(filtro) Then
-      	query = query & " AND (cod_concepto like '%" & filtro & "%' OR txt_descriptivo = '" & filtro & "') "
+      	query = query & " AND (cod_concepto like '" & filtro & "' "
     Endif
-    rsconceptos = $conexionlocal.Exec(query)
+    rsconceptos = $conexionserver.Exec(query)
     resultados = New Collection
     If rsconceptos.Available Then
         resultados.Add(rsconceptos.Count, "resultado")
