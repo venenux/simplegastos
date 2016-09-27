@@ -246,7 +246,7 @@ End
 '' retorna una lista de conceptos en forma matrix colleccion x colleccion <br>/n
 '' elementos cada elemento es una collecion y el indice es el cod_ubicacion <br>/n
 '' cada colleccion contiene: cod_concepto, txt_descriptivo, fichasession, estatus, fechamodifica
-Public Function listarconceptos(Optional tipo As String = "CAT", Optional filtro As String = Null) As Collection
+Public Function listarconceptos(Optional tipo As Integer = 0, Optional filtro As String = Null) As Collection
     
     Dim rsconceptos As Result
     Dim index As Integer
@@ -261,11 +261,16 @@ Public Function listarconceptos(Optional tipo As String = "CAT", Optional filtro
     query = query & " ifnull(fichasession,'') as fichasession, fechamodifica "
     query = query & "from td_conceptosgastos "
     query = query & "  where ifnull(cod_concepto, '') <> '' and cod_concepto <> ''"
-    If Comp(tipo, "", gb.IgnoreCase) <> 0 And Not IsNull(tipo) Then
-        query = query & " AND cod_concepto = '" & tipo & "'  "  ' TODO: hacer via base de datos un substring de CAT o SUB
+    If tipo <> 0 And Not IsNull(tipo) Then
+        If tipo = 1 Then
+            query = query & " AND substr(cod_concepto, 0, 3 ) = 'CAT' "
+        Endif
+        If tipo = 2 Then
+            query = query & " AND substr(cod_concepto, 18, 6 ) LIKE '%SUB%' "
+        Endif
     Endif
     If Comp(filtro, "", gb.IgnoreCase) <> 0 And Not IsNull(filtro) Then
-        query = query & " AND (cod_concepto like '" & filtro & "' "
+        query = query & " AND cod_concepto = '" & filtro & "' "
     Endif
     rsconceptos = $conexionserver.Exec(query)
     resultados = New Collection
@@ -293,3 +298,62 @@ Catch
 End 
 
 ''************************* mapeos: FIN ******************* 
+
+'' ************************ insersiones ini ***************
+
+'' retorna una lista de conceptos en forma matrix colleccion x colleccion <br>/n
+'' elementos cada elemento es una collecion y el indice es el cod_ubicacion <br>/n
+'' cada colleccion contiene: cod_concepto, txt_descriptivo, fichasession, estatus, fechamodifica
+Public Function insertarconceptos(Optional tipo As Integer = 0, ) As Collection
+    
+    Dim rsconceptos As Result
+    Dim index As Integer
+    Dim item As Collection
+    Dim query As String
+    Dim resultados As Collection
+
+    query = "select count(*) as cuantos, " 
+    query = query & " ifnull(cod_concepto,'XXX99999999999999999') as cod_concepto, " '     -- codigo XXX#################[YYY#################]
+    query = query & " ifnull(txt_descriptivo,'sin_descripcion') as txt_descriptivo, " 
+    query = query & " ifnull(estatus, 'INVALIDO') as status, "
+    query = query & " ifnull(fichasession,'') as fichasession, fechamodifica "
+    query = query & "from td_conceptosgastos "
+    query = query & "  where ifnull(cod_concepto, '') <> '' and cod_concepto <> ''"
+    If tipo <> 0 And Not IsNull(tipo) Then
+        If tipo = 1 Then
+            query = query & " AND substr(cod_concepto, 0, 3 ) = 'CAT' "
+        Endif
+        If tipo = 2 Then
+            query = query & " AND substr(cod_concepto, 18, 6 ) LIKE '%SUB%' "
+        Endif
+    Endif
+    If Comp(filtro, "", gb.IgnoreCase) <> 0 And Not IsNull(filtro) Then
+        query = query & " AND cod_concepto = '" & filtro & "' "
+    Endif
+    rsconceptos = $conexionserver.Exec(query)
+    resultados = New Collection
+    If rsconceptos.Available Then
+        resultados.Add(rsconceptos.Count, "resultado")
+        For Each rsconceptos
+            item = New Collection
+            item.Add(rsconceptos!cod_concepto, "cod_concepto")
+            item.Add(rsconceptos!txt_descriptivo, "txt_descriptivo")
+            item.Add(rsconceptos!estatus, "estatus")
+            item.Add(rsconceptos!fichasession, "fichasession")
+            item.Add(rsconceptos!fechamodifica, "fechamodifica")
+            resultados.Add(item, rsconceptos!cod_concepto)
+            item = Null
+        Next
+    Else
+        resultados.Add(0, "resultado")
+    Endif
+    Return resultados
+Catch
+    resultados = New Collection
+    resultados.Add("Error: " & Error.Text, "resultado")
+    Return resultados
+
+End 
+
+
+'' ************************ inserciones FIN ***************
