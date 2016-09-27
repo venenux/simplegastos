@@ -9,7 +9,7 @@ class Manejousuarios extends CI_Controller
 	public function __construct() 
 	{
 		parent::__construct();
-		$this->load->database('simplexmpp');
+		$this->load->database('gastossystema');
 		//$this->dbxmppusers = $this->load->database('simplexmpp', true);
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
@@ -39,7 +39,7 @@ class Manejousuarios extends CI_Controller
 		$contrasena = $this->input->post('contrasena');
 		//$this->load->model('manejousuarios');
 		//$objetousuario = $this->manejousuarios->usuario_ejabberd($nombre, $contrasena);
-		$sqlusuario = "select username,\"password\" as clave from users where username='".$nombre."' and \"password\"='".$contrasena."' ";
+		$sqlusuario = "select intranet as username,clave from usuarios where intranet='".$nombre."' and clave='".$contrasena."' ";
 		//$query = $this->dbxmppusers->query($sqlusuario);
 		$query = $this->db->query($sqlusuario);
 		$objetousuario = $query->result();

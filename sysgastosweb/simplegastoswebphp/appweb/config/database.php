@@ -48,12 +48,29 @@
 $active_group = 'oasis';
 $active_record = FALSE;
 
+
+$db['gastossystema']['hostname'] = '10.10.34.20';
+$db['gastossystema']['username'] = 'gastossystema';
+$db['gastossystema']['password'] = 'gastossystema.1';
+$db['gastossystema']['database'] = 'gastossystema';
+$db['gastossystema']['dbdriver'] = 'mysql';
+$db['gastossystema']['dbprefix'] = 'dbo'; //blanks means use public , catalogo not use that due xtreme security
+$db['gastossystema']['pconnect'] = TRUE;
+$db['gastossystema']['db_debug'] = TRUE;
+$db['gastossystema']['cache_on'] = FALSE;
+$db['gastossystema']['cachedir'] = '';
+$db['gastossystema']['char_set'] = 'utf8';
+$db['gastossystema']['dbcollat'] = 'utf8_general_ci';
+$db['gastossystema']['swap_pre'] = '';
+$db['gastossystema']['autoinit'] = TRUE;
+$db['gastossystema']['stricton'] = FALSE;
+
 $db['oasis']['hostname'] = 'oasis0';//"dsn=oasis1;uid=dba;pwd=sql";
 $db['oasis']['username'] = 'ordendespacho';
 $db['oasis']['password'] = 'ordendespacho.1.com';
 $db['oasis']['database'] = 'oasis';
 $db['oasis']['dbdriver'] = 'odbc';
-$db['oasis']['dbprefix'] = 'dbo'; //blanks means use public , catalogo not use that due xtreme security
+$db['oasis']['dbprefix'] = 'dbo';
 $db['oasis']['pconnect'] = FALSE;
 $db['oasis']['db_debug'] = TRUE;
 $db['oasis']['cache_on'] = FALSE;
@@ -64,7 +81,23 @@ $db['oasis']['swap_pre'] = '';
 $db['oasis']['autoinit'] = TRUE;
 $db['oasis']['stricton'] = FALSE;
 
-$db['simplexmpp']['hostname'] = '37.10.252.99';//"dsn=oasis1;uid=dba;pwd=sql";
+$db['nominasaint']['hostname'] = 'nomina0';//"dsn=nomina0;uid=dba;pwd=sql";
+$db['nominasaint']['username'] = 'dba';
+$db['nominasaint']['password'] = 'sql';
+$db['nominasaint']['database'] = 'snowden';
+$db['nominasaint']['dbdriver'] = 'odbc';
+$db['nominasaint']['dbprefix'] = '';
+$db['nominasaint']['pconnect'] = FALSE;
+$db['nominasaint']['db_debug'] = TRUE;
+$db['nominasaint']['cache_on'] = FALSE;
+$db['nominasaint']['cachedir'] = '';
+$db['nominasaint']['char_set'] = '';
+$db['nominasaint']['dbcollat'] = '';
+$db['nominasaint']['swap_pre'] = '';
+$db['nominasaint']['autoinit'] = TRUE;
+$db['nominasaint']['stricton'] = FALSE;
+
+$db['simplexmpp']['hostname'] = '37.10.252.99';
 $db['simplexmpp']['username'] = 'simplexmpp';
 $db['simplexmpp']['password'] = 'simplexmpp.1.com.ve';
 $db['simplexmpp']['database'] = 'simplexmpp';
@@ -98,21 +131,6 @@ $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
 
-$db['oasis']['hostname'] = '37.10.252.253';
-$db['oasis']['username'] = 'dba';
-$db['oasis']['password'] = 'sql';
-$db['oasis']['database'] = 'oasis';
-$db['oasis']['dbdriver'] = 'odbc';
-$db['oasis']['dbprefix'] = 'dbo'; //blanks means use public , catalogo not use that due xtreme security
-$db['oasis']['pconnect'] = TRUE;
-$db['oasis']['db_debug'] = TRUE;
-$db['oasis']['cache_on'] = FALSE;
-$db['oasis']['cachedir'] = '';
-$db['oasis']['char_set'] = 'utf8';
-$db['oasis']['dbcollat'] = 'utf8_general_ci';
-$db['oasis']['swap_pre'] = '';
-$db['oasis']['autoinit'] = TRUE;
-$db['oasis']['stricton'] = FALSE;
 
 */
 /* End of file database.php */

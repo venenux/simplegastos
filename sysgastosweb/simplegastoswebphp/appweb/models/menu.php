@@ -29,6 +29,7 @@ class Menu extends CI_Model
 			$label = 'Session';
 
 		$inicio=anchor('indexcontroler',$label);
+
 		$intranet=anchor('http://intranet1.net.ve','Intranet');
 		$elcorreo=anchor('http://intranet1.net.ve/elcorreo','Correo');
 
@@ -36,6 +37,17 @@ class Menu extends CI_Model
 //		$generarordenconcarga['consultarordendespachos']=anchor('consultarordendespachos','Consultar Orden');
 		$generarordenconcarga['generarordenconcarga']=anchor('generarordenconcarga','Generar Orden');
 		$generarordenconcarga['cargardetallecambioprecio']=anchor('cargardetallecambioprecio','Cambio de precio');
+
+		$vistas=anchor('vistaglobal','Vistas');
+		$vistaglobal['vistaglobalcategorias']=anchor('vistaglobalcategorias','Vista Categorias');
+		$vistaglobal['vistaglobaldetalles']=anchor('vistaglobaldetalles','Vista Detalles');
+
+		$gastos=anchor('gastosmatrix','Gastos');
+		$gastosmatrix['gastosmatrix']=anchor('gastosmatrix','Vista Global');
+
+		$cargas=anchor('cargaglobal','Cargas');
+		$cargaglobal['generarordenconcarga']=anchor('generarordenconcarga','Cargar gasto');
+		$cargaglobal['generarordenconcarga2']=anchor('generarordenconcarga2','Cargar gasto2');
 /*
 		$n300000=anchor('m300000','Procesos');
 		$m300000['m301000']=anchor('m301000','Actualizar Productos desde compras');
@@ -50,19 +62,24 @@ class Menu extends CI_Model
 		{
 			$inicionlogin['manejousuarios/manejousuarios']=anchor('manejousuarios/desverificarintranet','Salir');
 			$header['0'] = $nodes->m_header_nodes($inicio, $inicionlogin);
+
+			$header['1'] = $nodes->m_header_nodes($gastos, $gastosmatrix);
 		}
 		else
+		{
 			$header['0'] = $nodes->m_header_nodes($inicio, array());
-		$header['1'] = $nodes->m_header_nodes($intranet, array());
-		$header['2'] = $nodes->m_header_nodes($elcorreo, array());
+			$header['1'] = $nodes->m_header_nodes($inicio, array());
+		}
+		$header['2'] = $nodes->m_header_nodes($intranet, array());
+		$header['3'] = $nodes->m_header_nodes($elcorreo, array());
 		if($this->session->userdata('logueado'))
 		{
-			$header['3'] = $nodes->m_header_nodes($ordenes,$generarordenconcarga);
-	/*		$header['4'] = $nodes->m_header_nodes($n300000,$m300000);
-			$header['5'] = $nodes->m_header_nodes($n200000,$m200000);
-			$header['6'] = $nodes->m_header_nodes($n100000,$m100000);
-			$header['7'] = $nodes->m_header_nodes($n010000,$m010000);
-			$header['8'] = $nodes->m_header_nodes($n000000,$m000000);*/
+			$header['4'] = $nodes->m_header_nodes($cargas,$cargaglobal);
+			$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
+	/*		$header['6'] = $nodes->m_header_nodes($n200000,$m200000);
+			$header['7'] = $nodes->m_header_nodes($n100000,$m100000);
+			$header['8'] = $nodes->m_header_nodes($n010000,$m010000);
+			$header['9'] = $nodes->m_header_nodes($n000000,$m000000);*/
 		}
 		$menu->m_create_headers($header);
 		return $menu->show_menu();
