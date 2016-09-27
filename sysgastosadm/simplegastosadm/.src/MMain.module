@@ -12,7 +12,7 @@ Public Sub Main()
   
   instlogin = New FormPrincLogin
   instlogin.Show
-  If Not IsNull(usuariodat) Then
+  If Not IsNull(userdata) Then
     instlogin.Close
     instfinicial = New FInicial 'debera ser asi: New FInicial(userdata_Read()) y asi recibe los datos del usuario por defecto
     instfinicial.Show

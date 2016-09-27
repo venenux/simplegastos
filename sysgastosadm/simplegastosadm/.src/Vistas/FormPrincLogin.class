@@ -40,12 +40,7 @@ Public Sub btnformloginok_Click()
        rs = contain.credenciales(informloginUsername.Text, informloginUserpass.Text)
         If Val(rs["resultado"]) = 1 Then
           MMain.userdata = rs
-        Else
-          Print "se fue todo al /dev/limbo "
         Endif
-
-   
-    
   Endif    
 End
 
