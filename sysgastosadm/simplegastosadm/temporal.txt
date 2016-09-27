@@ -1,0 +1,138 @@
+'' Permite agregar el despacho a la tabla de despachos, retornoa un colleccion de las mismas lineas procesadas <br>
+'' * fdespacho : la fecha del despacho<br>
+'' * lineas: cuantos items tiene el grip a procesar<br>
+'' * responsable: un nombre del que emite<br>
+'' * turno: flag de sesion = sello+caja/ip3+fecha+ficha/cedula<br>
+'' * matrix: objeto colleccion con las filas del grid o los datos de cada linea<br>
+'' Datos de cada linea:<br>
+'' * filagrid: la fila del grid que representa este elemento en el objeto collecion
+'' * codigoprod codigo del producto con sus digitos hasta el 12
+'' * origen codigo origen del despacho (sello)
+'' * destino codigo destino del despacho (sello)
+'' * precio el precio por ahora el que trae del grid NOTA debe incluir decimales con punto
+'' * cuantos cuantos de este elemento
+'' * cuantosque la tipo de unidad ejemplo bulto, paquete, reempaque
+'' * reempaque si es o el tipo de reempaque
+Public Function RegistrarOrdenDespacho(fdespacho As String, lineas As String, nombreresp As String, turno As String, matrixcontenido As Collection) As Collection
+    
+    Dim eldespacho, filasdeldespacho, matrixfilas As Collection
+    Dim $datos As Result
+    Dim filas, cantidaprocesados As Integer = 0
+    Dim codigodespacho, codigoprod, fecharegistro, fechasalida, responsable, origen, destino, destinos, cuantos, cuantosque, precio, cambioprecio, reempaque As String = ""
+    Dim tabla As Table
+
+    $conexionserver = getConeccionDB
+    
+    codigodespacho = Format$(Now, "yyyymmddhhnnss")
+    fecharegistro = Format$(Now, "yyyymmddhhnnss")
+    fechasalida = fdespacho
+    cantidaprocesados = 0
+    Error.Clear
+    
+    ' 1) ******** insertamos el despacho generados en tabla despachos
+    $conexionserver.Begin
+        eldespacho = New Collection
+        For filas = 0 To (matrixcontenido.Count - 1)
+            If matrixcontenido.Exist(filas) Then
+                matrixfilas = matrixcontenido[filas]
+                cantidaprocesados = matrixfilas["filagrid"] + 1   ' vamos con cada uno, al fina debe ser igual a lineas
+                codigoprod = matrixfilas["codigoprod"]
+                origen = matrixfilas["origen"]
+                destino = matrixfilas["destino"]
+                destinos = matrixfilas["destino"] & "|"
+                precio = matrixfilas["precio"]
+                cuantos = matrixfilas["cantidad"]
+                cuantosque = matrixfilas["unidad"]
+                reempaque = matrixfilas["reempaque"]
+                ' modificación: si el sistema tiene alzheimer y no encuentra  la tabla habrá que crearla
+                If Not $conexionserver.Tables.Exist("td_despacho") Then  ' preguntar, si no existe a crearla
+                    tabla = $conexionserver.Tables.Add("td_despacho")
+                    With tabla.Fields ' aqui se crea
+                        .Add("codespacho", db.String, 64) 
+                        .Add("codproducto", db.String, 64)
+                        .Add("precio_origen", db.String, 64)
+                        .Add("precio_destino", db.String, 64)
+                        .Add("precio_venta", db.String, 64)
+                        .Add("origen", db.String, 128) 
+                        .Add("destino", db.String, 128)
+                        .Add("tienda", db.String, 64)
+                        .Add("unidad_tipo", db.String, 64)
+                        .Add("unidad_cuanto", db.String, 64)
+                        .Add("turno", db.String, 64)                            
+                    End With
+                    tabla.Update
+                    If Error Then
+                        Print "Error - no se puede corroborar la tabla verifique esto: " & Error.Code & " " & Error.Text
+                    Else
+                        Print "La tabla  td_despachos fue re-creada."
+                    Endif
+                Else
+                    Print "La tabla  td_despachos existe... se procede a registrar despacho."
+                Endif             
+                
+                '  sea que ya existia la tabla o fué creada, a registrar el despacho 
+                $datos = $conexionserver.Create("td_despacho")
+                $datos["codespacho"] = codigodespacho ' TEXT, - - codigo del despacho orden generada
+                $datos["codproducto"] = codigoprod '  TEXT, - - producto despachando"
+                $datos["precio_origen"] = precio ' TEXT, - - el precio de donde viene
+                $datos["precio_destino"] = precio ' TEXT, - - el precio a donde se despacha(no es lo mismo al cual se vendera)
+                $datos["precio_venta"] = precio ' TEXT, - - precio(si se desea)del lugar destino donde se vendera
+                $datos["origen"] = origen ' TEXT, - - desde donde se despacha
+                $datos["destino"] = destino ' TEXT, - - hacia donde se despacha
+                $datos["tienda"] = destino ' TEXT, - - si se despacha a un secundario, y este se le desigan a donde enviara
+                $datos["unidad_tipo"] = cuantosque ' TEXT, - - si bulto, empaque, peso, etc, por ahora guarda un string
+                $datos["unidad_cuanto"] = cuantos ' TEXT - - cuantos de este tipo de empacado, o pesado etc
+                $datos["turno"] = turno
+                $datos.Update
+                filasdeldespacho = New Collection
+                filasdeldespacho.Add(codigodespacho, "codespacho")
+                filasdeldespacho.Add(codigoprod, "codproducto")
+                filasdeldespacho.Add(precio, "precio_origen")
+                filasdeldespacho.Add(precio, "precio_destino")
+                filasdeldespacho.Add(precio, "precio_venta")
+                filasdeldespacho.Add(origen, "origen")
+                filasdeldespacho.Add(destino, "destino")
+                filasdeldespacho.Add(destino, "tienda")
+                filasdeldespacho.Add(cuantosque, "unidad_tipo")
+                filasdeldespacho.Add(cuantos, "unidad_cuanto")
+                eldespacho.Add(filasdeldespacho, cantidaprocesados)
+            Endif
+        Next
+        destinos = Mid$(destinos, 1, -1)
+        $datos = $conexionserver.Create("tm_despacho")
+        $datos["codespacho"] = codigodespacho ' TEXT, - - codigo del despacho orden generada
+        $datos["codproducto"] = codigoprod '  TEXT, - - producto despachando"
+        $datos["origen"] = origen ' TEXT, - - desde donde se despacha
+        $datos["destino"] = destinos ' TEXT, - - aqui se coloca todos los destinos separados por "|"
+        $datos["tienda"] = destinos ' TEXT, - - si se despacha a un secundario, y este se le desigan a donde enviara
+        $datos["fechaemite"] = fecharegistro 'misa fecha turno pero incluye segundos y minutos
+        $datos["fechaenvio"] = fechasalida '   -- xcuando este despacho debe salir
+        $datos["turno"] = turno
+        $datos.Update
+        eldespacho.Add(codigodespacho, "codespacho")
+        eldespacho.Add(origen, "origen")
+        eldespacho.Add(destinos, "destinos")
+        eldespacho.Add(destinos, "tienda")
+        eldespacho.Add(fecharegistro, "fechaemite")
+        eldespacho.Add(fechasalida, "fechaenvio")
+        eldespacho.Add(turno, "turno")
+        eldespacho.Add(cantidaprocesados, "procesados")
+        $conexionserver.Commit  
+        If Error Then
+            eldespacho = Null
+            $conexionserver.Rollback
+        Endif
+        If cantidaprocesados <> Val(lineas) Then
+            eldespacho = Null
+            $conexionserver.Rollback
+        Endif
+        $conexionserver.Close
+        $conexionserver = Null 
+        
+        ' 2) ******** rescatamos el despacho generados en tabla despachos para presentarlo
+        ' para que un select, ya devuelvo un objeto collecion completo con mucha info! menos ida a DB! uff!
+        
+        ' 3) ******** devolvemos todo el despacho generado en un objeto collecion recorrible
+        Return eldespacho ' ????????????? 
+
+End  

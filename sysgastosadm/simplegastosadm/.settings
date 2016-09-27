@@ -1,7 +1,8 @@
 [Breakpoints]
-Count=2
-Breakpoint[1]="MMain.11"
-Breakpoint[2]="Containerdataoasis.80"
+Count=3
+Breakpoint[1]="MMain.16"
+Breakpoint[2]="MMain.19"
+Breakpoint[3]="FormPrincLogin.41"
 
 [DebugWindow]
 Count=0
@@ -15,16 +16,19 @@ Geometry=[0,2,871,322]
 [DebugWindow/$dbsettings.Keys]
 Geometry=[14,16,871,322]
 
+[DebugWindow/resultados]
+Geometry=[0,2,224,280]
+
 [OpenFile]
-File[1]=".src/MMain.module:19.13"
+File[1]=".src/MMain.module:8.18"
 File[2]=".src/Vistas/FInicial.form"
 File[3]=".src/Vistas/FInicial.class:0.11"
 File[4]=".src/Vistas/FormPrincLogin.form"
-Active=7
-File[5]=".src/Vistas/FormPrincLogin.class:29.4"
-File[6]=".src/Control/Containerdataoasis.class:0.95"
+Active=1
+File[5]=".src/Vistas/FormPrincLogin.class:29.41"
+File[6]=".src/Control/Containerdataoasis.class:3.117"
 Count=7
-File[7]=".src/Control/ManagerODBCsources.class:0.70"
+File[7]=".src/Control/ManagerODBCsources.class:0.0"
 
 [Watches]
 Count=0

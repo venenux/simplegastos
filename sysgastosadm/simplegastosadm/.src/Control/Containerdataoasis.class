@@ -155,6 +155,7 @@ Public Function credenciales(Optional ulogin As String = "", Optional uclave As 
     If Comp(ubicacion, "", gb.IgnoreCase) <> 0 And Not IsNull(ulogin) Then
         query = query & " AND usu.cod_ubicacion = '" & ubicacion & "'  "
     Endif
+    getConeccionDB
     rsusuario = $conexionserver.Exec(query)
     resultados = New Collection
     If rsusuario.Available Then

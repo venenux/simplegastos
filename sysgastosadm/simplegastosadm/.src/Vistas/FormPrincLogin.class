@@ -1,53 +1,52 @@
 ' Gambas class file
 
+'' objeto de configuracion de datos
+Private $appsettings As Settings
+'' modo de trabajo de la apicacion, si esta correindo en entorno produccion o no
+Private produccion As Boolean = False
 
-Private $conn As Connection
-'' ***********------    Configuración formulario PrincLogin           : -------*********
+'' al instanciar la clase se ajusta y configura las conecciones y configuraciones por defecto
+Public Sub _new(Optional esproduccion As Boolean = False)
+    
+    produccion = esproduccion       ' en desarrollo para trabajar independiente se usa sqlite e incluso se recrea la db
+    If produccion Then
+        $appsettings = New Settings(User.Home &/ ".config/simplegastos" &/ Application.Name & ".conf")
+    Else
+        $appsettings = New Settings(Application.Path &/ "../../sysgatosmisc/" &/ Application.Name & ".conf")
+    Endif
+    
+End
+
 
 Public Sub Form_Open()
 'mostrar el formulario con su propósito
   Me.Center
   Me.Caption = "INICIAR SESIÓN"
+  produccion = $appsettings["datosapp/esproduccion", False]         ' cambiar a true o usar el archivo de configuracion
 End
 
 ''determinar quien es y establecer variables de usuario y clave, si existen, hubo acceso positivo
 Public Sub btnformloginok_Click()
 
   Dim login, password As String
-  Dim contain As New Containerdataoasis
-  Dim acceso As Boolean = False
-  Dim loginok As Boolean = False
-  Dim passok As Boolean = False
-  Dim pos As Integer = 0
+  Dim contain As New Containerdataoasis(produccion)
   Dim rs As Collection  
 
 
   If IsNull(informloginUsername.Text) Or IsNull(informloginUserpass.Text) Then
     Message.Warning("¡No deje ningún cuadro vacío!")
   Else
-     '    primero veremos si se permite el ingreso... 
-      '      
-        login = informloginUsername.Text 
-        password = informloginUserpass.Text
        ' credenciales(Optional ulogin As String = "", Optional uclave As String = "", Optional ubicacion As String = "") As Collection
-       rs = contain.credenciales(login, password)
+       rs = contain.credenciales(informloginUsername.Text, informloginUserpass.Text)
         If Val(rs["resultado"]) = 1 Then
-          ' usuario checkeado en bd, sus datos serán mandados a todos los formularios 
-          MMain.get_credentials(rs)
-               acceso = True
+          MMain.userdata = rs
         Else
-          Print "se fue todo al /dev/null "
+          Print "se fue todo al /dev/limbo "
         Endif
 
    
     
-  Endif
- 
-    If acceso = True Then 
-      ' invocar  el formulario FInicial.form 
-         FInicial.show 
-         Me.close
-     Endif    
+  Endif    
 End
 
 Public Sub btnformloginCancel_Click()
