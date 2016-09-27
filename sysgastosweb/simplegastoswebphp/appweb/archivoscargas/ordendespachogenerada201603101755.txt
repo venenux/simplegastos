@@ -1,0 +1,8 @@
+cod_interno	vacio1	vacio2	cantidad	vacio3	vacio4	vacio5	bultos
+0000101010			14				0
+0000101011			15				0
+0000101012			2				0
+0000101044			2				0
+0000101048			2				0
+0000101065			2				0
+0000101056			2				0

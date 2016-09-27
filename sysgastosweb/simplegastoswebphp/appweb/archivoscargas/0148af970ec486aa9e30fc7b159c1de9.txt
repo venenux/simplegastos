@@ -1,0 +1,2 @@
+cod_producto, can_cantidad, can_precio
+0000101010,14,2345

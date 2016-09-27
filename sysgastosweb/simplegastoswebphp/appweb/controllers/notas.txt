@@ -1,0 +1,50 @@
+SELECT cod_msc, nom_sucursal FROM dba.exttiendas ORDER BY nom_sucursal ASC;
+
+cuando lea txt debe traer la descripcion de la tabla de producto a partir del codigo
+si mete unc odigo que no existe, debe salir que no existe en la db pero con un mensaje no hoz y martillo
+
+codproducto, cantidad, precio
+
+
+cargar detalle de cambio de precio: debe estar creada la orden de despacho 
+(seleccionar uan orden y cargar)
+
+en el quiery enviado sustituir el from de productos por la tabla donde guardemos los datos
+
+SELECT 
+a.cod_interno
+,a.txt_descripcion_larga
+,'0' cantidad_a_despachar
+,'0' as PrecioArchivo
+,(select mto_precio from DBA.ta_precio_producto where cod_precio=0 and cod_interno=a.cod_interno and cod_sucursal=(select num_sucursal from DBA.tc_codmsc where cod_msc='001037')) as precio_origen
+,(select mto_precio from DBA.ta_precio_producto where cod_precio=0 and cod_interno=a.cod_interno and cod_sucursal=(select num_sucursal from DBA.tc_codmsc where cod_msc='001053')) as precio_destino
+,(select convert(integer ,saldo_producto) from tv_existencia where cod_interno = a.cod_interno and cod_msc='001037') as sald_origen
+
+FROM "DBA"."tv_producto" 
+
+AGREGAR:
+// cambio de precio es in id de cm_cpp
+despues que inserta, y le muestra la ultima orde de despacho generada por el archivo
+a) consulta los eventos y se los muestra para aprobar
+b) envia el correo a origen con el archvio txt que se explica mas abajo (erga)
+NOTA: esto es un solo paso a vista del usuario
+
+a vista del sistema, la parte que sube archivo y muestra el orden es un paso
+en otro vista+controlador se realiza lo de eventos, este reciube el id de orden (nombre archivo)
+tomo el id orden y debe generar un archivo con lo siguiente:
+codigo_msc_origen, codigo producto, cantidad
+este lo envio por correo al gapon del codigo_msc origen y el que genero la orden
+
+
+2do paso
+
+la orden debe estar aprobada para generar archivo txt de predespacho
+
+generar archivo txt para predespacho, este envia un correo (uff) a el origen (codmsc estara enlazado al  un correo en una tabla por alli)
+ese txt tambien servira para realizar el ajuste de cantidades solamente
+
+
+el de precio va directo desde base de datos
+select convert(varchar,num_cpp) + ' ' + nombre_promocion from tm_evento_precio where flag_estado <> 2 order by num_cpp desc
+este es cambios de precio por hacer
+
