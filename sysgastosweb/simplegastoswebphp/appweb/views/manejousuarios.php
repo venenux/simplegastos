@@ -2,10 +2,14 @@
 	<?php
 
 	// si variables vacias llenar con datos mientras tanto
-	if( !isset($accionpagina) ) $accionpagina = 'deslogeado';
+	if( !isset($accionpagina) ) $accionpagina = 'deslogueado';
 	// detectar que mostrar segun lo enviado desde el controlador
 	echo form_fieldset('todo evento o accion se envia a su correo',array('class'=>'container_blue containerin ')) . PHP_EOL;
-	if ($accionpagina != 'logeado' || $accionpagina == 'deslogeado')
+	if ($accionpagina == 'logueado')
+	{
+		echo $presentar;
+	}
+	else
 	{
 		$htmlformaattributos = array('name'=>'formulariomanejousuarios','class'=>'formularios','onSubmit'=>'return validageneric(this);');
 		echo "<p>CUIDADO: no recarge o ejecute acciones al azar, use el menu arriba</p>";
@@ -14,10 +18,6 @@
 		echo 'Clave :'.form_password('contrasena','').PHP_EOL;
 		echo form_submit('login', 'Iniciar sesion', 'class="btn btn-primary btn-large b10"');
 		echo form_close() . PHP_EOL;
-	}
-	else if ($accionpagina == 'logeado' )
-	{
-		echo $presentar;
 	}
 	echo form_fieldset_close() . PHP_EOL;
 	?>

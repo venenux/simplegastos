@@ -7,10 +7,6 @@ class Indexcontroler extends CI_Controller {
 		parent::__construct();
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
-		if( $this->session->userdata('logueado') == FALSE)
-		{
-			redirect('manejousuarios/desverificarintranet');
-		}
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
 		$this->load->model('menu');
@@ -26,8 +22,6 @@ class Indexcontroler extends CI_Controller {
 	 *	- or -  
 	 * 		http://example.com/index.php/indexcontroler/index
 	 *	- or -
-	 * Since this controller is set as the default controller in 
-	 * config/routes.php, it's displayed at http://example.com/
 	 *
 	 * So any other public methods not prefixed with an underscore will
 	 * map to /index.php/indexcontroler/<method_name>
@@ -62,18 +56,19 @@ class Indexcontroler extends CI_Controller {
 		}
 		else
 		{
-			$this->load->view('header.php',$data);
-			$this->load->view('inicion.php',$data);
-			$this->load->view('footer.php',$data);
+			if( $this->session->userdata('logueado') == FALSE)
+			{
+				redirect('manejousuarios/desverificarintranet');
+			}
 		}
 	}
 
 	public function otrafuncion()
 	{
 		$data['menu'] = $this->menu->general_menu();
-		$this->load->view('header.php',$data);
-		$this->load->view('generarordenconcarga.php',$data);
-		$this->load->view('footer.php',$data);
+			$this->load->view('header.php',$data);
+			$this->load->view('inicion.php',$data);
+			$this->load->view('footer.php',$data);
 	}
 }
 

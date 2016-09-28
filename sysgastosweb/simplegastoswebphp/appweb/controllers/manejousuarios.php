@@ -23,7 +23,7 @@ class Manejousuarios extends CI_Controller
 	{
 		$data = array('logueado' => FALSE, 'accionpagina' => 'iniciar');
 		$data['menu'] = $this->menu->general_menu();
-		$data['accionpagina'] = 'deslogeado';
+		$data['accionpagina'] = 'deslogueado';
 		$usuario_data = array('logueado' => FALSE);
 		$this->session->set_userdata($usuario_data);
 		$this->load->helper(array('form', 'url','html'));
@@ -35,7 +35,7 @@ class Manejousuarios extends CI_Controller
 
 	public function verificarintranet() 
 	{
-		if ( !$this->input->post() || $this->input->post('nombre') != '') 
+		if ( ! $this->input->post() ) 
 		{
 			$this->index();
 		}
@@ -87,12 +87,12 @@ AND
 				if ($usuario_data['username'] != '')
 				{
 					$usuario_data['logueado'] = TRUE;
-					$data['accionpagina']='logeado';
+					$data['accionpagina']='logueado';
 				}
 				else
 				{
 					$usuario_data['logueado'] = FALSE;
-					$data['accionpagina']='deslogeado';
+					$data['accionpagina']='deslogueado';
 				}
 				$this->session->set_userdata($usuario_data);
 			}
@@ -104,7 +104,7 @@ AND
 			$data['nombre'] = $this->session->userdata('nombre');
 			$data['correo'] = $this->session->userdata('correo');
 			$data['logueado'] = $this->session->userdata('logueado');
-			$data['accionpagina']='logeado';
+			$data['accionpagina']='logueado';
 			$this->load->library('table');
 			$this->load->helper(array('form', 'url','html'));
 			$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="1" cellspacing="1" class="table">' );
@@ -127,7 +127,7 @@ AND
 
 	public function desverificarintranet() 
 	{
-		$data = array('logueado' => FALSE, 'accionpagina' => 'deslogeado');
+		$data = array('logueado' => FALSE, 'accionpagina' => 'deslogueado');
 		$usuario_data = array('logueado' => FALSE);
 		$this->session->set_userdata($usuario_data);
 		$this->index();

@@ -32,7 +32,6 @@ class Menu extends CI_Model
 
 		$intranet=anchor('http://intranet1.net.ve','Intranet');
 		$elcorreo=anchor('http://intranet1.net.ve/elcorreo','Correo');
-|
 		$ordenes=anchor('generarordenconcarga','Ordenes de despacho');
 //		$generarordenconcarga['consultarordendespachos']=anchor('consultarordendespachos','Consultar Orden');
 		$generarordenconcarga['generarordenconcarga']=anchor('generarordenconcarga','Generar Orden');
