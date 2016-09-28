@@ -32,21 +32,19 @@ class Menu extends CI_Model
 
 		$intranet=anchor('http://intranet1.net.ve','Intranet');
 		$elcorreo=anchor('http://intranet1.net.ve/elcorreo','Correo');
-		$ordenes=anchor('generarordenconcarga','Ordenes de despacho');
-//		$generarordenconcarga['consultarordendespachos']=anchor('consultarordendespachos','Consultar Orden');
-		$generarordenconcarga['generarordenconcarga']=anchor('generarordenconcarga','Generar Orden');
-		$generarordenconcarga['cargardetallecambioprecio']=anchor('cargardetallecambioprecio','Cambio de precio');
 
 		$vistas=anchor('vistaglobal','Vistas');
+		$vistaglobal['vistaglobalreporte']=anchor('vistaglobalreporte','Vista Reporte');
 		$vistaglobal['vistaglobalcategorias']=anchor('vistaglobalcategorias','Vista Categorias');
 		$vistaglobal['vistaglobaldetalles']=anchor('vistaglobaldetalles','Vista Detalles');
 
 		$gastos=anchor('gastosmatrix','Gastos');
-		$gastosmatrix['gastosmatrix']=anchor('gastosmatrix','Vista Global');
+		$gastosmatrix['gastosmatrixt']=anchor('gastosmatrix','Matrix Gasto T'); // TODO: verificar permiso y este menu solo cargfa en tienda
+		$gastosmatrix['gastosmatrixa']=anchor('gastosmatrixadm','Matrix Gasto A'); // TODO: verificar permiso y este menu solo cargfa en administrativos
 
 		$cargas=anchor('cargaglobal','Cargas');
-		$cargaglobal['generarordenconcarga']=anchor('generarordenconcarga','Cargar gasto');
-		$cargaglobal['generarordenconcarga2']=anchor('generarordenconcarga2','Cargar gasto2');
+		$cargaglobal['Cargargastot']=anchor('cargargasto','Cargar gasto T'); // TODO: verificar permiso y este menu solo cargfa en tienda
+		$cargaglobal['Cargargastoa']=anchor('cargargastoadm','Cargar gasto A'); // TODO: verificar permiso y este menu solo cargfa en administrativos
 /*
 		$n300000=anchor('m300000','Procesos');
 		$m300000['m301000']=anchor('m301000','Actualizar Productos desde compras');
