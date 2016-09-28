@@ -5,17 +5,20 @@ if (!defined('BASEPATH'))
 class Manejousuarios extends CI_Controller 
 {
 	protected $dbxmppusers = null;
+	private $usuariologin, $sessionflag, $acc_lectura, $acc_escribe, $acc_modifi;
 
 	public function __construct() 
 	{
 		parent::__construct();
-		$this->load->database('gastossystema');
 		//$this->dbxmppusers = $this->load->database('simplexmpp', true);
+		$this->load->database('gastossystema');
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
 		$this->load->model('menu');
 //		$this->output->enable_profiler(TRUE);
 	}
+
+
 	public function index() 
 	{
 		$data = array('logueado' => FALSE, 'accionpagina' => 'iniciar');
@@ -28,7 +31,8 @@ class Manejousuarios extends CI_Controller
 		$this->load->view('manejousuarios', $data);
 		$this->load->view('footer.php',$data);
 	}
-	
+
+
 	public function verificarintranet() 
 	{
 		if ( ! $this->input->post()) 
@@ -38,8 +42,28 @@ class Manejousuarios extends CI_Controller
 		$nombre = $this->input->post('nombre');
 		$contrasena = $this->input->post('contrasena');
 		//$this->load->model('manejousuarios');
-		//$objetousuario = $this->manejousuarios->usuario_ejabberd($nombre, $contrasena);
-		$sqlusuario = "select intranet as username,clave from usuarios where intranet='".$nombre."' and clave='".$contrasena."' ";
+		$sqlusuario = "SELECT 
+  count(`usu`.`intranet`) as cuantos,
+ `usu`.`ficha`,                             -- ficha en nomina, cedula en vnzl
+  ifnull(`usu`.`intranet`,'') as intranet,  -- solo entran quienes tengan intranet
+  ifnull(`usu`.`intranet`,'') as username,  -- solo entran quienes tengan intranet
+  `usu`.`clave`, `usu`.`nombre`,            -- como se llama y su apellido
+  `usu`.`codger`,                           -- ubicacion segun la nomina, pues es por centro de costos
+  `suc`.`cod_sucursal` as `cod_entidad`,    -- entidad sucursal en donde puede operar 
+  `usu`.`estado`,                           -- solo entran quienes puedan ver gastos
+  ifnull(`usu`.`sessionflag`,'') as sessionflag, 
+  `usu`.`acc_lectura`, `usu`.`acc_escribe`, `usu`.`acc_modifi`, 
+  `usu`.`fecha_ficha`, `usu`.`fecha_ultimavez`         -- ultima vez el usuario salio de sesion: YYYYMMDDhhmmss  
+FROM 
+ `usuarios` as `usu`
+LEFT join
+ `sucursal_usuario` as `suc` ON `suc`.`cod_usuario` = `usu`.`ficha`
+WHERE 
+  ifnull(`usu`.`intranet`,'') <> ''         -- solo entran quienes tengan intranet
+AND
+  (`usu`.`clave` = '".$contrasena."' AND ifnull(`usu`.`intranet`,'') = '".$nombre."')     -- aunque solo accede si tiene intranet, puede usar su cedula
+  OR 
+  (`usu`.`clave` = '".$contrasena."' AND ifnull(`usu`.`ficha`,'') = '".$nombre."')  ";
 		//$query = $this->dbxmppusers->query($sqlusuario);
 		$query = $this->db->query($sqlusuario);
 		$objetousuario = $query->result();
@@ -48,7 +72,12 @@ class Manejousuarios extends CI_Controller
 			foreach( $objetousuario as $rowuser )
 			{
 				$usuario_data = array(
+					'ficha' => $rowuser->ficha,
+					'intranet' => $rowuser->intranet,
 					'username' => $rowuser->username,
+					'nombre' => $rowuser->nombre,
+					'codger' => $rowuser->codger,
+					'cod_entidad' => $rowuser->cod_entidad,
 					'correo' => $rowuser->username . '@intranet1.net.ve'
 				);
 				break;
