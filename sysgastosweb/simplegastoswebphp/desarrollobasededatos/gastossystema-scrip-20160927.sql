@@ -76,6 +76,7 @@ CREATE  TABLE IF NOT EXISTS `usuarios` (
   `ficha` VARCHAR(40) NOT NULL COMMENT 'cod_usuario, cedula en vnzla' ,
   `intranet` VARCHAR(40) NULL COMMENT 'login del usuario, id del correo' ,
   `clave` VARCHAR(40) NULL ,
+  `codger` VARCHAR(40) NOT NULL COMMENT 'necesario porque deps lo manejan como centro de costos' ,
   `nombre` VARCHAR(40) NULL COMMENT 'nombre y apellido' ,
   `estado` VARCHAR(40) NULL COMMENT 'ACTIVO INACTIVO SUSPENDIDO INVALIDO' ,
   `sessionflag` VARCHAR(40) NULL COMMENT 'esto es quien_registro YYYYMMDDhhmmss + cod_sucursal + . + ficha' ,
@@ -120,8 +121,11 @@ DROP TABLE IF EXISTS `entidad` ;
 
 CREATE  TABLE IF NOT EXISTS `entidad` (
   `cod_entidad` VARCHAR(40) NOT NULL COMMENT 'sello de la sucursal o entidad' ,
-  `abr_entidad` VARCHAR(40) NULL COMMENT 'siglas sucursal' ,
-  `des_entidad` VARCHAR(40) NULL COMMENT 'descripcion sucursal' )
+  `abr_entidad` VARCHAR(40) NOT NULL COMMENT 'abrebiacion de esta sucursal' ,
+  `abr_zona` VARCHAR(40) NULL COMMENT 'siglas de la zona de la sucursal' ,
+  `des_entidad` VARCHAR(40) NULL COMMENT 'descripcion sucursal' ,
+  `status` VARCHAR(40) NULL COMMENT 'ACTIVA|CERRADA|SUSPENDIDA|ESPECIAL' ,
+  `codger` VARCHAR(40) NOT NULL COMMENT 'necesario porque deps lo manejan como centro de costos' )
 ENGINE = InnoDB
 COMMENT = 'las entidades que se le adjudican gastos';
 
