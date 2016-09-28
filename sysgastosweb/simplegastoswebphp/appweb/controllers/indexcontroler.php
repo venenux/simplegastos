@@ -15,7 +15,7 @@ class Indexcontroler extends CI_Controller {
 		$this->load->library('table');
 		$this->load->model('menu');
 		 //el profiler esta dañado.. debido a una mala coarga de arreglos para los de idiomas
-//		$this->output->enable_profiler(TRUE);
+		$this->output->enable_profiler(TRUE);
 	}
 
 	/**
@@ -36,9 +36,36 @@ class Indexcontroler extends CI_Controller {
 	public function index()
 	{
 		$data['menu'] = $this->menu->general_menu();
-		$this->load->view('header.php',$data);
-		$this->load->view('inicion.php',$data);
-		$this->load->view('footer.php',$data);
+		if( $this->session->userdata('logueado') == TRUE)
+		{
+		// TODO agregar en cada archivo esta linea if($this->session->userdata('logueado')) y verifica sesion
+			$data['username'] = $this->session->userdata('username');
+			$data['nombre'] = $this->session->userdata('nombre');
+			$data['correo'] = $this->session->userdata('correo');
+			$data['logueado'] = $this->session->userdata('logueado');
+			$data['accionpagina']='logeado';
+			$this->load->library('table');
+			$this->load->helper(array('form', 'url','html'));
+			$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="1" cellspacing="1" class="table">' );
+			$this->table->set_caption(NULL);
+			$this->table->clear();
+			$this->table->set_template($tmplnewtable);
+			$this->table->add_row('Bienvenido', $data['nombre'], '');
+			$this->table->add_row('Correo', $data['correo'], '');
+			$this->table->add_row('Centro de costo', $this->session->userdata('codger'), '');
+			$this->table->add_row('Ubicacion', $this->session->userdata('cod_entidad'), '');
+			$data['presentar']=$this->table->generate();
+			$data['menu'] = $this->menu->general_menu();
+			$this->load->view('header.php',$data);
+			$this->load->view('manejousuarios', $data);
+			$this->load->view('footer.php',$data);
+		}
+		else
+		{
+			$this->load->view('header.php',$data);
+			$this->load->view('inicion.php',$data);
+			$this->load->view('footer.php',$data);
+		}
 	}
 
 	public function otrafuncion()

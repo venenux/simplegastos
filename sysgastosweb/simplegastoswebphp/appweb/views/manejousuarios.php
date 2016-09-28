@@ -5,7 +5,7 @@
 	if( !isset($accionpagina) ) $accionpagina = 'deslogeado';
 	// detectar que mostrar segun lo enviado desde el controlador
 	echo form_fieldset('todo evento o accion se envia a su correo',array('class'=>'container_blue containerin ')) . PHP_EOL;
-	if ($accionpagina == 'deslogeado')
+	if ($accionpagina != 'logeado' || $accionpagina == 'deslogeado')
 	{
 		$htmlformaattributos = array('name'=>'formulariomanejousuarios','class'=>'formularios','onSubmit'=>'return validageneric(this);');
 		echo "<p>CUIDADO: no recarge o ejecute acciones al azar, use el menu arriba</p>";
@@ -15,7 +15,7 @@
 		echo form_submit('login', 'Iniciar sesion', 'class="btn btn-primary btn-large b10"');
 		echo form_close() . PHP_EOL;
 	}
-	else
+	else if ($accionpagina == 'logeado' )
 	{
 		echo $presentar;
 	}

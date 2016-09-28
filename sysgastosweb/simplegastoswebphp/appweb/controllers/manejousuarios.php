@@ -15,7 +15,7 @@ class Manejousuarios extends CI_Controller
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
 		$this->load->model('menu');
-//		$this->output->enable_profiler(TRUE);
+		$this->output->enable_profiler(TRUE);
 	}
 
 
@@ -35,7 +35,7 @@ class Manejousuarios extends CI_Controller
 
 	public function verificarintranet() 
 	{
-		if ( ! $this->input->post()) 
+		if ( !$this->input->post() || $this->input->post('nombre') != '') 
 		{
 			$this->index();
 		}
@@ -90,22 +90,31 @@ AND
 					$data['accionpagina']='logeado';
 				}
 				else
+				{
 					$usuario_data['logueado'] = FALSE;
+					$data['accionpagina']='deslogeado';
+				}
 				$this->session->set_userdata($usuario_data);
 			}
+		}
+		if( $this->session->userdata('logueado') == TRUE && $this->session->userdata('logueado') != '')
+		{
 			// TODO agregar en cada archivo esta linea if($this->session->userdata('logueado')) y verifica sesion
 			$data['username'] = $this->session->userdata('username');
-			$data['nombre'] = $this->session->userdata('username');
+			$data['nombre'] = $this->session->userdata('nombre');
 			$data['correo'] = $this->session->userdata('correo');
 			$data['logueado'] = $this->session->userdata('logueado');
+			$data['accionpagina']='logeado';
 			$this->load->library('table');
 			$this->load->helper(array('form', 'url','html'));
 			$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="1" cellspacing="1" class="table">' );
 			$this->table->set_caption(NULL);
 			$this->table->clear();
 			$this->table->set_template($tmplnewtable);
-			$this->table->add_row('Bienvenido', $data['username'], '');
+			$this->table->add_row('Bienvenido', $data['nombre'], '');
 			$this->table->add_row('Correo', $data['correo'], '');
+			$this->table->add_row('Centro de costo', $this->session->userdata('codger'), '');
+			$this->table->add_row('Ubicacion', $this->session->userdata('cod_entidad'), '');
 			$data['presentar']=$this->table->generate();
 			$data['menu'] = $this->menu->general_menu();
 			$this->load->view('header.php',$data);
