@@ -9,7 +9,7 @@ class Indexcontroler extends CI_Controller {
 		$this->load->library('session');
 		if( $this->session->userdata('logueado') == FALSE)
 		{
-			redirect('manejousuarios');
+			redirect('manejousuarios/desverificarintranet');
 		}
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
