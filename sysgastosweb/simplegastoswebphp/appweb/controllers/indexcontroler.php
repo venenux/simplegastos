@@ -37,7 +37,7 @@ class Indexcontroler extends CI_Controller {
 			$data['nombre'] = $this->session->userdata('nombre');
 			$data['correo'] = $this->session->userdata('correo');
 			$data['logueado'] = $this->session->userdata('logueado');
-			$data['accionpagina']='logeado';
+			$data['accionpagina']='logueado';
 			$this->load->library('table');
 			$this->load->helper(array('form', 'url','html'));
 			$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="1" cellspacing="1" class="table">' );
