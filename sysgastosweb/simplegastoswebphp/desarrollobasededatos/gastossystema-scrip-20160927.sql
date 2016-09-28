@@ -21,7 +21,7 @@ CREATE  TABLE IF NOT EXISTS `registro_gastos` (
   `estado` VARCHAR(40) NULL ,
   `num_factura` VARCHAR(40) NULL COMMENT 'mumero de factura opcinal' )
 ENGINE = InnoDB
-COMMENT = 'tabla donde se inserta cada monto de gasto y su descripcion (el detalle)';
+COMMENT = 'descripcion y monto de gastos (el detalle)';
 
 
 -- -----------------------------------------------------
@@ -35,7 +35,7 @@ CREATE  TABLE IF NOT EXISTS `categoria` (
   `fecha_categoria` VARCHAR(40) NULL COMMENT 'innecesario, por conpatibilidad' ,
   `sessionflag` VARCHAR(40) NULL COMMENT 'esto es quien_registro YYYYMMDDhhmmss + cod_sucursal + . + ficha' )
 ENGINE = InnoDB
-COMMENT = 'tabla que representa los titulos de la matrix, el tipo general de gasto';
+COMMENT = 'los titulos de la matrix, el tipo general de gasto';
 
 
 -- -----------------------------------------------------
@@ -59,12 +59,12 @@ DROP TABLE IF EXISTS `registro_adjunto` ;
 CREATE  TABLE IF NOT EXISTS `registro_adjunto` (
   `cod_adjunto` TEXT NOT NULL COMMENT 'YYYYMMDDhhmmss' ,
   `cod_registro` VARCHAR(40) NULL COMMENT 'a cual registro de gasto le pertenece este adjunto' ,
-  `hex_adjunto` VARCHAR(400000) NULL COMMENT 'la subida en base 64 del adjunto' ,
+  `hex_adjunto` VARCHAR(40000) NULL COMMENT 'la subida en base 64 del adjunto' ,
   `ruta_adjunto` VARCHAR(40) NULL COMMENT 'ruta opcinal del archivo si esta en el sistema de ficheros' ,
   `fecha_adjunto` VARCHAR(40) NULL COMMENT 'cuando se altero este adjunto' ,
   `sessionflag` VARCHAR(40) NULL COMMENT 'esto es quien_registro YYYYMMDDhhmmss + cod_sucursal + . + ficha' )
 ENGINE = InnoDB
-COMMENT = 'tabla de escaneados de cada registro, un registro puede tener varios escaneos de facturas';
+COMMENT = 'escaneados de los registro o gasto adjudicado';
 
 
 -- -----------------------------------------------------
@@ -85,7 +85,7 @@ CREATE  TABLE IF NOT EXISTS `usuarios` (
   `fecha_ficha` VARCHAR(40) NULL ,
   `fecha_ultimavez` VARCHAR(40) NULL COMMENT 'cuando fue la ultima vez que entro sesion' )
 ENGINE = InnoDB
-COMMENT = 'tabla de usuarios, el indicador applicacion permite saber si puede entrar en el app';
+COMMENT = 'tabla de usuarios';
 
 
 -- -----------------------------------------------------
@@ -110,7 +110,7 @@ CREATE  TABLE IF NOT EXISTS `sucursal_usuario` (
   `cod_usuario` VARCHAR(40) NOT NULL COMMENT 'login intranet de la tabla usuario' ,
   `cod_sucursal` VARCHAR(40) NOT NULL COMMENT 'sello al cual esta asociado' )
 ENGINE = InnoDB
-COMMENT = 'relacion entre un usuario y en que sucursal puede adjudicar gastos';
+COMMENT = 'relacion usuario y que sucursal adjudica gastos';
 
 
 -- -----------------------------------------------------
@@ -123,7 +123,7 @@ CREATE  TABLE IF NOT EXISTS `entidad` (
   `abr_entidad` VARCHAR(40) NULL COMMENT 'siglas sucursal' ,
   `des_entidad` VARCHAR(40) NULL COMMENT 'descripcion sucursal' )
 ENGINE = InnoDB
-COMMENT = 'representa las entidades que se le adjudican gastos es lo que era sucursales gastos';
+COMMENT = 'las entidades que se le adjudican gastos';
 
 
 
