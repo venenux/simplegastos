@@ -24,15 +24,15 @@ class Menu extends CI_Model
 		$header['2'] = $nodes->m_header_nodes($n010000,$m010000);
 */
 		if(!$this->session->userdata('logueado'))
-			$label = 'Inicio';
+			$label = 'Ingreso';
 		else
-			$label = 'Session';
+			$label = 'Sesion';
 
 		$inicio=anchor('indexcontroler',$label);
 
 		$intranet=anchor('http://intranet1.net.ve','Intranet');
 		$elcorreo=anchor('http://intranet1.net.ve/elcorreo','Correo');
-
+|
 		$ordenes=anchor('generarordenconcarga','Ordenes de despacho');
 //		$generarordenconcarga['consultarordendespachos']=anchor('consultarordendespachos','Consultar Orden');
 		$generarordenconcarga['generarordenconcarga']=anchor('generarordenconcarga','Generar Orden');
@@ -68,7 +68,7 @@ class Menu extends CI_Model
 		else
 		{
 			$header['0'] = $nodes->m_header_nodes($inicio, array());
-			$header['1'] = $nodes->m_header_nodes($inicio, array());
+			$header['1'] = $nodes->m_header_nodes('', array());
 		}
 		$header['2'] = $nodes->m_header_nodes($intranet, array());
 		$header['3'] = $nodes->m_header_nodes($elcorreo, array());
