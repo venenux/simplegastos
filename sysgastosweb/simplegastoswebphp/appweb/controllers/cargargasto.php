@@ -33,10 +33,9 @@ class Cargargasto extends CI_Controller {
 			redirect('manejousuarios/desverificarintranet');
 		}
 		$data['menu'] = $this->menu->general_menu();
-
+		/* cargar y listaar las CATEGORIAS que se usaran para registros */
 		$sqlcategoria = "
 		select
-		 count(*) as cuantos,
 		 ifnull(cod_categoria,'99999999999999') as cod_categoria,      -- YYYYMMDDhhmmss
 		 ifnull(des_categoria,'sin_descripcion') as des_categoria,
 		 ifnull(fecha_categoria, 'INVALIDO') as fecha_categoria,
@@ -52,7 +51,7 @@ class Cargargasto extends CI_Controller {
 		}
 		$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
 		unset($arreglocategoriaes['']);
-
+		/* cargar y listaar las SUBCATEGORIAS que se usaran para registros */
 		$sqlsubcategoria = "
 		SELECT
 		SUBSTRING(sb.cod_subcategoria,15) as code,
@@ -75,10 +74,9 @@ class Cargargasto extends CI_Controller {
 		}
 		$data['list_subcategoria'] = $arreglosubcategoriaes; // agrega este arreglo una lista para el combo box
 		unset($arreglosubcategoriaes['']);
-
-				$sqlentidad = "
+		/* cargar y listaar las UBIUCACIONES que se usaran para registros */
+		$sqlentidad = "
 		select
-		 count(*) as cuantos,
 		 abr_entidad, abr_zona, des_entidad, codger,
 		 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
 		 ifnull(des_entidad,'sin_descripcion') as des_entidad
@@ -89,18 +87,17 @@ class Cargargasto extends CI_Controller {
 		$arregloentidades = array(''=>'');
 		foreach ($resultadosentidad->result() as $row)
 		{
-			$arregloentidades[''.$row->cod_entidad] = ' - ' . $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
+			$arregloentidades[''.$row->cod_entidad] = $row->cod_entidad . ' - ' . $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
 		}
 		$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
 		unset($arregloentidades['']);
-
-
+		/* ahora renderizar o pintar el formulario de carga la vista */
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargasto.php',$data);
 		$this->load->view('footer.php',$data);
 	}
 
-	public function generacionautomatica()
+	public function registrargasto()
 	{
 		$userdata = $this->session->all_userdata();
 		$correousr = $this->usuariologin=$userdata['correo'];
@@ -112,12 +109,12 @@ class Cargargasto extends CI_Controller {
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 		// GENERACION de la carga id codigo de registro
-		$cod_registro = $fec_registro . date('His');
-		// CARGA DEL ARCHIVO ****************************************************** /
+		$cod_registro = 'GAS' . $fec_registro . date('His');
+		$cod_adjunto = $cod_registro . 'ADJ' . $fec_registro . date('His');
+		// OBTENER DATOS FORMULARIO CARGA DEL ARCHIVO ****************** */
 		$cargaconfig['upload_path'] = CATAPATH . '/appweb/archivoscargas';
-		$cargaconfig['allowed_types'] = 'txt|csv|pdf|png|gif';
-		//$cargaconfig['max_size']= '100'; // en kilobytes
-		$cargaconfig['max_size']  = 0;
+		$cargaconfig['allowed_types'] = 'txt|pdf|png|jpg|gif';
+		$cargaconfig['max_size']  = 0;  //$cargaconfig['max_size']= '100'; // en kilobytes
 		$cargaconfig['max_width'] = 0;
 		$cargaconfig['max_height'] = 0;
 		//$cargaconfig['remove_spaces'] = true;
@@ -127,47 +124,106 @@ class Cargargasto extends CI_Controller {
 		$this->upload->initialize($cargaconfig);
 		$this->upload->do_upload('nam_archivo'); // nombre del campo alla en el formulario
 		$file_data = $this->upload->data();
-		$filenamen = 'registro_adjunto' . $cod_registro .'.adj';
+		$filenamen = $cod_adjunto . $file_data['file_ext'];
         $filenameorig =  $file_data['file_path'] . $file_data['file_name'];
         $filenamenewe =  $file_data['file_path'] . $filenamen;
-        copy( $filenameorig, $filenamenewe); // TODO: rename en produccion
-        //rename( $filenameorig, $filenamenewe);
+        copy( $filenameorig, $filenamenewe); // TODO: rename en produccion // rename( $filenameorig, $filenamenewe);
+        $file_data['file_name'] = $filenamen;
 		$data['upload_data'] = $file_data;
 		$data['archivos'] = $filenameorig . '-' . $filenamenewe ;
 		$cantidadLineas = 0;
 			$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
 			// procesar el registro sin el adjunto
-            $sql = "INSERT INTO dba.td_orden_despacho (cod_interno, cantidad, precio_venta, cod_order, ord_origen) VALUES ";
-			$this->db->query($sql);
-			// procesar el registro del adjunto
-            $sql = "INSERT INTO dba.tm_orden_despacho (cod_order, estado, nom_usuario, cantidadLineas, origen, destino, cambio_precio_asc) VALUES ";
-			$this->db->query($sql);
-        // CARGA EXITOSA UESTRO DETALLE ************************************* /
+            $sqlregistrargasto = "
+            BEGIN;
+            INSERT INTO `gastossystema`.`registro_gastos`
+			(
+			   `cod_registro`, `cod_sucursal`,
+			   `cod_categoria`, `cod_subcategoria`,
+			   `des_registro`,
+			   `mon_registro`,
+			   `fecha_registro`, `fecha_factura`,
+			   `sessionflag`,
+			   `estado`,
+			   `num_factura`
+			 )
+			VALUES
+			(
+			  '".$cod_registro."', '".$cod_entidad."',
+			  SUBSTRING('".$cod_subcategoria."',1,14),'".$cod_subcategoria."',
+			  '".$des_registro."',
+			  ".$mon_registro.",
+			  '".$fec_registro."',
+			  '', -- TODO: fecha factura fec_factura pendiente
+			  '', -- TODO: session flag manejar en perfil y permisos
+			  'PROCESADO',
+			  ''
+			);
+			INSERT INTO `gastossystema`.`registro_adjunto`
+			(
+			  `cod_adjunto`,
+			  `cod_registro`,
+			  `hex_adjunto`,
+			  `ruta_adjunto`,
+			  `fecha_adjunto`,
+			  `sessionflag`,
+			  `nam_adjunto`,
+			  `nam_archivo`
+			 )
+			VALUES
+			(
+			'".$cod_adjunto."',
+			'".$cod_registro."',
+			'', -- TODO: convertir a base64 el archivo
+			'".$file_data['full_path']."',
+			'',
+			'',
+			'".$file_data['file_name']."',
+			'".$filenameorig."'
+			);
+			COMMIT;
+            ";
+			$this->db->query($sqlregistrargasto);
+		   // CARGA EXITOSA UESTRO DETALLE ************************************* /
 			$sqlregistro = "
 			SELECT
+			  `registro_gastos`.`cod_registro`,
 			  `registro_adjunto`.`cod_adjunto`,
-			  `registro_adjunto`.`cod_registro`,
+			  `registro_gastos`.`cod_sucursal`,
+			  `registro_gastos`.`cod_categoria`,
+			  `registro_gastos`.`cod_subcategoria`,
 			  `registro_gastos`.`des_registro`,
 			  `registro_gastos`.`mon_registro`,
+			  `categoria`.`des_categoria`,
+			  `subcategoria`.`des_subcategoria`,
+			  `entidad`.`des_entidad`,
+			  `entidad`.`abr_entidad`,
+			  `entidad`.`abr_zona`,
+			  `registro_gastos`.`estado`,
+			  `registro_gastos`.`num_factura`,
 			  `registro_adjunto`.`hex_adjunto`,
 			  `registro_adjunto`.`nam_adjunto`,
+			  `registro_gastos`.`fecha_registro`,
+			  `registro_gastos`.`fecha_factura`,
 			  `registro_adjunto`.`fecha_adjunto`,
-			  `registro_adjunto`.`sessionflag`
-			FROM
-			 `gastossystema`.`registro_adjunto`
-			Left join
-			 `gastossystema`.`registro_gastos`
-			on
-			 `registro_adjunto`.`cod_registro` = `registro_gastos`.`cod_registro`
-			where
-			 ifnull(`registro_gastos`.`cod_registro`,'') <> '' and `registro_gastos`.`cod_registro` <> ''
-			 and cod_registro = '".$cod_registro."'";
-//				,(select mto_precio from dba.ta_precio_producto where cod_precio=0 and cod_interno=a.cod_interno and cod_sucursal=(select num_sucursal from DBA.tc_codmsc where cod_sucursal='".$subcategoria."')) as precio_destino
-			$resultadocarga = $this->db->query($sqlregistro); //row_array
+			  `registro_gastos`.`sessionflag`
+			FROM	 `gastossystema`.`registro_gastos`
+			LEFT JOIN	 `gastossystema`.`registro_adjunto`
+			ON	 `registro_adjunto`.`cod_registro` = `registro_gastos`.`cod_registro`
+			LEFT JOIN	 `gastossystema`.`subcategoria`
+			ON	 `subcategoria`.`cod_subcategoria` = `registro_gastos`.`cod_subcategoria`
+			LEFT JOIN	 `gastossystema`.`categoria`
+			ON	 `categoria`.`cod_categoria` = `registro_gastos`.`cod_categoria`
+			LEFT JOIN	 `gastossystema`.`entidad`
+			ON	 `entidad`.`cod_entidad` = `registro_gastos`.`cod_sucursal`
+			WHERE	 ifnull(`registro_gastos`.`cod_registro`,'') <> '' and `registro_gastos`.`cod_registro` <> ''
+			ORDER BY cod_registro	LIMIT 5";
+//--			 and cod_registro = '".$cod_registro." '
+		$resultadocarga = $this->db->query($sqlregistro); //row_array
         // TERMINAR EL PROCESO (solo paso 1) **************************************************** /
 		$this->table->clear();
 		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="1" class="table">' );
-		$this->table->set_caption(NULL);
+		$this->table->set_caption("Su resultado y sus ultimas cargas");
 		$this->table->set_template($tmplnewtable);
 		$this->table->set_heading('cod_registro', 'mon_registro', 'des_registro', 'nam_adjunto', 'fecha_adjunto');
 		$resultadocargatablatxtmsg = '';

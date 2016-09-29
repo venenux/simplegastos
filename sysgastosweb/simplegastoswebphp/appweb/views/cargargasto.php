@@ -17,7 +17,7 @@
 		$separadores = array(''=>'', '\t'=>'Tabulador (|)', ','=>'Coma (,)',';'=>'PuntoComa (;)');
 		$htmlformaattributos = array('name'=>'formularioordendespachogenerar','class'=>'formularios','onSubmit'=>'return validageneric(this);');
 		echo form_fieldset('Ingrese los datos por favor',array('class'=>'container_blue containerin')) . PHP_EOL;
-		echo form_open_multipart('generarordenconcarga/generacionautomatica/', $htmlformaattributos) . PHP_EOL;
+		echo form_open_multipart('cargargasto/registrargasto/', $htmlformaattributos) . PHP_EOL;
 		echo 'Fecha del gasto:'.form_input($valoresinputfecha).br().PHP_EOL;
 		echo 'Monto del gasto:'.form_input('mon_registro','').br().PHP_EOL;
 		echo 'Descripcion del registro :'.form_input('des_registro','').br().PHP_EOL;
