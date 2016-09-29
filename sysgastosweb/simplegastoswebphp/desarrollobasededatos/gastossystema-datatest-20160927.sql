@@ -25,19 +25,68 @@ VALUES
 
 TRUNCATE `gastossystema`.`usuarios`;
 INSERT INTO `gastossystema`.`usuarios`
+(`ficha`,`intranet`,`clave`,`codger`,`nombre`,`estado`,`sessionflag`,
+`acc_lectura`,`acc_escribe`,`acc_modifi`,`fecha_ficha`,`fecha_ultimavez`)
+VALUES
+('123','pepe','123','001','pepe trueno','ACTIVO','',
+'TODOS','TODOS','TODOS','',''),
+('456','pablo','456','002','pablo tuno','ACTIVO','',
+'TODOS','TODOS','TODOS','','');
+
+INSERT INTO `gastossystema`.`entidad`
+(`cod_entidad`,`abr_entidad`,`abr_zona`,`des_entidad`,`status`,`codger`)
+VALUES
+('001', 'SUC1', 'ADM-CAS', 'Sucursal 1', 'ESPECIAL', '999'),
+('002', 'SUC2', 'ZON-CEN', 'Sucursal 2', 'ESPECIAL', '999');
+
+INSERT INTO `gastossystema`.`sucursal_usuario`
+(`cod_usuario`,`cod_sucursal`)
+VALUES
+('123', '001'),
+('123', '001');
+
+BEGIN;
+INSERT INTO `gastossystema`.`registro_gastos`
 (
-`ficha`,`intranet`,`clave`,`codger`,`nombre`,`estado`,`sessionflag`,
-`acc_lectura`,`acc_escribe`,`acc_modifi`,`fecha_ficha`,`fecha_ultimavez`
+`cod_registro`,`cod_sucursal`,
+`cod_categoria`,`cod_subcategoria`,
+`des_registro`,
+`mon_registro`,
+`fecha_registro`,`fecha_factura`,
+`sessionflag`,`estado`,`num_factura`
 )
 VALUES
 (
-'123','pepe','123','001','pepe trueno','ACTIVO','',
-'TODOS','TODOS','TODOS','',''
-),
-(
-'456','pablo','456','002','pablo tuno','ACTIVO','',
-'TODOS','TODOS','TODOS','',''
+'GAS20160929120000','001',
+SUBSTRING('2016092812520020160928125200',1,14),'2016092812520020160928125200',
+'empanadas de la comite, que no le dieron a lenz nadita',
+999999999999.999,
+'20160929120000','',
+'','PROCESADO',''
 );
+INSERT INTO `gastossystema`.`registro_adjunto`
+(
+`cod_adjunto`,
+`cod_registro`,
+`hex_adjunto`,
+`ruta_adjunto`,
+`fecha_adjunto`,
+`sessionflag`,
+`nam_adjunto`,
+`nam_archivo`)
+VALUES
+(
+'ADJ20160929120000',
+'GAS20160929120000',
+'',
+'',
+'/ruta/al/archivo',
+'',
+'GAS20160929120000ADJ20160929120000.vacio',
+'escaneo hecho por una persona.pdf'
+);
+COMMIT;
+
 
 -- 20160928
 --ALTER TABLE `gastossystema`.`registro_adjunto` ADD COLUMN `nam_adjunto` VARCHAR(40) NULL COMMENT 'nombre del archivo despues cargarlo al sistema'  AFTER `sessionflag` , ADD COLUMN `nam_archivo` VARCHAR(40) NULL COMMENT 'nombre del archivo antes de cargarlo al sistema'  AFTER `nam_adjunto` ;
