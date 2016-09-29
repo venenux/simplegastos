@@ -23,6 +23,22 @@ VALUES
 ('2016092812520120160928125200', 'Quincena primera', '', ''),
 ('2016092812520120160928125201', 'Quincena segunda', '', '');
 
+TRUNCATE `gastossystema`.`usuarios`;
+INSERT INTO `gastossystema`.`usuarios`
+(
+`ficha`,`intranet`,`clave`,`codger`,`nombre`,`estado`,`sessionflag`,
+`acc_lectura`,`acc_escribe`,`acc_modifi`,`fecha_ficha`,`fecha_ultimavez`
+)
+VALUES
+(
+'123','pepe','123','001','pepe trueno','ACTIVO','',
+'TODOS','TODOS','TODOS','',''
+),
+(
+'456','pablo','456','002','pablo tuno','ACTIVO','',
+'TODOS','TODOS','TODOS','',''
+);
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
