@@ -2,7 +2,7 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
-SET SQL_SAFE_UPDATES = 0; 
+SET SQL_SAFE_UPDATES = 0;
 
 TRUNCATE `gastossystema`.`categoria`;
 INSERT INTO `gastossystema`.`categoria`
@@ -38,6 +38,27 @@ VALUES
 '456','pablo','456','002','pablo tuno','ACTIVO','',
 'TODOS','TODOS','TODOS','',''
 );
+
+-- 20160928
+--ALTER TABLE `gastossystema`.`registro_adjunto` ADD COLUMN `nam_adjunto` VARCHAR(40) NULL COMMENT 'nombre del archivo despues cargarlo al sistema'  AFTER `sessionflag` , ADD COLUMN `nam_archivo` VARCHAR(40) NULL COMMENT 'nombre del archivo antes de cargarlo al sistema'  AFTER `nam_adjunto` ;
+-- 20160928 : todas las columnas son varchar menos el monto
+--ALTER TABLE `gastossystema`.`registro_adjunto` ADD COLUMN `nam_adjunto` VARCHAR(40) NULL COMMENT 'nombre del archivo despues cargarlo al sistema'  AFTER `sessionflag` , ADD COLUMN `nam_archivo` VARCHAR(40) NULL COMMENT 'nombre del archivo antes de cargarlo al sistema'  AFTER `nam_adjunto` ;
+--ALTER TABLE `gastossystema`.`registro_gastos` CHANGE COLUMN `cod_registro` `cod_registro` VARCHAR(40) NOT NULL COMMENT 'usa fecha YYYYMMDDhhmmss era id_unico_autogenerado'  ;
+--ALTER TABLE `gastossystema`.`categoria` CHANGE COLUMN `cod_categoria` `cod_categoria` VARCHAR(40) NOT NULL COMMENT 'YYYYMMDDhhmmss'  ;
+--ALTER TABLE `gastossystema`.`log` CHANGE COLUMN `cod_log` `cod_log` VARCHAR(40) NOT NULL COMMENT 'yyyymmddhhmmss'  ;
+--ALTER TABLE `gastossystema`.`registro_adjunto` CHANGE COLUMN `cod_adjunto` `cod_adjunto` VARCHAR(40) NOT NULL COMMENT 'YYYYMMDDhhmmss'  ;
+--ALTER TABLE `gastossystema`.`registro_gastos` CHANGE COLUMN `cod_sucursal` `cod_sucursal` VARCHAR(40) NOT NULL COMMENT 'sello de la entidad al cual se le adjudica'  , CHANGE COLUMN `cod_categoria` `cod_categoria` VARCHAR(40) NULL DEFAULT NULL COMMENT 'si alguna vez se desasocia subcategorias'  , CHANGE COLUMN `cod_subcategoria` `cod_subcategoria` VARCHAR(40) NOT NULL COMMENT 'cual subcategoria no puede faltar'  , CHANGE COLUMN `mon_registro` `mon_registro` DECIMAL(10,6) NOT NULL COMMENT 'cuanto se gasto, com algunos decimales'  , COMMENT = 'descripcion y monto de gastos o el detalle' ;
+--ALTER TABLE `gastossystema`.`subcategoria` COMMENT = 'en que renglon cargan los gastos' ;
+-- 20160929 : usar internacional utf8
+--ALTER SCHEMA `gastossystema`  DEFAULT CHARACTER SET utf8;
+--USE `gastossystema`;
+--ALTER TABLE `gastossystema`.`registro_gastos` CHARACTER SET = utf8;
+--ALTER TABLE `gastossystema`.`categoria` CHARACTER SET = utf8;
+--ALTER TABLE `gastossystema`.`subcategoria` CHARACTER SET = utf8;
+--ALTER TABLE `gastossystema`.`usuarios` CHARACTER SET = utf8;
+--ALTER TABLE `gastossystema`.`log` CHARACTER SET = utf8;
+--ALTER TABLE `gastossystema`.`sucursal_usuario` CHARACTER SET = utf8;
+--ALTER TABLE `gastossystema`.`entidad` CHARACTER SET = utf8;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
