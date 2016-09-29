@@ -3,7 +3,7 @@
 class Cargargasto extends CI_Controller {
 
 	protected $numeroordendespacho =  '';
-	private $usuariologin, $sessionflag, $acc_lectura, $acc_escribe, $acc_modifi;
+	private $usuariologin, $sessionflag, $usuariocodger, $acc_lectura, $acc_escribe, $acc_modifi;
 
 	function __construct()
 	{
@@ -33,15 +33,15 @@ class Cargargasto extends CI_Controller {
 			redirect('manejousuarios/desverificarintranet');
 		}
 		$data['menu'] = $this->menu->general_menu();
-		
+
 		$sqlcategoria = "
-		select 
-		 count(*) as cuantos,  
+		select
+		 count(*) as cuantos,
 		 ifnull(cod_categoria,'99999999999999') as cod_categoria,      -- YYYYMMDDhhmmss
-		 ifnull(des_categoria,'sin_descripcion') as des_categoria,  
-		 ifnull(fecha_categoria, 'INVALIDO') as fecha_categoria, 
-		 ifnull(sessionflag,'') as sessionflag 
-		from categoria 
+		 ifnull(des_categoria,'sin_descripcion') as des_categoria,
+		 ifnull(fecha_categoria, 'INVALIDO') as fecha_categoria,
+		 ifnull(sessionflag,'') as sessionflag
+		from categoria
 		  where ifnull(cod_categoria, '') <> '' and cod_categoria <> ''
 		";
 		$resultadoscategoria = $this->db->query($sqlcategoria);
@@ -52,7 +52,7 @@ class Cargargasto extends CI_Controller {
 		}
 		$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
 		unset($arreglocategoriaes['']);
-		
+
 		$sqlsubcategoria = "
 		SELECT
 		SUBSTRING(sb.cod_subcategoria,15) as code,
@@ -71,13 +71,30 @@ class Cargargasto extends CI_Controller {
 		$arreglosubcategoriaes = array(''=>'');
 		foreach ($resultadossubcategoria->result() as $row)
 		{
-			$arreglosubcategoriaes[''.$row->cod_subcategoria] = 
-			''.$row->code .': ' . $row->des_categoria . ' - ' . $row->des_subcategoria
-			;
+			$arreglosubcategoriaes[''.$row->cod_subcategoria] = $row->code .': ' . $row->des_categoria . ' - ' . $row->des_subcategoria;
 		}
 		$data['list_subcategoria'] = $arreglosubcategoriaes; // agrega este arreglo una lista para el combo box
 		unset($arreglosubcategoriaes['']);
-		
+
+				$sqlentidad = "
+		select
+		 count(*) as cuantos,
+		 abr_entidad, abr_zona, des_entidad, codger,
+		 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
+		 ifnull(des_entidad,'sin_descripcion') as des_entidad
+		from entidad
+		  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
+		";
+		$resultadosentidad = $this->db->query($sqlentidad);
+		$arregloentidades = array(''=>'');
+		foreach ($resultadosentidad->result() as $row)
+		{
+			$arregloentidades[''.$row->cod_entidad] = ' - ' . $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
+		}
+		$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
+		unset($arregloentidades['']);
+
+
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargasto.php',$data);
 		$this->load->view('footer.php',$data);
@@ -86,14 +103,19 @@ class Cargargasto extends CI_Controller {
 	public function generacionautomatica()
 	{
 		$userdata = $this->session->all_userdata();
-		$correousuariosesion = $this->usuariologin=$userdata['correo'];
+		$correousr = $this->usuariologin=$userdata['correo'];
+		$intranet = $this->usuariologin=$userdata['intranet'];
 		// OBTENER DATOS DE FORMULARIO ***************************** /
-		$delimitador = $this->input->get_post('archivoproductospreciosep');
-		$categoriaorigen = $this->input->get_post('categoriaorigen');
-		$subcategoria = $this->input->get_post('subcategoria');
+		$fec_registro = $this->input->get_post('fec_registro');
+		$mon_registro = $this->input->get_post('mon_registro');
+		$des_registro = $this->input->get_post('des_registro');
+		$cod_entidad = $this->input->get_post('cod_entidad');
+		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
+		// GENERACION de la carga id codigo de registro
+		$cod_registro = $fec_registro . date('His');
 		// CARGA DEL ARCHIVO ****************************************************** /
 		$cargaconfig['upload_path'] = CATAPATH . '/appweb/archivoscargas';
-		$cargaconfig['allowed_types'] = 'txt|.|csv';
+		$cargaconfig['allowed_types'] = 'txt|csv|pdf|png|gif';
 		//$cargaconfig['max_size']= '100'; // en kilobytes
 		$cargaconfig['max_size']  = 0;
 		$cargaconfig['max_width'] = 0;
@@ -103,84 +125,74 @@ class Cargargasto extends CI_Controller {
 		$this->load->library('upload', $cargaconfig);
 		$this->load->helper('inflector');
 		$this->upload->initialize($cargaconfig);
-		$this->upload->do_upload('archivoproductosprecionom'); // nombre del campo alla en el formulario
+		$this->upload->do_upload('nam_archivo'); // nombre del campo alla en el formulario
 		$file_data = $this->upload->data();
-		$filenamen = 'ordendespachocarga' . $this->numeroordendespacho .'.txt';
+		$filenamen = 'registro_adjunto' . $cod_registro .'.adj';
         $filenameorig =  $file_data['file_path'] . $file_data['file_name'];
         $filenamenewe =  $file_data['file_path'] . $filenamen;
-        copy( $filenameorig, $filenamenewe); // TODO: rename
+        copy( $filenameorig, $filenamenewe); // TODO: rename en produccion
         //rename( $filenameorig, $filenamenewe);
-		$data['upload_data'] = $this->upload->data();
-		$data['archivos'] = $filenameorig . '  y  ' . $filenamenewe ;
-		// TRABAJAR COMO CSV ****************************************************** /
-		$this->load->library('csvimport');
-		$this->csvimport->filepath($filenameorig);
-		$this->csvimport->delimiter($delimitador);
-		$this->csvimport->initial_line(0);
-		$this->csvimport->detect_line_endings(TRUE);
-		$this->csvimport->column_headers(FALSE);
-		//$csv_array = $this->csvimport->get_array($filenameorig,TRUE,TRUE,0,'|');
-		$csv_array = $this->csvimport->get_array();
+		$data['upload_data'] = $file_data;
+		$data['archivos'] = $filenameorig . '-' . $filenamenewe ;
 		$cantidadLineas = 0;
-		if ( ! $csv_array ) 
-		{
 			$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
-		}
-		else
-		{
-			$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
+			// procesar el registro sin el adjunto
             $sql = "INSERT INTO dba.td_orden_despacho (cod_interno, cantidad, precio_venta, cod_order, ord_origen) VALUES ";
-			foreach ($csv_array as $row) 
-            {
-				$sql .= "(  right('000000000'+".$this->db->escape($row['cod_producto']).",10), ".$this->db->escape($row['can_cantidad']).", ".$this->db->escape($row['can_precio']).", ".$this->db->escape($filenamen).", ".$this->db->escape($filenameorig)."),";
-                $cantidadLineas++;
-            }
-            $sql = substr ($sql, 0, -1);
 			$this->db->query($sql);
-			
+			// procesar el registro del adjunto
             $sql = "INSERT INTO dba.tm_orden_despacho (cod_order, estado, nom_usuario, cantidadLineas, origen, destino, cambio_precio_asc) VALUES ";
-            $eldestinosinsertar = implode(",",$subcategoria);
-			//foreach($subcategoria as $posi=>$eldestinosinsertar)
-			//{
-				// cambio de precio es in id de cm_cpp
-				$sql .=	"(".$this->db->escape($filenamen).", '0', '".$correousuariosesion ."', ".$cantidadLineas.", ".$this->db->escape($categoriaorigen).", ".$this->db->escape($eldestinosinsertar).", ''),";
-			//}
-			$sql = substr ($sql, 0, -1);
 			$this->db->query($sql);
         // CARGA EXITOSA UESTRO DETALLE ************************************* /
-			$sqlcargado = "SELECT  
-				(select txt_descripcion_larga from dba.tv_producto where cod_interno=a.cod_interno) AS des_producto
-				,a.cod_interno AS cod_producto
-				,a.cantidad AS can_cantidaddespachar
-				,a.precio_venta as precio_archivo
-				,(select mto_precio from dba.ta_precio_producto where cod_precio=0 and cod_interno=a.cod_interno and cod_sucursal=(select num_sucursal from DBA.tc_codmsc where cod_sucursal='".$categoriaorigen."')) as precio_origen
-				,(select convert(integer ,saldo_producto) from dba.tv_existencia where cod_interno = a.cod_interno and cod_sucursal='".$categoriaorigen."') as saldo_origen
-				FROM dba.td_orden_despacho as a
-				where cod_order = '".$filenamen."'";
+			$sqlregistro = "
+			SELECT
+			  `registro_adjunto`.`cod_adjunto`,
+			  `registro_adjunto`.`cod_registro`,
+			  `registro_gastos`.`des_registro`,
+			  `registro_gastos`.`mon_registro`,
+			  `registro_adjunto`.`hex_adjunto`,
+			  `registro_adjunto`.`nam_adjunto`,
+			  `registro_adjunto`.`fecha_adjunto`,
+			  `registro_adjunto`.`sessionflag`
+			FROM
+			 `gastossystema`.`registro_adjunto`
+			Left join
+			 `gastossystema`.`registro_gastos`
+			on
+			 `registro_adjunto`.`cod_registro` = `registro_gastos`.`cod_registro`
+			where
+			 ifnull(`registro_gastos`.`cod_registro`,'') <> '' and `registro_gastos`.`cod_registro` <> ''
+			 and cod_registro = '".$cod_registro."'";
 //				,(select mto_precio from dba.ta_precio_producto where cod_precio=0 and cod_interno=a.cod_interno and cod_sucursal=(select num_sucursal from DBA.tc_codmsc where cod_sucursal='".$subcategoria."')) as precio_destino
-			$resultadocarga = $this->db->query($sqlcargado); //row_array
-        }
+			$resultadocarga = $this->db->query($sqlregistro); //row_array
         // TERMINAR EL PROCESO (solo paso 1) **************************************************** /
 		$this->table->clear();
 		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="1" class="table">' );
 		$this->table->set_caption(NULL);
 		$this->table->set_template($tmplnewtable);
-		$this->table->set_heading('des_producto', 'cod_producto', 'can_despachar', 'precio_archivo', 'precio_origen', 'precio_destino', 'existencia_origen');
+		$this->table->set_heading('cod_registro', 'mon_registro', 'des_registro', 'nam_adjunto', 'fecha_adjunto');
 		$resultadocargatablatxtmsg = '';
 		$resultadocargatablatxtmsg .= "| cod_producto \t| can_despachar \t| des_producto \t\t".PHP_EOL;
 		$resultadocargatabla = $resultadocarga->result_array();
 		foreach ($resultadocargatabla as $rowtable)
 		{
-			$this->table->add_row($rowtable['des_producto'], $rowtable['cod_producto'], $rowtable['can_cantidaddespachar'], $rowtable['precio_archivo'], $rowtable['precio_origen'], /*$rowtable['precio_destino'],*/ $rowtable['saldo_origen']);
+			$this->table->add_row($rowtable['cod_registro'], $rowtable['mon_registro'], $rowtable['des_registro'], $rowtable['nam_adjunto'], $rowtable['fecha_adjunto'], /*$rowtable['precio_destino'],*/ $rowtable['saldo_origen']);
 			$resultadocargatablatxtmsg .= "| ".$rowtable['cod_producto'] ." \t| ". $rowtable['can_cantidaddespachar'] . " \t| ". $rowtable['des_producto'] .' '.PHP_EOL;
 		}
-		$data['htmltablageneradodetalle'] = $this->table->generate();
+		$data['htmltablacargasregistros'] = $this->table->generate();
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'resultadocargardatos';
 		$data['upload_errors'] = $this->upload->display_errors('<p>', '</p>');
-		$data['categoriaorigen'] = $categoriaorigen;
-		$data['eldestinosinsertar'] = $eldestinosinsertar;
+		$data['intranet'] = $intranet;
+		$data['fec_registro'] = $fec_registro;
+		$data['mon_registro'] = $mon_registro;
+		$data['des_registro'] = $des_registro;
+		$data['cod_entidad'] = $cod_entidad;
+		$data['cod_subcategoria'] = $cod_subcategoria;
+		$data['cod_registro'] = $cod_registro;
 		$data['cantidadLineas'] = $cantidadLineas;
+		//$data['cantidadLineas'] = $cantidadLineas;
+		//$data['cantidadLineas'] = $cantidadLineas;
+
 		$data['filenamen'] = $filenamen;
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
@@ -195,7 +207,7 @@ class Cargargasto extends CI_Controller {
 		// TODO agregar numero de linea incrementar, sacar del numero de la linea
 	//}
 	//public function generacionautomatica()
-	//{	
+	//{
 		$this->load->dbutil();
 		$querypaltxt = $this->db->query($sql);
 		$correocontenido = $this->dbutil->csv_from_result($querypaltxt, "\t", "\n", '', FALSE);
@@ -208,8 +220,8 @@ class Cargargasto extends CI_Controller {
 		{
 			 echo 'Unable to write the file';
 		}
-		//$categoriaorigen='0000a';
-		$sql = "select top 1 correo from dba.tm_codmsc_correo where codmsc='".$categoriaorigen."'";
+		//$intranet='0000a';
+		$sql = "select top 1 correo from dba.tm_codmsc_correo where codmsc='".$intranet."'";
 		$sqlcorreoorigen = $this->db->query($sql);
 		$obtuvecorreo = 0;
 		foreach ($sqlcorreoorigen->result() as $correorow)
@@ -219,7 +231,7 @@ class Cargargasto extends CI_Controller {
 		}
 		if ($obtuvecorreo < 1)
 			$correoorigenaenviarle = 'ordenesdespachos@intranet1.net.ve, lenz_gerardo@intranet1.net.ve';
-		
+
 		$this->load->library('email');
 		/*
 		// esta configuracion requiere mejoras en la libreia, no conecta bien ssl
@@ -234,25 +246,25 @@ class Cargargasto extends CI_Controller {
 		$configm1['smtp_crypto'] = 'tls';
 		$configm1['newline'] = "\n";
 		$configm1['mailtype'] = 'text'; // or html
-		$configm1['validation'] = FALSE; // bool whether to validate email or not      
+		$configm1['validation'] = FALSE; // bool whether to validate email or not
 		$this->email->initialize($configm1);
 		$this->email->from('ordenesdespachos@intranet1.net.ve', 'ordenesdespachos');
-		$this->email->cc($correousuariosesion); 
+		$this->email->cc($correousuariosesion);
 		$this->email->to($correoorigenaenviarle); // enviar a los destinos de galpones
-		$this->email->subject('Orden Despacho '. $this->numeroordendespacho .' Origen:'.$categoriaorigen.' Destino:'.$eldestinosinsertar);
+		$this->email->subject('Orden Despacho '. $this->numeroordendespacho .' Origen:'.$intranet.' Destino:'.$fec_registro);
 		//$messageenviar = str_replace("\n", "\r\n", $correocontenido);
 		$this->email->message('Orden de despacho adjunta.'.PHP_EOL.PHP_EOL.$correocontenido );
 		$this->email->attach($filenameneweordendespachoadjuntar);
 		$this->email->send();
 */
-		
-		
+
+
 		$configm2['protocol'] = 'mail';// en sysdevel y sysnet envia pero syscenter no
 		$configm2['wordwrap'] = FALSE;
 		$configm2['starttls'] = TRUE; // requiere sendmail o localmail use courierd START_TLS_REQUIRED=1 sendmail no envia
 		$configm2['smtp_crypto'] = 'tls';
 //		$configm2['mailtype'] = 'html';
-		
+
 		$this->load->library('email');
 		$this->email->initialize($configm2);
 		$this->email->from('ordenesdespachos@intranet1.net.ve', 'ordenesdespachos');
@@ -261,14 +273,14 @@ class Cargargasto extends CI_Controller {
 		$this->email->reply_to('ordenesdespachos@intranet1.net.ve', 'ordenesdespachos');
 		$this->email->to($correoorigenaenviarle ); // enviar a los destinos de galpones
 		//if ($obtuvecorreo < 1)
-			$this->email->subject('Orden Despacho '. $this->numeroordendespacho .' Origen:'.$categoriaorigen.' Destino:'.$eldestinosinsertar);
+			$this->email->subject('Registro de gasto '. $this->numeroordendespacho .' Responsable:'.$intranet.' Fecha registro:'.$fec_registro);
 		//else
-		//	$this->email->subject('Orden prueba '. $this->numeroordendespacho .' Origen:'.$categoriaorigen.' Destino:'.$eldestinosinsertar);
+		//	$this->email->subject('Orden prueba '. $this->numeroordendespacho .' Origen:'.$intranet.' Destino:'.$fec_registro);
 		$this->email->message('Orden de despacho adjunta.'.PHP_EOL.PHP_EOL.'**************************************'.PHP_EOL.PHP_EOL.$resultadocargatablatxtmsg/*$data['htmltablageneradodetalle']*/.'***************************************'.PHP_EOL.PHP_EOL.'Orden para el galpon cargar oasis:'.PHP_EOL.PHP_EOL.$correocontenido );
 		$this->email->attach($filenameneweordendespachoadjuntar);
 		$this->email->send();
 
 		//echo $this->email->print_debugger();
-		
+
 	}
 }
