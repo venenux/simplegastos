@@ -45,10 +45,10 @@
 | the active record class
 */
 
-$active_group = 'oasis';
-$active_record = FALSE;
+$active_group = 'gastossystema';
+$active_record = TRUE;
 
-
+// base de datos principal de la aplicacion, active record solo sirve aqui
 $db['gastossystema']['hostname'] = '10.10.34.20';
 $db['gastossystema']['username'] = 'gastossystema';
 $db['gastossystema']['password'] = 'gastossystema.1';
@@ -65,6 +65,7 @@ $db['gastossystema']['swap_pre'] = '';
 $db['gastossystema']['autoinit'] = TRUE;
 $db['gastossystema']['stricton'] = FALSE;
 
+// base de datos de oasis/sybase para datos de productos y ventas
 $db['oasis']['hostname'] = 'oasis0';//"dsn=oasis1;uid=dba;pwd=sql";
 $db['oasis']['username'] = 'ordendespacho';
 $db['oasis']['password'] = 'ordendespacho.1.com';
@@ -81,6 +82,7 @@ $db['oasis']['swap_pre'] = '';
 $db['oasis']['autoinit'] = TRUE;
 $db['oasis']['stricton'] = FALSE;
 
+// base de datos de la nomina vnzla
 $db['nominasaint']['hostname'] = 'nomina0';//"dsn=nomina0;uid=dba;pwd=sql";
 $db['nominasaint']['username'] = 'dba';
 $db['nominasaint']['password'] = 'sql';
@@ -97,6 +99,7 @@ $db['nominasaint']['swap_pre'] = '';
 $db['nominasaint']['autoinit'] = TRUE;
 $db['nominasaint']['stricton'] = FALSE;
 
+// base de datos del chat
 $db['simplexmpp']['hostname'] = '37.10.252.99';
 $db['simplexmpp']['username'] = 'simplexmpp';
 $db['simplexmpp']['password'] = 'simplexmpp.1.com.ve';
