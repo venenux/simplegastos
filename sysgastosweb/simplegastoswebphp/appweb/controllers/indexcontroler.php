@@ -19,7 +19,7 @@ class Indexcontroler extends CI_Controller {
 	 *
 	 * Maps to the following URL
 	 * 		http://example.com/index.php/indexcontroler
-	 *	- or -  
+	 *	- or -
 	 * 		http://example.com/index.php/indexcontroler/index
 	 *	- or -
 	 *
@@ -46,7 +46,7 @@ class Indexcontroler extends CI_Controller {
 			$this->table->set_template($tmplnewtable);
 			$this->table->add_row('Bienvenido', $data['nombre'], '');
 			$this->table->add_row('Correo', $data['correo'], '');
-			$this->table->add_row('Centro de costo', $this->session->userdata('codger'), '');
+			$this->table->add_row('Centro de costo', $this->session->userdata('codger') . '(' . $this->session->userdata('cod_entidad').') - '.$this->session->userdata('des_entidad'), '');
 			$this->table->add_row('Ubicacion', $this->session->userdata('cod_entidad'), '');
 			$data['presentar']=$this->table->generate();
 			$data['menu'] = $this->menu->general_menu();
