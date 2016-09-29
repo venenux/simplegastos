@@ -1,2 +1,0 @@
-cod_producto,can_cantidad,can_precio
-101010,89,1590

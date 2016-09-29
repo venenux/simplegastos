@@ -1,4 +1,0 @@
-﻿cod_producto,can_cantidad,can_precio
-0000101010,14,2342
-0000101011,15,4234
-
