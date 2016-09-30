@@ -216,7 +216,7 @@ class Cargargasto extends CI_Controller {
 			LEFT JOIN	 gastossystema.entidad
 			ON	 entidad.cod_entidad = registro_gastos.cod_sucursal
 			WHERE	 ifnull(registro_gastos.cod_registro,'') <> '' and registro_gastos.cod_registro <> ''
-			ORDER BY cod_registro	LIMIT 5";
+			ORDER BY cod_registro DESC	LIMIT 5";
 //--			 and cod_registro = '".$cod_registro." '
 		$resultadocarga = $this->db->query($sqlregistro); //row_array
         // TERMINAR EL PROCESO (solo paso 1) **************************************************** /
