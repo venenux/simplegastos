@@ -11,11 +11,10 @@ class Cargargasto extends CI_Controller {
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
 		$userdata = $this->session->all_userdata();
-		$this->usuariologin=$userdata['username'];
+		//$this->usuariologin=$userdata['username'];
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
 		$this->load->model('menu');
-		$this->numeroordendespacho = date("Y") . date("m") . date("d") . date("H") . date("i") ;
 		$connecion = $this->load->database('gastossystema');
 		$this->output->enable_profiler(TRUE);
 	}
@@ -28,9 +27,9 @@ class Cargargasto extends CI_Controller {
 	 */
 	public function index()
 	{
-		if( $this->session->userdata('logueado') == FALSE || $this->session->userdata('sessionflag') != '')
+		if( $this->session->userdata('logueado') == FALSE)
 		{
-			redirect('manejousuarios/desverificarintranet');
+		//	redirect('manejousuarios/desverificarintranet');
 		}
 		$data['menu'] = $this->menu->general_menu();
 		/* cargar y listaar las CATEGORIAS que se usaran para registros */
@@ -100,8 +99,8 @@ class Cargargasto extends CI_Controller {
 	public function registrargasto()
 	{
 		$userdata = $this->session->all_userdata();
-		$correousr = $this->usuariologin=$userdata['correo'];
-		$intranet = $this->usuariologin=$userdata['intranet'];
+		//$correousr = $userdata['correo'];
+		//$intranet = $userdata['intranet'];
 		// OBTENER DATOS DE FORMULARIO ***************************** /
 		$fec_registro = $this->input->get_post('fec_registro');
 		$mon_registro = $this->input->get_post('mon_registro');
@@ -135,17 +134,16 @@ class Cargargasto extends CI_Controller {
 			$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
 			// procesar el registro sin el adjunto
             $sqlregistrargasto = "
-            BEGIN;
-            INSERT INTO `gastossystema`.`registro_gastos`
+            INSERT INTO gastossystema.registro_gastos
 			(
-			   `cod_registro`, `cod_sucursal`,
-			   `cod_categoria`, `cod_subcategoria`,
-			   `des_registro`,
-			   `mon_registro`,
-			   `fecha_registro`, `fecha_factura`,
-			   `sessionflag`,
-			   `estado`,
-			   `num_factura`
+			   cod_registro, cod_sucursal,
+			   cod_categoria, cod_subcategoria,
+			   des_registro,
+			   mon_registro,
+			   fecha_registro, fecha_factura,
+			   sessionflag,
+			   estado,
+			   num_factura
 			 )
 			VALUES
 			(
@@ -154,69 +152,70 @@ class Cargargasto extends CI_Controller {
 			  '".$des_registro."',
 			  ".$mon_registro.",
 			  '".$fec_registro."',
-			  '', -- TODO: fecha factura fec_factura pendiente
-			  '', -- TODO: session flag manejar en perfil y permisos
+			  '',
+			  '',
 			  'PROCESADO',
 			  ''
-			);
-			INSERT INTO `gastossystema`.`registro_adjunto`
+			)";
+			$this->db->query($sqlregistrargasto);
+		 	$sqlregistrargasto2 = "
+			INSERT INTO gastossystema.registro_adjunto
 			(
-			  `cod_adjunto`,
-			  `cod_registro`,
-			  `hex_adjunto`,
-			  `ruta_adjunto`,
-			  `fecha_adjunto`,
-			  `sessionflag`,
-			  `nam_adjunto`,
-			  `nam_archivo`
+			  cod_adjunto,
+			  cod_registro,
+			  hex_adjunto,
+			  ruta_adjunto,
+			  fecha_adjunto,
+			  sessionflag,
+			  nam_adjunto,
+			  nam_archivo
 			 )
 			VALUES
 			(
 			'".$cod_adjunto."',
 			'".$cod_registro."',
-			'', -- TODO: convertir a base64 el archivo
+			'',
 			'".$file_data['full_path']."',
 			'',
 			'',
 			'".$file_data['file_name']."',
 			'".$filenameorig."'
-			);
-			COMMIT;
-            ";
-			$this->db->query($sqlregistrargasto);
+			)
+			";
+			$this->db->query($sqlregistrargasto2);
 		   // CARGA EXITOSA UESTRO DETALLE ************************************* /
 			$sqlregistro = "
 			SELECT
-			  `registro_gastos`.`cod_registro`,
-			  `registro_adjunto`.`cod_adjunto`,
-			  `registro_gastos`.`cod_sucursal`,
-			  `registro_gastos`.`cod_categoria`,
-			  `registro_gastos`.`cod_subcategoria`,
-			  `registro_gastos`.`des_registro`,
-			  `registro_gastos`.`mon_registro`,
-			  `categoria`.`des_categoria`,
-			  `subcategoria`.`des_subcategoria`,
-			  `entidad`.`des_entidad`,
-			  `entidad`.`abr_entidad`,
-			  `entidad`.`abr_zona`,
-			  `registro_gastos`.`estado`,
-			  `registro_gastos`.`num_factura`,
-			  `registro_adjunto`.`hex_adjunto`,
-			  `registro_adjunto`.`nam_adjunto`,
-			  `registro_gastos`.`fecha_registro`,
-			  `registro_gastos`.`fecha_factura`,
-			  `registro_adjunto`.`fecha_adjunto`,
-			  `registro_gastos`.`sessionflag`
-			FROM	 `gastossystema`.`registro_gastos`
-			LEFT JOIN	 `gastossystema`.`registro_adjunto`
-			ON	 `registro_adjunto`.`cod_registro` = `registro_gastos`.`cod_registro`
-			LEFT JOIN	 `gastossystema`.`subcategoria`
-			ON	 `subcategoria`.`cod_subcategoria` = `registro_gastos`.`cod_subcategoria`
-			LEFT JOIN	 `gastossystema`.`categoria`
-			ON	 `categoria`.`cod_categoria` = `registro_gastos`.`cod_categoria`
-			LEFT JOIN	 `gastossystema`.`entidad`
-			ON	 `entidad`.`cod_entidad` = `registro_gastos`.`cod_sucursal`
-			WHERE	 ifnull(`registro_gastos`.`cod_registro`,'') <> '' and `registro_gastos`.`cod_registro` <> ''
+			  registro_gastos.cod_registro,
+			  registro_adjunto.cod_adjunto,
+			  registro_gastos.cod_sucursal,
+			  registro_gastos.cod_categoria,
+			  registro_gastos.cod_subcategoria,
+			  registro_gastos.des_registro,
+			  registro_gastos.mon_registro,
+			  categoria.des_categoria,
+			  subcategoria.des_subcategoria,
+			  entidad.des_entidad,
+			  entidad.abr_entidad,
+			  entidad.abr_zona,
+			  registro_gastos.estado,
+			  registro_gastos.num_factura,
+			  registro_adjunto.hex_adjunto,
+			  registro_adjunto.nam_adjunto,
+			  registro_gastos.fecha_registro,
+			  registro_gastos.fecha_factura,
+			  registro_adjunto.fecha_adjunto,
+			  registro_gastos.sessionflag
+			FROM	 gastossystema.registro_gastos
+			LEFT JOIN	 gastossystema.registro_adjunto
+			ON	 registro_adjunto.cod_registro = registro_gastos.cod_registro
+			LEFT JOIN	 gastossystema.subcategoria
+			ON	 subcategoria.cod_subcategoria = registro_gastos.cod_subcategoria
+			LEFT JOIN	 gastossystema.categoria
+			ON	 categoria.cod_categoria = registro_gastos.cod_categoria
+			LEFT JOIN	 gastossystema.entidad
+			ON	 entidad.cod_entidad = registro_gastos.cod_sucursal
+			WHERE	 ifnull(registro_gastos.cod_registro,'') <> '' and registro_gastos.cod_registro <> ''
 			ORDER BY cod_registro	LIMIT 5";
 //--			 and cod_registro = '".$cod_registro." '
 		$resultadocarga = $this->db->query($sqlregistro); //row_array
@@ -255,6 +254,7 @@ class Cargargasto extends CI_Controller {
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargasto.php',$data);
 		$this->load->view('footer.php',$data);
+		/*
 		// PROCESO POSTERIOR generacion de txt (y dale con el txt() para el ajuste
 		$sql = "SELECT right('000000000'+DBA.td_orden_despacho.cod_interno,10) as cp, null as v2, DBA.td_orden_despacho.cantidad as ca, null as v3, '' as v4, ";//DBA.td_orden_despacho.precio_venta ";
 		$sql .= " isnull(convert(integer, (DBA.td_orden_despacho.cantidad/(SELECT top 1 unid_empaque FROM DBA.ta_proveedor_producto where cod_proveedor<>'000000000000' and cod_interno=right('000000000'+DBA.td_orden_despacho.cod_interno,10)))),0) as bu ";
@@ -314,7 +314,7 @@ class Cargargasto extends CI_Controller {
 		$this->email->send();
 */
 
-
+/*
 		$configm2['protocol'] = 'mail';// en sysdevel y sysnet envia pero syscenter no
 		$configm2['wordwrap'] = FALSE;
 		$configm2['starttls'] = TRUE; // requiere sendmail o localmail use courierd START_TLS_REQUIRED=1 sendmail no envia
@@ -332,11 +332,11 @@ class Cargargasto extends CI_Controller {
 			$this->email->subject('Registro de gasto '. $this->numeroordendespacho .' Responsable:'.$intranet.' Fecha registro:'.$fec_registro);
 		//else
 		//	$this->email->subject('Orden prueba '. $this->numeroordendespacho .' Origen:'.$intranet.' Destino:'.$fec_registro);
-		$this->email->message('Orden de despacho adjunta.'.PHP_EOL.PHP_EOL.'**************************************'.PHP_EOL.PHP_EOL.$resultadocargatablatxtmsg/*$data['htmltablageneradodetalle']*/.'***************************************'.PHP_EOL.PHP_EOL.'Orden para el galpon cargar oasis:'.PHP_EOL.PHP_EOL.$correocontenido );
+		$this->email->message('Orden de despacho adjunta.'.PHP_EOL.PHP_EOL.'**************************************'.PHP_EOL.PHP_EOL.$resultadocargatablatxtmsg.$data['htmltablageneradodetalle'].'***************************************'.PHP_EOL.PHP_EOL.'Orden para el galpon cargar oasis:'.PHP_EOL.PHP_EOL.$correocontenido );
 		$this->email->attach($filenameneweordendespachoadjuntar);
 		$this->email->send();
 
 		//echo $this->email->print_debugger();
-
+*/
 	}
 }

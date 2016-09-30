@@ -109,6 +109,7 @@ COMMIT;
 --ALTER TABLE `gastossystema`.`sucursal_usuario` CHARACTER SET = utf8;
 --ALTER TABLE `gastossystema`.`entidad` CHARACTER SET = utf8;
 
+ALTER TABLE `gastossystema`.`registro_adjunto` CHANGE COLUMN `ruta_adjunto` `ruta_adjunto` VARCHAR(400) NULL DEFAULT NULL COMMENT 'ruta opcinal del archivo si esta en el sistema de ficheros'  , CHANGE COLUMN `nam_adjunto` `nam_adjunto` VARCHAR(400) NULL DEFAULT NULL COMMENT 'nombre del archivo despues cargarlo al sistema'  , CHANGE COLUMN `nam_archivo` `nam_archivo` VARCHAR(400) NULL DEFAULT NULL COMMENT 'nombre del archivo antes de cargarlo al sistema'  ;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
