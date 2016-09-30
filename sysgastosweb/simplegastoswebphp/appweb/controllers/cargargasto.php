@@ -10,8 +10,7 @@ class Cargargasto extends CI_Controller {
 		parent::__construct();
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
-		$userdata = $this->session->all_userdata();
-		//$this->usuariologin=$userdata['username'];
+		//$userdata = $this->session->all_userdata(); aqui no hay sesin valida, debe ser en las funciones
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
 		$this->load->model('menu');
@@ -100,7 +99,7 @@ class Cargargasto extends CI_Controller {
 	{
 		$userdata = $this->session->all_userdata();
 		//$correousr = $userdata['correo'];
-		//$intranet = $userdata['intranet'];
+		$intranet = $userdata['intranet'];
 		// OBTENER DATOS DE FORMULARIO ***************************** /
 		$fec_registro = $this->input->get_post('fec_registro');
 		$mon_registro = $this->input->get_post('mon_registro');
@@ -112,7 +111,7 @@ class Cargargasto extends CI_Controller {
 		$cod_adjunto = $cod_registro . 'ADJ' . $fec_registro . date('His');
 		// OBTENER DATOS FORMULARIO CARGA DEL ARCHIVO ****************** */
 		$cargaconfig['upload_path'] = CATAPATH . '/appweb/archivoscargas';
-		$cargaconfig['allowed_types'] = 'txt|pdf|png|jpg|gif';
+		$cargaconfig['allowed_types'] = 'gif|jpg|png';
 		$cargaconfig['max_size']  = 0;  //$cargaconfig['max_size']= '100'; // en kilobytes
 		$cargaconfig['max_width'] = 0;
 		$cargaconfig['max_height'] = 0;
@@ -121,13 +120,14 @@ class Cargargasto extends CI_Controller {
 		$this->load->library('upload', $cargaconfig);
 		$this->load->helper('inflector');
 		$this->upload->initialize($cargaconfig);
+		$this->upload->overwrite = true;
 		$this->upload->do_upload('nam_archivo'); // nombre del campo alla en el formulario
 		$file_data = $this->upload->data();
 		$filenamen = $cod_adjunto . $file_data['file_ext'];
         $filenameorig =  $file_data['file_path'] . $file_data['file_name'];
         $filenamenewe =  $file_data['file_path'] . $filenamen;
         copy( $filenameorig, $filenamenewe); // TODO: rename en produccion // rename( $filenameorig, $filenamenewe);
-        $file_data['file_name'] = $filenamen;
+        //$file_data['file_name'] = $filenamen;
 		$data['upload_data'] = $file_data;
 		$data['archivos'] = $filenameorig . '-' . $filenamenewe ;
 		$cantidadLineas = 0;
@@ -224,14 +224,36 @@ class Cargargasto extends CI_Controller {
 		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="1" class="table">' );
 		$this->table->set_caption("Su resultado y sus ultimas cargas");
 		$this->table->set_template($tmplnewtable);
-		$this->table->set_heading('cod_registro', 'mon_registro', 'des_registro', 'nam_adjunto', 'fecha_adjunto');
-		$resultadocargatablatxtmsg = '';
-		$resultadocargatablatxtmsg .= "| cod_producto \t| can_despachar \t| des_producto \t\t".PHP_EOL;
+		$this->table->set_heading(
+			'cod_registro',
+			'des_registro', 'mon_registro', 'des_categoria', 'des_subcategoria', 'des_entidad', 
+			'abr_entidad', 'abr_zona', 'Estado', 
+			'num_factura', 
+			'hex_adjunto', // TODO : link para visualizar
+			//'nam_adjunto', 
+			'fecha_registro', 	'fecha_factura', 	'fecha_adjunto',	'sessionflag' 
+			//'cod_registro', 'cod_adjunto', 'cod_sucursal', 'cod_categoria', 'cod_subcategoria'
+		);
+		$resultadocargatablatxtmsg = "| cod_producto \t| can_despachar \t| des_producto \t\t".PHP_EOL;
 		$resultadocargatabla = $resultadocarga->result_array();
 		foreach ($resultadocargatabla as $rowtable)
 		{
-			$this->table->add_row($rowtable['cod_registro'], $rowtable['mon_registro'], $rowtable['des_registro'], $rowtable['nam_adjunto'], $rowtable['fecha_adjunto'], /*$rowtable['precio_destino'],*/ $rowtable['saldo_origen']);
-			$resultadocargatablatxtmsg .= "| ".$rowtable['cod_producto'] ." \t| ". $rowtable['can_cantidaddespachar'] . " \t| ". $rowtable['des_producto'] .' '.PHP_EOL;
+			$this->table->add_row(
+			$rowtable['cod_registro'],
+			$rowtable['des_registro'], $rowtable['mon_registro'], $rowtable['des_categoria'], $rowtable['des_subcategoria'], $rowtable['des_entidad'], 
+			$rowtable['abr_entidad'], $rowtable['abr_zona'], $rowtable['estado'], 
+			$rowtable['num_factura'], 
+			$rowtable['hex_adjunto'],  // TODO: link para descargar / visualizar
+			//$rowtable['nam_adjunto'], 
+			$rowtable['fecha_registro'], $rowtable['fecha_factura'], $rowtable['fecha_adjunto'], $rowtable['sessionflag']
+			//$rowtable['cod_registro'], $rowtable['cod_adjunto'], $rowtable['cod_sucursal'], $rowtable['cod_categoria'], $rowtable['cod_subcategoria']
+			);
+			
+/*			$resultadocargatablatxtmsg .= 
+			"| ".$rowtable['cod_producto'] .
+			" \t| ". $rowtable['can_cantidaddespachar'] . 
+			" \t| ". $rowtable['des_producto'] .
+			' '.PHP_EOL;*/
 		}
 		$data['htmltablacargasregistros'] = $this->table->generate();
 		$data['menu'] = $this->menu->general_menu();

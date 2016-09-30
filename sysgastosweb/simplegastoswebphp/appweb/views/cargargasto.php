@@ -23,7 +23,7 @@
 		echo 'Descripcion del registro :'.form_input('des_registro','').br().PHP_EOL;
 		echo 'Sucursal adjudicar:'.form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL;
 		echo 'Categoria/Subcategoria:'.form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL;
-		echo 'Archivo factura:'.form_upload('nam_archivo').br().PHP_EOL;
+		echo 'Archivo factura:'.form_upload(array('name'  => 'nam_archivo', 'id'=>'nam_archivo')).br().PHP_EOL;
 		echo form_submit('login', 'Registrar gasto', 'class="btn btn-primary btn-large b10"');
 		echo form_close() . PHP_EOL;
 		echo form_fieldset_close() . PHP_EOL;
