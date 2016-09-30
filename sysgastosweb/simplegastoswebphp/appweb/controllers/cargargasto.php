@@ -8,13 +8,13 @@ class Cargargasto extends CI_Controller {
 	function __construct()
 	{
 		parent::__construct();
+		$this->load->database('gastossystema');
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
 		//$userdata = $this->session->all_userdata(); aqui no hay sesin valida, debe ser en las funciones
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
 		$this->load->model('menu');
-		$connecion = $this->load->database('gastossystema');
 		$this->output->enable_profiler(TRUE);
 	}
 
@@ -28,7 +28,7 @@ class Cargargasto extends CI_Controller {
 	{
 		if( $this->session->userdata('logueado') == FALSE)
 		{
-		//	redirect('manejousuarios/desverificarintranet');
+			redirect('manejousuarios/desverificarintranet');
 		}
 		$data['menu'] = $this->menu->general_menu();
 		/* cargar y listaar las CATEGORIAS que se usaran para registros */
@@ -97,9 +97,13 @@ class Cargargasto extends CI_Controller {
 
 	public function registrargasto()
 	{
+		if( $this->session->userdata('logueado') == FALSE)
+		{
+			redirect('manejousuarios/desverificarintranet');
+		}
 		$userdata = $this->session->all_userdata();
-		//$correousr = $userdata['correo'];
-		$intranet = $userdata['intranet'];
+		$usercorreo = $userdata['correo'];
+		$userintran = $userdata['intranet'];
 		// OBTENER DATOS DE FORMULARIO ***************************** /
 		$fec_registro = $this->input->get_post('fec_registro');
 		$mon_registro = $this->input->get_post('mon_registro');
@@ -121,15 +125,24 @@ class Cargargasto extends CI_Controller {
 		$this->load->helper('inflector');
 		$this->upload->initialize($cargaconfig);
 		$this->upload->overwrite = true;
-		$this->upload->do_upload('nam_archivo'); // nombre del campo alla en el formulario
-		$file_data = $this->upload->data();
-		$filenamen = $cod_adjunto . $file_data['file_ext'];
-        $filenameorig =  $file_data['file_path'] . $file_data['file_name'];
-        $filenamenewe =  $file_data['file_path'] . $filenamen;
-        copy( $filenameorig, $filenamenewe); // TODO: rename en produccion // rename( $filenameorig, $filenamenewe);
-        //$file_data['file_name'] = $filenamen;
-		$data['upload_data'] = $file_data;
-		$data['archivos'] = $filenameorig . '-' . $filenamenewe ;
+		if ( $this->upload->do_upload('nam_archivo')) // nombre del campo alla en el formulario
+		{
+			$file_data = $this->upload->data();
+			$filenamen = $cod_adjunto . $file_data['file_ext'];
+			$filenameorig =  $file_data['file_path'] . $file_data['file_name'];
+			$filenamenewe =  $file_data['file_path'] . $filenamen;
+			copy( $filenameorig, $filenamenewe); // TODO: rename en produccion // rename( $filenameorig, $filenamenewe);
+			//$file_data['file_name'] = $filenamen;
+			$data['upload_data'] = $file_data;
+			$data['archivos'] = $filenameorig . '-' . $filenamenewe ;
+			$data['filenamen'] = $filenamen;
+			$conadjunto = TRUE;
+		}
+		else
+		{
+			$conadjunto = FALSE;
+			$data['filenamen'] = "sin archivos";
+		}
 		$cantidadLineas = 0;
 			$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
 			// procesar el registro sin el adjunto
@@ -158,31 +171,34 @@ class Cargargasto extends CI_Controller {
 			  ''
 			)";
 			$this->db->query($sqlregistrargasto);
-		 	$sqlregistrargasto2 = "
-			INSERT INTO gastossystema.registro_adjunto
-			(
-			  cod_adjunto,
-			  cod_registro,
-			  hex_adjunto,
-			  ruta_adjunto,
-			  fecha_adjunto,
-			  sessionflag,
-			  nam_adjunto,
-			  nam_archivo
-			 )
-			VALUES
-			(
-			'".$cod_adjunto."',
-			'".$cod_registro."',
-			'',
-			'".$file_data['full_path']."',
-			'',
-			'',
-			'".$file_data['file_name']."',
-			'".$filenameorig."'
-			)
-			";
-			$this->db->query($sqlregistrargasto2);
+			if ( $conadjunto )
+			{
+				$sqlregistrargasto2 = "
+				INSERT INTO gastossystema.registro_adjunto
+				(
+				  cod_adjunto,
+				  cod_registro,
+				  hex_adjunto,
+				  ruta_adjunto,
+				  fecha_adjunto,
+				  sessionflag,
+				  nam_adjunto,
+				  nam_archivo
+				 )
+				VALUES
+				(
+				'".$cod_adjunto."',
+				'".$cod_registro."',
+				'',
+				'".$file_data['full_path']."',
+				'',
+				'',
+				'".$file_data['file_name']."',
+				'".$filenameorig."'
+				)
+				";
+				$this->db->query($sqlregistrargasto2);
+			}
 		   // CARGA EXITOSA UESTRO DETALLE ************************************* /
 			$sqlregistro = "
 			SELECT
@@ -222,16 +238,16 @@ class Cargargasto extends CI_Controller {
         // TERMINAR EL PROCESO (solo paso 1) **************************************************** /
 		$this->table->clear();
 		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="1" class="table">' );
-		$this->table->set_caption("Su resultado y sus ultimas cargas");
+		$this->table->set_caption("Sus ultimas cargas:");
 		$this->table->set_template($tmplnewtable);
 		$this->table->set_heading(
-			'cod_registro',
-			'des_registro', 'mon_registro', 'des_categoria', 'des_subcategoria', 'des_entidad', 
-			'abr_entidad', 'abr_zona', 'Estado', 
-			'num_factura', 
-			'hex_adjunto', // TODO : link para visualizar
-			//'nam_adjunto', 
-			'fecha_registro', 	'fecha_factura', 	'fecha_adjunto',	'sessionflag' 
+			'Categoria', 'Concepto',// 'des_categoria', 'des_subcategoria',
+			'Destino',  //'des_entidad','abr_entidad', 'abr_zona',
+			'Gasto', 'Monto',
+			'Estado',
+			'fecha_registro'
+			// 	'fecha_factura', 	'fecha_adjunto',	'sessionflag'	'num_factura',
+			//	'hex_adjunto', 'nam_adjunto',// TODO : link para visualizar
 			//'cod_registro', 'cod_adjunto', 'cod_sucursal', 'cod_categoria', 'cod_subcategoria'
 		);
 		$resultadocargatablatxtmsg = "| cod_producto \t| can_despachar \t| des_producto \t\t".PHP_EOL;
@@ -239,19 +255,19 @@ class Cargargasto extends CI_Controller {
 		foreach ($resultadocargatabla as $rowtable)
 		{
 			$this->table->add_row(
-			$rowtable['cod_registro'],
-			$rowtable['des_registro'], $rowtable['mon_registro'], $rowtable['des_categoria'], $rowtable['des_subcategoria'], $rowtable['des_entidad'], 
-			$rowtable['abr_entidad'], $rowtable['abr_zona'], $rowtable['estado'], 
-			$rowtable['num_factura'], 
-			$rowtable['hex_adjunto'],  // TODO: link para descargar / visualizar
-			//$rowtable['nam_adjunto'], 
-			$rowtable['fecha_registro'], $rowtable['fecha_factura'], $rowtable['fecha_adjunto'], $rowtable['sessionflag']
+			$rowtable['des_categoria'], $rowtable['des_subcategoria'],
+			$rowtable['des_entidad'] . ' ('.$rowtable['abr_entidad'].') -'. $rowtable['abr_zona'],
+			$rowtable['des_registro'], $rowtable['mon_registro'],
+			$rowtable['estado'],
+			$rowtable['fecha_registro']
+			// $rowtable['fecha_factura'], $rowtable['fecha_adjunto'], $rowtable['sessionflag'],$rowtable['num_factura'],
+			//$rowtable['hex_adjunto'], $rowtable['nam_adjunto'], // TODO: link para descargar / visualizar
 			//$rowtable['cod_registro'], $rowtable['cod_adjunto'], $rowtable['cod_sucursal'], $rowtable['cod_categoria'], $rowtable['cod_subcategoria']
 			);
-			
-/*			$resultadocargatablatxtmsg .= 
+
+/*			$resultadocargatablatxtmsg .=
 			"| ".$rowtable['cod_producto'] .
-			" \t| ". $rowtable['can_cantidaddespachar'] . 
+			" \t| ". $rowtable['can_cantidaddespachar'] .
 			" \t| ". $rowtable['des_producto'] .
 			' '.PHP_EOL;*/
 		}
@@ -259,7 +275,7 @@ class Cargargasto extends CI_Controller {
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'resultadocargardatos';
 		$data['upload_errors'] = $this->upload->display_errors('<p>', '</p>');
-		$data['intranet'] = $intranet;
+		$data['userintran'] = $userintran;
 		$data['fec_registro'] = $fec_registro;
 		$data['mon_registro'] = $mon_registro;
 		$data['des_registro'] = $des_registro;
@@ -269,8 +285,6 @@ class Cargargasto extends CI_Controller {
 		$data['cantidadLineas'] = $cantidadLineas;
 		//$data['cantidadLineas'] = $cantidadLineas;
 		//$data['cantidadLineas'] = $cantidadLineas;
-
-		$data['filenamen'] = $filenamen;
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
 		$this->load->view('header.php',$data);
