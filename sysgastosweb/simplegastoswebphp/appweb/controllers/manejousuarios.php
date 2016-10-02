@@ -15,7 +15,7 @@ class Manejousuarios extends CI_Controller
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
 		$this->load->model('menu');
-		$this->output->enable_profiler(TRUE);
+		//$this->output->enable_profiler(TRUE);
 	}
 
 
@@ -24,6 +24,7 @@ class Manejousuarios extends CI_Controller
 		$data = array('logueado' => FALSE, 'accionpagina' => 'iniciar');
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionpagina'] = 'deslogueado';
+		$usuario_data = null;
 		$usuario_data = array('logueado' => FALSE);
 		$this->session->set_userdata($usuario_data);
 		$this->load->helper(array('form', 'url','html'));
@@ -138,6 +139,7 @@ class Manejousuarios extends CI_Controller
 		$data = array('logueado' => FALSE, 'accionpagina' => 'deslogueado');
 		$usuario_data = array('logueado' => FALSE);
 		$this->session->set_userdata($usuario_data);
+		$this->session->sess_destroy();
 		$this->index();
 	}
 }
