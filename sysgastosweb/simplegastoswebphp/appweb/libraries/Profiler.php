@@ -506,7 +506,9 @@ class CI_Profiler extends CI_Loader {
 			{
 				if ($log['type'] == 'log')
 				{
-					$logs['console'][$key]['data'] = print_r($log['data'], true);
+					$this->CI->load->library('Vd');
+					$logs['console'][$key]['data'] = Vd::dump($log['data'], '', TRUE);
+//					$logs['console'][$key]['data'] = print_r($log['data'], true);
 				}
 				elseif ($log['type'] == 'memory')
 				{
