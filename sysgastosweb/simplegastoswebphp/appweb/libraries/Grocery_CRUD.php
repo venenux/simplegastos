@@ -224,6 +224,7 @@ class grocery_CRUD_Field_Types
 					'string',
 					'date',
 					'datetime',
+					'decimal',
 					'enum',
 					'set',
 					'relation',
@@ -422,6 +423,10 @@ class grocery_CRUD_Field_Types
 						$type = 'true_false';
 					else
 						$type = 'integer';
+				break;
+				case 'decimal':
+				case 'numeric':
+					$type = 'decimal';
 				break;
 				case '254':
 				case 'string':
@@ -2208,6 +2213,18 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		return $input;
 	}
 
+	protected function get_decimal_input($field_info,$value)
+	{
+		$extra_attributes = '';
+		if(!empty($field_info->db_max_length)) {
+			$before_and_after_comma = explode(',', $field_info->db_max_length);
+			$maxlength = array_sum($before_and_after_comma) + 1;//Account for the decimal separator
+			$extra_attributes .= "maxlength='{$maxlength}'";
+		}
+		$input = "<input id='field-{$field_info->name}' name='{$field_info->name}' type='number' value='$value' class='numeric' $extra_attributes step='0." . str_repeat( 0, $before_and_after_comma[1] - 1 ) . "1' />";
+		return $input;
+	}
+
 	protected function get_true_false_input($field_info,$value)
 	{
 		$value_is_null = empty($value) && $value !== '0' && $value !== 0 ? true : false;
@@ -3773,7 +3790,7 @@ class Grocery_CRUD extends grocery_CRUD_States
 	 * */
 	public function unset_view()
 	{
-		return unset_read();
+		return $this->unset_read();
 	}
 
 	/**
