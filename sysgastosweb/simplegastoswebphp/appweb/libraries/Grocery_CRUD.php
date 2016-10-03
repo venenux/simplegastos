@@ -2419,7 +2419,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		$options = array('' => '') + $field_info->extras;
 		foreach($options as $option_value => $option_label)
 		{
-			$selected = !empty($value) && $value == $option_value ? "selected='selected'" : '';
+			$selected = ($value != "") && $value == $option_value ? "selected='selected'" : ''; // PICCORO PHP empty() function devuelve 0 comop falso, entonces indice 0 no sera elegible
 			$input .= "<option value='$option_value' $selected >$option_label</option>";
 		}
 
