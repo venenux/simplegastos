@@ -11,7 +11,6 @@ class Cargargasto extends CI_Controller {
 		$this->load->database('gastossystema');
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
-		//$userdata = $this->session->all_userdata(); aqui no hay sesin valida, debe ser en las funciones
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
 		$this->load->model('menu');
@@ -140,6 +139,7 @@ class Cargargasto extends CI_Controller {
 		}
 		else
 		{
+			// TODO manejo de error , aparte de si no uso archivo de carga "upload_errors"
 			$conadjunto = FALSE;
 			$data['filenamen'] = "sin archivos";
 		}
@@ -163,7 +163,7 @@ class Cargargasto extends CI_Controller {
 			  '".$cod_registro."', '".$cod_entidad."',
 			  SUBSTRING('".$cod_subcategoria."',1,14),'".$cod_subcategoria."',
 			  '".$des_registro."',
-			  ".$mon_registro.",
+			  '".$mon_registro."',
 			  '".$fec_registro."',
 			  '',
 			  '',
