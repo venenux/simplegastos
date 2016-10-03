@@ -3,6 +3,7 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 DROP SCHEMA IF EXISTS `gastossystema` ;
+
 CREATE SCHEMA IF NOT EXISTS `gastossystema` DEFAULT CHARACTER SET utf8 ;
 USE `gastossystema` ;
 
@@ -10,7 +11,6 @@ USE `gastossystema` ;
 -- Table `categoria`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `categoria` ;
-
 CREATE  TABLE IF NOT EXISTS `categoria` (
   `cod_categoria` VARCHAR(40) NOT NULL COMMENT 'CATYYYYMMDDhhmmss' ,
   `des_categoria` VARCHAR(400) NOT NULL COMMENT 'descripcion_categoria' ,
@@ -58,15 +58,14 @@ DROP TABLE IF EXISTS `registro_adjunto` ;
 CREATE  TABLE IF NOT EXISTS `registro_adjunto` (
   `cod_adjunto` VARCHAR(40) NOT NULL COMMENT 'YYYYMMDDhhmmss' ,
   `cod_registro` VARCHAR(40) NOT NULL COMMENT 'a cual registro de gasto le pertenece este adjunto' ,
-  `hex_adjunto` VARCHAR(99999) NULL COMMENT 'la subida en base 64 del adjunto' ,
-  `nam_adjunto` VARCHAR(4000) NULL COMMENT 'nombre del archivo despues cargarlo al sistema' ,
-  `nam_archivo` VARCHAR(4000) NULL COMMENT 'nombre del archivo antes de cargarlo al sistema' ,
-  `ruta_adjunto` VARCHAR(4000) NULL COMMENT 'ruta en el servidor para descargar opcional' ,
+  `hex_adjunto` VARCHAR(20000) NULL COMMENT 'la subida en base 64 del adjunto' ,
+  `nam_adjunto` VARCHAR(40) NULL COMMENT 'nombre del archivo despues cargarlo al sistema' ,
+  `nam_archivo` VARCHAR(40) NULL COMMENT 'nombre del archivo antes de cargarlo al sistema' ,
+  `ruta_adjunto` VARCHAR(400) NULL COMMENT 'ruta en el servidor para descargar opcional' ,
   `fecha_adjunto` VARCHAR(40) NULL COMMENT 'cuando se altero este adjunto' ,
   `sessionflag` VARCHAR(40) NULL COMMENT 'esto es quien_registro YYYYMMDDhhmmss + cod_sucursal + . + ficha' ,
   PRIMARY KEY (`cod_adjunto`) )
-COMMENT = 'escaneados de los registro o gasto adjudicado';
-
+COMMENT = 'escaneados de los registro o gasto adjudicado'
 
 -- -----------------------------------------------------
 -- Table `registro_gastos`
@@ -78,7 +77,7 @@ CREATE  TABLE IF NOT EXISTS `registro_gastos` (
   `cod_sucursal` VARCHAR(40) NOT NULL COMMENT 'sello de la entidad al cual se le adjudica' ,
   `cod_categoria` VARCHAR(40) NULL COMMENT 'por compatibilidad no es necesario SUBSTRING(cod_subcategoria,1,14)' ,
   `cod_subcategoria` VARCHAR(40) NOT NULL COMMENT 'cual subcategoria no puede faltar' ,
-  `des_registro` VARCHAR(4000) NOT NULL COMMENT 'cual fue el gasto esto era descripcion_gasto' ,
+  `des_registro` TEXT NOT NULL COMMENT 'cual fue el gasto esto era descripcion_gasto' ,
   `mon_registro` DECIMAL(20,4) NOT NULL COMMENT 'cuanto se gasto, com algunos decimales' ,
   `num_factura` VARCHAR(40) NULL COMMENT 'mumero de factura opcinal' ,
   `estado` VARCHAR(40) NULL COMMENT 'APROBADO|RECHAZADO|PROCESADO|INVALIDO' ,
@@ -136,7 +135,6 @@ CREATE  TABLE IF NOT EXISTS `usuarios` (
   PRIMARY KEY (`ficha`) )
 COMMENT = 'tabla de usuarios';
 
-USE `gastossystema` ;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
