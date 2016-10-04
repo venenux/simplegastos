@@ -86,6 +86,7 @@ class admcategoriasconceptos extends CI_Controller {
 			 ->display_as('fecha_categoria','Creado')
 			 ->display_as('sessionflag','Modificado');
 		$crud->set_subject('Categorias');
+		$crud->field_type('des_categoria', 'text');
 		$crud->add_fields('cod_categoria','des_categoria','fecha_categoria');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
@@ -94,7 +95,7 @@ class admcategoriasconceptos extends CI_Controller {
 			$crud->set_rules('des_categoria', 'Descripcion', 'trim|required|alphanumeric');
 			$crud->set_rules('fecha_categoria', 'Creado', 'trim|required');
 			$crud->callback_add_field('cod_categoria', function () {	return '<input type="text" maxlength="50" value="CAT'.date("YmdHis").'" name="cod_categoria" readonly="true">';	});
-			$crud->callback_add_field('fecha_categoria', function () {	return '<input type="text" maxlength="50" value="'.date("YmdHis").'" name="fecha_categoria" readonly="true">';	});
+			$crud->callback_add_field('fecha_categoria', function () {	return '<input type="text" maxlength="50" value="'.date("Ymd").'" name="fecha_categoria" readonly="true">';	});
 		}
 		else if ($currentState == 'edit')
 		{
@@ -126,6 +127,7 @@ class admcategoriasconceptos extends CI_Controller {
 		$crud->display_as('cod_categoria','Categoria');
 		$crud->set_relation('cod_categoria','categoria','{cod_categoria} - {des_categoria}');
 		$crud->unset_add_fields('sessionflag');
+		$crud->field_type('des_subcategoria', 'text');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{

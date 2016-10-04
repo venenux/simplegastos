@@ -2,6 +2,8 @@
 
 class admusuariosentidad extends CI_Controller {
 
+	private static $modulosadm = array('admusuariosentidad','admcategoriasconceptos','admgastosregistros','cargargasto');
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -93,6 +95,10 @@ class admusuariosentidad extends CI_Controller {
 		$crud->set_subject('Usuarios');
 		$crud->unset_add_fields('clave','sessionflag','fecha_ultimavez');
 		$crud->unset_edit_fields('clave','fecha_ultimavez');
+		$crud->field_type('nombre', 'text');
+		$crud->field_type('acc_lectura', 'set',self::$modulosadm);
+		$crud->field_type('acc_escribe', 'set',self::$modulosadm);
+		$crud->field_type('acc_modifi', 'set',self::$modulosadm);
 		$crud->set_relation_n_n('sucursal', 'entidad_usuario', 'entidad', 'ficha', 'cod_entidad', 'des_entidad');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
@@ -102,7 +108,7 @@ class admusuariosentidad extends CI_Controller {
 			$crud->set_rules('acc_lectura', 'Modulos que accede', 'trim|required|alphanumeric');
 			$crud->set_rules('acc_escribe', 'Modulos que crea', 'trim|required|alphanumeric');
 			$crud->set_rules('acc_modifi', 'Modulos que altera', 'trim|required|alphanumeric');
-			$crud->callback_add_field('fecha_ficha', function () {	return '<input type="text" maxlength="50" value="'.date("YmdHis").'" name="fecha_ficha" readonly="true">';	});
+			$crud->callback_add_field('fecha_ficha', function () {	return '<input type="text" maxlength="50" value="'.date("Ymd").'" name="fecha_ficha" readonly="true">';	});
 		}
 		else if ($currentState == 'edit')
 		{
@@ -115,7 +121,7 @@ class admusuariosentidad extends CI_Controller {
 			$crud->field_type('sessionflag', 'readonly');
 		}
 		$crud->callback_before_update(array($this,'echapajacuando'));
-		$crud->callback_add_field('estado', function () {	return '<input type="text" maxlength="50" value="" name="status"> (ACTIVO|INACTIVO)';	});
+		$crud->field_type('estado','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO'));
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuariosentidad")));
 		$output = $crud->render();
 		if($crud->getState() != 'list') {
@@ -155,7 +161,8 @@ class admusuariosentidad extends CI_Controller {
 		}
 		$crud->set_rules('abr_zona', 'Zona', 'trim|required|alphanumeric');
 		$crud->set_rules('des_entidad', 'Nombre', 'trim|required|alphanumeric');
-		$crud->callback_add_field('status', function () {	return '<input type="text" maxlength="50" value="" name="status"> (ACTIVO|INACTIVO|CERRADO)';	});
+		$crud->field_type('des_entidad', 'text');
+		$crud->field_type('status','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'CERRADO' => 'CERRADO', 'ESPECIAL' => 'ESPECIAL'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuariosentidad")));
 		$output = $crud->render();

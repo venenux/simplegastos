@@ -74,7 +74,7 @@ class Cargargastover extends CI_Controller {
 		/* cargar y listaar las UBIUCACIONES que se usaran para registros */
 			$sqlentidad = "
 			select
-			 abr_entidad, abr_zona, des_entidad, 
+			 abr_entidad, abr_zona, des_entidad,
 			 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
 			 ifnull(des_entidad,'sin_descripcion') as des_entidad
 			from entidad
@@ -148,7 +148,7 @@ class Cargargastover extends CI_Controller {
         if ( $mon_registroigual != '')		$sqlreportegasto .= "and mon_registro >= '".$mon_registroigual."'";
         if ( $mon_registromayor != '')		$sqlreportegasto .= "and mon_registro <= '".$mon_registromayor."'";
 		if ( $des_registrolike != '')		$sqlreportegasto .= "and des_registro LIKE '%".$des_registrolike."'%";
-		if ( $cod_entidad != '')		$sqlreportegasto .= "and cod_entidad = '".$cod_entidad."'";
+		if ( $cod_entidad != '')			$sqlreportegasto .= "and cod_entidad = '".$cod_entidad."'";
 		if ( $cod_subcategoria != '')		$sqlreportegasto .= "and registro_gastos.cod_subcategoria = '".$cod_subcategoria."'";
 		// TODO PERMISOS; si esta en tienda o no es admin, solo un mes de datos
 		if ( $this->uri->segment(1) != 'todos');
@@ -170,18 +170,20 @@ class Cargargastover extends CI_Controller {
 			 ->display_as('num_factura','Factura (opt)')
 			 ->display_as('sessionflag','Modificado');
 		$crud->set_subject('Registros');
-	    $crud->edit_fields('des_registro','mon_registro','num_factura','cod_registro','cod_entidad','cod_categoria','cod_subcategoria','sessionflag');
-	    $crud->unset_add();
-	    $crud->unset_delete();
+		$crud->edit_fields('des_registro','mon_registro','num_factura','cod_registro','cod_entidad','cod_categoria','cod_subcategoria','sessionflag');
+		$crud->unset_add();
+		$crud->unset_delete();
+		$crud->field_type('des_registro', 'text');
+		$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'RECHAZADO' => 'RECHAZADO'));
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
-			$crud->set_rules('cod_categoria', 'Codigo', 'trim|required|alphanumeric');
-			$crud->set_rules('cod_categoria', 'Codigo', 'trim|required|alphanumeric');
-			$crud->set_rules('cod_categoria', 'Codigo', 'trim|required|alphanumeric');
-			$crud->set_rules('des_categoria', 'Descripcion', 'trim|required|alphanumeric');
+			$crud->set_rules('cod_entidad', 'Codigo Centro costo', 'trim|required|alphanumeric');
+			$crud->set_rules('cod_registro', 'Codigo Registro', 'trim|required|alphanumeric');
+			$crud->set_rules('cod_categoria', 'Codigo Categoria', 'trim|required|alphanumeric');
+			$crud->set_rules('cod_subcategoria', 'Codigo Concepto', 'trim|required|alphanumeric');
+			$crud->set_rules('des_registro', 'Descripcion', 'trim|required|alphanumeric');
 			$crud->set_rules('fecha_categoria', 'Creado', 'trim|required');
-			$crud->callback_add_field('cod_categoria', function () {	return '<input type="text" maxlength="50" value="CAT'.date("YmdHis").'" name="cod_categoria" readonly="true">';	});
 			$crud->callback_add_field('fecha_categoria', function () {	return '<input type="text" maxlength="50" value="'.date("YmdHis").'" name="fecha_categoria" readonly="true">';	});
 		}
 		else if ($currentState == 'edit')
@@ -191,7 +193,6 @@ class Cargargastover extends CI_Controller {
 			$crud->field_type('cod_categoria', 'readonly');
 			$crud->field_type('cod_subcategoria', 'readonly');
 			$crud->set_rules('des_registro', 'Descripcion', 'trim|required|alphanumeric');
-			$crud->set_rules('mon_registro', 'Descripcion', 'trim|required|alphanumeric');
 			$crud->set_rules('mon_registro', 'Descripcion', 'trim|required|alphanumeric');
 			$crud->field_type('num_factura', 'readonly');
 			$crud->field_type('sessionflag', 'readonly');
