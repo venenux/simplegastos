@@ -1676,7 +1676,7 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		// Convert to UTF-16LE and Prepend BOM
 		$string_to_export = "\xFF\xFE" .mb_convert_encoding($string_to_export, 'UTF-16LE', 'UTF-8');
 
-		$filename = $this->get_table()."-export-".date("Y-m-d_H:i:s").".ods";
+		$filename = $this->get_table()."-export-".date("YmdHis").".ods";
 
 		header('Content-type: application/application/vnd.oasis.opendocument.spreadsheet;charset=UTF-16LE');
 		header('Content-Disposition: attachment; filename='.$filename);
