@@ -73,7 +73,7 @@ class Cargargasto extends CI_Controller {
 		/* cargar y listaar las UBIUCACIONES que se usaran para registros */
 		$sqlentidad = "
 		select
-		 abr_entidad, abr_zona, des_entidad, codger,
+		 abr_entidad, abr_zona, des_entidad, 
 		 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
 		 ifnull(des_entidad,'sin_descripcion') as des_entidad
 		from entidad
@@ -149,7 +149,7 @@ class Cargargasto extends CI_Controller {
             $sqlregistrargasto = "
             INSERT INTO registro_gastos
 			(
-			   cod_registro, cod_sucursal,
+			   cod_registro, cod_entidad,
 			   cod_subcategoria, cod_categoria,
 			   des_registro,
 			   mon_registro,
@@ -204,7 +204,7 @@ class Cargargasto extends CI_Controller {
 			SELECT
 			  registro_gastos.cod_registro,
 			  registro_adjunto.cod_adjunto,
-			  registro_gastos.cod_sucursal,
+			  registro_gastos.cod_entidad,
 			  registro_gastos.cod_categoria,
 			  registro_gastos.cod_subcategoria,
 			  registro_gastos.des_registro,
@@ -230,7 +230,7 @@ class Cargargasto extends CI_Controller {
 			LEFT JOIN	 gastossystema.categoria
 			ON	 categoria.cod_categoria = registro_gastos.cod_categoria
 			LEFT JOIN	 gastossystema.entidad
-			ON	 entidad.cod_entidad = registro_gastos.cod_sucursal
+			ON	 entidad.cod_entidad = registro_gastos.cod_entidad
 			WHERE	 ifnull(registro_gastos.cod_registro,'') <> '' and registro_gastos.cod_registro <> ''
 			ORDER BY cod_registro DESC	LIMIT 5";
 //--			 and cod_registro = '".$cod_registro." '
@@ -250,7 +250,7 @@ class Cargargasto extends CI_Controller {
 			'Adjunto'
 			// 	'fecha_factura', 	'fecha_adjunto',	'sessionflag'	'num_factura',
 			//	'hex_adjunto', 'nam_adjunto',// TODO : link para visualizar
-			//'cod_registro', 'cod_adjunto', 'cod_sucursal', 'cod_categoria', 'cod_subcategoria'
+			//'cod_registro', 'cod_adjunto', 'cod_entidad', 'cod_categoria', 'cod_subcategoria'
 		);
 		$resultadocargatablatxtmsg = "| cod_producto \t| can_despachar \t| des_producto \t\t".PHP_EOL;
 		$resultadocargatabla = $resultadocarga->result_array();
@@ -266,7 +266,7 @@ class Cargargasto extends CI_Controller {
 			$rowtable['nam_adjunto']
 			// $rowtable['fecha_factura'], $rowtable['fecha_adjunto'], $rowtable['sessionflag'],$rowtable['num_factura'],
 			//$rowtable['hex_adjunto'], $rowtable['nam_adjunto'], // TODO: link para descargar / visualizar
-			//$rowtable['cod_registro'], $rowtable['cod_adjunto'], $rowtable['cod_sucursal'], $rowtable['cod_categoria'], $rowtable['cod_subcategoria']
+			//$rowtable['cod_registro'], $rowtable['cod_adjunto'], $rowtable['cod_entidad'], $rowtable['cod_categoria'], $rowtable['cod_subcategoria']
 			);
 
 /*			$resultadocargatablatxtmsg .=

@@ -74,7 +74,7 @@ class Cargargastover extends CI_Controller {
 		/* cargar y listaar las UBIUCACIONES que se usaran para registros */
 			$sqlentidad = "
 			select
-			 abr_entidad, abr_zona, des_entidad, codger,
+			 abr_entidad, abr_zona, des_entidad, 
 			 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
 			 ifnull(des_entidad,'sin_descripcion') as des_entidad
 			from entidad
@@ -119,7 +119,7 @@ class Cargargastover extends CI_Controller {
 		$this->load->helper('url');
 		$sqlreportegasto = "SELECT
               `registro_gastos`.`cod_registro`, `registro_adjunto`.`cod_adjunto`,
-              `registro_gastos`.`cod_sucursal`,
+              `registro_gastos`.`cod_entidad`,
               `registro_gastos`.`cod_categoria`, `registro_gastos`.`cod_subcategoria`,
               `categoria`.`des_categoria`, `subcategoria`.`des_subcategoria`,
               `registro_gastos`.`des_registro`, `registro_gastos`.`mon_registro`,
@@ -138,7 +138,7 @@ class Cargargastover extends CI_Controller {
             LEFT JOIN
              `categoria` ON  `categoria`.`cod_categoria` = `registro_gastos`.`cod_categoria`
             LEFT JOIN
-             `entidad` ON  `entidad`.`cod_entidad` = `registro_gastos`.`cod_sucursal`
+             `entidad` ON  `entidad`.`cod_entidad` = `registro_gastos`.`cod_entidad`
             WHERE
              ifnull(`registro_gastos`.`cod_registro`,'') <> '' and `registro_gastos`.`cod_registro` <> ''
             ";
@@ -160,7 +160,7 @@ class Cargargastover extends CI_Controller {
 	    $crud->basic_model->set_custom_query($sqlreportegasto);
 		//$crud->columns('cod_categoria','des_categoria','fecha_categoria','sessionflag');
 		$crud->display_as('cod_registro','Cod. Gasto')
-			 ->display_as('cod_sucursal','Cod. Sello')
+			 ->display_as('cod_entidad','Cod. CodGer')
 			 ->display_as('cod_categoria','Cod. Categoria')
 			 ->display_as('cod_subcategoria','Cod. Concepto')
 			 ->display_as('des_categoria','Categoria')
@@ -170,7 +170,7 @@ class Cargargastover extends CI_Controller {
 			 ->display_as('num_factura','Factura (opt)')
 			 ->display_as('sessionflag','Modificado');
 		$crud->set_subject('Registros');
-	    $crud->edit_fields('des_registro','mon_registro','num_factura','cod_registro','cod_sucursal','cod_categoria','cod_subcategoria','sessionflag');
+	    $crud->edit_fields('des_registro','mon_registro','num_factura','cod_registro','cod_entidad','cod_categoria','cod_subcategoria','sessionflag');
 	    $crud->unset_add();
 	    $crud->unset_delete();
 		$currentState = $crud->getState();
@@ -187,7 +187,7 @@ class Cargargastover extends CI_Controller {
 		else if ($currentState == 'edit')
 		{
 			$crud->field_type('cod_registro', 'readonly');
-			$crud->field_type('cod_sucursal', 'readonly');
+			$crud->field_type('cod_entidad', 'readonly');
 			$crud->field_type('cod_categoria', 'readonly');
 			$crud->field_type('cod_subcategoria', 'readonly');
 			$crud->set_rules('des_registro', 'Descripcion', 'trim|required|alphanumeric');

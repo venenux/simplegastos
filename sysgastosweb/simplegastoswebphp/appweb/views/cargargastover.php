@@ -11,7 +11,7 @@
 
 	// si variables vacias llenar con datos mientras tanto
 	if( !isset($accionejecutada) ) $accionejecutada = 'cargardatosver';
-	if( !isset($list_entidad) ) $list_entidad = array('cod_sucursal' => 'nombregalpon','cod_sucursal2' => 'nombregalpon2');
+	if( !isset($list_entidad) ) $list_entidad = array('cod_entidad' => 'nombregalpon','cod_entidad2' => 'nombregalpon2');
 	if( !isset($list_categoria) ) $list_categoria = array('cod_categoria' => 'Varios','cod_categoria2' => 'Gastos diversos');
 	if( !isset($list_subcategoria) ) $list_subcategoria = array('cod_categoria' => 'Varios','cod_categoria2' => 'Gastos diversos');
 	// detectar que mostrar segun lo enviado desde el controlador
@@ -25,7 +25,7 @@
 			$this->table->add_row('Filto Fecha desde:',form_input($valoresinputfechaini).br().PHP_EOL);
 			$this->table->add_row('Filto Fecha hasta:',form_input($valoresinputfechafin).br().PHP_EOL);
 			$this->table->add_row('Por Categoria/Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);
-			$this->table->add_row('Pertenencia o sucursal:', form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL );
+			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL );
 			$this->table->add_row('Monto menor o igual', form_input('mon_registroigual','').br().PHP_EOL);
 			$this->table->add_row('Monto mayor o igual', form_input('mon_registromayor','').br().PHP_EOL);
 			$this->table->add_row('Descripcion del detalle :', form_input('des_registrolike','').br().PHP_EOL);

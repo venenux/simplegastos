@@ -64,8 +64,8 @@ class admusuariosentidad extends CI_Controller {
 		$js_files = $output1->js_files + $output2->js_files;
 		$css_files = $output1->css_files + $output2->css_files;
 		$output = ""
-		."<h3>Usuarios</h3>".$output1->output
-		."<h3>Sucursales</h3>".$output2->output
+		."<h3>Administrar Usuarios</h3>".$output1->output
+		."<h3>Centro de Costos</h3>".$output2->output
 		."";
 
 		$this->_esputereport((object)array(
@@ -83,6 +83,7 @@ class admusuariosentidad extends CI_Controller {
 		$crud->display_as('ficha','Ficha/CI')
 			 ->display_as('nombre','Nombre')
 			 ->display_as('intranet','Intranet')
+			 ->display_as('sucursal','Centro de Costo')
 			 ->display_as('fecha_ficha','Creado')
 			 ->display_as('fecha_ultimavez','Ultima vez')
 			 ->display_as('acc_lectura','Accede a')
@@ -130,7 +131,7 @@ class admusuariosentidad extends CI_Controller {
 		$crud->set_table('entidad');
 		$crud->set_subject('Sucursal');
 		$crud->columns('abr_entidad','abr_zona','cod_entidad','des_entidad','status','nam_usuario','codger','sessionflag');
-		$crud->display_as('cod_entidad','Cod. Sello')
+		$crud->display_as('cod_entidad','Cod. Centro')
 			 ->display_as('abr_entidad','Cod. Siglas')
 			 ->display_as('abr_zona','Cod. Zona')
 			 ->display_as('des_entidad','Nombre')
@@ -143,7 +144,7 @@ class admusuariosentidad extends CI_Controller {
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
-			$crud->set_rules('cod_entidad', 'Sello', 'trim|required|numeric');
+			$crud->set_rules('cod_entidad', 'Centro de Costo (codger)', 'trim|required|numeric');
 			$crud->set_rules('abr_entidad', 'Siglas', 'trim|required|alphanumeric');
 		}
 		else if ($currentState == 'edit')

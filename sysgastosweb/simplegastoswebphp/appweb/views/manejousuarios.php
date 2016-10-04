@@ -12,7 +12,7 @@
 	else
 	{
 		$htmlformaattributos = array('name'=>'formulariomanejousuarios','class'=>'formularios','onSubmit'=>'return validageneric(this);');
-		echo "<p>CUIDADO: no recarge o ejecute acciones al azar, use el menu arriba</p>";
+		echo "<h4>ADVERTENCIA: debe cambia la clave para activarse, adicional si el departamento Gastos no le da acceso no podra entrar.</h4>";
 		echo form_open('manejousuarios/verificarintranet', $htmlformaattributos) . PHP_EOL;
 		echo 'Usuario:'.form_input('nombre','').PHP_EOL;
 		echo 'Clave :'.form_password('contrasena','').PHP_EOL;
