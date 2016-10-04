@@ -50,7 +50,7 @@ class Manejousuarios extends CI_Controller
 		  ifnull(`usu`.`intranet`,'') as username,  -- solo entran quienes tengan intranet
 		  `usu`.`clave`, `usu`.`nombre`,            -- como se llama y su apellido
 		  `usu`.`codger`,                           -- ubicacion segun la nomina, pues es por centro de costos
-		  `suc`.`cod_sucursal` as `cod_entidad`,    -- entidad sucursal en donde puede operar
+		  `suc`.`cod_entidad`,                      -- entidad sucursal en donde puede operar
 		  `usu`.`estado`,                           -- solo entran quienes puedan ver gastos
 		  `ent`.`abr_entidad`,
 		  `ent`.`abr_zona`,
@@ -61,9 +61,9 @@ class Manejousuarios extends CI_Controller
 		FROM
 		 `usuarios` as `usu`
 		LEFT join
-		 `sucursal_usuario` as `suc` ON `suc`.`cod_usuario` = `usu`.`ficha`
+		 `entidad_usuario` as `suc` ON `suc`.`ficha` = `usu`.`ficha`
 		LEFT JOIN
-		 `entidad` as `ent` ON `ent`.`cod_entidad` = `suc`.`cod_sucursal`
+		 `entidad` as `ent` ON `ent`.`cod_entidad` = `suc`.`cod_entidad`
 		WHERE
 		  ifnull(`usu`.`intranet`,'') <> ''         -- solo entran quienes tengan intranet
 		AND

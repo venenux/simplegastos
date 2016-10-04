@@ -33,18 +33,22 @@ class Menu extends CI_Model
 		$intranet=anchor('http://intranet1.net.ve','Intranet');
 		$elcorreo=anchor('http://intranet1.net.ve/elcorreo','Correo');
 
-		$vistas=anchor('vistaglobal','Vistas');
-		$vistaglobal['vistaglobalreporte']=anchor('vistaglobalreporte','Vista Reporte');
-		$vistaglobal['vistaglobalcategorias']=anchor('vistaglobalcategorias','Vista Categorias');
-		$vistaglobal['vistaglobaldetalles']=anchor('vistaglobaldetalles','Vista Detalles');
+		$admins=anchor('admgeneral','Gestion');
+		$admgeneral['admusuariosentidad']=anchor('admusuariosentidad','Adm Usuarios');
+		$admgeneral['admcategoriasconceptos']=anchor('admcategoriasconceptos','Adm Categorias');
+		$admgeneral['admgastosregistros']=anchor('admgastosregistros','Aud Gastos');
+
+		$vistas=anchor('cargargastover','Vistas');
+		$vistaglobal=array();
+		$vistaglobal['cargargastover']=anchor('cargargastover/gastovercustom/todos','Vista Reporte');
 
 		$gastos=anchor('gastosmatrix','Gastos');
 		$gastosmatrix['gastosmatrixt']=anchor('gastosmatrix','Matrix Gasto T'); // TODO: verificar permiso y este menu solo cargfa en tienda
 		$gastosmatrix['gastosmatrixa']=anchor('gastosmatrixadm','Matrix Gasto A'); // TODO: verificar permiso y este menu solo cargfa en administrativos
 
-		$cargas=anchor('cargaglobal','Cargas');
-		$cargaglobal['Cargargastot']=anchor('cargargasto','Cargar gasto T'); // TODO: verificar permiso y este menu solo cargfa en tienda
-		$cargaglobal['Cargargastoa']=anchor('cargargastoadm','Cargar gasto A'); // TODO: verificar permiso y este menu solo cargfa en administrativos
+		$cargas=anchor('cargargastover/gastovercustom','Cargas');
+		$cargaglobal['Cargargastot']=anchor('cargargasto','Cargar gasto'); // TODO: verificar permiso y este menu solo cargfa en tienda
+		$cargaglobal['Cargargastoa']=anchor('cargargastover','Revisar cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
 /*
 		$n300000=anchor('m300000','Procesos');
 		$m300000['m301000']=anchor('m301000','Actualizar Productos desde compras');
@@ -60,7 +64,7 @@ class Menu extends CI_Model
 			$inicionlogin['manejousuarios/manejousuarios']=anchor('manejousuarios/desverificarintranet','Salir');
 			$header['0'] = $nodes->m_header_nodes($inicio, $inicionlogin);
 
-			$header['1'] = $nodes->m_header_nodes($gastos, $gastosmatrix);
+		//	$header['1'] = $nodes->m_header_nodes($gastos, $gastosmatrix);
 		}
 		else
 		{
@@ -73,8 +77,8 @@ class Menu extends CI_Model
 		{
 			$header['4'] = $nodes->m_header_nodes($cargas,$cargaglobal);
 			$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
-	/*		$header['6'] = $nodes->m_header_nodes($n200000,$m200000);
-			$header['7'] = $nodes->m_header_nodes($n100000,$m100000);
+			$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
+	/*		$header['7'] = $nodes->m_header_nodes($n100000,$m100000);
 			$header['8'] = $nodes->m_header_nodes($n010000,$m010000);
 			$header['9'] = $nodes->m_header_nodes($n000000,$m000000);*/
 		}

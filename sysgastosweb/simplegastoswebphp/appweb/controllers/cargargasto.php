@@ -51,7 +51,6 @@ class Cargargasto extends CI_Controller {
 		/* cargar y listaar las SUBCATEGORIAS que se usaran para registros */
 		$sqlsubcategoria = "
 		SELECT
-		SUBSTRING(sb.cod_subcategoria,15) as code,
 		ca.cod_categoria,
 		ca.des_categoria,
 		sb.cod_subcategoria,
@@ -61,13 +60,13 @@ class Cargargasto extends CI_Controller {
 		sb.sessionflag
 		FROM categoria as ca
 		join subcategoria as sb
-		on SUBSTRING(sb.cod_subcategoria,1,14) = ca.cod_categoria
+		on sb.cod_categoria = ca.cod_categoria
 		";
 		$resultadossubcategoria = $this->db->query($sqlsubcategoria);
 		$arreglosubcategoriaes = array(''=>'');
 		foreach ($resultadossubcategoria->result() as $row)
 		{
-			$arreglosubcategoriaes[''.$row->cod_subcategoria] = $row->code .': ' . $row->des_categoria . ' - ' . $row->des_subcategoria;
+			$arreglosubcategoriaes[''.$row->cod_subcategoria] = $row->des_categoria . ' - ' . $row->des_subcategoria;
 		}
 		$data['list_subcategoria'] = $arreglosubcategoriaes; // agrega este arreglo una lista para el combo box
 		unset($arreglosubcategoriaes['']);
@@ -103,6 +102,7 @@ class Cargargasto extends CI_Controller {
 		$userdata = $this->session->all_userdata();
 		$usercorreo = $userdata['correo'];
 		$userintran = $userdata['intranet'];
+		$sessionflag1 = $this->session->userdata('username').date("YmdHis");
 		// OBTENER DATOS DE FORMULARIO ***************************** /
 		$fec_registro = $this->input->get_post('fec_registro');
 		$mon_registro = $this->input->get_post('mon_registro');
@@ -147,10 +147,10 @@ class Cargargasto extends CI_Controller {
 			$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
 			// procesar el registro sin el adjunto
             $sqlregistrargasto = "
-            INSERT INTO gastossystema.registro_gastos
+            INSERT INTO registro_gastos
 			(
 			   cod_registro, cod_sucursal,
-			   cod_categoria, cod_subcategoria,
+			   cod_subcategoria, cod_categoria,
 			   des_registro,
 			   mon_registro,
 			   fecha_registro, fecha_factura,
@@ -161,12 +161,12 @@ class Cargargasto extends CI_Controller {
 			VALUES
 			(
 			  '".$cod_registro."', '".$cod_entidad."',
-			  SUBSTRING('".$cod_subcategoria."',1,14),'".$cod_subcategoria."',
+			  '".$cod_subcategoria."',(SELECT cod_categoria FROM subcategoria where cod_subcategoria = '".$cod_subcategoria."' LIMIT 1),
 			  '".$des_registro."',
 			  '".$mon_registro."',
 			  '".$fec_registro."',
 			  '',
-			  '',
+			  '".$sessionflag1."',
 			  'PROCESADO',
 			  ''
 			)";
@@ -192,7 +192,7 @@ class Cargargasto extends CI_Controller {
 				'',
 				'".$file_data['full_path']."',
 				'',
-				'',
+				'".$sessionflag1."',
 				'".$file_data['file_name']."',
 				'".$filenameorig."'
 				)
@@ -241,11 +241,13 @@ class Cargargasto extends CI_Controller {
 		$this->table->set_caption("Sus ultimas cargas:");
 		$this->table->set_template($tmplnewtable);
 		$this->table->set_heading(
+			'Registro',
 			'Categoria', 'Concepto',// 'des_categoria', 'des_subcategoria',
 			'Destino',  //'des_entidad','abr_entidad', 'abr_zona',
 			'Gasto', 'Monto',
 			'Estado',
-			'fecha_registro'
+			'Realizado el',
+			'Adjunto'
 			// 	'fecha_factura', 	'fecha_adjunto',	'sessionflag'	'num_factura',
 			//	'hex_adjunto', 'nam_adjunto',// TODO : link para visualizar
 			//'cod_registro', 'cod_adjunto', 'cod_sucursal', 'cod_categoria', 'cod_subcategoria'
@@ -255,11 +257,13 @@ class Cargargasto extends CI_Controller {
 		foreach ($resultadocargatabla as $rowtable)
 		{
 			$this->table->add_row(
+			$rowtable['cod_registro'],
 			$rowtable['des_categoria'], $rowtable['des_subcategoria'],
 			$rowtable['des_entidad'] . ' ('.$rowtable['abr_entidad'].') -'. $rowtable['abr_zona'],
 			$rowtable['des_registro'], $rowtable['mon_registro'],
 			$rowtable['estado'],
-			$rowtable['fecha_registro']
+			$rowtable['fecha_registro'],
+			$rowtable['nam_adjunto']
 			// $rowtable['fecha_factura'], $rowtable['fecha_adjunto'], $rowtable['sessionflag'],$rowtable['num_factura'],
 			//$rowtable['hex_adjunto'], $rowtable['nam_adjunto'], // TODO: link para descargar / visualizar
 			//$rowtable['cod_registro'], $rowtable['cod_adjunto'], $rowtable['cod_sucursal'], $rowtable['cod_categoria'], $rowtable['cod_subcategoria']
