@@ -73,7 +73,7 @@ class Cargargasto extends CI_Controller {
 		/* cargar y listaar las UBIUCACIONES que se usaran para registros */
 		$sqlentidad = "
 		select
-		 abr_entidad, abr_zona, des_entidad, 
+		 abr_entidad, abr_zona, des_entidad,
 		 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
 		 ifnull(des_entidad,'sin_descripcion') as des_entidad
 		from entidad
@@ -120,8 +120,8 @@ class Cargargasto extends CI_Controller {
 		$cargaconfig['max_height'] = 0;
 		//$cargaconfig['remove_spaces'] = true;
 		$cargaconfig['encrypt_name'] = TRUE;
+		$this->load->helper(array('form', 'url','inflector'));
 		$this->load->library('upload', $cargaconfig);
-		$this->load->helper('inflector');
 		$this->upload->initialize($cargaconfig);
 		$this->upload->overwrite = true;
 		if ( $this->upload->do_upload('nam_archivo')) // nombre del campo alla en el formulario
@@ -190,10 +190,10 @@ class Cargargasto extends CI_Controller {
 				'".$cod_adjunto."',
 				'".$cod_registro."',
 				'',
-				'".$file_data['full_path']."',
+				'".base_url("appweb/archivoscargas/".$filenamen)."',
 				'',
 				'".$sessionflag1."',
-				'".$file_data['file_name']."',
+				'".$filenamen."',
 				'".$filenameorig."'
 				)
 				";
@@ -218,6 +218,7 @@ class Cargargasto extends CI_Controller {
 			  registro_gastos.num_factura,
 			  registro_adjunto.hex_adjunto,
 			  registro_adjunto.nam_adjunto,
+			  registro_adjunto.ruta_adjunto,
 			  registro_gastos.fecha_registro,
 			  registro_gastos.fecha_factura,
 			  registro_adjunto.fecha_adjunto,
@@ -235,6 +236,7 @@ class Cargargasto extends CI_Controller {
 			ORDER BY cod_registro DESC	LIMIT 5";
 //--			 and cod_registro = '".$cod_registro." '
 		$resultadocarga = $this->db->query($sqlregistro); //row_array
+		$data['fileurls'] = site_url("appweb/archivoscargas/".$filenamenewe);
         // TERMINAR EL PROCESO (solo paso 1) **************************************************** /
 		$this->table->clear();
 		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="1" class="table">' );
@@ -263,7 +265,7 @@ class Cargargasto extends CI_Controller {
 			$rowtable['des_registro'], $rowtable['mon_registro'],
 			$rowtable['estado'],
 			$rowtable['fecha_registro'],
-			$rowtable['nam_adjunto']
+			anchor($rowtable['ruta_adjunto'],$filenamen)
 			// $rowtable['fecha_factura'], $rowtable['fecha_adjunto'], $rowtable['sessionflag'],$rowtable['num_factura'],
 			//$rowtable['hex_adjunto'], $rowtable['nam_adjunto'], // TODO: link para descargar / visualizar
 			//$rowtable['cod_registro'], $rowtable['cod_adjunto'], $rowtable['cod_entidad'], $rowtable['cod_categoria'], $rowtable['cod_subcategoria']
