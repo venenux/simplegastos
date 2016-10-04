@@ -3,7 +3,6 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
 DROP SCHEMA IF EXISTS `gastossystema` ;
-
 CREATE SCHEMA IF NOT EXISTS `gastossystema` DEFAULT CHARACTER SET utf8 ;
 USE `gastossystema` ;
 
@@ -11,6 +10,7 @@ USE `gastossystema` ;
 -- Table `categoria`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `categoria` ;
+
 CREATE  TABLE IF NOT EXISTS `categoria` (
   `cod_categoria` VARCHAR(40) NOT NULL COMMENT 'CATYYYYMMDDhhmmss' ,
   `des_categoria` VARCHAR(400) NOT NULL COMMENT 'descripcion_categoria' ,
@@ -60,12 +60,13 @@ CREATE  TABLE IF NOT EXISTS `registro_adjunto` (
   `cod_registro` VARCHAR(40) NOT NULL COMMENT 'a cual registro de gasto le pertenece este adjunto' ,
   `hex_adjunto` VARCHAR(20000) NULL COMMENT 'la subida en base 64 del adjunto' ,
   `nam_adjunto` VARCHAR(40) NULL COMMENT 'nombre del archivo despues cargarlo al sistema' ,
-  `nam_archivo` VARCHAR(40) NULL COMMENT 'nombre del archivo antes de cargarlo al sistema' ,
+  `nam_archivo` VARCHAR(400) NULL COMMENT 'nombre del archivo antes de cargarlo al sistema' ,
   `ruta_adjunto` VARCHAR(400) NULL COMMENT 'ruta en el servidor para descargar opcional' ,
   `fecha_adjunto` VARCHAR(40) NULL COMMENT 'cuando se altero este adjunto' ,
   `sessionflag` VARCHAR(40) NULL COMMENT 'esto es quien_registro YYYYMMDDhhmmss + cod_sucursal + . + ficha' ,
   PRIMARY KEY (`cod_adjunto`) )
-COMMENT = 'escaneados de los registro o gasto adjudicado'
+COMMENT = 'escaneados de los registro o gasto adjudicado';
+
 
 -- -----------------------------------------------------
 -- Table `registro_gastos`
@@ -94,8 +95,8 @@ COMMENT = 'descripcion y monto de gastos o el detalle';
 DROP TABLE IF EXISTS `subcategoria` ;
 
 CREATE  TABLE IF NOT EXISTS `subcategoria` (
-  `cod_categoria` VARCHAR(40) NULL COMMENT 'compatibilidad con grocerycrud: SUBSTRING(cod_subcategoria,1,14)' ,
-  `cod_subcategoria` VARCHAR(40) NOT NULL COMMENT 'CATYYYYMMDDhhmmssSUBYYYYMMDDhhmmss' ,
+  `cod_categoria` VARCHAR(40) NOT NULL COMMENT 'CATYYYYMMDDhhmmss tabla categoria' ,
+  `cod_subcategoria` VARCHAR(40) NOT NULL COMMENT 'SUBYYYYMMDDhhmmss' ,
   `des_subcategoria` VARCHAR(400) NOT NULL COMMENT 'que tipo de gasto en la categoria' ,
   `fecha_subcategoria` VARCHAR(40) NULL COMMENT 'innecesario, por compatibilidad' ,
   `sessionflag` VARCHAR(40) NULL COMMENT 'esto es quien_registro YYYYMMDDhhmmss + cod_sucursal + . + ficha' ,
@@ -104,13 +105,14 @@ COMMENT = 'en que renglon cargan los gastos';
 
 
 -- -----------------------------------------------------
--- Table `sucursal_usuario`
+-- Table `entidad_usuario`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `sucursal_usuario` ;
+DROP TABLE IF EXISTS `entidad_usuario` ;
 
-CREATE  TABLE IF NOT EXISTS `sucursal_usuario` (
-  `cod_usuario` VARCHAR(40) NOT NULL COMMENT 'ficha del usuario o id del usuario' ,
-  `cod_sucursal` VARCHAR(40) NOT NULL COMMENT 'sello al cual esta asociado' )
+CREATE  TABLE IF NOT EXISTS `entidad_usuario` (
+  `ficha` VARCHAR(40) NOT NULL COMMENT 'ficha del usuario o id del usuario' ,
+  `cod_entidad` VARCHAR(40) NOT NULL COMMENT 'sello al cual esta asociado' ,
+  PRIMARY KEY (`ficha`, `cod_entidad`) )
 COMMENT = 'relacion usuario y que sucursal adjudica gastos';
 
 
@@ -135,6 +137,7 @@ CREATE  TABLE IF NOT EXISTS `usuarios` (
   PRIMARY KEY (`ficha`) )
 COMMENT = 'tabla de usuarios';
 
+USE `gastossystema` ;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
