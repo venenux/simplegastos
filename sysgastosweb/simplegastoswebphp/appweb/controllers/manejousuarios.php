@@ -49,7 +49,7 @@ class Manejousuarios extends CI_Controller
 		  ifnull(`usu`.`intranet`,'') as intranet,  -- solo entran quienes tengan intranet
 		  ifnull(`usu`.`intranet`,'') as username,  -- solo entran quienes tengan intranet
 		  `usu`.`clave`, `usu`.`nombre`,            -- como se llama y su apellido
-		  `usu`.`codger`,                           -- ubicacion segun la nomina, pues es por centro de costos
+		  `usu`.`sello`,                           -- ubicacion segun la nomina, pues es por centro de costos
 		  `suc`.`cod_entidad`,                      -- entidad sucursal en donde puede operar
 		  `usu`.`estado`,                           -- solo entran quienes puedan ver gastos
 		  `ent`.`abr_entidad`,
@@ -82,7 +82,7 @@ class Manejousuarios extends CI_Controller
 					'intranet' => $rowuser->intranet,
 					'username' => $rowuser->username,
 					'nombre' => $rowuser->nombre,
-					'codger' => $rowuser->codger,
+					'sello' => $rowuser->sello,
 					'cod_entidad' => $rowuser->cod_entidad,
 					'abr_entidad' => $rowuser->abr_entidad,
 					'abr_zona' => $rowuser->abr_zona,
@@ -122,8 +122,8 @@ class Manejousuarios extends CI_Controller
 			$this->table->set_template($tmplnewtable);
 			$this->table->add_row('Bienvenido', $data['nombre'], '');
 			$this->table->add_row('Correo', $data['correo'], '');
-			$this->table->add_row('Centro de costo', $this->session->userdata('codger') . '(' . $this->session->userdata('cod_entidad').') - '.$this->session->userdata('des_entidad'), '');
-			$this->table->add_row('Ubicacion', $this->session->userdata('cod_entidad') . ' - ' . $this->session->userdata('des_entidad'), '');
+			$this->table->add_row('Ubicacion', $this->session->userdata('sello'));
+			$this->table->add_row('Centro de costo', $this->session->userdata('cod_entidad') . ' - ' . $this->session->userdata('des_entidad'), '');
 			$data['presentar']=$this->table->generate();
 			$data['menu'] = $this->menu->general_menu();
 			$this->load->view('header.php',$data);

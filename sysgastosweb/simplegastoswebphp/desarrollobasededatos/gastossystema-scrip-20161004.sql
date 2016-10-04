@@ -126,7 +126,7 @@ CREATE  TABLE IF NOT EXISTS `usuarios` (
   `ficha` VARCHAR(40) NOT NULL COMMENT 'cod_usuario, cedula en vnzla' ,
   `intranet` VARCHAR(40) NOT NULL COMMENT 'login del usuario, id del correo' ,
   `clave` VARCHAR(40) NOT NULL ,
-  `codger` VARCHAR(40) NOT NULL COMMENT 'OJO: este solo es para saber si es de tienda o administrativo, no es la pertenencia' ,
+  `sello` VARCHAR(40) NOT NULL COMMENT 'OJO: este solo es para saber si es de tienda o administrativo, no es la pertenencia' ,
   `nombre` VARCHAR(400) NULL DEFAULT NULL COMMENT 'nombre y apellido' ,
   `estado` VARCHAR(40) NOT NULL COMMENT 'ACTIVO INACTIVO SUSPENDIDO INVALIDO' ,
   `acc_lectura` VARCHAR(4000) NOT NULL COMMENT 'modulos o pagina controlador que puede leer separados por barra' ,
