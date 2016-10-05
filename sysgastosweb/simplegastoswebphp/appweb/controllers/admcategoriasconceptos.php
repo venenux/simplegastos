@@ -127,7 +127,6 @@ class admcategoriasconceptos extends CI_Controller {
 		$crud->display_as('cod_categoria','Categoria');
 		$crud->set_relation('cod_categoria','categoria','{cod_categoria} - {des_categoria}');
 		$crud->unset_add_fields('sessionflag');
-		$crud->field_type('des_subcategoria', 'text');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{

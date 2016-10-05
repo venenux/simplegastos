@@ -95,7 +95,6 @@ class admusuariosentidad extends CI_Controller {
 		$crud->set_subject('Usuarios');
 		$crud->unset_add_fields('clave','sessionflag','fecha_ultimavez');
 		$crud->unset_edit_fields('clave','fecha_ultimavez');
-		$crud->field_type('nombre', 'text');
 		$crud->field_type('acc_lectura', 'set',self::$modulosadm);
 		$crud->field_type('acc_escribe', 'set',self::$modulosadm);
 		$crud->field_type('acc_modifi', 'set',self::$modulosadm);
@@ -161,7 +160,6 @@ class admusuariosentidad extends CI_Controller {
 		}
 		$crud->set_rules('abr_zona', 'Zona', 'trim|required|alphanumeric');
 		$crud->set_rules('des_entidad', 'Nombre', 'trim|required|alphanumeric');
-		$crud->field_type('des_entidad', 'text');
 		$crud->field_type('status','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'CERRADO' => 'CERRADO', 'ESPECIAL' => 'ESPECIAL'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuariosentidad")));

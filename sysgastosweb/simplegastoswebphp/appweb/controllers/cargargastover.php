@@ -164,16 +164,17 @@ class Cargargastover extends CI_Controller {
 			 ->display_as('cod_categoria','Cod. Categoria')
 			 ->display_as('cod_subcategoria','Cod. Concepto')
 			 ->display_as('des_categoria','Categoria')
+			 ->display_as('desa_categoria','Categorias')
 			 ->display_as('des_subcategoria','Concepto')
 			 ->display_as('des_registro','Descripcion Gasto')
 			 ->display_as('mon_registro','Monto del Gasto')
 			 ->display_as('num_factura','Factura (opt)')
 			 ->display_as('sessionflag','Modificado');
+		$crud->set_relation('desa_categoria','categoria','{cod_categoria} - {des_categoria}');
 		$crud->set_subject('Registros');
 		$crud->edit_fields('des_registro','mon_registro','num_factura','cod_registro','cod_entidad','cod_categoria','cod_subcategoria','sessionflag');
 		$crud->unset_add();
 		$crud->unset_delete();
-		$crud->field_type('des_registro', 'text');
 		$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'RECHAZADO' => 'RECHAZADO'));
 		$currentState = $crud->getState();
 		if($currentState == 'add')
