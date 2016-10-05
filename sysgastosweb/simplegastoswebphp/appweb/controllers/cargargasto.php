@@ -265,7 +265,7 @@ class Cargargasto extends CI_Controller {
 			$rowtable['des_registro'], $rowtable['mon_registro'],
 			$rowtable['estado'],
 			$rowtable['fecha_registro'],
-			anchor($rowtable['ruta_adjunto'],$filenamen)
+			anchor_popup($rowtable['ruta_adjunto'],$filenamen,array('width'=>'800','height'=>'600','resizable'=>'yes'))
 			// $rowtable['fecha_factura'], $rowtable['fecha_adjunto'], $rowtable['sessionflag'],$rowtable['num_factura'],
 			//$rowtable['hex_adjunto'], $rowtable['nam_adjunto'], // TODO: link para descargar / visualizar
 			//$rowtable['cod_registro'], $rowtable['cod_adjunto'], $rowtable['cod_entidad'], $rowtable['cod_categoria'], $rowtable['cod_subcategoria']
