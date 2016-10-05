@@ -5,7 +5,7 @@
 <?php
 echo br(1);
 echo '<center>', PHP_EOL,'<p class="footer">Page rendered in <strong>{elapsed_time}</strong> seconds.'. PHP_EOL;
-echo br(1).anchor('http://venenux.blogspot.com','VenenuX Codeigniter puyudo').' es copyright &copy; 2012 PICCORO Lenz McKAY & Departamento de sistemas (soporte@intranet1.net.ve)', PHP_EOL;
+echo br(1).anchor('http://venenux.blogspot.com','VenenuX Codeigniter puyudo y repotenciado.').' es copyright &copy; 2012-2016  Departamento de Sistemas (soporte@intranet1.net.ve)', PHP_EOL;
 echo '</p>'. PHP_EOL .'</center>', PHP_EOL;
 echo '</body>', PHP_EOL,'</html>', PHP_EOL;
 ?>

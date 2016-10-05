@@ -56,5 +56,5 @@
 
 	?>
 
-	<p class="footer">texto de ayuda (poner iframe qui con urta a soporte tickets con el tema</p>
+	<p> </p> 
 	</div>

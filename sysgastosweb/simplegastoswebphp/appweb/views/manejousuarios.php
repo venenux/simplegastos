@@ -21,5 +21,4 @@
 	}
 	echo form_fieldset_close() . PHP_EOL;
 	?>
-	<p class="footer">texto de ayuda (poner iframe qui con url a soporte tickets con el tema</p>
 	</div>
