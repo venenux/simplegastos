@@ -18,7 +18,7 @@ class Custom_grocery_crud_model extends Grocery_crud_model {
 		$query=$this->db->query($this->query_str);
 		$results_array=$query->result();
 		//echo $this->db->last_query();
-		return $results_array;		
+		return $results_array;
 	}
 
 	public function set_custom_query($query_str,$groupby = '') {
@@ -59,17 +59,17 @@ class Custom_grocery_crud_model extends Grocery_crud_model {
     }
 
 	function get_total_results(){
-        $this->arrange_queries();
-		return $this->db->query($this->query_str)->num_rows();	
+        $this->arrange_queries(false);
+		return $this->db->query($this->query_str)->num_rows();
 	}
 
-    public function arrange_queries(){
+    public function arrange_queries($limit=true){
         $query = $this->query_str;
         $without_limit_str = str_replace($this->limit_str, '', $query);
         $without_order_by_str = str_replace($this->order_by_str, '', $without_limit_str);
         $without_group_by_str = str_replace($this->group_by_str,'',$without_order_by_str);
         $like_array = $this->like_arr;
-        $like_str = ''; 
+        $like_str = '';
         $or_like_array = $this->or_like_arr;
         $or_like_str = '';
         $i = 0;
@@ -98,8 +98,9 @@ class Custom_grocery_crud_model extends Grocery_crud_model {
             }
             $i++;
         }
-        $query = $without_group_by_str.$like_str.$or_like_str.$this->group_by_str.$this->order_by_str.$this->limit_str;
-        $this->query_str = $query;
+        $query = $without_group_by_str.$like_str.$or_like_str.$this->group_by_str.$this->order_by_str;
+		if($limit) $query .= $this->limit_str;
+		$this->query_str = $query;
     }
 
 }
