@@ -122,3 +122,46 @@ PLC
 MRG
 MTI 
 MT2
+
+
+	000-systemas
+	111-presidencia
+	113-impuestosvnz
+	122-tesoreriavnz
+	132-rrhhvnz
+	134-nominavnz
+	135-operacionesvnz
+	136-rrhhvnz
+	142-inventariovnz
+	157-mercanciasvnz
+	161-soporte
+	161-soportevnz
+	172-acopio-vnz
+	174-servicios-generales
+	202-analisisyreportes
+	202-showroomropa
+	202-showroomropavnz
+	203-showroomhogar
+	204-gastosvnz
+	206-auditoriavnz
+	206-cuentasvnz
+	207-supervisionvnz
+	210-gestion-coc
+	220-comercalizacion-vnz
+	245-operacionesvnz
+	301-medios
+	777-soporte-vnz
+	888-costarica
+	888-panama
+	999-encargados
+	999-galpones
+	999-tiendas-and
+	999-tiendas-cap
+	999-tiendas-cen
+	999-tiendas-coc
+	999-tiendas-csr
+	999-tiendas-faz
+	999-tiendas-ori
+	999-tiendas-pan
+	999-tiendas-pur
+	999-todos
