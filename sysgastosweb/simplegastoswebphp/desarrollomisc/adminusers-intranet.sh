@@ -265,9 +265,13 @@ procesar_usuario()
     # crear en los proxies de los sistemas remotos ocultos, para que se vean por medio de usuario y clave
     touch $archivosconfig/.webproyectsaccess;touch $archivosconfig/.webarchivosaccess;touch $archivosconfig/.webreportesaccess
     htpasswd -b $archivosconfig/.webproyectsaccess $username $claveuse > /dev/null 2>&1
-    htpasswd -b $archivosconfig/.webarchivosaccess $username $claveuse > /dev/null 2>&1
-    htpasswd -b $archivosconfig/.webreportesaccess $username $claveuse > /dev/null 2>&1
-    echo "paso 4: accesoweb I/O conflict, si no accede cambiar la clave $username errores:$errore " >> $archivolog
+    if [ "$gruporevisar" == "000-systemas" ]; then
+        htpasswd -b $archivosconfig/.webreportesaccess $username $claveuse > /dev/null 2>&1
+    fi
+    if [ "$gruporevisar" == "000-systemas" ]; then
+	    htpasswd -b $archivosconfig/.webarchivosaccess $username $claveuse > /dev/null 2>&1
+    fi
+	echo "paso 4: accesoweb I/O conflict, si no accede cambiar la clave $username errores:$errore " >> $archivolog
 
 
     echo "parte 1: $username:$claveuse $existe en pam+web+passwd, errores: $errore"
@@ -438,9 +442,14 @@ cambiarclave()
     touch $archivosconfig/.webproyectsaccess;touch $archivosconfig/.webarchivosaccess; touch $archivosconfig/.webreportesaccess
 	# 5) accesos web dav claves para el permiso via wervidor web (basic authz)
 	htpasswd -b $archivosconfig/.webproyectsaccess $username $claveuse > /dev/null 2>&1;sleep 1
-    htpasswd -b $archivosconfig/.webarchivosaccess $username $claveuse > /dev/null 2>&1;sleep 1
-    htpasswd -b $archivosconfig/.webreportesaccess $username $claveuse > /dev/null 2>&1;sleep 1
-	respuestasalir
+# TODO: en futuro hacer cat de un archivo y con un for iterar sobre todas las lineas
+    if [ "$gruporevisar" == "000-systemas" -o "$gruporevisar" == "204-gastosvnz" -o "$gruporevisar" == "142-inventariovnz" -o "$gruporevisar" == "132-rrhhvnz" -o "$gruporevisar" == "111-presidencia"]; then
+        htpasswd -b $archivosconfig/.webreportesaccess $username $claveuse > /dev/null 2>&1
+    fi
+    if [ "$gruporevisar" == "000-systemas" ]; then
+	    htpasswd -b $archivosconfig/.webarchivosaccess $username $claveuse > /dev/null 2>&1
+    fi
+    respuestasalir
     curl http://$adminusersys:$adminusercla@$dominio2/elfichero/ocs/v1.php/cloud/users -s -d usernid="$username" -d passwordn="$claveuse" --user "$adminusersys:$adminusercla" -XPOST -k >/dev/null 2>&1; sleep 1
     curl http://$adminusersys:$adminusercla@$dominio2/elfichero/ocs/v1.php/cloud/users/$username -s -d email="$username@$dominio" --user $adminusersys:$adminusercla -XPUT -k >/dev/null 2>&1;sleep 1
     curl http://$adminusersys:$adminusercla@$dominio2/elfichero/ocs/v1.php/cloud/users/$username -s -d password=$claveuse --user $adminusersys:$adminusercla -XPUT -k >/dev/null 2>&1
