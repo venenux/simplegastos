@@ -40,15 +40,11 @@ class Menu extends CI_Model
 
 		$vistas=anchor('cargargastover','Vistas');
 		$vistaglobal=array();
-		$vistaglobal['cargargastover']=anchor('cargargastover/gastovercustom/todos','Vista Reporte');
+		$vistaglobal['cargargastover']=anchor('gastosmatrix','Vista Reporte');
 
-		$gastos=anchor('gastosmatrix','Gastos');
-		$gastosmatrix['gastosmatrixt']=anchor('gastosmatrix','Matrix Gasto T'); // TODO: verificar permiso y este menu solo cargfa en tienda
-		$gastosmatrix['gastosmatrixa']=anchor('gastosmatrixadm','Matrix Gasto A'); // TODO: verificar permiso y este menu solo cargfa en administrativos
-
-		$cargas=anchor('cargargastover/gastovercustom','Cargas');
-		$cargaglobal['Cargargastot']=anchor('cargargasto','Cargar gasto'); // TODO: verificar permiso y este menu solo cargfa en tienda
-		$cargaglobal['Cargargastoa']=anchor('cargargastover','Revisar cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
+		$cargas=anchor('cargargastover/gastoregistros/tienda','Cargas');// TODO filtrar por la tienda si no es personal administrativo
+		$cargaglobal['Cargargastot']=anchor('cargargastover/gastoregistros/add','Cargar gasto'); // TODO: verificar permiso y este menu solo cargfa en tienda
+		$cargaglobal['Cargargastoa']=anchor('cargargastover/index','Revisar cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
 /*
 		$n300000=anchor('m300000','Procesos');
 		$m300000['m301000']=anchor('m301000','Actualizar Productos desde compras');

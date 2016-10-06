@@ -17,7 +17,7 @@
 		$separadores = array(''=>'', '\t'=>'Tabulador (|)', ','=>'Coma (,)',';'=>'PuntoComa (;)');
 		$htmlformaattributos = array('name'=>'formularioordendespachogenerar','class'=>'formularios','onSubmit'=>'return validageneric(this);');
 		echo form_fieldset('Ingrese los datos por favor',array('class'=>'container_blue containerin')) . PHP_EOL;
-		echo form_open_multipart('cargargasto/registrargasto/', $htmlformaattributos) . PHP_EOL;
+		echo form_open_multipart('cargargastoex/registrargasto/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
 			$this->table->add_row('Fecha del gasto:',form_input($valoresinputfecha).'(no mas de 3 dias atras)'.br().PHP_EOL);
 			$this->table->add_row('Categoria - Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);

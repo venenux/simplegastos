@@ -94,7 +94,7 @@ class Cargargastover extends CI_Controller {
 		$this->load->view('footer.php',$data);
 	}
 
-	public function gastovercustom()
+	public function gastoregistros()
 	{
 		if( $this->session->userdata('logueado') == FALSE)
 		{
@@ -112,80 +112,57 @@ class Cargargastover extends CI_Controller {
 		$des_registrolike = $this->input->get_post('des_registrolike');
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
-		$this->load->helper('inflector');
-		$cantidadLineas = 0;
-		$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
-		// CONFIGURAR EL REPIORTADOR Y ESCUPIR CON QUERY CUSTOM
-		$this->load->helper('url');
-		$sqlreportegasto = "SELECT
-              `registro_gastos`.`cod_registro`, `registro_adjunto`.`cod_adjunto`,
-              `registro_gastos`.`cod_entidad`,
-              `registro_gastos`.`cod_categoria`, `registro_gastos`.`cod_subcategoria`,
-              `categoria`.`des_categoria`, `subcategoria`.`des_subcategoria`,
-              `registro_gastos`.`des_registro`, `registro_gastos`.`mon_registro`,
-              `entidad`.`des_entidad`, `entidad`.`abr_entidad`, `entidad`.`abr_zona`,
-              `registro_gastos`.`estado`,  `registro_gastos`.`num_factura`,
-              `registro_adjunto`.`hex_adjunto`, `registro_adjunto`.`nam_adjunto`,
-              `registro_adjunto`.`fecha_adjunto`,
-              `registro_gastos`.`fecha_registro`, `registro_gastos`.`fecha_factura`,
-              `registro_gastos`.`sessionflag`
-            FROM
-             `registro_gastos`
-            LEFT JOIN
-             `registro_adjunto` ON `registro_adjunto`.`cod_registro` = `registro_gastos`.`cod_registro`
-            LEFT JOIN
-             `subcategoria` ON  `subcategoria`.`cod_subcategoria` = `registro_gastos`.`cod_subcategoria`
-            LEFT JOIN
-             `categoria` ON  `categoria`.`cod_categoria` = `registro_gastos`.`cod_categoria`
-            LEFT JOIN
-             `entidad` ON  `entidad`.`cod_entidad` = `registro_gastos`.`cod_entidad`
-            WHERE
-             ifnull(`registro_gastos`.`cod_registro`,'') <> '' and `registro_gastos`.`cod_registro` <> ''
-            ";
-        // cCONFIGURACION DE FILTROS SEGUN FORMULARIO PARA EL QUERY
-        if ( $fec_registroini != '')		$sqlreportegasto .= "and CONVERT(fecha_registro,UNSIGNED INTEGER) >= CONVERT('".$fec_registroini."',UNSIGNED INTEGER)";
-        if ( $fec_registrofin != '')		$sqlreportegasto .= "and CONVERT(fecha_registro,UNSIGNED INTEGER) <= CONVERT('".$fec_registrofin."',UNSIGNED INTEGER)";
-        if ( $mon_registroigual != '')		$sqlreportegasto .= "and mon_registro >= '".$mon_registroigual."'";
-        if ( $mon_registromayor != '')		$sqlreportegasto .= "and mon_registro <= '".$mon_registromayor."'";
-		if ( $des_registrolike != '')		$sqlreportegasto .= "and des_registro LIKE '%".$des_registrolike."'%";
-		if ( $cod_entidad != '')			$sqlreportegasto .= "and cod_entidad = '".$cod_entidad."'";
-		if ( $cod_subcategoria != '')		$sqlreportegasto .= "and registro_gastos.cod_subcategoria = '".$cod_subcategoria."'";
-		// TODO PERMISOS; si esta en tienda o no es admin, solo un mes de datos
-		if ( $this->uri->segment(1) != 'todos');
-			$sqlreportegasto .= " and CONVERT(fecha_registro,UNSIGNED INTEGER) >= CONVERT('".date('Ymd',strtotime('-1 month'))."',UNSIGNED INTEGER) ";
+		$this->load->helper(array('inflector','url'));
+		// CONFIGURACION DE FILTROS SEGUN FORMULARIO PARA EL QUERY
+        //if ( $this->uri->segment(1) != 'todos');
+		//	$sqlreportegasto .= " and CONVERT(fecha_registro,UNSIGNED INTEGER) >= CONVERT('".date('Ymd',strtotime('-1 month'))."',UNSIGNED INTEGER) ";
 		$this->load->library('grocery_CRUD');
 		$crud = new grocery_CRUD();
-	    $crud->set_model('Custom_grocery_crud_model');
 	    $crud->set_table('registro_gastos');
-	    $crud->basic_model->set_custom_query($sqlreportegasto);
-		//$crud->columns('cod_categoria','des_categoria','fecha_categoria','sessionflag');
-		$crud->display_as('cod_registro','Cod. Gasto')
-			 ->display_as('cod_entidad','Cod. CodGer')
-			 ->display_as('cod_categoria','Cod. Categoria')
-			 ->display_as('cod_subcategoria','Cod. Concepto')
-			 ->display_as('des_categoria','Categoria')
-			 ->display_as('desa_categoria','Categorias')
-			 ->display_as('des_subcategoria','Concepto')
-			 ->display_as('des_registro','Descripcion Gasto')
-			 ->display_as('mon_registro','Monto del Gasto')
-			 ->display_as('num_factura','Factura (opt)')
+		// filters if exist
+		if ( $cod_entidad != ''){	$crud->where('registro_gastos.cod_entidad',$cod_entidad);	}
+	    if ( $cod_subcategoria != ''){	$crud->where('registro_gastos.cod_subcategoria',$cod_subcategoria);	}
+		if ( $des_registrolike != ''){	$crud->like('registro_gastos.des_registro',$des_registrolike);	}
+		if ( $cod_subcategoria != ''){	$crud->where('registro_gastos.cod_subcategoria',$cod_subcategoria);	}
+		if ( $fec_registroini != ''){	$crud->where('CONVERT(fecha_registro,UNSIGNED INTEGER) >=',$fec_registroini);	}
+        if ( $fec_registrofin != ''){	$crud->where('CONVERT(fecha_registro,UNSIGNED INTEGER) <=',$fec_registrofin);	}
+        if ( $mon_registroigual != ''){	$crud->where('mon_registro >=',$mon_registroigual);	}
+        if ( $mon_registromayor != ''){	$crud->where('mon_registro >=',$mon_registromayor);	}
+		$crud->columns('cod_registro','cod_entidad','cod_categoria','cod_subcategoria','des_registro','mon_registro','fecha_registro','num_factura','fecha_factura','hex_factura','sessionflag');
+		$crud->set_relation('cod_entidad','entidad','{des_entidad}<br> ({cod_entidad})');
+		$crud->set_relation('cod_categoria','categoria','{des_categoria}<br> ({cod_categoria})');
+		$crud->set_relation('cod_subcategoria','subcategoria','{des_subcategoria}<br> ({cod_subcategoria})');
+		$crud->display_as('cod_registro','Codigo')
+			 ->display_as('cod_entidad','Codger')
+			 ->display_as('cod_categoria','Categoria')
+			 ->display_as('cod_subcategoria','Concepto')
+			 ->display_as('des_registro','Detalle')
+			 ->display_as('mon_registro','Monto')
+			 ->display_as('fecha_registro','Cuando')
+			 ->display_as('num_factura','Factura<br>Numero')
+			 ->display_as('fecha_factura','Factura<br>Fecha')
+			 ->display_as('hex_factura','Factura<br>Escaneada')
 			 ->display_as('sessionflag','Modificado');
-		$crud->set_relation('desa_categoria','categoria','{cod_categoria} - {des_categoria}');
-		$crud->set_subject('Registros');
-		$crud->edit_fields('des_registro','mon_registro','num_factura','cod_registro','cod_entidad','cod_categoria','cod_subcategoria','sessionflag');
-		$crud->unset_add();
+		$crud->set_subject('Registro');
 		$crud->unset_delete();
+		$crud->unset_add_fields('sessionflag','cod_adjunto');
+		$crud->unset_edit_fields('cod_adjunto');
+		$crud->edit_fields('cod_registro','des_registro','mon_registro','cod_entidad','cod_categoria','cod_subcategoria','num_factura','sessionflag');
+		$crud->required_fields('des_registro','mon_registro');
 		$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'RECHAZADO' => 'RECHAZADO'));
+		$crud->set_field_upload('hex_factura','appweb/archivoscargas');
+		$crud->set_rules('des_registro', 'Descripcion', 'trim|required|alphanumeric');
+		$crud->set_rules('mon_registro', 'Monto', 'trim|required|decimal');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
-			$crud->set_rules('cod_entidad', 'Codigo Centro costo', 'trim|required|alphanumeric');
-			$crud->set_rules('cod_registro', 'Codigo Registro', 'trim|required|alphanumeric');
-			$crud->set_rules('cod_categoria', 'Codigo Categoria', 'trim|required|alphanumeric');
-			$crud->set_rules('cod_subcategoria', 'Codigo Concepto', 'trim|required|alphanumeric');
+			$crud->set_rules('cod_entidad', 'Codigo Centro costo', 'trim|alphanumeric');
+			$crud->set_rules('cod_registro', 'Codigo Registro', 'trim|alphanumeric');
+			$crud->set_rules('cod_categoria', 'Codigo Categoria', 'trim|alphanumeric');
+			$crud->set_rules('cod_subcategoria', 'Codigo Concepto', 'trim|alphanumeric');
 			$crud->set_rules('des_registro', 'Descripcion', 'trim|required|alphanumeric');
-			$crud->set_rules('fecha_categoria', 'Creado', 'trim|required');
-			$crud->callback_add_field('fecha_categoria', function () {	return '<input type="text" maxlength="50" value="'.date("YmdHis").'" name="fecha_categoria" readonly="true">';	});
+			$crud->callback_add_field('fecha_registro', function () {	return '<input type="text" maxlength="50" value="'.date("Ymd").'" name="fecha_registro" readonly="true">';	});
+			$crud->callback_add_field('cod_registro', function () {	return '<input type="text" maxlength="50" value="GAS'.date("YmdHis").'" name="cod_registro" readonly="true">';	});
 		}
 		else if ($currentState == 'edit')
 		{
@@ -193,16 +170,17 @@ class Cargargastover extends CI_Controller {
 			$crud->field_type('cod_entidad', 'readonly');
 			$crud->field_type('cod_categoria', 'readonly');
 			$crud->field_type('cod_subcategoria', 'readonly');
-			$crud->set_rules('des_registro', 'Descripcion', 'trim|required|alphanumeric');
-			$crud->set_rules('mon_registro', 'Descripcion', 'trim|required|alphanumeric');
-			$crud->field_type('num_factura', 'readonly');
+			$crud->set_rules('sessionflag', 'Su id se registrara <br>como el que modifica');
 			$crud->field_type('sessionflag', 'readonly');
+			//$crud->callback_edit_field('sessionflag', function () {	return '<input type="text" maxlength="50" value="'.$this->session->userdata('username').date("YmdHis").'" name="sessionflag" readonly="true">';	});
 		}
 		$crud->callback_before_update(array($this,'echapajacuando'));
+		$crud->callback_before_insert(array($this,'generarcodigo'));
+		$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
 		$output = $crud->render();
 		// TERMINAR EL PROCESO (solo paso 1) **************************************************** /
 		$data['menu'] = $this->menu->general_menu();
-		$data['accionejecutada'] = 'resultadocargardatosver';
+		$data['accionejecutada'] = 'cargardatosfiltrados';
 		$data['userintran'] = $userintran;
 		$data['fec_registroini'] = $fec_registroini;
 		$data['fec_registrofin'] = $fec_registrofin;
@@ -218,9 +196,28 @@ class Cargargastover extends CI_Controller {
 		$this->load->view('footer.php',$data);
 	}
 
+	function _callback_verusuario($value, $row)
+	{
+		$sqlquien = "select ficha from usuarios where intranet = '".substr_replace($value,'', -14)."'";
+		$sqlquienresult = $this->db->query($sqlquien);
+			$ficha = '';
+			foreach ($sqlquienresult->result() as $row)
+			{
+				$ficha = $row->ficha;
+			}
+		return "<a href='".site_url('admusuariosentidad/admusuariosavanzado/read/'.$ficha)."'>$value</a>";
+	}
+
 	function echapajacuando($post_array, $primary_key)
 	{
 		$post_array['sessionflag'] = $this->session->userdata('username').date("YmdHis");
+		// TODO: insert para tabla log
+		return $post_array;
+	}
+
+	function generarcodigo($post_array)
+	{
+		$post_array['cod_registro'] = 'GAS'.date("YmdHis");
 		// TODO: insert para tabla log
 		return $post_array;
 	}

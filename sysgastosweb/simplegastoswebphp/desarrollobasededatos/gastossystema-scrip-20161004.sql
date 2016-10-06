@@ -25,16 +25,17 @@ COMMENT = 'los titulos de la matrix, el tipo general de gasto';
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `entidad` ;
 
-CREATE  TABLE IF NOT EXISTS `entidad` (
-  `cod_entidad` VARCHAR(40) NOT NULL COMMENT 'codger de la sucursal o id en nomina' ,
-  `abr_entidad` VARCHAR(40) NOT NULL COMMENT 'abrebiacion de esta sucursal' ,
-  `abr_zona` VARCHAR(40) NOT NULL COMMENT 'siglas de la zona de la sucursal' ,
-  `des_entidad` VARCHAR(400) NOT NULL COMMENT 'descripcion sucursal' ,
-  `status` VARCHAR(40) NOT NULL COMMENT 'ACTIVA|CERRADA|SUSPENDIDA|ESPECIAL' ,
-  `sello` VARCHAR(40) NOT NULL COMMENT 'solo las ubicaciones usan selllos, departamentos usan codger' ,
-  `sessionflag` VARCHAR(40) NULL COMMENT 'esto es quien lo hizo yyyymmddhhmmss+godger+.+ficha' ,
+CREATE TABLE `entidad` (
+  `cod_entidad` varchar(40) NOT NULL COMMENT 'codger de la sucursal o id en nomina',
+  `abr_entidad` varchar(40) NOT NULL COMMENT 'abrebiacion de esta sucursal',
+  `abr_zona` varchar(40) NOT NULL COMMENT 'siglas de la zona de la sucursal',
+  `des_entidad` varchar(400) NOT NULL COMMENT 'descripcion sucursal',
+  `status` varchar(40) NOT NULL COMMENT 'ACTIVA|CERRADA|SUSPENDIDA|ESPECIAL',
+  `cod_fondo` varchar(40) DEFAULT NULL COMMENT 'fondo o monto disponible si aplica',
+  `sello` varchar(40) DEFAULT NULL COMMENT 'solo las ubicaciones usan selllos, departamentos usan codger',
+  `sessionflag` varchar(40) DEFAULT NULL COMMENT 'esto es quien lo hizo yyyymmddhhmmss+godger+.+ficha',
   PRIMARY KEY (`cod_entidad`) )
-COMMENT = 'las entidades que se le adjudican gastos';
+COMMENT='las entidades que se le adjudican gastos';
 
 
 -- -----------------------------------------------------
@@ -73,20 +74,21 @@ COMMENT = 'escaneados de los registro o gasto adjudicado';
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `registro_gastos` ;
 
-CREATE  TABLE IF NOT EXISTS `registro_gastos` (
-  `cod_registro` VARCHAR(40) NOT NULL COMMENT 'usa fecha YYYYMMDDhhmmss era id_unico_autogenerado' ,
-  `cod_entidad` VARCHAR(40) NOT NULL COMMENT 'codger de la entidad al cual se le adjudica' ,
-  `cod_categoria` VARCHAR(40) NULL COMMENT 'compatibilidad CRUD - se puede sacar con el subcategoria' ,
-  `cod_subcategoria` VARCHAR(40) NOT NULL COMMENT 'cual subcategoria no puede faltar' ,
-  `des_registro` TEXT NOT NULL COMMENT 'cual fue el gasto esto era descripcion_gasto' ,
-  `mon_registro` DECIMAL(20,4) NOT NULL COMMENT 'cuanto se gasto, com algunos decimales' ,
-  `num_factura` VARCHAR(40) NULL COMMENT 'mumero de factura opcinal' ,
-  `estado` VARCHAR(40) NULL COMMENT 'APROBADO|RECHAZADO|PROCESADO|INVALIDO' ,
-  `fecha_registro` VARCHAR(40) NULL COMMENT 'YYYYMMDD innecesario, se deja por compatibilidad' ,
-  `fecha_factura` VARCHAR(40) NULL COMMENT 'YYYYMMDD de la factura si tiene' ,
-  `sessionflag` VARCHAR(40) NULL COMMENT 'esto es quien_registro YYYYMMDDhhmmss + codger + . + ficha' ,
-  PRIMARY KEY (`cod_registro`) )
-COMMENT = 'descripcion y monto de gastos o el detalle';
+CREATE TABLE `registro_gastos` (
+  `cod_registro` varchar(40) NOT NULL COMMENT 'usa fecha YYYYMMDDhhmmss era id_unico_autogenerado',
+  `cod_entidad` varchar(40) NOT NULL COMMENT 'codger de la entidad al cual se le adjudica',
+  `cod_categoria` varchar(40) DEFAULT NULL COMMENT 'compatibilidad CRUD - se puede sacar con el subcategoria',
+  `cod_subcategoria` varchar(40) NOT NULL COMMENT 'cual subcategoria no puede faltar',
+  `des_registro` varchar(400) NOT NULL COMMENT 'cual fue el gasto esto era descripcion_gasto',
+  `mon_registro` decimal(20,2) NOT NULL COMMENT 'cuanto se gasto, com algunos decimales',
+  `estado` varchar(40) DEFAULT NULL COMMENT 'APROBADO|RECHAZADO|PROCESADO|INVALIDO',
+  `num_factura` varchar(40) DEFAULT NULL COMMENT 'mumero de factura opcinal',
+  `hex_factura` blob DEFAULT NULL COMMENT 'escaneo por defecto, para mas la tabla adjuntos',
+  `fecha_factura` varchar(40) DEFAULT NULL COMMENT 'YYYYMMDD de la factura si tiene',
+  `fecha_registro` varchar(40) DEFAULT NULL COMMENT 'YYYYMMDD innecesario, se deja por compatibilidad',
+  `sessionflag` varchar(40) DEFAULT NULL COMMENT 'esto es quien_registro YYYYMMDDhhmmss + codger + . + ficha',
+  PRIMARY KEY (`cod_registro`)
+) COMMENT='descripcion y monto de gastos o el detalle';
 
 
 -- -----------------------------------------------------
@@ -123,21 +125,34 @@ COMMENT = 'relacion usuario y que sucursal adjudica gastos';
 DROP TABLE IF EXISTS `usuarios` ;
 
 CREATE  TABLE IF NOT EXISTS `usuarios` (
-  `ficha` VARCHAR(40) NOT NULL COMMENT 'cod_usuario, cedula en vnzla' ,
-  `intranet` VARCHAR(40) NOT NULL COMMENT 'login del usuario, id del correo' ,
-  `clave` VARCHAR(40) NOT NULL ,
-  `sello` VARCHAR(40) NOT NULL COMMENT 'OJO: este solo es para saber si es de tienda o administrativo, no es la pertenencia' ,
-  `nombre` VARCHAR(400) NULL DEFAULT NULL COMMENT 'nombre y apellido' ,
-  `estado` VARCHAR(40) NOT NULL COMMENT 'ACTIVO INACTIVO SUSPENDIDO INVALIDO' ,
-  `acc_lectura` VARCHAR(4000) NOT NULL COMMENT 'modulos o pagina controlador que puede leer separados por barra' ,
-  `acc_escribe` VARCHAR(4000) NOT NULL COMMENT 'modulos o nombre controlador que puede crear registros separados por barra' ,
-  `acc_modifi` VARCHAR(4000) NOT NULL COMMENT 'modulos o nombre controlador que puede alterar separados por barra' ,
-  `fecha_ultimavez` VARCHAR(40) NULL COMMENT 'cuando fue la ultima vez que entro sesion' ,
-  `fecha_ficha` VARCHAR(40) NULL ,
-  `sessionflag` VARCHAR(40) NULL COMMENT 'esto es quien_registro YYYYMMDDhhmmss + codger + . + ficha' ,
-  PRIMARY KEY (`ficha`) )
+  `ficha` varchar(40) NOT NULL COMMENT 'cod_usuario, cedula en vnzla',
+  `intranet` varchar(40) NOT NULL COMMENT 'login del usuario, id del correo',
+  `clave` varchar(40) NOT NULL,
+  `sello` varchar(40) NOT NULL COMMENT 'OJO: este solo es para saber si es de tienda o administrativo, no es la pertenencia',
+  `nombre` varchar(400) DEFAULT NULL COMMENT 'nombre y apellido',
+  `cod_fondo` varchar(40) DEFAULT NULL COMMENT 'fondo o monto asociado si aplica',
+  `estado` varchar(40) NOT NULL COMMENT 'ACTIVO INACTIVO SUSPENDIDO INVALIDO',
+  `acc_lectura` varchar(4000) NOT NULL COMMENT 'modulos o pagina controlador que puede leer separados por barra',
+  `acc_escribe` varchar(4000) NOT NULL COMMENT 'modulos o nombre controlador que puede crear registros separados por barra',
+  `acc_modifi` varchar(4000) NOT NULL COMMENT 'modulos o nombre controlador que puede alterar separados por barra',
+  `fecha_ultimavez` varchar(40) DEFAULT NULL COMMENT 'cuando fue la ultima vez que entro sesion',
+  `fecha_ficha` varchar(40) DEFAULT NULL,
+  `sessionflag` varchar(40) DEFAULT NULL COMMENT 'esto es quien_registro YYYYMMDDhhmmss + codger + . + ficha',
+  PRIMARY KEY (`ficha`)
 COMMENT = 'tabla de usuarios';
 
+-- -----------------------------------------------------
+-- Table `usuarios`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `fondo` ;
+
+CREATE  TABLE IF NOT EXISTS `fondo` (
+  `cod_fondo` VARCHAR(40) NOT NULL ,
+  `fecha_fondo` VARCHAR(40) NOT NULL ,
+  `mon_fondo` VARCHAR(40) NOT NULL ,
+  `sessionflag` VARCHAR(40) NULL DEFAULT NULL ,
+  PRIMARY KEY (`cod_fondo`, `fecha_fondo`) )
+COMMENT = 'indicacion de quien tiene fondos';
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
