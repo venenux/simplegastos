@@ -565,6 +565,7 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
 		$this->basic_model = $ci->$real_model_name;
 	}
 
+	/* // *********** original GC below the changes by PICCORO
 	protected function set_ajax_list_queries($state_info = null)
 	{
 		if(!empty($state_info->per_page))
@@ -664,6 +665,149 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
 						$this->or_like($column->field_name, $search_text);
 					}
 				}
+			}
+		}
+	}*/
+
+	protected function set_ajax_list_queries($state_info = null)
+	{
+		if(!empty($state_info->per_page))
+		{
+			if(empty($state_info->page) || !is_numeric($state_info->page) )
+				$this->limit($state_info->per_page);
+			else
+			{
+				$limit_page = ( ($state_info->page-1) * $state_info->per_page );
+				$this->limit($state_info->per_page, $limit_page);
+			}
+		}
+
+		if(!empty($state_info->order_by))
+		{
+			$this->order_by($state_info->order_by[0],$state_info->order_by[1]);
+		}
+
+		if(!empty($state_info->search))
+		{
+			if(!empty($this->relation))
+
+				foreach($this->relation as $relation_name => $relation_values)
+					$temp_relation[$this->_unique_field_name($relation_name)] = $this->_get_field_names_to_search($relation_values);
+
+			if($state_info->search->field !== null)
+			{
+				if(isset($temp_relation[$state_info->search->field]))
+				{
+					if(is_array($temp_relation[$state_info->search->field])) {
+
+						if(!empty($this->where)) { // we already have a where(), so chaining or_like won't work
+							$like_where = '(';
+							$escaped_text = $this->basic_model->escape_str($state_info->search->text);
+
+							foreach($temp_relation[$state_info->search->field] as $search_field) {
+								$like_where .= '`'.$search_field."` LIKE '%".$escaped_text."%' OR ";
+							}
+
+							if ($like_where != '(') {
+								$like_where = substr($like_where, 0, -4).')'; // trim off the trailing  OR and add closing bracket
+								$this->where($like_where);
+							}
+
+						} else { // there isn't a where(), so just chain the or_likes
+
+							foreach($temp_relation[$state_info->search->field] as $search_field) {
+							   $this->or_like($search_field, $state_info->search->text);
+							}
+
+						}
+
+					} else {
+						$this->like($temp_relation[$state_info->search->field] , $state_info->search->text);
+					}
+
+				} elseif(isset($this->relation_n_n[$state_info->search->field])) {
+					$escaped_text = $this->basic_model->escape_str($state_info->search->text);
+					$this->having($state_info->search->field." LIKE '%".$escaped_text."%'");
+				} else {
+					$this->like($state_info->search->field , $state_info->search->text);
+				}
+			}
+			else // search against all columns
+			{
+				$columns = $this->get_columns();
+				$search_text = $state_info->search->text;
+
+				if(!empty($this->where))
+					foreach($this->where as $where)
+						$this->basic_model->having($where[0],$where[1],$where[2]);
+
+				//Get the list of actual columns and then before adding it to search ..
+				//compare it with the field ... does it exists? .. if yes.. great ..
+				//go ahead and add it to search list.. if not.. just ignore it
+				$field_types = $this->get_field_types();
+				$actual_columns = array();
+				$srch = array();
+
+				foreach($field_types as $field) {
+					if( !isset($field->db_extra) || $field->db_extra != 'auto_increment' )
+						$actual_columns[] = $field->name;
+				}
+
+				foreach($columns as $column)
+				{
+					if(isset($temp_relation[$column->field_name]))
+					{
+						if(is_array($temp_relation[$column->field_name]))
+						{
+							foreach($temp_relation[$column->field_name] as $search_field)
+							{
+								//$this->or_like($search_field, $search_text);
+								$srch[] = $search_field;
+							}
+
+						}
+						else
+						{
+							//$this->or_like($temp_relation[$column->field_name], $search_text);
+							$srch[] = $temp_relation[$column->field_name];
+						}
+					}
+					elseif(isset($this->relation_n_n[$column->field_name]))
+					{
+						//@todo have a where for the relation_n_n statement
+					}
+					else
+					{
+						if(array_search($column->field_name, $actual_columns) === false) { // amit mod - bail out if column not in db
+							continue;
+						}
+						//$this->or_like($column->field_name, $search_text);
+						$srch[] = $column->field_name;
+					}
+				}
+
+				//die(var_dump($srch));
+				if(!empty($this->where)) { // we already have a where(), so chaining or_like won't work
+					$like_where = '(';
+					$escaped_text = $this->basic_model->escape_str($search_text);
+
+					foreach($srch as $search_field) {
+						$like_where .= '`'.$search_field."` LIKE '%".$escaped_text."%' OR ";
+					}
+
+					if ($like_where != '(') {
+						$like_where = substr($like_where, 0, -4).')'; // trim off the trailing  OR and add closing bracket
+						$this->where($like_where);
+					}
+
+				} else { // there isn't a where(), so just chain the or_likes
+
+					foreach($srch as $search_field) {
+						$this->or_like($search_field, $search_text);
+					}
+
+				}
+
 			}
 		}
 	}
