@@ -1578,6 +1578,14 @@ class grocery_CRUD_Layout extends grocery_CRUD_Model_Driver
 		$data->total_results = $this->get_total_results();
 
 		$data->columns 				= $this->get_columns();
+		foreach ($data->columns as $column)
+		{
+			$new_column_name = substr(strstr($column->field_name, "."), 1);
+			if ( ! empty($new_column_name))
+			{
+				$column->field_name = $new_column_name;
+			}
+		}
 
 		$data->success_message		= $this->get_success_message_at_list($state_info);
 
@@ -4141,6 +4149,9 @@ class Grocery_CRUD extends grocery_CRUD_States
 				}
 			}
 
+			$ci =& get_instance();
+			$base_table_fields = $ci->db->list_fields($this->basic_db_table);
+
 			foreach($this->columns as $col_num => $column)
 			{
 
@@ -4187,6 +4198,20 @@ class Grocery_CRUD extends grocery_CRUD_States
 
 								$column = $new_column;
 								$this->columns[$col_num] = $new_column;
+							}
+							else
+							{
+								$fields = $base_table_fields;
+								foreach ($fields as $field_name)
+								{
+									if ($field_name == $column)
+									{
+										$new_column = $this->basic_db_table.'.'.$column;
+										$column = $new_column;
+										$this->columns[$col_num] = $new_column;
+										$this->display_as[$column] = ucfirst(str_replace('_',' ', $field_name));
+									}
+								}
 							}
 						}
 					}
