@@ -19,14 +19,18 @@ archivolog=/var/log/adminusersnew.log
 # configuracion por defecto
 archivogroups=$archivosconfig/.gruposorganizacion
 quota=1024768000
-adminusersys=
-adminusercla=
-elsoporteh=
-elsoporteu=
-elsoportedb=
-elsoportec=
+adminusersys=systemas
+adminusercla=systemas.1.com.net.ve
+elsoporteh=37.10.252.96
+elsoporteu=simpleticket
+elsoportedb=simpleticket
+elsoportec=simpleticket.1.com.net
+elproyectoh=10.10.34.20
+elproyectou=redmine
+elproyectodb=redmine_default
+elproyectoc=redmine.1.com
 dominio="intranet1.net.ve"
-dominio2=""
+dominio2="10.10.34.22"
 grupo="999-todos"
 sufix=S
 
@@ -266,12 +270,12 @@ procesar_usuario()
     touch $archivosconfig/.webproyectsaccess;touch $archivosconfig/.webarchivosaccess;touch $archivosconfig/.webreportesaccess
     htpasswd -b $archivosconfig/.webproyectsaccess $username $claveuse > /dev/null 2>&1
     if [ "$gruporevisar" == "000-systemas" ]; then
+        htpasswd -b $archivosconfig/.webarchivosaccess $username $claveuse > /dev/null 2>&1
+    fi
+    if [ "$gruporevisar" == "000-systemas" -o "$gruporevisar" == "204-gastosvnz" -o "$gruporevisar" == "142-inventariovnz" -o "$gruporevisar" == "132-rrhhvnz" -o "$gruporevisar" == "111-presidencia"]; then
         htpasswd -b $archivosconfig/.webreportesaccess $username $claveuse > /dev/null 2>&1
     fi
-    if [ "$gruporevisar" == "000-systemas" ]; then
-	    htpasswd -b $archivosconfig/.webarchivosaccess $username $claveuse > /dev/null 2>&1
-    fi
-	echo "paso 4: accesoweb I/O conflict, si no accede cambiar la clave $username errores:$errore " >> $archivolog
+    echo "paso 4: accesoweb I/O conflict, si no accede cambiar la clave $username errores:$errore " >> $archivolog
 
 
     echo "parte 1: $username:$claveuse $existe en pam+web+passwd, errores: $errore"
@@ -411,17 +415,17 @@ destruir_usuario()
 
 temporalosticket()
 {
-	existe2=$(mysql -u simpleticket -psadfasd -h "$elsoporteh" -e "SELECT * FROM simpleticket.ost_user WHERE name='$username'" simpleticket)
+	existe2=$(mysql -u simpleticket -psimpleticket.1.com.net -h "$elsoporteh" -e "SELECT * FROM simpleticket.ost_user WHERE name='$username'" simpleticket)
         if [ -z "$existe2"  ]; then
 		mysql -u $elsoporteu -p$elsoportec -h $elsoporteh -e "INSERT INTO ost_user (org_id,default_email_id,status,name,created,updated)VALUES (1,0,0,'$username',CURDATE(),CURDATE());" $elsoportedb >/dev/null 2>&1
 	fi
 	existe2=""
-	existe2=$(mysql -u simpleticket -pasdfa -h "$elsoporteh" -e "SELECT * FROM simpleticket.ost_user_account WHERE username='$username'" simpleticket)
+	existe2=$(mysql -u simpleticket -psimpleticket.1.com.net -h "$elsoporteh" -e "SELECT * FROM simpleticket.ost_user_account WHERE username='$username'" simpleticket)
         if [ -z "$existe2"  ]; then
     		mysql -u $elsoporteu -p$elsoportec -h $elsoporteh -e "INSERT INTO ost_user_account (user_id,status,timezone_id,lang,username,passwd,backend,registered) VALUES ( (SELECT id FROM ost_user WHERE name = '$username'),9,9,NULL,'$username',md5('$claveuse'),NULL,CURDATE());" $elsoportedb >/dev/null 2>&1
     	fi
     	existe2=""
-	existe2=$(mysql -u simpleticket -pasdfa -h "$elsoporteh" -e "SELECT * FROM simpleticket.ost_user_email WHERE address='$username@intranet1.net.ve'" simpleticket)
+	existe2=$(mysql -u simpleticket -psimpleticket.1.com.net -h "$elsoporteh" -e "SELECT * FROM simpleticket.ost_user_email WHERE address='$username@intranet1.net.ve'" simpleticket)
         if [ -z "$existe2"  ]; then
     		mysql -u $elsoporteu -p$elsoportec -h $elsoporteh -e "INSERT INTO ost_user_email (user_id,address) VALUES( (SELECT id FROM ost_user WHERE name = '$username'),'$username@intranet1.net.ve');" $elsoportedb >/dev/null 2>&1
 	fi
@@ -438,18 +442,17 @@ cambiarclave()
 	respuestasalir
 	mysql -u $elsoporteu -p$elsoportec -h $elsoporteh -e "UPDATE ost_user_account SET passwd = md5('$claveuse') WHERE username = '$username';" $elsoportedb  >/dev/null 2>&1
 	# 4 integracion con redmine el gestor de proyectos del departamento
-	mysql -u $elproyectou -p$elproyectop -h $elproyectoh -e "UPDATE users SET hashed_password=sha1(sha1('$claveuse')), salt='' WHERE login='$username';" $elproyectodb >/dev/null 2>&1
+	mysql -u $elproyectou -p$elproyectoc -h $elproyectoh -e "UPDATE users SET hashed_password=sha1(sha1('$claveuse')), salt='' WHERE login='$username';" $elproyectodb >/dev/null 2>&1
     touch $archivosconfig/.webproyectsaccess;touch $archivosconfig/.webarchivosaccess; touch $archivosconfig/.webreportesaccess
 	# 5) accesos web dav claves para el permiso via wervidor web (basic authz)
-	htpasswd -b $archivosconfig/.webproyectsaccess $username $claveuse > /dev/null 2>&1;sleep 1
-# TODO: en futuro hacer cat de un archivo y con un for iterar sobre todas las lineas
-    if [ "$gruporevisar" == "000-systemas" -o "$gruporevisar" == "204-gastosvnz" -o "$gruporevisar" == "142-inventariovnz" -o "$gruporevisar" == "132-rrhhvnz" -o "$gruporevisar" == "111-presidencia"]; then
-        htpasswd -b $archivosconfig/.webreportesaccess $username $claveuse > /dev/null 2>&1
-    fi
-    if [ "$gruporevisar" == "000-systemas" ]; then
-	    htpasswd -b $archivosconfig/.webarchivosaccess $username $claveuse > /dev/null 2>&1
-    fi
-    respuestasalir
+        htpasswd -b $archivosconfig/.webproyectsaccess $username $claveuse > /dev/null 2>&1;sleep 1
+	if [ -z  $(groups $username | grep &>/dev/null "stema")  ]; then
+	    htpasswd -b $archivosconfig/.webarchivosaccess $username $claveuse > /dev/null 2>&1;sleep 1
+	fi # solo entra si pertenece al grupo, solo permite usuarios de grupos administrativos
+	if [ -z  $(groups $username | grep &>/dev/null '\wystema\w\|gasto\|\wresidenci\w\|\wlcaldi\w\|\wmpuest\w\|\woordina\w\|\wperacio\w\|\wesoreri\w\|\wuditori\w') ]; then
+	    htpasswd -b $archivosconfig/.wereportesaccess $username $claveuse > /dev/null 2>&1
+	fi # TODO: esta parte no sirve, revisar si el usuario esta en varios grupos
+	respuestasalir
     curl http://$adminusersys:$adminusercla@$dominio2/elfichero/ocs/v1.php/cloud/users -s -d usernid="$username" -d passwordn="$claveuse" --user "$adminusersys:$adminusercla" -XPOST -k >/dev/null 2>&1; sleep 1
     curl http://$adminusersys:$adminusercla@$dominio2/elfichero/ocs/v1.php/cloud/users/$username -s -d email="$username@$dominio" --user $adminusersys:$adminusercla -XPUT -k >/dev/null 2>&1;sleep 1
     curl http://$adminusersys:$adminusercla@$dominio2/elfichero/ocs/v1.php/cloud/users/$username -s -d password=$claveuse --user $adminusersys:$adminusercla -XPUT -k >/dev/null 2>&1
@@ -466,10 +469,10 @@ cambiarclave()
 	/usr/sbin/ejabberdctl change_password $username $dominio $claveuse > /dev/null 2>&1
 	respuestasalir
 	# 3) cambiar clave en el owncloud para simple net, asignar el correo y asegurar la clave
-	# curl http://$adminusersys:$adminusercla@$dominio/elfichero/ocs/v1.php/cloud/users/$username -s -d email="$username@$dominio" --user $adminusersys:$adminusercla -XPUT -k >/dev/null 2>&1
-	# respuestasalir
-	# curl http://$adminusersys:$adminusercla@$dominio/elfichero/ocs/v1.php/cloud/users/$username -s -d password="$claveuse" --user $adminusersys:$adminusercla -XPUT -k >/dev/null 2>&1
-	# respuestasalir
+	curl http://$adminusersys:$adminusercla@$dominio/elfichero/ocs/v1.php/cloud/users/$username -s -d email="$username@$dominio" --user $adminusersys:$adminusercla -XPUT -k >/dev/null 2>&1
+	 respuestasalir
+	curl http://$adminusersys:$adminusercla@$dominio/elfichero/ocs/v1.php/cloud/users/$username -s -d password="$claveuse" --user $adminusersys:$adminusercla -XPUT -k >/dev/null 2>&1
+	 respuestasalir
 	if [ "$comando" == "clave" -a "$claveuse" != "" ]; then
 	exit $errore
 	fi
