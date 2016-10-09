@@ -190,7 +190,7 @@ class Grocery_crud_model  extends CI_Model  {
     	} else {
             $this->db->select($this->table_name . '.' . $key);
         }
-
+        
         return $this->db->get($this->table_name)->num_rows();
     }
 
