@@ -129,8 +129,8 @@ class Cargargastover extends CI_Controller {
         if ( $mon_registromayor != ''){	$crud->where('mon_registro >=',$mon_registromayor);	}
 		$crud->set_table('registro_gastos');
 		$crud->columns('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','des_registro','mon_registro','hex_factura','fecha_factura','sessionflag','cod_registro');
-		$crud->add_fields('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','des_registro','mon_registro','hex_factura','fecha_factura','cod_registro');
-		$crud->edit_fields('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','des_registro','mon_registro','hex_factura','fecha_factura','sessionflag','cod_registro');
+		$crud->add_fields('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','des_registro','mon_registro','ext_registro','hex_factura','fecha_factura','cod_registro');
+		$crud->edit_fields('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','des_registro','mon_registro','ext_registro','hex_factura','fecha_factura','sessionflag','cod_registro');
 		$crud->set_relation('cod_entidad','entidad','{des_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','des_categoria'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria','subcategoria','des_subcategoria'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
@@ -150,13 +150,13 @@ class Cargargastover extends CI_Controller {
 			 ->display_as('sessionflag','Modificado');
 
 		$crud->unset_delete();
-		$crud->required_fields('des_registro','mon_registro','estado');
+		$crud->required_fields('des_registro','mon_registro','estado','ext_registro');
 		$crud->set_field_upload('hex_factura','appweb/archivoscargas');
 		//$crud->field_type('cod_registro', 'readonly'); // esto no se puede si ya se hizo algo antes
 		$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'RECHAZADO' => 'RECHAZADO'));
 		$crud->set_rules('des_registro', 'Concepto', 'trim|required|alphanumeric');
 		$crud->set_rules('mon_registro', 'Monto', 'trim|required|decimal');
-
+		$crud->unset_texteditor('ext_registro');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{

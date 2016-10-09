@@ -87,6 +87,7 @@ class admcategoriasconceptos extends CI_Controller {
 			 ->display_as('sessionflag','Modificado');
 		$crud->set_subject('Categorias');
 		$crud->field_type('des_categoria', 'text');
+		$crud->unset_texteditor('des_categoria');
 		$crud->add_fields('cod_categoria','des_categoria','fecha_categoria');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
@@ -124,8 +125,10 @@ class admcategoriasconceptos extends CI_Controller {
 			 ->display_as('fecha_subcategoria','Creado')
 			 ->display_as('sessionflag','Modificado');
 		$crud->set_subject('Conceptos');
-		$crud->display_as('cod_categoria','Categoria');
+		$crud->field_type('des_subcategoria', 'text');
+		$crud->unset_texteditor('des_subcategoria');
 		$crud->set_relation('cod_categoria','categoria','{cod_categoria} - {des_categoria}');
+		$crud->display_as('cod_categoria','Categoria');
 		$crud->unset_add_fields('sessionflag');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
