@@ -163,6 +163,36 @@ CREATE  TABLE IF NOT EXISTS `usuarios` (
 COMMENT = 'tabla de usuarios';
 
 
+-- -----------------------------------------------------
+-- Placeholder table for view `fondos`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `fondos` (`cod_fondo` VARCHAR(40), `mon_fondo` VARCHAR(40), `fecha_fondo` VARCHAR(40), `cod_quien` VARCHAR(40), `quien` VARCHAR(40));
+
+-- -----------------------------------------------------
+-- View `fondos`
+-- -----------------------------------------------------
+DROP VIEW IF EXISTS `fondos` ;
+DROP TABLE IF EXISTS `fondos`;
+USE `gastossystema`;
+CREATE OR REPLACE VIEW `fondos` AS 
+SELECT 
+     ifnull(fo.cod_fondo,'N/A') as cod_fondo, 
+     ifnull(fo.mon_fondo,'N/A') as mon_fondo, 
+     fo.fecha_fondo, en.cod_entidad as cod_quien, en.des_entidad as quien
+ FROM fondo AS fo
+ RIGHT JOIN entidad AS en
+ ON en.cod_fondo = fo.cod_fondo
+ UNION
+ SELECT 
+     ifnull(fo.cod_fondo,'N/A') as cod_fondo, 
+     ifnull(fo.mon_fondo,'N/A') as mon_fondo, 
+     fo.fecha_fondo, us.intranet as cod_quien, us.nombre as quien
+ FROM fondo AS fo
+ RIGHT JOIN usuarios AS us
+ ON us.cod_fondo = fo.cod_fondo;
+ORDER BY fecha_fondo DESC
+
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
@@ -182,10 +212,10 @@ INSERT INTO `categoria` (`cod_categoria`, `des_categoria`, `fecha_categoria`, `s
 -- -----------------------------------------------------
 -- Data for table `entidad`
 -- -----------------------------------------------------
-INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('000', 'sys', 'TODAS', 'departamento de systemas', 'ACTIVO', '20160101', '999', 'NULL');
-INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('001', 'SUC1', 'CAPITAL', 'Sucursal 1', 'ACTIVO', 'NULL', 'NULL', 'NULL');
-INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('002', 'SUC2', 'ZON-CEN', 'Sucursal 2', 'ACTIVO', 'NULL', 'NULL', 'NULL');
-INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('003', 'SUC3', 'ZON-CEN', 'Sucursal 3', 'ACTIVO', 'FON003', '03', 'NULL');
+INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('000', 'sys', 'TODAS', 'departamento de systemas', 'ACTIVO', NULL, '999', 'NULL');
+INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('001', 'SUC1', 'CAPITAL', 'Sucursal 1', 'ACTIVO', 'FON20160101010101', 'NULL', 'NULL');
+INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('002', 'SUC2', 'ZON-CEN', 'Sucursal 2', 'ACTIVO', 'FON20160101010102', 'NULL', 'NULL');
+INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('003', 'SUC3', 'ZON-CEN', 'Sucursal 3', 'ACTIVO', 'FON20160101010103', '03', 'NULL');
 
 -- -----------------------------------------------------
 -- Data for table `entidad_usuario`
@@ -255,4 +285,3 @@ UPDATE `gastossystema`.`entidad` SET `cod_fondo`='FON20160101010100' WHERE `cod_
 
 
 COMMIT;
-

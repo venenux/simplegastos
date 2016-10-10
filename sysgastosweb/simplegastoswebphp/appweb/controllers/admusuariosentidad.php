@@ -161,19 +161,18 @@ class admusuariosentidad extends CI_Controller {
 
 	public function admsoloverlosfondos()
 	{
+		
 		$crud = new grocery_CRUD();
-		$crud->set_table('fondo');
+		$crud->set_table('fondos');
 		$crud->set_subject('Sucursal');
-		$crud->columns('cod_fondo','mon_fondo','fecha_fondo',/*'cod_entidad','intranet',*/'sessionflag');
-		$crud->display_as('cod_fondo','Id')
+		$crud->columns('fecha_fondo','mon_fondo','quien','cod_quien','cod_fondo','sessionflag');
+		$crud->display_as('cod_fondo','Codigo')
 			 ->display_as('mon_fondo','Disponible')
 			 ->display_as('fecha_fondo','Al')
-	//		 ->display_as('cod_entidad','Donde')
-	//		 ->display_as('intranet','Quien')
+			 ->display_as('cod_quien','Id')
+			 ->display_as('quien','Quien')
 			 ->display_as('sessionflag','Alterado');
-		$crud->unset_add_fields('sessionflag');
-	//	$crud->set_relation('cod_entidad','entidad','{des_entidad}');
-	//	$crud->set_relation('cod_fondo','usuarios','{intranet} ({nombre})');
+		$crud->set_primary_key('cod_fondo','fondos');
 		$crud->unset_operations();
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuariosentidad")));
 		$output = $crud->render();
