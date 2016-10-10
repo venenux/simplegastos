@@ -52,16 +52,17 @@ class Manejousuarios extends CI_Controller
 		  `usu`.`sello`,                           -- ubicacion segun la nomina, pues es por centro de costos
 		  `suc`.`cod_entidad`,                      -- entidad sucursal en donde puede operar
 		  `usu`.`estado`,                           -- solo entran quienes puedan ver gastos
+		  `usu`.`cod_fondo`,
 		  `ent`.`abr_entidad`,
 		  `ent`.`abr_zona`,
 		  `ent`.`des_entidad`,
 		  ifnull(`usu`.`sessionflag`,'') as sessionflag,
 		  `usu`.`acc_lectura`, `usu`.`acc_escribe`, `usu`.`acc_modifi`,
-		  `usu`.`fecha_ficha`, `usu`.`fecha_ultimavez`         -- ultima vez el usuario salio de sesion: YYYYMMDDhhmmss
+		  `usu`.`sessionficha` as fecha_ficha, `usu`.`fecha_ultimavez`         -- ultima vez el usuario salio de sesion: YYYYMMDDhhmmss
 		FROM
 		 `usuarios` as `usu`
 		LEFT join
-		 `entidad_usuario` as `suc` ON `suc`.`ficha` = `usu`.`ficha`
+		 `entidad_usuario` as `suc` ON `suc`.`intranet` = `usu`.`intranet`
 		LEFT JOIN
 		 `entidad` as `ent` ON `ent`.`cod_entidad` = `suc`.`cod_entidad`
 		WHERE
