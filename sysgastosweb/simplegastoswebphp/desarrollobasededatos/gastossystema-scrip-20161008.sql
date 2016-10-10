@@ -242,11 +242,11 @@ COMMIT;
 START TRANSACTION;
 USE `gastossystema`;
 
-ALTER TABLE `gastossystema`.`entidad`
-ADD CONSTRAINT `cod_fondo_UNIQUE` UNIQUE KEY (`cod_fondo`)
+-- ALTER TABLE `gastossystema`.`entidad`
+-- ADD CONSTRAINT `cod_fondo_UNIQUE` UNIQUE KEY (`cod_fondo`);
 
-ALTER TABLE `gastossystema`.`usuarios`
-ADD CONSTRAINT `cod_fondo_UNIQUE` UNIQUE KEY (`cod_fondo`)
+-- ALTER TABLE `gastossystema`.`usuarios`  -- nolopuedo hacer aqui unique, puesto algunas nomanejan
+-- ADD CONSTRAINT `cod_fondo_UNIQUE` UNIQUE KEY (`cod_fondo`);
 
 UPDATE `gastossystema`.`entidad` SET `cod_fondo`='FON20160101010101' WHERE `cod_entidad`='001';
 UPDATE `gastossystema`.`entidad` SET `cod_fondo`='FON20160101010103' WHERE `cod_entidad`='003';
