@@ -66,6 +66,7 @@ class admusuariosentidad extends CI_Controller {
 	public function admusuariosavanzado()
 	{
 		$crud = new grocery_CRUD();
+		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->set_table('usuarios');
 		$crud->set_relation_n_n('sucursal', 'entidad_usuario', 'entidad', 'intranet', 'cod_entidad', 'des_entidad');
 		$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
@@ -118,6 +119,7 @@ class admusuariosentidad extends CI_Controller {
 	public function admsucursalesyusuarios()
 	{
 		$crud = new grocery_CRUD();
+		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->set_table('entidad');
 		$crud->set_subject('Sucursal');
 		$crud->columns('abr_entidad','abr_zona','cod_entidad','des_entidad','status','cod_fondo','nam_usuario','sello','sessionflag');
@@ -161,8 +163,8 @@ class admusuariosentidad extends CI_Controller {
 
 	public function admsoloverlosfondos()
 	{
-		
 		$crud = new grocery_CRUD();
+		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->set_table('fondos');
 		$crud->set_subject('Sucursal');
 		$crud->columns('fecha_fondo','mon_fondo','quien','cod_quien','cod_fondo','sessionflag');
