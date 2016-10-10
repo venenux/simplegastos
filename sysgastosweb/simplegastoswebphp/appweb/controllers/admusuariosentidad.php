@@ -2,7 +2,7 @@
 
 class admusuariosentidad extends CI_Controller {
 
-	private static $modulosadm = array('admusuariosentidad','admcategoriasconceptos','admgastosregistros','cargargasto');
+	private static $modulosadm = array('admusuariosentidad','admcategoriasconceptos','admgastoslog');
 
 	public function __construct()
 	{
@@ -37,22 +37,6 @@ class admusuariosentidad extends CI_Controller {
 		$this->load->view('footer.php',$data);
 	}
 
-	public function products_management()
-	{
-			$crud = new grocery_CRUD();
-			$crud->set_table('products');
-			$crud->set_subject('Product');
-			$crud->unset_columns('productDescription');
-			$crud->callback_column('buyPrice',array($this,'valueToEuro'));
-			$output = $crud->render();
-			$this->_esputereport($output);
-	}
-
-	public function valueToEuro($value, $row)
-	{
-		return $value.' &euro;';
-	}
-
 	function index()
 	{
 		$this->_verificarsesion();
@@ -62,12 +46,14 @@ class admusuariosentidad extends CI_Controller {
 
 		$output1 = $this->admusuariosavanzado();
 		$output2 = $this->admsucursalesyusuarios();
+		$output3 = $this->admsoloverlosfondos();
 
-		$js_files = $output1->js_files + $output2->js_files;
-		$css_files = $output1->css_files + $output2->css_files;
+		$js_files = $output1->js_files + $output2->js_files + $output3->js_files;
+		$css_files = $output1->css_files + $output2->css_files + $output3->css_files;
 		$output = ""
-		."<h3>Administrar Usuarios</h3>".$output1->output
+		."<h3>Usuarios</h3>".$output1->output
 		."<h3>Centro de Costos</h3>".$output2->output
+		."<h3>Fondos registrados</h3>".$output3->output
 		."";
 
 		$this->_esputereport((object)array(
@@ -81,46 +67,45 @@ class admusuariosentidad extends CI_Controller {
 	{
 		$crud = new grocery_CRUD();
 		$crud->set_table('usuarios');
-		$crud->columns('ficha','nombre','intranet','sucursal','estado','acc_lectura','acc_escribe','acc_modifi','fecha_ficha','fecha_ultimavez','sessionflag');
+		$crud->set_relation_n_n('sucursal', 'entidad_usuario', 'entidad', 'intranet', 'cod_entidad', 'des_entidad');
+		$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
 		$crud->display_as('ficha','Ficha/CI')
 			 ->display_as('nombre','Nombre')
 			 ->display_as('intranet','Intranet')
-			 ->display_as('sucursal','Centro de Costo')
-			 ->display_as('fecha_ficha','Creado')
-			 ->display_as('fecha_ultimavez','Ultima vez')
-			 ->display_as('acc_lectura','Accede a')
-			 ->display_as('acc_escribe','Crea en')
-			 ->display_as('acc_modifi','Altera en')
-			 ->display_as('sessionflag','Modificado');
-		$crud->set_subject('Usuarios');
-		$crud->unset_add_fields('clave','sessionflag','fecha_ultimavez');
-		$crud->unset_edit_fields('clave','fecha_ultimavez');
+			 ->display_as('sucursal','Codger')
+			 ->display_as('cod_fondo','Fondo')
+			 ->display_as('sessionficha','Creado')
+			 ->display_as('fecha_ultimavez','Session')
+			 ->display_as('acc_lectura','Accede')
+			 ->display_as('acc_escribe','Crea')
+			 ->display_as('acc_modifi','Altera')
+			 ->display_as('sessionflag','Modificado'); // si usa add_fiels y unset_add no inserta
+		$crud->set_subject('Usuarios');	// columns y fields no pueden ir juntos bug crud
+		$crud->columns('ficha','nombre','intranet','sucursal','estado','cod_fondo','sessionficha','acc_lectura','acc_escribe','acc_modifi','sessionflag','fecha_ultimavez');
+		$crud->add_fields('nombre','ficha','intranet','sucursal','estado','cod_fondo','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
+		$crud->edit_fields('nombre','ficha','intranet','sucursal','estado','cod_fondo','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
+		$crud->field_type('sessionficha', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
+		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('acc_lectura', 'set',self::$modulosadm);
 		$crud->field_type('acc_escribe', 'set',self::$modulosadm);
 		$crud->field_type('acc_modifi', 'set',self::$modulosadm);
-		$crud->set_relation_n_n('sucursal', 'entidad_usuario', 'entidad', 'ficha', 'cod_entidad', 'des_entidad');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
-			$crud->set_rules('intranet', 'Login intranet', 'trim|required|alphanumeric');
-			$crud->set_rules('ficha', 'Ficha', 'trim|required|numeric');
-			$crud->set_rules('acc_lectura', 'Modulos que accede', 'trim|required|alphanumeric');
-			$crud->set_rules('acc_escribe', 'Modulos que crea', 'trim|required|alphanumeric');
-			$crud->set_rules('acc_modifi', 'Modulos que altera', 'trim|required|alphanumeric');
-			$crud->callback_add_field('fecha_ficha', function () {	return '<input type="text" maxlength="50" value="'.date("Ymd").'" name="fecha_ficha" readonly="true">';	});
+			$crud->required_fields('ficha','intranet','sucursal','nombre','estado');
+			$crud->set_rules('intranet', 'Intranet', 'trim|alphanumeric');
+			$crud->set_rules('nombre', 'Intranet', 'trim|alphanumeric');
+			$crud->set_rules('ficha', 'Ficha', 'trim|numeric');
+			$crud->callback_add_field('sessionficha', function () {	return '<input type="text" maxlength="50" value="'.date("Ymd").'" name="fecha_ficha" readonly="true">';	});
 		}
 		else if ($currentState == 'edit')
 		{
-			$crud->field_type('fecha_ficha', 'readonly');
+			$crud->required_fields('ficha','sucursal','nombre','estado');
 			$crud->field_type('intranet', 'readonly');
-			$crud->field_type('ficha', 'readonly');
-			$crud->set_rules('acc_lectura', 'Modulos que accede', 'trim|required|alphanumeric');
-			$crud->set_rules('acc_escribe', 'Modulos que crea', 'trim|required|alphanumeric');
-			$crud->set_rules('acc_modifi', 'Modulos que altera', 'trim|required|alphanumeric');
-			$crud->field_type('sessionflag', 'readonly');
 		}
+		$crud->callback_before_insert(array($this,'extradatainsert'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
-		$crud->field_type('estado','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO'));
+		$crud->field_type('estado','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'SUSPENDIDO' => 'SUSPENDIDO'));
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuariosentidad")));
 		$output = $crud->render();
 		if($crud->getState() != 'list') {
@@ -135,31 +120,34 @@ class admusuariosentidad extends CI_Controller {
 		$crud = new grocery_CRUD();
 		$crud->set_table('entidad');
 		$crud->set_subject('Sucursal');
-		$crud->columns('abr_entidad','abr_zona','cod_entidad','des_entidad','status','nam_usuario','codger','sessionflag');
+		$crud->columns('abr_entidad','abr_zona','cod_entidad','des_entidad','status','cod_fondo','nam_usuario','sello','sessionflag');
 		$crud->display_as('cod_entidad','Cod. Centro')
 			 ->display_as('abr_entidad','Cod. Siglas')
 			 ->display_as('abr_zona','Cod. Zona')
 			 ->display_as('des_entidad','Nombre')
-			 ->display_as('codger','Relacion en nomina')
+			 ->display_as('cod_fondo','Fondo')
+			 ->display_as('sello','Sello')
 			 ->display_as('status','Estado')
 			 ->display_as('nam_usuario','Asociados')
 			 ->display_as('sessionflag','Modificado');
 		$crud->unset_add_fields('sessionflag');
-		$crud->set_relation_n_n('nam_usuario', 'entidad_usuario', 'usuarios', 'cod_entidad', 'ficha', 'nombre');
+		$crud->set_relation_n_n('nam_usuario', 'entidad_usuario', 'usuarios', 'cod_entidad', 'intranet', 'nombre');
+		$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
-			$crud->set_rules('cod_entidad', 'Centro de Costo (codger)', 'trim|required|numeric');
-			$crud->set_rules('abr_entidad', 'Siglas', 'trim|required|alphanumeric');
+			$crud->required_fields('cod_entidad','abr_entidad','abr_zona','des_entidad','estado');
+			$crud->set_rules('cod_entidad', 'Centro de Costo (codger)', 'trim|numeric');
 		}
 		else if ($currentState == 'edit')
 		{
+			$crud->required_fields('abr_entidad','abr_zona','des_entidad','estado');
 			$crud->field_type('cod_entidad', 'readonly');
-			$crud->field_type('abr_entidad', 'readonly');
 			$crud->field_type('sessionflag', 'readonly');
 		}
-		$crud->set_rules('abr_zona', 'Zona', 'trim|required|alphanumeric');
-		$crud->set_rules('des_entidad', 'Nombre', 'trim|required|alphanumeric');
+		$crud->set_rules('abr_entidad', 'Siglas', 'trim|alphanumeric');
+		$crud->set_rules('abr_zona', 'Zona', 'trim|alphanumeric');
+		$crud->set_rules('des_entidad', 'Nombre', 'trim|alphanumeric');
 		$crud->field_type('status','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'CERRADO' => 'CERRADO', 'ESPECIAL' => 'ESPECIAL'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuariosentidad")));
@@ -171,9 +159,43 @@ class admusuariosentidad extends CI_Controller {
 		}
 	}
 
+	public function admsoloverlosfondos()
+	{
+		$crud = new grocery_CRUD();
+		$crud->set_table('fondo');
+		$crud->set_subject('Sucursal');
+		$crud->columns('cod_fondo','mon_fondo','fecha_fondo',/*'cod_entidad','intranet',*/'sessionflag');
+		$crud->display_as('cod_fondo','Id')
+			 ->display_as('mon_fondo','Disponible')
+			 ->display_as('fecha_fondo','Al')
+	//		 ->display_as('cod_entidad','Donde')
+	//		 ->display_as('intranet','Quien')
+			 ->display_as('sessionflag','Alterado');
+		$crud->unset_add_fields('sessionflag');
+	//	$crud->set_relation('cod_entidad','entidad','{des_entidad}');
+	//	$crud->set_relation('cod_fondo','usuarios','{intranet} ({nombre})');
+		$crud->unset_operations();
+		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuariosentidad")));
+		$output = $crud->render();
+		if($crud->getState() != 'list') {
+			$this->_esputereport($output);
+		} else {
+			return $output;
+		}
+	}
+
+
+	function extradatainsert($post_array)
+	{
+		//$post_array['cod_fondo'] = // verificar sea uno no seleccionado
+		$post_array['sessionficha'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
+		// TODO: insert para tabla log
+		return $post_array;
+	}
+
 	function echapajacuando($post_array, $primary_key)
 	{
-		$post_array['sessionflag'] = $this->session->userdata('username').date("YmdHis");
+		$post_array['sessionflag'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
 		// TODO: insert para tabla log
 		return $post_array;
 	}

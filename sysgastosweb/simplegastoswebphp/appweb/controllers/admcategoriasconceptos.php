@@ -35,22 +35,6 @@ class admcategoriasconceptos extends CI_Controller {
 		$this->load->view('footer.php',$data);
 	}
 
-	public function products_management()
-	{
-			$crud = new grocery_CRUD();
-			$crud->set_table('products');
-			$crud->set_subject('Product');
-			$crud->unset_columns('productDescription');
-			$crud->callback_column('buyPrice',array($this,'valueToEuro'));
-			$output = $crud->render();
-			$this->_esputereport($output);
-	}
-
-	public function valueToEuro($value, $row)
-	{
-		return $value.' &euro;';
-	}
-
 	function index()
 	{
 		$this->_verificarsesion();
@@ -65,7 +49,7 @@ class admcategoriasconceptos extends CI_Controller {
 		$css_files = $output1->css_files + $output2->css_files;
 		$output = ""
 		."<h3>Categorias</h3>".$output1->output
-		."<h3>Conceptos</h3>".$output2->output
+		."<h3>Subcategorias</h3>".$output2->output
 		."";
 
 		$this->_esputereport((object)array(
@@ -80,31 +64,32 @@ class admcategoriasconceptos extends CI_Controller {
 	{
 		$crud = new grocery_CRUD();
 		$crud->set_table('categoria');
-		$crud->columns('cod_categoria','des_categoria','fecha_categoria','sessionflag');
+		$crud->columns('des_categoria','fecha_categoria','cod_categoria','sessionflag');
 		$crud->display_as('cod_categoria','Codigo')
 			 ->display_as('des_categoria','Categoria')
 			 ->display_as('fecha_categoria','Creado')
 			 ->display_as('sessionflag','Modificado');
 		$crud->set_subject('Categorias');
+		$crud->add_fields('cod_categoria','des_categoria','fecha_categoria');
+		$crud->edit_fields('cod_categoria','des_categoria','sessionflag');
+		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
+		$crud->field_type('fecha_categoria', 'invisible',''.date("Ymd"));
 		$crud->field_type('des_categoria', 'text');
 		$crud->unset_texteditor('des_categoria');
-		$crud->add_fields('cod_categoria','des_categoria','fecha_categoria');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
-			$crud->set_rules('cod_categoria', 'Codigo', 'trim|required|alphanumeric');
-			$crud->set_rules('des_categoria', 'Descripcion', 'trim|required|alphanumeric');
-			$crud->set_rules('fecha_categoria', 'Creado', 'trim|required');
+			$crud->required_fields('des_categoria');
+			$crud->set_rules('des_categoria', 'Descripcion', 'trim|alphanumeric');
 			$crud->callback_add_field('cod_categoria', function () {	return '<input type="text" maxlength="50" value="CAT'.date("YmdHis").'" name="cod_categoria" readonly="true">';	});
-			$crud->callback_add_field('fecha_categoria', function () {	return '<input type="text" maxlength="50" value="'.date("Ymd").'" name="fecha_categoria" readonly="true">';	});
 		}
 		else if ($currentState == 'edit')
 		{
+			$crud->required_fields('des_categoria');
 			$crud->field_type('cod_categoria', 'readonly');
-			$crud->set_rules('des_categoria', 'Descripcion', 'trim|required|alphanumeric');
-			$crud->field_type('fecha_categoria', 'readonly');
-			$crud->field_type('sessionflag', 'readonly');
+			$crud->set_rules('des_categoria', 'Descripcion', 'trim|alphanumeric');
 		}
+		$crud->callback_before_insert(array($this,'datospostinsertcat'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admcategoriasconceptos")));
 		$output = $crud->render();
@@ -119,35 +104,35 @@ class admcategoriasconceptos extends CI_Controller {
 	{
 		$crud = new grocery_CRUD();
 		$crud->set_table('subcategoria');
-		$crud->columns('cod_categoria','cod_subcategoria','des_subcategoria','fecha_subcategoria','sessionflag');
+		$crud->columns('cod_categoria','des_subcategoria','fecha_subcategoria','cod_subcategoria','sessionflag');
 		$crud->display_as('cod_subcategoria','Codigo')
-			 ->display_as('des_subcategoria','Concepto')
+			 ->display_as('cod_categoria','Categoria')
+			 ->display_as('des_subcategoria','SubCategoria')
 			 ->display_as('fecha_subcategoria','Creado')
 			 ->display_as('sessionflag','Modificado');
-		$crud->set_subject('Conceptos');
+		$crud->set_subject('Subcategorias');
+		$crud->add_fields('cod_categoria','cod_subcategoria','des_subcategoria','fecha_subcategoria');
+		$crud->edit_fields('cod_categoria','cod_subcategoria','des_subcategoria','sessionflag');
+		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
+		$crud->field_type('fecha_subcategoria', 'invisible',''.date("Ymd"));
 		$crud->field_type('des_subcategoria', 'text');
 		$crud->unset_texteditor('des_subcategoria');
-		$crud->set_relation('cod_categoria','categoria','{cod_categoria} - {des_categoria}');
-		$crud->display_as('cod_categoria','Categoria');
-		$crud->unset_add_fields('sessionflag');
+		$crud->set_relation('cod_categoria','categoria','{des_categoria}');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
-			$crud->set_rules('cod_subcategoria', 'Codigo', 'trim|required|alphanumeric');
-			$crud->set_rules('des_subcategoria', 'Descripcion', 'trim|required|alphanumeric');
-			$crud->set_rules('fecha_subcategoria', 'Creado', 'trim|required');
-			$crud->callback_add_field('fecha_subcategoria', function () {	return '<input type="text" maxlength="50" value="'.date("YmdHis").'" name="fecha_subcategoria" readonly="true">';	});
+			$crud->required_fields('cod_categoria','des_subcategoria');
+			$crud->set_rules('cod_subcategoria', 'Codigo', 'trim|alphanumeric');
+			$crud->set_rules('des_subcategoria', 'Descripcion', 'trim|alphanumeric');
 			$crud->callback_add_field('cod_subcategoria', function () {	return '<input type="text" maxlength="50" value="SUB'.date("YmdHis").'" name="cod_subcategoria" readonly="true">';	});
-			//$crud->callback_insert(array($this,'cod_subcategoria_categoria_insert_callback')); // no se pudo.. se inserta relacion normal joder
 		}
 		else if ($currentState == 'edit')
 		{
-			//$crud->field_type('cod_categoria', 'readonly');
+			$crud->required_fields('cod_categoria','des_subcategoria');
 			$crud->field_type('cod_subcategoria', 'readonly');
-			$crud->set_rules('des_subcategoria', 'Descripcion', 'trim|required|alphanumeric');
-			$crud->field_type('fecha_subcategoria', 'readonly');
-			$crud->field_type('sessionflag', 'readonly');
+			$crud->set_rules('des_subcategoria', 'Descripcion', 'trim|alphanumeric');
 		}
+		$crud->callback_before_insert(array($this,'datospostinsertsub'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admcategoriasconceptos")));
 		$output = $crud->render();
@@ -158,9 +143,25 @@ class admcategoriasconceptos extends CI_Controller {
 		}
 	}
 
+	function datospostinsertcat($post_array)
+	{
+		$post_array['cod_categoria'] = 'CAT'.date("YmdHis");
+		$post_array['fecha_categoria'] = date("Ymd");
+		// TODO: insert para tabla log
+		return $post_array;
+	}
+
+	function datospostinsertsub($post_array)
+	{
+		$post_array['cod_subcategoria'] = 'SUB'.date("YmdHis");
+		$post_array['fecha_subcategoria'] = date("Ymd");
+		// TODO: insert para tabla log
+		return $post_array;
+	}
+
 	function echapajacuando($post_array, $primary_key)
 	{
-		$post_array['sessionflag'] = $this->session->userdata('username').date("YmdHis");
+		$post_array['sessionflag'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
 		// TODO: insert para tabla log
 		return $post_array;
 	}

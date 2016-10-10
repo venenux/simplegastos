@@ -34,9 +34,9 @@ class Menu extends CI_Model
 		$elcorreo=anchor('http://intranet1.net.ve/elcorreo','Correo');
 
 		$admins=anchor('admgeneral','Gestion');
-		$admgeneral['admusuariosentidad']=anchor('admusuariosentidad','Adm Usuarios');
-		$admgeneral['admcategoriasconceptos']=anchor('admcategoriasconceptos','Adm Categorias');
-		$admgeneral['admgastosregistros']=anchor('admgastosregistros','Aud Gastos');
+		$admgeneral['admusuariosentidad']=anchor('admusuariosentidad','Usuarios');
+		$admgeneral['admcategoriasconceptos']=anchor('admcategoriasconceptos','Categorias');
+		$admgeneral['admgastoslog']=anchor('admgastoslog','Log');
 
 		$vistas=anchor('cargargastover','Vistas');
 		$vistaglobal=array();
