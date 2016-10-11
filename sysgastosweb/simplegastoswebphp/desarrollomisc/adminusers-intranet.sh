@@ -29,6 +29,10 @@ elproyectoh=10.10.34.20
 elproyectou=redmine
 elproyectodb=redmine_default
 elproyectoc=redmine.1.com
+elproyectohg=10.10.34.20
+elproyectoug=gastossystema
+elproyectodbg=gastossystema
+elproyectocg=gastossystema.1
 dominio="intranet1.net.ve"
 dominio2="10.10.34.22"
 grupo="999-todos"
@@ -272,11 +276,20 @@ procesar_usuario()
     if [ "$gruporevisar" == "000-systemas" ]; then
         htpasswd -b $archivosconfig/.webarchivosaccess $username $claveuse > /dev/null 2>&1
     fi
-    if [ "$gruporevisar" == "000-systemas" -o "$gruporevisar" == "204-gastosvnz" -o "$gruporevisar" == "142-inventariovnz" -o "$gruporevisar" == "132-rrhhvnz" -o "$gruporevisar" == "111-presidencia"]; then
-        htpasswd -b $archivosconfig/.webreportesaccess $username $claveuse > /dev/null 2>&1
+    if [[ $gruporevisar == *"gasto"* ]]; then
+        htpasswd -b $archivosconfig/.wereportesaccess $username $claveuse > /dev/null 2>&1
+    fi
+    # crea en el sistema de gasto pero nolo habilita, debe ser manual por el mismo departamento
+    if [[ $gruporevisar == *"gasto"* ]]; then
+        mysql -u $elproyectoug -p$elproyectocg -h $elproyectohg -e "INSERT INTO gastossystema.usuarios ( intranet, clave, nombre, estado, acc_lectura, acc_escribe, acc_modifi, sessionficha) VALUES ( '$username', '$claveuse', '$username', 'ACTIVO', 'TODO', 'TODO', 'TODO', 'systema');" $elproyectodbg >/dev/null 2>&1
+    else
+        if [[ $gruporevisar == *"presidencia"* ]]; then
+            mysql -u $elproyectoug -p$elproyectocg -h $elproyectohg -e "INSERT INTO gastossystema.usuarios ( intranet, clave, nombre, estado, acc_lectura, acc_escribe, acc_modifi, sessionficha) VALUES ( '$username', '$claveuse', '$username', 'ACTIVO', 'TODO', 'TODO', 'TODO', 'systema');" $elproyectodbg >/dev/null 2>&1
+        else
+            mysql -u $elproyectoug -p$elproyectocg -h $elproyectohg -e "INSERT INTO gastossystema.usuarios ( intranet, clave, nombre, estado, acc_lectura, acc_escribe, acc_modifi, sessionficha) VALUES ( '$username', '$claveuse', '$username', 'INACTIVO', 'NADA', 'NADA', 'NADA', 'systema');" $elproyectodbg >/dev/null 2>&1
+        fi
     fi
     echo "paso 4: accesoweb I/O conflict, si no accede cambiar la clave $username errores:$errore " >> $archivolog
-
 
     echo "parte 1: $username:$claveuse $existe en pam+web+passwd, errores: $errore"
 
@@ -443,16 +456,19 @@ cambiarclave()
 	mysql -u $elsoporteu -p$elsoportec -h $elsoporteh -e "UPDATE ost_user_account SET passwd = md5('$claveuse') WHERE username = '$username';" $elsoportedb  >/dev/null 2>&1
 	# 4 integracion con redmine el gestor de proyectos del departamento
 	mysql -u $elproyectou -p$elproyectoc -h $elproyectoh -e "UPDATE users SET hashed_password=sha1(sha1('$claveuse')), salt='' WHERE login='$username';" $elproyectodb >/dev/null 2>&1
+        # extra integracion con systema gastos:
+	mysql -u $elproyectoug -p$elproyectocg -h $elproyectohg -e "SET SQL_SAFE_UPDATES=0;UPDATE gastossystema.usuarios SET clave='$claveuse', sessionficha='intranet' WHERE intranet='$username';" $elproyectodbg >/dev/null 2>&1
+
     touch $archivosconfig/.webproyectsaccess;touch $archivosconfig/.webarchivosaccess; touch $archivosconfig/.webreportesaccess
 	# 5) accesos web dav claves para el permiso via wervidor web (basic authz)
         htpasswd -b $archivosconfig/.webproyectsaccess $username $claveuse > /dev/null 2>&1;sleep 1
+	respuestasalir
 	if [ -z  $(groups $username | grep &>/dev/null "stema")  ]; then
 	    htpasswd -b $archivosconfig/.webarchivosaccess $username $claveuse > /dev/null 2>&1;sleep 1
 	fi # solo entra si pertenece al grupo, solo permite usuarios de grupos administrativos
 	if [ -z  $(groups $username | grep &>/dev/null '\wystema\w\|gasto\|\wresidenci\w\|\wlcaldi\w\|\wmpuest\w\|\woordina\w\|\wperacio\w\|\wesoreri\w\|\wuditori\w') ]; then
 	    htpasswd -b $archivosconfig/.wereportesaccess $username $claveuse > /dev/null 2>&1
-	fi # TODO: esta parte no sirve, revisar si el usuario esta en varios grupos
-	respuestasalir
+	fi
     curl http://$adminusersys:$adminusercla@$dominio2/elfichero/ocs/v1.php/cloud/users -s -d usernid="$username" -d passwordn="$claveuse" --user "$adminusersys:$adminusercla" -XPOST -k >/dev/null 2>&1; sleep 1
     curl http://$adminusersys:$adminusercla@$dominio2/elfichero/ocs/v1.php/cloud/users/$username -s -d email="$username@$dominio" --user $adminusersys:$adminusercla -XPUT -k >/dev/null 2>&1;sleep 1
     curl http://$adminusersys:$adminusercla@$dominio2/elfichero/ocs/v1.php/cloud/users/$username -s -d password=$claveuse --user $adminusersys:$adminusercla -XPUT -k >/dev/null 2>&1
@@ -554,3 +570,4 @@ else
 fi
 
 ayuda
+
