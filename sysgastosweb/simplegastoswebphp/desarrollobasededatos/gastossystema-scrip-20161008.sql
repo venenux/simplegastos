@@ -88,7 +88,7 @@ CREATE  TABLE IF NOT EXISTS `registro_adjuntos` (
   `cod_registro` VARCHAR(40) NOT NULL COMMENT 'nombre del archivo despues cargarlo al sistema' ,
   `cod_facturas` VARCHAR(40) NOT NULL COMMENT 'a cual registro de gasto le pertenece este adjunto' ,
   `cod_adjuntos` VARCHAR(40) NOT NULL COMMENT 'YYYYMMDDhhmmss' ,
-  `bin_adjunto` BLOB NOT NULL ,
+  `bin_adjunto` BLOB NULL DEFAULT NULL ,
   `hex_adjunto` VARCHAR(20000) NULL DEFAULT NULL COMMENT 'la subida en base 64 del adjunto' ,
   `original` VARCHAR(400) NULL DEFAULT NULL COMMENT 'nombre del archivo antes de cargarlo al sistema' ,
   `ruta` VARCHAR(400) NOT NULL COMMENT 'ruta en el servidor para descargar opcional' ,
@@ -104,7 +104,7 @@ COMMENT = 'escaneados de los registro o gasto adjudicado';
 DROP TABLE IF EXISTS `registro_gastos` ;
 
 CREATE  TABLE IF NOT EXISTS `registro_gastos` (
-  `cod_fondo` VARCHAR(40) NOT NULL COMMENT 'el fonde de la entidad que se le adjudica gasto' ,
+  `cod_fondo` VARCHAR(40) NULL DEFAULT NULL  COMMENT 'el fonde de la entidad que se le adjudica gasto' ,
   `cod_registro` VARCHAR(40) NOT NULL COMMENT 'GASYYYYMMDDhhmmss usa fecha y hora' ,
   `cod_entidad` VARCHAR(40) NOT NULL COMMENT 'codger de la entidad al cual se le adjudica' ,
   `cod_categoria` VARCHAR(40) NOT NULL COMMENT 'categoria del gasto' ,
@@ -173,24 +173,24 @@ CREATE TABLE IF NOT EXISTS `fondos` (`cod_fondo` VARCHAR(40), `mon_fondo` VARCHA
 -- -----------------------------------------------------
 DROP VIEW IF EXISTS `fondos` ;
 DROP TABLE IF EXISTS `fondos`;
-USE `gastossystema`;
-CREATE OR REPLACE VIEW `fondos` AS 
-SELECT 
-     ifnull(fo.cod_fondo,'N/A') as cod_fondo, 
-     ifnull(fo.mon_fondo,'N/A') as mon_fondo, 
+
+CREATE OR REPLACE VIEW `fondos` AS
+SELECT
+     ifnull(fo.cod_fondo,'N/A') as cod_fondo,
+     ifnull(fo.mon_fondo,'N/A') as mon_fondo,
      fo.fecha_fondo, en.cod_entidad as cod_quien, en.des_entidad as quien
  FROM fondo AS fo
  RIGHT JOIN entidad AS en
  ON en.cod_fondo = fo.cod_fondo
  UNION
- SELECT 
-     ifnull(fo.cod_fondo,'N/A') as cod_fondo, 
-     ifnull(fo.mon_fondo,'N/A') as mon_fondo, 
+ SELECT
+     ifnull(fo.cod_fondo,'N/A') as cod_fondo,
+     ifnull(fo.mon_fondo,'N/A') as mon_fondo,
      fo.fecha_fondo, us.intranet as cod_quien, us.nombre as quien
  FROM fondo AS fo
  RIGHT JOIN usuarios AS us
- ON us.cod_fondo = fo.cod_fondo;
-ORDER BY fecha_fondo DESC
+ ON us.cod_fondo = fo.cod_fondo
+ORDER BY fecha_fondo DESC;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
