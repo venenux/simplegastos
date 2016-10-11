@@ -20,9 +20,9 @@ class Menu extends CI_Model
 		$admgeneral['admcategoriasconceptos']=anchor('admcategoriasconceptos','Categorias');
 		$admgeneral['admgastoslog']=anchor('admgastoslog','Log');
 
-		$vistas=anchor('cargargastover','Vistas');
+		$vistas=anchor('mimatrixcontroller','Vistas');
 		$vistaglobal=array();
-		$vistaglobal['cargargastover']=anchor('gastosmatrix','Vista Reporte');
+		$vistaglobal['cargargastover']=anchor('mimatrixcontroller','Vista Reporte');
 
 		$cargasadm=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');// TODO filtrar por la tienda si no es personal administrativo
 		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Cargar un gasto'); // TODO: verificar permiso y este menu solo cargfa en tienda
