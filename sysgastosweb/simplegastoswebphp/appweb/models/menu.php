@@ -9,29 +9,11 @@ class Menu extends CI_Model
 		$obj->load->library('menulib');
 	}
 
+	/** modelo de menu gastos, implementa libreria menu de PICCORO Lenz McKAY */
 	function general_menu($params='inparametro')
 	{
 		$menu = new MenuLib;
 		$nodes = new MenuNodes;
-
-/*		$n400000=anchor('indexcontroler','Inicio');
-		$m400000['m400000']=anchor('generarordenconcarga/index','Generar Orden');
-
-		$n010000=anchor('#','Otro');
-		$m010000['m010000']=anchor('indexcontroler/parametrosdesession','Sus datos');
-
-		$header['1'] = $nodes->m_header_nodes($n400000,$m400000);
-		$header['2'] = $nodes->m_header_nodes($n010000,$m010000);
-*/
-		if(!$this->session->userdata('logueado'))
-			$label = 'Ingreso';
-		else
-			$label = 'Sesion';
-
-		$inicio=anchor('indexcontroler',$label);
-
-		$intranet=anchor('http://intranet1.net.ve','Intranet');
-		$elcorreo=anchor('http://intranet1.net.ve/elcorreo','Correo');
 
 		$admins=anchor('admgeneral','Gestion');
 		$admgeneral['admusuariosentidad']=anchor('admusuariosentidad','Usuarios');
@@ -42,41 +24,38 @@ class Menu extends CI_Model
 		$vistaglobal=array();
 		$vistaglobal['cargargastover']=anchor('gastosmatrix','Vista Reporte');
 
-		$cargas=anchor('cargargastover/gastoregistros/tienda','Cargas');// TODO filtrar por la tienda si no es personal administrativo
-		$cargaglobal['Cargargastot']=anchor('cargargastover/gastoregistros/add','Cargar gasto'); // TODO: verificar permiso y este menu solo cargfa en tienda
-		$cargaglobal['Cargargastoa']=anchor('cargargastover/index','Revisar cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
-/*
-		$n300000=anchor('m300000','Procesos');
-		$m300000['m301000']=anchor('m301000','Actualizar Productos desde compras');
-		$m300000['m302000']=anchor('m302000','Actualizar Productos desde archivo');
+		$cargasadm=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');// TODO filtrar por la tienda si no es personal administrativo
+		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Cargar un gasto'); // TODO: verificar permiso y este menu solo cargfa en tienda
+		$cargargastoadministrativo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Revisar todas las cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
+		$cargastie=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');// TODO filtrar por la tienda si no es personal administrativo
+		$cargargastoentidadestienda['cargargastoentidadestiendaadd']=anchor('cargargastoentidadestienda/gastoregistros/add','Cargar otros gasto'); // TODO: verificar permiso y este menu solo cargfa en tienda
+		$cargargastoentidadestienda['cargargastoentidadestiendaver']=anchor('cargargastoentidadestienda/index','Revisar nuestras cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
 
-		$n200000=anchor('m200000','Productos');
-		$m200000['m201000']=anchor('m201000',config_item('labelm201000'));
-		$m200000['m202000']=anchor('m202000',config_item('labelm202000'));
-		$m200000['m203000']=anchor('m203000',config_item('labelm203000'));
-*/
+		if(!$this->session->userdata('logueado'))
+			$labelindex = 'Ingreso';
+		else
+			$labelindex = 'Sesion';
+
+		$inicio=anchor('indexcontroler',$labelindex);
+		$intranet=anchor('http://intranet1.net.ve','Intranet');
+		$elcorreo=anchor('http://intranet1.net.ve/elcorreo','Correo');
+
+		// el
+		$header['2'] = $nodes->m_header_nodes($intranet, array());
+		$header['3'] = $nodes->m_header_nodes($elcorreo, array());
 		if($this->session->userdata('logueado'))
 		{
 			$inicionlogin['manejousuarios/manejousuarios']=anchor('manejousuarios/desverificarintranet','Salir');
 			$header['0'] = $nodes->m_header_nodes($inicio, $inicionlogin);
-
-		//	$header['1'] = $nodes->m_header_nodes($gastos, $gastosmatrix);
+			$header['4adm'] = $nodes->m_header_nodes($cargasadm,$cargargastoadministrativo);
+			$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
+			$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
+			$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
 		}
 		else
 		{
 			$header['0'] = $nodes->m_header_nodes($inicio, array());
 			$header['1'] = $nodes->m_header_nodes('', array());
-		}
-		$header['2'] = $nodes->m_header_nodes($intranet, array());
-		$header['3'] = $nodes->m_header_nodes($elcorreo, array());
-		if($this->session->userdata('logueado'))
-		{
-			$header['4'] = $nodes->m_header_nodes($cargas,$cargaglobal);
-			$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
-			$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
-	/*		$header['7'] = $nodes->m_header_nodes($n100000,$m100000);
-			$header['8'] = $nodes->m_header_nodes($n010000,$m010000);
-			$header['9'] = $nodes->m_header_nodes($n000000,$m000000);*/
 		}
 		$menu->m_create_headers($header);
 		return $menu->show_menu();
