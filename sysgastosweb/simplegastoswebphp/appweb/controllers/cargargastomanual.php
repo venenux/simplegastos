@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Cargargastoex extends CI_Controller {
+class Cargargastomanual extends CI_Controller {
 
 	protected $numeroordendespacho =  '';
 	private $usuariologin, $sessionflag, $usuariocodger, $acc_lectura, $acc_escribe, $acc_modifi;
@@ -89,7 +89,7 @@ class Cargargastoex extends CI_Controller {
 		unset($arregloentidades['']);
 		/* ahora renderizar o pintar el formulario de carga la vista */
 		$this->load->view('header.php',$data);
-		$this->load->view('cargargastoex.php',$data);
+		$this->load->view('cargargastomanual.php',$data);
 		$this->load->view('footer.php',$data);
 	}
 
@@ -294,7 +294,7 @@ class Cargargastoex extends CI_Controller {
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
 		$this->load->view('header.php',$data);
-		$this->load->view('cargargastoex.php',$data);
+		$this->load->view('cargargastomanual.php',$data);
 		$this->load->view('footer.php',$data);
 		/*
 		// PROCESO POSTERIOR generacion de txt (y dale con el txt() para el ajuste
