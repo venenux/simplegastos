@@ -25,7 +25,7 @@
 	if( !isset($list_subcategoria) )
 	$list_subcategoria = array('cod_subcategoria' => '');
 	/* ********* fin valores predeterminados ******************** */
-
+// CONVERT(fecha_registro,UNSIGNED) >= ".$fec_registroini."
 	/* ********* ini seccion de pagina formulario ******************** */
 	if ($seccionpagina == 'seccionfiltrarmatrix')
 	{
@@ -46,11 +46,32 @@
 	/* ********* ini seccion de pagina pinta matrix ******************** */
 	else if ($seccionpagina == 'secciontablamatrix')
 	{
-		//echo form_fieldset('Matrix de reporte de gastos',array('class'=>'container_blue containerin ')) . PHP_EOL;
+		$this->table->clear();
+		$this->table->add_row(
+			anchor('admcategorias/admcategorias/add',form_button('admcategorias/admcategorias/add', '<< Mes Anterior', 'class="btn btn-primary btn-large b10" '))
+			,
+			anchor('admcategorias/admcategorias/list',form_button('admcategorias/admcategorias/list', 'Mes Siguiente >>', 'class="btn btn-primary btn-large b10" '))
+		);
+		$tablabotonmes = form_fieldset(' Seleccionar Mes',array('class'=>'container_blue containerin')) . PHP_EOL;
+		$tablabotonmes .= $this->table->generate();
+		
+		$tablabotonmes .= form_fieldset_close() . PHP_EOL;
+
+		$this->table->clear();
+			$this->table->add_row($tablabotonmes);
+			
+		$botonesmes = $this->table->generate();
+		//info usuarios
 		echo 'Usuario actual : '.$userintranet.' ('.$usercorreo.'), Fecha gasto: '.$fechafiltramatrix.'<br>'.PHP_EOL;
+		// mostrar la tabla botones
+		echo $botonesmes;
+		// mostrar la tabla tiendas x categorias
 		echo $htmlquepintamatrix . PHP_EOL;
-		//echo form_fieldset_close() . PHP_EOL;
+		echo $botonesmes;
+		
+		
+	
 	}
 	/* ********* fin seccion de pagina formulario ******************** */
-
+   
 	?>

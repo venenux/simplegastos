@@ -134,17 +134,18 @@ class mimatrixcontroller extends CI_Controller {
 
 		 $queryentidades ="
 		 select
-		 cod_entidad as codigo, des_entidad as tiendas
+		   ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
 		 from
 		   entidad
-		  where (cod_entidad >=000 and   cod_entidad <=005) or (cod_entidad >=400 and   cod_entidad <=998)
+		  where (cod_entidad >=000 and   cod_entidad <=005) or (cod_entidad >=400 and   cod_entidad <=998) 
+		    and abr_entidad <>'' order by siglas
 		 ";
 		$indicet=0;
 		$lastiendas= $this->db->query($queryentidades);
 		$tiendas= array();
 		foreach ($lastiendas->result() as $row)
 		{
-			$tiendas[$row->codigo]=$row->tiendas;
+			$tiendas[$row->codigo]=$row->siglas;
 		}
 		$xtiendas= count($tiendas);// ya se cuantas tiendas
 
@@ -158,48 +159,55 @@ class mimatrixcontroller extends CI_Controller {
 		";
 		// aquiio se establece las cabeceras
 		$micabeceras = $this->db->query($querycabeceras);
-
-
+        $finalindex=1;
+        $filafinal=array(0=>'Totales:');
 		$categorias= array('0'=>'Tiendas');
+		
 		foreach ($micabeceras->result() as $row)
 		{
 			$categorias[$row->codex]=$row->categoria;
-
+            //aprovecho este ciclo para cargar con cero los totales
+            $filafinal[$finalindex]= 0.00;
+		    $finalindex= $finalindex+1;
 		}
 		$categorias[count($categorias)]='   TOTAL:   ';
 
 		/* ***** ini OBTENER DATOS DE FORMULARIO (con esto no me meto todavia) ***************************** */
 		$fechafiltramatrix = $this->input->get_post('fechafiltramatrix');
+		if( $fechafiltramatrix == '' or empty($fechafiltramatrix))
+			$fechafiltramatrix = date('Ymd');
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 		/* ***** fin OBTENER DATOS DE FORMULARIO ***************************** */
 		 // generar fila por fila la tabla
 		$maxcat=count($categorias) ;
 		$elgraantootal =0;
-		$filafinal=array();
-		$finalindex=1;
-		$switch=0;
 		$tablestyle = array( 'table_open'  => '<table border="1" cellpadding="2" cellspacing="2" class="table display groceryCrudTable dataTable ui default ">' );
 		$this->table->set_caption(NULL);
 		$this->table->clear();
 		$this->table->set_template($tablestyle);
 		$this->table->set_heading($categorias);
+		$fechachucuta=substr($fechafiltramatrix, 0, 6);
 		foreach($tiendas as $indicetienda => $tiend)
 		{
 			$icat=0;
-
+            $finalindex=1; 
 			$fila =array($tiend);
 			foreach ($categorias as $indicecategoria=> $descripcioncat)
-			{
+			{   
 				$querysuma1="
 				Select
 				  ifnull(cast(sum(mon_registro) as decimal(30,2)),0) as suma
 				from
 				  registro_gastos
 				where
-				registro_gastos.cod_entidad =  '".$indicetienda."'
-				   and
-				 registro_gastos.cod_categoria='".$indicecategoria."'";
+			      registro_gastos.cod_entidad =  '".$indicetienda."'
+				and
+				  registro_gastos.cod_categoria='".$indicecategoria."'
+				and  
+				  registro_gastos.fecha_registro like '%".$fechachucuta."%'		 
+				 ";
+                
                 //aqui se calcula el gasto categoria por tienda
                  if ($icat<$maxcat-1){
 
@@ -209,55 +217,46 @@ class mimatrixcontroller extends CI_Controller {
 		          { $total=$row->suma;break;}
 			      $fila[$icat]=$total;
 
-			      if ($switch==0)
-					   {// calculo de la suma de una categoria en todas las tiendas
-						   $querycatefulltiendas ="
-						   Select
-							ifnull(cast(sum(mon_registro) as decimal(30,2)),0) as sumatienda
-						   from registro_gastos
-							 where registro_gastos.cod_categoria = '".$indicecategoria."'
-							 ";
-							$totalcat=$this->db->query($querycatefulltiendas);
-							  foreach ($totalcat->result() as $row)
-							   { $totaltiendasxcat=$row->sumatienda;break;}
-							$filafinal[$finalindex]= $totaltiendasxcat;
-							$finalindex=  $finalindex+1;
-
-						}
-
-
-			      }$icat = $icat +1;
+			      // calculo de la suma de una categoria en todas las tiendas
+                  $filafinal[$finalindex]=$filafinal[$finalindex] + $total; 
+                  $finalindex= $finalindex+1;
+                  			      }
+			     $icat = $icat +1;
 			     }else
 			     {
 			      // aqui se calcula el total en una categoria en una tienda
-			       $querygastotiendasfullcat="
+			   
+                     $querygastotiendasfullcat="
 			      Select
 			        ifnull(cast(sum(mon_registro)  as decimal(30,2)),0) as sumatienda
 			      from registro_gastos where
 			        registro_gastos.cod_entidad = '".$indicetienda."'
-			      ";
+			      	and  
+				  registro_gastos.fecha_registro like '%".$fechachucuta."%'      ";
 
 			      $totaltienda=$this->db->query($querygastotiendasfullcat);
 			      foreach ($totaltienda->result() as $row)
 		          { $totalfullcat=$row->sumatienda;break;}
+			        
 			        $fila[$icat]= $totalfullcat;
 			        //acumular el total cada categoria
-
+                   
 			      }
 			 }
 			   $this->table->add_row($fila);
 			   $elgraantootal=$elgraantootal+$totalfullcat;
-			   $switch=1;
+			   
 		//   uff tanto  trabajo
 	  }
 		$filafinal[$finalindex+1]= $elgraantootal;
 		$this->table->add_row($filafinal);
 		$data['htmlquepintamatrix'] = $this->table->generate(); // html generado lo envia a la matrix
 		/* ***** fin pintar una tabla recorriendo el query **************** */
-		$data['menu'] = $this->menu->general_menu();
-		$data['ver'] = $categorias;
-		$data['ver2'] = $tiendas;
-		$data['ver3']=$filafinal;
+		$data['Menú'] = $this->menu->general_menu();
+		$data['Categorias Cargadas'] = $categorias;
+		$data['Tiendas Cargadas:'] = $tiendas;
+		$data['Fecha:']=$fechafiltramatrix;
+		$data['Fecha recortada:']=$fechachucuta;
 		$data['seccionpagina'] = 'secciontablamatrix';
 		$data['userintran'] = $userintranet;
 		$data['fechafiltramatrix'] = $fechafiltramatrix;
@@ -280,7 +279,7 @@ class mimatrixcontroller extends CI_Controller {
 		$this->load->helper('file');
 		$filenameneweordendespachoadjuntar = $cargaconfig['upload_path'] . '/ordendespachogenerada' . $this->numeroordendespacho . '.txt';
 		if ( ! write_file($filenameneweordendespachoadjuntar, $correocontenido))
-		{
+		{arreglos bidimensionales en php
 			 echo 'Unable to write the file';
 		}
 		// en la db buscamos el correo del usuario y vemos a cuantos se enviaran
