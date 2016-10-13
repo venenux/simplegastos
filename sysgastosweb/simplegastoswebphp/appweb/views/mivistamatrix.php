@@ -1,24 +1,34 @@
 	<h1>Matrix de Gastos Tiendas X Categorías</h1>
 	<?php
+	$typcs='text/css';
+	$pathcssgc = base_url() .'assets/grocery_crud/themes/datatables/css/datatables.css';
+	$linkdefcssgc = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcssgc);
+	echo link_tag($linkdefcssgc);
+	$pathcssgc = base_url() .'assets/grocery_crud/themes/datatables/css/demo_table_jui.css';
+	$linkdefcssgc = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcssgc);
+	echo link_tag($linkdefcssgc);
+	$pathcssgc = base_url() .'assets/grocery_crud/themes/datatables/css/jquery.dataTables.css';
+	$linkdefcssgc = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcssgc);
+	echo link_tag($linkdefcssgc);
+
 
 	/* ********* ini valores predeterminados ******************** */
 	$htmlformaattributos = array('name'=>'formulariomatrix','class'=>'formularios','onSubmit'=>'return validageneric(this);');
 	if( !isset($fechafiltramatrix) )
 	$fechafiltramatrix=date('Ymd');$idfechamatrix='fechafiltramatrix';$inputfechaattr = array('name'=>$idfechamatrix,'id'=>$idfechamatrix, 'onclick'=>'javascript:NewCssCal(\''.$idfechamatrix.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechamatrix, $$idfechamatrix));
-	if( !isset($seccionpagina) ) 
+	if( !isset($seccionpagina) )
 	$seccionpagina = 'seccionformulario';
-	if( !isset($list_entidad) ) 
+	if( !isset($list_entidad) )
 	$list_entidad = array('cod_entidad' => '');
-	if( !isset($list_categoria) ) 
+	if( !isset($list_categoria) )
 	$list_categoria = array('cod_categoria' => '');
-	if( !isset($list_subcategoria) ) 
+	if( !isset($list_subcategoria) )
 	$list_subcategoria = array('cod_subcategoria' => '');
 	/* ********* fin valores predeterminados ******************** */
 
 	/* ********* ini seccion de pagina formulario ******************** */
-	if ($seccionpagina == 'seccionformulario')
+	if ($seccionpagina == 'seccionfiltrarmatrix')
 	{
-		$separadores = array(''=>'', '\t'=>'Tabulador (|)', ','=>'Coma (,)',';'=>'PuntoComa (;)');
 		echo form_fieldset('Ingrese datos solo si desea filtrar la matrix',array('class'=>'container_blue containerin')) . PHP_EOL;
 		echo form_open_multipart('/mimatrixcontroller/secciontablamatrix/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
@@ -32,16 +42,14 @@
 		echo br().PHP_EOL;
 	}
 	/* ********* fin seccion de pagina formulario ******************** */
-	
+
 	/* ********* ini seccion de pagina pinta matrix ******************** */
 	else if ($seccionpagina == 'secciontablamatrix')
 	{
-		echo form_fieldset('Matrix de reporte de gastos',array('class'=>'container_blue containerin ')) . PHP_EOL;
-		echo br().PHP_EOL;
+		//echo form_fieldset('Matrix de reporte de gastos',array('class'=>'container_blue containerin ')) . PHP_EOL;
 		echo 'Usuario actual : '.$userintranet.' ('.$usercorreo.'), Fecha gasto: '.$fechafiltramatrix.'<br>'.PHP_EOL;
-		echo br().PHP_EOL;
-		echo $htmlquepintamatrix;
-		echo form_fieldset_close() . PHP_EOL;
+		echo $htmlquepintamatrix . PHP_EOL;
+		//echo form_fieldset_close() . PHP_EOL;
 	}
 	/* ********* fin seccion de pagina formulario ******************** */
 

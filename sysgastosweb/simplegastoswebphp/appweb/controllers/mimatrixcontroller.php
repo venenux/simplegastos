@@ -13,7 +13,6 @@ class mimatrixcontroller extends CI_Controller {
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
 		$this->load->model('menu');
-		/* **** hay que cargar las bae de datos */
 		$this->load->database('gastossystema');
 		$this->output->enable_profiler(TRUE);
 	}
@@ -34,19 +33,101 @@ class mimatrixcontroller extends CI_Controller {
 		$this->secciontablamatrix();
 	}
 
+	public function mimatrixfiltrar()
+	{
+		$userdata = $this->session->all_userdata();
+		$this->_verificarsesion();
+		$usercorreo = $userdata['correo'];
+		$userintranet = $userdata['intranet'];
+		$sessionflag = $this->session->userdata('username').date("YmdHis");
+				$usuariocodgernow = $this->session->userdata('cod_entidad');
+
+		/* cargar y listaar las CATEGORIAS que se usaran para registros */
+			$sqlcategoria = "
+			select
+			 ifnull(cod_categoria,'99999999999999') as cod_categoria,      -- YYYYMMDDhhmmss
+			 ifnull(des_categoria,'sin_descripcion') as des_categoria,
+			 ifnull(fecha_categoria, 'INVALIDO') as fecha_categoria,
+			 ifnull(sessionflag,'') as sessionflag
+			from categoria
+			  where ifnull(cod_categoria, '') <> '' and cod_categoria <> ''
+			";
+			if($usuariocodgernow >399 and $usuariocodgernow < 998)
+				$sqlcategoria .= " and cod_categoria NOT LIKE 'CAT2016000012%'";
+			$resultadoscategoria = $this->db->query($sqlcategoria);
+			$arreglocategoriaes = array(''=>'');
+			foreach ($resultadoscategoria->result() as $row)
+			{
+				$arreglocategoriaes[''.$row->cod_categoria] = '' . $row->des_categoria . '-' . $row->fecha_categoria;
+			}
+			$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
+			unset($arreglocategoriaes['']);
+		/* cargar y listaar las SUBCATEGORIAS que se usaran para registros */
+			$sqlsubcategoria = "
+			SELECT
+			ca.cod_categoria,
+			ca.des_categoria,
+			sb.cod_subcategoria,
+			sb.des_subcategoria,
+			ca.fecha_categoria,
+			sb.fecha_subcategoria,
+			sb.sessionflag
+			FROM categoria as ca
+			join subcategoria as sb
+			on sb.cod_categoria = ca.cod_categoria
+			";
+			if($usuariocodgernow >399 and $usuariocodgernow < 998)
+				$sqlsubcategoria .= " and sb.cod_categoria NOT LIKE 'CAT2016000012%'";
+			$resultadossubcategoria = $this->db->query($sqlsubcategoria);
+			$arreglosubcategoriaes = array(''=>'');
+			foreach ($resultadossubcategoria->result() as $row)
+			{
+				$arreglosubcategoriaes[''.$row->cod_subcategoria] = $row->des_categoria . ' - ' . $row->des_subcategoria;
+			}
+			$data['list_subcategoria'] = $arreglosubcategoriaes; // agrega este arreglo una lista para el combo box
+			unset($arreglosubcategoriaes['']);
+		/* cargar y listaar las UBIUCACIONES que se usaran para registros */
+			$sqlentidad = "
+			select
+			 abr_entidad, abr_zona, des_entidad,
+			 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
+			 ifnull(des_entidad,'sin_descripcion') as des_entidad
+			from entidad
+			  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
+			";
+			if($usuariocodgernow >399 and $usuariocodgernow < 998)
+				$data['pepe'] = $sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
+			$resultadosentidad = $this->db->query($sqlentidad);
+			$arregloentidades = array(''=>'');
+			foreach ($resultadosentidad->result() as $row)
+			{
+				$arregloentidades[''.$row->cod_entidad] = $row->cod_entidad . ' - ' . $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
+			}
+			$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
+			unset($arregloentidades['']);
+
+		$data['usercorreo'] = $usercorreo;
+		$data['userintranet'] = $userintranet;
+		$data['menu'] = $this->menu->general_menu();
+		$data['seccionpagina'] = 'seccionfiltrarmatrix';
+		$data['userintran'] = $userintranet;
+		$this->load->view('header.php',$data);
+		$this->load->view('mivistamatrix.php',$data);
+		$this->load->view('footer.php',$data);
+
+	}
+
 	public function secciontablamatrix()
 	{
 		/* ***** ini manejo de sesion ******************* */
-		$this->_verificarsesion();
 		$userdata = $this->session->all_userdata();
+		$this->_verificarsesion();
 		$usercorreo = $userdata['correo'];
 		$userintranet = $userdata['intranet'];
 		$sessionflag = $this->session->userdata('username').date("YmdHis");
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
 		$data['menu'] = $this->menu->general_menu();
-
-		/* ***** fin ********** */
 
 		/* ******** inicio de los querys ************* */
 		$this->load->helper(array('form', 'url','inflector'));
@@ -98,6 +179,11 @@ class mimatrixcontroller extends CI_Controller {
 		$filafinal=array();
 		$finalindex=1;
 		$switch=0;
+		$tablestyle = array( 'table_open'  => '<table border="1" cellpadding="2" cellspacing="2" class="table display groceryCrudTable dataTable ui default ">' );
+		$this->table->set_caption(NULL);
+		$this->table->clear();
+		$this->table->set_template($tablestyle);
+		$this->table->set_heading($categorias);
 		foreach($tiendas as $indicetienda => $tiend)
 		{
 			$icat=0;
@@ -166,8 +252,6 @@ class mimatrixcontroller extends CI_Controller {
 	  }
 		$filafinal[$finalindex+1]= $elgraantootal;
 		$this->table->add_row($filafinal);
-		$table = array( 'table_open'  => '<table border="1" cellpadding="2" cellspacing="2" class="table">' );
-		$this->table->set_heading($categorias);
 		$data['htmlquepintamatrix'] = $this->table->generate(); // html generado lo envia a la matrix
 		/* ***** fin pintar una tabla recorriendo el query **************** */
 		$data['menu'] = $this->menu->general_menu();
