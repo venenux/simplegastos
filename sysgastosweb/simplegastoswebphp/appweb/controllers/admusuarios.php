@@ -1,8 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class admusuariosentidad extends CI_Controller {
+class admusuarios extends CI_Controller {
 
-	private static $modulosadm = array('admusuariosentidad','admcategoriasconceptos','admgastoslog');
+	private static $modulosadm = array('admusuarios','admcategoriasconceptos','admgastoslog');
 
 	public function __construct()
 	{
@@ -31,7 +31,6 @@ class admusuariosentidad extends CI_Controller {
 		$data['correo'] = $this->session->userdata('correo');
 		$data['logueado'] = $this->session->userdata('logueado');
 		$data['menu'] = $this->menu->general_menu();
-		$data['output'] = $output; // TODO: output tiene mAs datos sacarlos y meterlos en $data hace funcionar todo normal
 		$data['admvistaurlaccion'] = 'admusuariosentidad';
 		$data['js_files'] = $output->js_files;
 		$data['css_files'] = $output->css_files;
@@ -44,31 +43,14 @@ class admusuariosentidad extends CI_Controller {
 	function index()
 	{
 		$this->_verificarsesion();
-		$this->config->load('grocery_crud');
-		$this->config->set_item('grocery_crud_dialog_forms',true);
-		$this->config->set_item('grocery_crud_default_per_page',10);
-
-		$output1 = $this->admusuariosavanzado();
-		$output2 = $this->admsucursalesyusuarios();
-		$output3 = $this->admsoloverlosfondos();
-
-		$js_files = $output1->js_files + $output2->js_files + $output3->js_files;
-		$css_files = $output1->css_files + $output2->css_files + $output3->css_files;
-		$output = ""
-		."<h4>Usuarios del sistema</h4>".$output1->output
-		."<h4>Centro de Costos</h4>".$output2->output
-		."<h4>Fondos registrados</h4>".$output3->output
-		."";
-
-		$this->_esputereport((object)array(
-				'js_files' => $js_files,
-				'css_files' => $css_files,
-				'output'	=> $output
-		));
+		$this->admusuariosavanzado();
 	}
 
 	public function admusuariosavanzado()
 	{
+		$this->config->load('grocery_crud');
+		$this->config->set_item('grocery_crud_dialog_forms',false);
+		$this->config->set_item('grocery_crud_default_per_page',10);
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->set_table('usuarios');
@@ -111,90 +93,10 @@ class admusuariosentidad extends CI_Controller {
 		$crud->callback_before_insert(array($this,'extradatainsert'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->field_type('estado','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'SUSPENDIDO' => 'SUSPENDIDO'));
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admusuariosentidad"));
-		$crud->unset_add();
-		$crud->unset_edit();
-		$crud->unset_delete();
+		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuarios")));
 		$output = $crud->render();
-		if($crud->getState() != 'list') {
-			$this->_esputereport($output);
-		} else {
-			return $output;
-		}
+		$this->_esputereport($output);
 	}
-
-	public function admsucursalesyusuarios()
-	{
-		$crud = new grocery_CRUD();
-		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
-		$crud->set_table('entidad');
-		$crud->set_subject('Sucursal');
-		$crud->columns('abr_entidad','abr_zona','cod_entidad','des_entidad','status','cod_fondo','nam_usuario','sello','sessionflag');
-		$crud->display_as('cod_entidad','Cod. Centro')
-			 ->display_as('abr_entidad','Cod. Siglas')
-			 ->display_as('abr_zona','Cod. Zona')
-			 ->display_as('des_entidad','Nombre')
-			 ->display_as('cod_fondo','Fondo')
-			 ->display_as('sello','Sello')
-			 ->display_as('status','Estado')
-			 ->display_as('nam_usuario','Asociados')
-			 ->display_as('sessionflag','Modificado');
-		$crud->unset_add_fields('sessionflag');
-		$crud->set_relation_n_n('nam_usuario', 'entidad_usuario', 'usuarios', 'cod_entidad', 'intranet', 'nombre');
-		$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
-		$currentState = $crud->getState();
-		if($currentState == 'add')
-		{
-			$crud->required_fields('cod_entidad','abr_entidad','abr_zona','des_entidad','estado');
-			$crud->set_rules('cod_entidad', 'Centro de Costo (codger)', 'trim|numeric');
-		}
-		else if ($currentState == 'edit')
-		{
-			$crud->required_fields('abr_entidad','abr_zona','des_entidad','estado');
-			$crud->field_type('cod_entidad', 'readonly');
-			$crud->field_type('sessionflag', 'readonly');
-		}
-		$crud->set_rules('abr_entidad', 'Siglas', 'trim|alphanumeric');
-		$crud->set_rules('abr_zona', 'Zona', 'trim|alphanumeric');
-		$crud->set_rules('des_entidad', 'Nombre', 'trim|alphanumeric');
-		$crud->field_type('status','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'CERRADO' => 'CERRADO', 'ESPECIAL' => 'ESPECIAL'));
-		$crud->callback_before_update(array($this,'echapajacuando'));
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admusuariosentidad"));
-		$crud->unset_add();
-		$crud->unset_edit();
-		$crud->unset_delete();
-		$output = $crud->render();
-		if($crud->getState() != 'list') {
-			$this->_esputereport($output);
-		} else {
-			return $output;
-		}
-	}
-
-	public function admsoloverlosfondos()
-	{
-		$crud = new grocery_CRUD();
-		//$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
-		$crud->set_table('fondos');
-		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
-		$crud->columns('fecha_fondo','mon_fondo','quien','cod_quien','cod_fondo','sessionflag');
-		$crud->display_as('cod_fondo','Codigo')
-			 ->display_as('mon_fondo','Disponible')
-			 ->display_as('fecha_fondo','Al')
-			 ->display_as('cod_quien','Id')
-			 ->display_as('quien','Quien')
-			 ->display_as('sessionflag','Alterado');
-		$crud->set_primary_key('cod_fondo','fondos');
-		$crud->unset_operations();
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuariosentidad")));
-		$output = $crud->render();
-		if($crud->getState() != 'list') {
-			$this->_esputereport($output);
-		} else {
-			return $output;
-		}
-	}
-
 
 	function extradatainsert($post_array)
 	{

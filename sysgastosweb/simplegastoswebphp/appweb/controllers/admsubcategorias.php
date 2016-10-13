@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class admcategoriasconceptos extends CI_Controller {
+class admsubcategorias extends CI_Controller {
 
 	public function __construct()
 	{
@@ -41,71 +41,9 @@ class admcategoriasconceptos extends CI_Controller {
 	function index()
 	{
 		$this->_verificarsesion();
-		$this->config->load('grocery_crud');
-		$this->config->set_item('grocery_crud_dialog_forms',true);
-		$this->config->set_item('grocery_crud_default_per_page',10);
-
-		$output1 = $this->admcategorias();
-		$output2 = $this->admsubcategorias();
-
-		$js_files = $output1->js_files + $output2->js_files;
-		$css_files = $output1->css_files + $output2->css_files;
-		$output = ""
-		."<h3>Categorias</h3>".$output1->output
-		."<h3>Subcategorias</h3>".$output2->output
-		."";
-
-		$this->_esputereport((object)array(
-				'js_files' => $js_files,
-				'css_files' => $css_files,
-				'output'	=> $output
-		));
+		$this->admsubcategorias();
 	}
 
-
-	public function admcategorias()
-	{
-		$crud = new grocery_CRUD();
-		$crud->set_table('categoria');
-		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
-		$crud->columns('des_categoria','fecha_categoria','cod_categoria','sessionflag');
-		$crud->display_as('cod_categoria','Codigo')
-			 ->display_as('des_categoria','Categoria')
-			 ->display_as('fecha_categoria','Creado')
-			 ->display_as('sessionflag','Modificado');
-		$crud->set_subject('Categorias');
-		$crud->add_fields('cod_categoria','des_categoria','fecha_categoria');
-		$crud->edit_fields('cod_categoria','des_categoria','sessionflag');
-		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
-		$crud->field_type('fecha_categoria', 'invisible',''.date("Ymd"));
-		$crud->field_type('des_categoria', 'text');
-		$crud->unset_texteditor('des_categoria');
-		$currentState = $crud->getState();
-		if($currentState == 'add')
-		{
-			$crud->required_fields('des_categoria');
-			$crud->set_rules('des_categoria', 'Descripcion', 'trim|alphanumeric');
-			$crud->callback_add_field('cod_categoria', function () {	return '<input type="text" maxlength="50" value="CAT'.date("YmdHis").'" name="cod_categoria" readonly="true">';	});
-		}
-		else if ($currentState == 'edit')
-		{
-			$crud->required_fields('des_categoria');
-			$crud->field_type('cod_categoria', 'readonly');
-			$crud->set_rules('des_categoria', 'Descripcion', 'trim|alphanumeric');
-		}
-		$crud->callback_before_insert(array($this,'datospostinsertcat'));
-		$crud->callback_before_update(array($this,'echapajacuando'));
-		$crud->unset_add();
-		$crud->unset_edit();
-		$crud->unset_delete();
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admcategoriasconceptos"));
-		$output = $crud->render();
-		if($crud->getState() != 'list') {
-			$this->_esputereport($output);
-		} else {
-			return $output;
-		}
-	}
 
 	public function admsubcategorias()
 	{
@@ -142,24 +80,9 @@ class admcategoriasconceptos extends CI_Controller {
 		}
 		$crud->callback_before_insert(array($this,'datospostinsertsub'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
-		$crud->unset_add();
-		$crud->unset_edit();
-		$crud->unset_delete();
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admcategoriasconceptos"));
+		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admcategoriasconceptos")); // TODO usar en tablas temporales de crud tiendas, esta es la solcuion
 		$output = $crud->render();
-		if($crud->getState() != 'list') {
-			$this->_esputereport($output);
-		} else {
-			return $output;
-		}
-	}
-
-	function datospostinsertcat($post_array)
-	{
-		$post_array['cod_categoria'] = 'CAT'.date("YmdHis");
-		$post_array['fecha_categoria'] = date("Ymd");
-		// TODO: insert para tabla log
-		return $post_array;
+		$this->_esputereport($output);
 	}
 
 	function datospostinsertsub($post_array)

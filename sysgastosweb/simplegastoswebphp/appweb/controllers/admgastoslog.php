@@ -49,10 +49,11 @@ class admgastoslog extends CI_Controller {
 		$this->load->database('gastossystema');
 		$this->load->library('grocery_CRUD');
 		$this->config->load('grocery_crud');
-		$this->config->set_item('grocery_crud_dialog_forms',false);
+		$this->config->set_item('grocery_crud_dialog_forms',true);
 		$this->config->set_item('grocery_crud_default_per_page',80);
 		$crud = new grocery_CRUD();
 	    $crud->set_table('log');
+		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->columns('cod_log','operacion','sessionficha');
 		$crud
 			 ->display_as('cod_log','Cuando')
