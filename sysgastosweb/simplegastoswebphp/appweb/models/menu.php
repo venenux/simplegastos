@@ -32,7 +32,7 @@ class Menu extends CI_Model
 		$cargargastoentidadestienda['cargargastoentidadestiendaadd']=anchor('cargargastoentidadestienda/gastoregistros/add','Cargar otros gasto'); // TODO: verificar permiso y este menu solo cargfa en tienda
 		$cargargastoentidadestienda['cargargastoentidadestiendaver']=anchor('cargargastoentidadestienda/index','Revisar nuestras cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
 
-		$cargasrep=anchor('admgastosregistros/gastoregistros/todos','Cargas');// TODO filtrar por la tienda si no es personal administrativo
+		$cargasrep=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');// TODO filtrar por la tienda si no es personal administrativo
 		$cargasgastoreportesvertodo['admgastosregistrosver']=anchor('admgastosregistros/index','Revisar las cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
 
 		if(!$this->session->userdata('logueado'))
@@ -63,7 +63,7 @@ class Menu extends CI_Model
 				$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
 				$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
 			}
-			else if ($usuariocodgernow > 990 and $usuariocodgernow < 998)
+			else if ($usuariocodgernow >= 990 and $usuariocodgernow < 998)
 			{
 				$header['4rep'] = $nodes->m_header_nodes($cargasrep,$cargasgastoreportesvertodo);
 			}
