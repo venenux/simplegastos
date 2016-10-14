@@ -15,7 +15,11 @@ class Manejousuarios extends CI_Controller
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
 		$this->load->model('menu');
-		//$this->output->enable_profiler(TRUE);
+		$this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT',TRUE);
+		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0', TRUE);
+		$this->output->set_header('Pragma: no-cache', TRUE);
+		$this->output->set_header("Expires: Mon, 26 Jul 1997 05:00:00 GMT", TRUE);
+		$this->output->enable_profiler(TRUE);
 	}
 
 
@@ -70,7 +74,10 @@ class Manejousuarios extends CI_Controller
 		AND
 		  (`usu`.`clave` = '".$contrasena."' AND ifnull(`usu`.`intranet`,'') = '".$nombre."')     -- aunque solo accede si tiene intranet, puede usar su cedula
 		  OR
-		  (`usu`.`clave` = '".$contrasena."' AND ifnull(`usu`.`ficha`,'') = '".$nombre."')  ";
+		  (`usu`.`clave` = '".$contrasena."' AND ifnull(`usu`.`ficha`,'') = '".$nombre."')
+		AND
+		  ( usu.estado = 'ACTIVO' OR usu.estado = 'activo')
+		 ";
 		//$query = $this->dbxmppusers->query($sqlusuario);
 		$query = $this->db->query($sqlusuario);
 		$objetousuario = $query->result();

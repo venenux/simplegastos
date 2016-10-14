@@ -8,8 +8,8 @@ $this->load->helper('html');
 		echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
 		echo link_tag($linkdefcss);
 		echo script_tag($linkbrownavdecsjs);
-		echo script_tag($linkvalidaformsjs);
-		echo script_tag($linktabberdetaljs);
+		//echo script_tag($linkvalidaformsjs);
+		//echo script_tag($linktabberdetaljs);
 		echo script_tag($linkdatepickerugl);
 		//if( isset($output) )
 		//{

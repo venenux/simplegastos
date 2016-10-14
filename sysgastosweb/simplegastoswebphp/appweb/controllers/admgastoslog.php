@@ -13,6 +13,10 @@ class admgastoslog extends CI_Controller {
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
 		$this->load->model('menu');
+		$this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT',TRUE);
+		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0', TRUE);
+		$this->output->set_header('Pragma: no-cache', TRUE);
+		$this->output->set_header("Expires: Mon, 26 Jul 1997 05:00:00 GMT", TRUE);
 		$this->output->enable_profiler(TRUE);
 	}
 
