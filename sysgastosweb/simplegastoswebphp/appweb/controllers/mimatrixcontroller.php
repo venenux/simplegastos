@@ -14,6 +14,10 @@ class mimatrixcontroller extends CI_Controller {
 		$this->load->library('table');
 		$this->load->model('menu');
 		$this->load->database('gastossystema');
+		$this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT',TRUE);
+		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0', TRUE);
+		$this->output->set_header('Pragma: no-cache', TRUE);
+		$this->output->set_header("Expires: Mon, 26 Jul 1997 05:00:00 GMT", TRUE);
 		$this->output->enable_profiler(TRUE);
 	}
 
@@ -137,7 +141,7 @@ class mimatrixcontroller extends CI_Controller {
 		   ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
 		 from
 		   entidad
-		  where (cod_entidad >=000 and   cod_entidad <=005) or (cod_entidad >=400 and   cod_entidad <=998) 
+		  where (cod_entidad >=000 and   cod_entidad <=005) or (cod_entidad >=400 and   cod_entidad <=998)
 		    and abr_entidad <>'' order by siglas
 		 ";
 		$indicet=0;
@@ -162,7 +166,7 @@ class mimatrixcontroller extends CI_Controller {
         $finalindex=1;
         $filafinal=array(0=>'Totales:');
 		$categorias= array('0'=>'Tiendas');
-		
+
 		foreach ($micabeceras->result() as $row)
 		{
 			$categorias[$row->codex]=$row->categoria;
@@ -191,10 +195,10 @@ class mimatrixcontroller extends CI_Controller {
 		foreach($tiendas as $indicetienda => $tiend)
 		{
 			$icat=0;
-            $finalindex=1; 
+            $finalindex=1;
 			$fila =array($tiend);
 			foreach ($categorias as $indicecategoria=> $descripcioncat)
-			{   
+			{
 				$querysuma1="
 				Select
 				  ifnull(cast(sum(mon_registro) as decimal(30,2)),0) as suma
@@ -204,10 +208,10 @@ class mimatrixcontroller extends CI_Controller {
 			      registro_gastos.cod_entidad =  '".$indicetienda."'
 				and
 				  registro_gastos.cod_categoria='".$indicecategoria."'
-				and  
-				  registro_gastos.fecha_registro like '%".$fechachucuta."%'		 
+				and
+				  registro_gastos.fecha_registro like '%".$fechachucuta."%'
 				 ";
-                
+
                 //aqui se calcula el gasto categoria por tienda
                  if ($icat<$maxcat-1){
 
@@ -218,34 +222,34 @@ class mimatrixcontroller extends CI_Controller {
 			      $fila[$icat]=$total;
 
 			      // calculo de la suma de una categoria en todas las tiendas
-                  $filafinal[$finalindex]=$filafinal[$finalindex] + $total; 
+                  $filafinal[$finalindex]=$filafinal[$finalindex] + $total;
                   $finalindex= $finalindex+1;
                   			      }
 			     $icat = $icat +1;
 			     }else
 			     {
 			      // aqui se calcula el total en una categoria en una tienda
-			   
+
                      $querygastotiendasfullcat="
 			      Select
 			        ifnull(cast(sum(mon_registro)  as decimal(30,2)),0) as sumatienda
 			      from registro_gastos where
 			        registro_gastos.cod_entidad = '".$indicetienda."'
-			      	and  
+			      	and
 				  registro_gastos.fecha_registro like '%".$fechachucuta."%'      ";
 
 			      $totaltienda=$this->db->query($querygastotiendasfullcat);
 			      foreach ($totaltienda->result() as $row)
 		          { $totalfullcat=$row->sumatienda;break;}
-			        
+
 			        $fila[$icat]= $totalfullcat;
 			        //acumular el total cada categoria
-                   
+
 			      }
 			 }
 			   $this->table->add_row($fila);
 			   $elgraantootal=$elgraantootal+$totalfullcat;
-			   
+
 		//   uff tanto  trabajo
 	  }
 		$filafinal[$finalindex+1]= $elgraantootal;

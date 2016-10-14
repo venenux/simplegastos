@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class cargargastoadministrativo extends CI_Controller {
+class cargargastoentidadestienda extends CI_Controller {
 
 	protected $numeroordendespacho =  '';
 	private $usuariologin, $sessionflag, $usuariocodger, $acc_lectura, $acc_escribe, $acc_modifi;
@@ -22,7 +22,7 @@ class cargargastoadministrativo extends CI_Controller {
 	}
 
 	/**
-	 * index del control de cargargastoadministrativo
+	 * index del control de cargargastoentidadestienda
 	 */
 	public function index()
 	{
@@ -31,6 +31,8 @@ class cargargastoadministrativo extends CI_Controller {
 			redirect('manejousuarios/desverificarintranet');
 		}
 		$data['menu'] = $this->menu->general_menu();
+
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
 
 		/* cargar y listaar las CATEGORIAS que se usaran para registros */
 			$sqlcategoria = "
@@ -42,6 +44,8 @@ class cargargastoadministrativo extends CI_Controller {
 			from categoria
 			  where ifnull(cod_categoria, '') <> '' and cod_categoria <> ''
 			";
+			if($usuariocodgernow >399 and $usuariocodgernow < 998)
+				$sqlcategoria .= " and cod_categoria NOT LIKE 'CAT2016000012%'";
 			$resultadoscategoria = $this->db->query($sqlcategoria);
 			$arreglocategoriaes = array(''=>'');
 			foreach ($resultadoscategoria->result() as $row)
@@ -64,6 +68,8 @@ class cargargastoadministrativo extends CI_Controller {
 			join subcategoria as sb
 			on sb.cod_categoria = ca.cod_categoria
 			";
+			if($usuariocodgernow >399 and $usuariocodgernow < 998)
+				$sqlsubcategoria .= " and sb.cod_categoria NOT LIKE 'CAT2016000012%'";
 			$resultadossubcategoria = $this->db->query($sqlsubcategoria);
 			$arreglosubcategoriaes = array(''=>'');
 			foreach ($resultadossubcategoria->result() as $row)
@@ -81,6 +87,8 @@ class cargargastoadministrativo extends CI_Controller {
 			from entidad
 			  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
 			";
+			if($usuariocodgernow >399 and $usuariocodgernow < 998)
+				$data['pepe'] = $sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
 			$resultadosentidad = $this->db->query($sqlentidad);
 			$arregloentidades = array(''=>'');
 			foreach ($resultadosentidad->result() as $row)
@@ -91,8 +99,9 @@ class cargargastoadministrativo extends CI_Controller {
 			unset($arregloentidades['']);
 		/* ahora renderizar o pintar el formulario de carga la vista */
 		$data['accionejecutada'] = 'cargardatosadministrativosfiltrar';
+		$data['ver4'] = $usuariocodgernow;
 		$this->load->view('header.php',$data);
-		$this->load->view('cargargastoadministrativo.php',$data);
+		$this->load->view('cargargastoentidadestienda.php',$data);
 		$this->load->view('footer.php',$data);
 	}
 
@@ -103,8 +112,8 @@ class cargargastoadministrativo extends CI_Controller {
 		{
 			redirect('manejousuarios/desverificarintranet');
 		}
-		$usuariocodgernow = $this->session->userdata('cod_entidad');
 		$userdata = $this->session->all_userdata();
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
 		$usercorreo = $userdata['correo'];
 		$usersessid = $userdata['session_id'];
 		$userintran = $userdata['intranet'];
@@ -115,43 +124,42 @@ class cargargastoadministrativo extends CI_Controller {
 		$data['accionejecutada'] = 'cargardatosadministrativosfiltrar';
 		if ($accionejecutada = 'cargardatosadministrativosfiltrar')
 		{
+			$tablaregistros = "registro_gasto_".$userintran."";
 			// OBTENER DATOS DE FORMULARIO ***************************** /
 			$fec_registroini = $this->input->get_post('fec_registroini');
 			$fec_registrofin = $this->input->get_post('fec_registrofin');
 			$mon_registroigual = $this->input->get_post('mon_registroigual');
 			$mon_registromayor = $this->input->get_post('mon_registromayor');
-			$des_detallelike = $this->input->get_post('des_detallelike');
+			$des_registrolike = $this->input->get_post('des_registrolike');
 			$cod_entidad = $this->input->get_post('cod_entidad');
 			$cod_categoria = $this->input->get_post('cod_categoria');
 			$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 			// filtrar, crear una vista en vez de usar tabla con todos los datos
-			if ($usuariocodgernow > 990 and $usuariocodgernow < 998)
-			{
-				$tablaregistros = "registro_gastos_".$userintran."";
-				$this->db->trans_strict(TRUE); // todo o nada
-				$this->db->trans_begin();
-					$sqltableviewbyentidadporusuario = "
-					DROP TABLE IF EXISTS ".$tablaregistros." ;";
-				if ($this->db->trans_status() === FALSE)
-					$this->db->trans_rollback();
-				else
-					$this->db->trans_commit();
-				$this->db->trans_begin();
-					$this->db->query($sqltableviewbyentidadporusuario);
-					$sqltableviewbyentidadporusuario = "
-					CREATE TABLE IF NOT EXISTS `".$tablaregistros."`
-					SELECT registro_gastos.*
-					FROM (`registro_gastos`)
-					WHERE
-					 cod_registro <> ''
-					";
+			$this->db->trans_strict(TRUE); // todo o nada
+			$this->db->trans_begin();
+				$sqltableviewbyentidadporusuario = "
+				DROP TABLE IF EXISTS ".$tablaregistros." ;";
+			if ($this->db->trans_status() === FALSE)
+				$this->db->trans_rollback();
+			else
+				$this->db->trans_commit();
+			$this->db->trans_begin();
+				$this->db->query($sqltableviewbyentidadporusuario);
+				$sqltableviewbyentidadporusuario = "
+				CREATE TABLE IF NOT EXISTS `".$tablaregistros."`
+				SELECT registro_gastos.*
+				FROM (`registro_gastos`)
+				WHERE
+				 cod_registro <> ''
+				";
+
 				if ( $cod_entidad != '')
 					$sqltableviewbyentidadporusuario .= " AND registro_gastos.cod_entidad = '".$cod_entidad."' ";
 				if ( $cod_categoria != '')
 					$sqltableviewbyentidadporusuario .= " AND registro_gastos.cod_categoria = '".$cod_categoria."' ";
 				if ( $cod_subcategoria != '')
 					$sqltableviewbyentidadporusuario .= " AND registro_gastos.cod_subcategoria = '".$cod_subcategoria."' ";
-				if ( $des_detallelike != '')
+				if ( $des_registrolike != '')
 					$sqltableviewbyentidadporusuario .= " AND registro_gastos.des_concepto LIKE '%".$des_concepto."%' ";
 				if ( $fec_registroini != '')
 					$sqltableviewbyentidadporusuario .= " AND CONVERT(fecha_registro,UNSIGNED) >= ".$fec_registroini." ";
@@ -163,36 +171,20 @@ class cargargastoadministrativo extends CI_Controller {
 					$sqltableviewbyentidadporusuario .= " AND registro_gastos.mon_registro >= ".$mon_registromayor." ";
 				$sqltableviewbyentidadporusuario .= " ";
 				$this->db->query($sqltableviewbyentidadporusuario);
-				if ($this->db->trans_status() === FALSE)
-					$this->db->trans_rollback();
-				else
-					$this->db->trans_commit();
-				if (! $this->db->table_exists($tablaregistros) )
-					{
-						$data['output'] = "Error ejecutando su filtro, repita el proceso, si persiste consulte systemas";
-						$this->load->view('header.php',$data);
-						$this->load->view('cargargastoadministrativo.php',$data);
-						$this->load->view('footer.php',$data);
-						return;
-					}
-			}
+			if ($this->db->trans_status() === FALSE)
+			$this->db->trans_rollback();
 			else
-				$tablaregistros = "registro_gastos";
-		}
-		else
-		{
-			$data['output'] = "Accion ejecutada incompleta, repita el proceso";
-			$this->load->view('header.php',$data);
-			$this->load->view('cargargastoadministrativo.php',$data);
-			$this->load->view('footer.php',$data);
-			return;
+			$this->db->trans_commit();
+				if (! $this->db->table_exists($tablaregistros) )
+				{
+					$data['output'] = "Error ejecutando su filtro, repita el proceso, si persiste consulte systemas";
+					$this->load->view('header.php',$data);
+					$this->load->view('cargargastoadministrativo.php',$data);
+					$this->load->view('footer.php',$data);
+					return;
+				}
 		}
 		$this->load->helper(array('inflector','url'));
-		$data['seguir']=$this->uri->segment(1).$this->uri->segment(2).$this->uri->segment(3);
-		// CONFIGURACION DE FILTROS SEGUN FORMULARIO PARA EL QUERY
-        //if ( $this->uri->segment(1) != 'todos');
-		//	$sqlreportegasto .= " and CONVERT(fecha_registro,UNSIGNED INTEGER) >= CONVERT('".date('Ymd',strtotime('-1 month'))."',UNSIGNED INTEGER) ";
-		// filters if exist
 		$this->load->library('grocery_CRUD');
 		$crud = new grocery_CRUD();
 		$crud->set_table($tablaregistros);
@@ -206,57 +198,49 @@ class cargargastoadministrativo extends CI_Controller {
 			 ->display_as('cod_subcategoria','Subcategoria')
 			 ->display_as('mon_registro','Monto')
 			 ->display_as('des_concepto','Concepto')
-			 ->display_as('des_detalle','Detalles')
-			 ->display_as('des_estado','Justificacion')
-			 ->display_as('fecha_concepto','Fecha<br>Concepto')
-			 ->display_as('fecha_registro','Fecha<br>Registro')
-			 ->display_as('tipo_gasto','Tipo')
-			 ->display_as('factura1_num','Factura<br>Numero')
-			 ->display_as('factura1_rif','Factura<br>Rif')
-			 ->display_as('factura1_bin','Factura<br>Escaneada')
-		//	 ->display_as('cod_fondo','Fondo')
+			 ->display_as('des_registro','Detalles')
+			 ->display_as('fecha_registro','Cuando')
+			 ->display_as('num_factura1','Factura<br>Numero')
+			 ->display_as('bin_factura1','Factura<br>Escaneada')
+			 ->display_as('fecha_factura1','Factura<br>Fecha')
 			 ->display_as('sessionflag','Modificado')
-			 ->display_as('sessionficha','Creador');
-		$crud->columns('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','des_detalle','fecha_concepto','tipo_gasto','estado','des_estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionficha','sessionflag');
-		$crud->add_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','des_detalle','tipo_gasto','estado','des_estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionficha');
-		$crud->edit_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','des_detalle','tipo_gasto','estado','des_estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionflag');
+			 ->display_as('sessionficha','Creador')
+			 ->display_as('cod_fondo','Fondo');
+
+		$crud->columns('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','des_registro','estado','num_factura1','bin_factura1','fecha_factura1','cod_registro','sessionficha','sessionflag');
+		$crud->add_fields('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','des_registro','estado','num_factura1','bin_factura1','fecha_factura1','cod_registro','sessionficha');
+		$crud->edit_fields('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','des_registro','estado','num_factura1','bin_factura1','fecha_factura1','cod_registro','sessionflag');
 		$crud->set_relation('cod_entidad','entidad','{des_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria','subcategoria','{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
-		if ($usuariocodgernow > 990 and $usuariocodgernow < 998)
-		{
-			$crud->unset_add();
-			$crud->unset_edit();
-			$crud->unset_delete();
-		}
-		else
-			$crud->unset_delete();
-		$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','des_detalle','tipo_gasto','des_estado');
+
+		$crud->unset_delete();
+		$crud->required_fields('cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','ext_registro');
 		// TODO mkdir directorio de codger usuario
-		$crud->set_field_upload('factura1_bin','appweb/archivoscargas'); // TODO mkdir directorio suir el del codger usuario
+		$crud->set_field_upload('bin_factura1','appweb/archivoscargas'); // TODO mkdir directorio suir el del codger usuario
 		//$crud->field_type('cod_registro', 'readonly'); // esto no se puede si ya se hizo algo antes
+//		if($usuariocodgernow >399 and $usuariocodgernow < 998)
+			$crud->field_type('cod_entidad', 'invisible',$usuariocodgernow);
 		$crud->set_rules('des_concepto', 'Concepto', 'trim|alphanumeric');
 		$crud->set_rules('mon_registro', 'Monto', 'trim|decimal');
-		$crud->set_rules('cod_entidad', 'Centro de Costo', 'trim|alphanumeric');
+		//$crud->set_rules('cod_entidad', 'Centro de Costo', 'trim|alphanumeric');
 		$crud->field_type('sessionficha', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
-		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
-		$crud->field_type('tipo_gasto','dropdown',array('EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE'));
+		$crud->field_type('sessionficha', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'RECHAZADO' => 'RECHAZADO'));
-		$crud->field_type('des_detalle','text');
-		$crud->field_type('des_estado','text');
-		$crud->unset_texteditor('des_detalle');
-		$crud->unset_texteditor('des_estado');
+		$crud->field_type('des_registro','text');
+		$crud->unset_texteditor('des_registro');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
 			$crud->callback_add_field('cod_registro', function () {	return '<input type="text" maxlength="50" value="GAS'.date("YmdHis").'" name="cod_registro" readonly="true">';	});
-			$crud->callback_add_field('fecha_registro', function () {return '<input type="text" maxlength="50" value="'.date("Ymd").'" name="fecha_registro" readonly="true">';	});
-			$crud->callback_add_field('fecha_concepto', function () {	$fecha_factura=date('Ymd');	$idfecfac='fecha_factura';	$valoresinputfechafac = array('name'=>$idfecfac,'id'=>$idfecfac, 'onclick'=>'javascript:NewCssCal(\''.$idfecfac.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecfac, $$idfecfac));	return form_input($valoresinputfechafac);	});
+			$crud->callback_add_field('fecha_registro', function () {	$fecha_registro=date('Ymd');	$idfecreg='fecha_registro';	$valoresinputfechareg = array('name'=>$idfecreg,'id'=>$idfecreg, 'onclick'=>'javascript:NewCssCal(\''.$idfecreg.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecreg, $$idfecreg));	return form_input($valoresinputfechareg);	});
+			$crud->callback_add_field('fecha_factura1', function () {	$fecha_factura=date('Ymd');	$idfecfac='fecha_factura';	$valoresinputfechafac = array('name'=>$idfecfac,'id'=>$idfecfac, 'onclick'=>'javascript:NewCssCal(\''.$idfecfac.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecfac, $$idfecfac));	return form_input($valoresinputfechafac);	});
 		}
 		else if ($currentState == 'edit')
 		{
 			$crud->field_type('cod_registro', 'readonly'); // esto no se puede si ya se hizo algo antes
-			//$crud->field_type('cod_entidad', 'readonly'); // tiendas no editan entidad, viene asignada
+			if($usuariocodgernow >399 and $usuariocodgernow < 998)
+				$crud->field_type('cod_entidad', 'readonly'); // tiendas no editan entidad, viene asignada
 			//$crud->field_type('cod_categoria', 'readonly');
 			//$crud->field_type('cod_subcategoria', 'readonly');
 			$crud->field_type('fecha_registro', 'readonly');
@@ -264,7 +248,6 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->callback_before_insert(array($this,'generarcodigo'));
 		$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
-		$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
 
 		$this->load->library('gc_dependent_select');
 		$configfielsjoin = array(
@@ -283,7 +266,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'cargardatosadminnistrativosfiltrados';
 		$this->load->view('header.php',$data);
-		$this->load->view('cargargastoadministrativo.php',$output);
+		$this->load->view('cargargastoentidadestienda.php',$output);
 		$this->load->view('footer.php',$data);
 	}
 
