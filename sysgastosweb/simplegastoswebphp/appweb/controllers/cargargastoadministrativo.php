@@ -326,14 +326,20 @@ class cargargastoadministrativo extends CI_Controller {
 	{
 		if ($value != '' )
 		{
-			$usuariover = explode('.',$value);
-			$sqlquien = "select intranet from usuarios where intranet = '".$usuariover[1]."'";
-			$sqlquienresult = $this->db->query($sqlquien);
-			$intranet = '';
-			if ($sqlquienresult->num_rows() > 0)
-			foreach ($sqlquienresult->result() as $row)
-				$intranet = $row->intranet;
-			return "<a href='".site_url('admusuariosentidad/admusuariosavanzado/read/'.$intranet)."'>$value</a>";
+			$usuariover = explode('.',$value);	$intranet = '';
+			if (isset($usuariover[1]))
+			{	if ($usuariover[1] != null)
+				{
+					$sqlquien = "select intranet from usuarios where intranet = '".$usuariover[1]."'";
+					$sqlquienresult = $this->db->query($sqlquien);
+					$intranet = '';
+			//if ($sqlquienresult->num_rows() > 0)
+					foreach ($sqlquienresult->result() as $row)
+						$intranet = $row->intranet;
+					return "<a href='".site_url('admusuariosentidad/admusuariosavanzado/read/'.$intranet)."'>$value</a>";
+				}
+			}else
+				return $value;
 		}
 	}
 
