@@ -1,5 +1,6 @@
 	<h1>Matrix de Gastos Tiendas X Categorías</h1>
 	<?php
+	
 	$typcs='text/css';
 	$pathcssgc = base_url() .'assets/grocery_crud/themes/datatables/css/datatables.css';
 	$linkdefcssgc = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcssgc);

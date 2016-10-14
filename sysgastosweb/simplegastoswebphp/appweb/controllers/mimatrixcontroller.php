@@ -135,14 +135,14 @@ class mimatrixcontroller extends CI_Controller {
 
 		/* ******** inicio de los querys ************* */
 		$this->load->helper(array('form', 'url','inflector'));
-
+         // buscar las tiendas en un rango ordenadas por zona
 		 $queryentidades ="
 		 select
 		   ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
 		 from
 		   entidad
 		  where (cod_entidad >=000 and   cod_entidad <=005) or (cod_entidad >=400 and   cod_entidad <=998)
-		    and abr_entidad <>'' order by siglas
+		    and abr_entidad <>'' order by abr_zona
 		 ";
 		$indicet=0;
 		$lastiendas= $this->db->query($queryentidades);
@@ -151,21 +151,21 @@ class mimatrixcontroller extends CI_Controller {
 		{
 			$tiendas[$row->codigo]=$row->siglas;
 		}
-		$xtiendas= count($tiendas);// ya se cuantas tiendas
+		$xtiendas= (string)count($tiendas);// ya se cuantas tiendas
 
 
 		// crear el query sql para cargar las cabeceras
 		$querycabeceras ="
 		SELECT
-		   cod_categoria as codex,des_categoria  as categoria
+		   cod_categoria as codex, substring(des_categoria, 1, 4)  as categoria
 		FROM
 		   categoria
 		";
 		// aquiio se establece las cabeceras
 		$micabeceras = $this->db->query($querycabeceras);
         $finalindex=1;
-        $filafinal=array(0=>'Totales:');
-		$categorias= array('0'=>'Tiendas');
+        $filafinal=array(0=>'Totales ('.$xtiendas.'):');
+		$categorias= array('0'=>'Tiendas ('.$xtiendas.'): ');
 
 		foreach ($micabeceras->result() as $row)
 		{
@@ -174,7 +174,7 @@ class mimatrixcontroller extends CI_Controller {
             $filafinal[$finalindex]= 0.00;
 		    $finalindex= $finalindex+1;
 		}
-		$categorias[count($categorias)]='   TOTAL:   ';
+		$categorias[count($categorias)]='TOTAL:';
 
 		/* ***** ini OBTENER DATOS DE FORMULARIO (con esto no me meto todavia) ***************************** */
 		$fechafiltramatrix = $this->input->get_post('fechafiltramatrix');
@@ -219,10 +219,10 @@ class mimatrixcontroller extends CI_Controller {
 				  $lasuma=$this->db->query($querysuma1);
                   foreach ($lasuma->result() as $row)
 		          { $total=$row->suma;break;}
-			      $fila[$icat]=$total;
+			      $fila[$icat]=(float)$total;
 
 			      // calculo de la suma de una categoria en todas las tiendas
-                  $filafinal[$finalindex]=$filafinal[$finalindex] + $total;
+                  $filafinal[$finalindex]=$filafinal[$finalindex] + (float)$total;
                   $finalindex= $finalindex+1;
                   			      }
 			     $icat = $icat +1;
@@ -241,14 +241,14 @@ class mimatrixcontroller extends CI_Controller {
 			      $totaltienda=$this->db->query($querygastotiendasfullcat);
 			      foreach ($totaltienda->result() as $row)
 		          { $totalfullcat=$row->sumatienda;break;}
-
-			        $fila[$icat]= $totalfullcat;
-			        //acumular el total cada categoria
+                    //acumular el total cada categoria
+			        $fila[$icat]= (float)$totalfullcat;
+			     
 
 			      }
 			 }
 			   $this->table->add_row($fila);
-			   $elgraantootal=$elgraantootal+$totalfullcat;
+			   $elgraantootal=(float)$elgraantootal+(float)$totalfullcat;
 
 		//   uff tanto  trabajo
 	  }
