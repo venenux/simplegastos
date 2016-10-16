@@ -2,7 +2,6 @@
 
 class cargargastoadministrativo extends CI_Controller {
 
-	protected $numeroordendespacho =  '';
 	private $usuariologin, $sessionflag, $usuariocodger, $acc_lectura, $acc_escribe, $acc_modifi;
 
 	function __construct()
@@ -144,6 +143,7 @@ class cargargastoadministrativo extends CI_Controller {
 					FROM (`registro_gastos`)
 					WHERE
 					 cod_registro <> ''
+					 AND registro_gastos.cod_entidad >= '400' AND registro_gastos.cod_entidad <= '990'
 					";
 				if ( $cod_entidad != '')
 					$sqltableviewbyentidadporusuario .= " AND registro_gastos.cod_entidad = '".$cod_entidad."' ";
@@ -198,7 +198,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->set_table($tablaregistros);
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->set_primary_key('cod_registro');
-			if ($usuariocodgernow = 998)
+			if ($usuariocodgernow == 998)
 			{
 				if ( $cod_entidad != '')
 					$crud->where($tablaregistros.'.cod_entidad' ,$cod_entidad);
@@ -216,6 +216,11 @@ class cargargastoadministrativo extends CI_Controller {
 					$crud->where('mon_registro <= ',$mon_registroigual);
 				if ( $mon_registromayor != '')
 					$crud->where('mon_registro >= ',$mon_registromayor);
+			}
+			else
+			{
+				$crud->where($tablaregistros.'.cod_categoria > ', '399');
+				$crud->where($tablaregistros.'.cod_categoria < ', '990');
 			}
 		$crud->set_subject('Gasto');
 		$crud
@@ -242,6 +247,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->set_relation('cod_entidad','entidad','{des_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria','subcategoria','{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
+		$data['addde'] = $usuariocodgernow;
 		if ($usuariocodgernow < 990 and $usuariocodgernow > 998 )
 		{
 			$crud->unset_add();
@@ -253,11 +259,18 @@ class cargargastoadministrativo extends CI_Controller {
 			$crud->unset_add();
 			$crud->unset_delete();
 		}
-		else if ($usuariocodgernow < 998 )
-			$crud->unset_edit();
+		else if ($usuariocodgernow != 998 )
+			$crud->unset_operations();
 		$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto','des_estado');
-		// TODO mkdir directorio de codger usuario
-		$crud->set_field_upload('factura1_bin','appweb/archivoscargas'); // TODO mkdir directorio suir el del codger usuario
+		$directoriofacturas = 'appweb/archivoscargas/' . date("Y") . '/' .date("Ym");
+		if ( ! is_dir($directoriofacturas) )
+		{
+			if ( is_file($directoriofacturas) )
+				unlink($directoriofacturas);
+			mkdir($directoriofacturas, 0777, true);
+			chmod($directoriofacturas,0777);
+		}
+		$crud->set_field_upload('factura1_bin',$directoriofacturas);
 		//$crud->field_type('cod_registro', 'readonly'); // esto no se puede si ya se hizo algo antes
 		$crud->set_rules('des_concepto', 'Concepto', 'trim|alphanumeric');
 		$crud->set_rules('mon_registro', 'Monto', 'trim|decimal');

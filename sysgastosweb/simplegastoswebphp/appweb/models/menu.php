@@ -23,17 +23,17 @@ class Menu extends CI_Model
 		$vistas=anchor('mimatrixcontroller','Matrix');
 		$vistaglobal=array();
 		$vistaglobal['cargargastover']=anchor('mimatrixcontroller/mimatrixfiltrar','Vista Reporte');
-
-		$cargasadm=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');// TODO filtrar por la tienda si no es personal administrativo
-		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Cargar un gasto'); // TODO: verificar permiso y este menu solo cargfa en tienda
-		$cargargastoadministrativo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Revisar todas las cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
-
-		$cargastie=anchor('cargargastoentidadestienda/gastoregistros/todos','Cargas');// TODO filtrar por la tienda si no es personal administrativo
-		$cargargastoentidadestienda['cargargastoentidadestiendaadd']=anchor('cargargastoentidadestienda/gastoregistros/add','Cargar otros gasto'); // TODO: verificar permiso y este menu solo cargfa en tienda
-		$cargargastoentidadestienda['cargargastoentidadestiendaver']=anchor('cargargastoentidadestienda/index','Revisar nuestras cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
-
-		$cargasrep=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');// TODO filtrar por la tienda si no es personal administrativo
-		$cargasgastoreportesvertodo['admgastosregistrosver']=anchor('admgastosregistros/index','Revisar las cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
+		// enlaces de cargas para administrativo edita, ver etc con permisologia
+		$cargasadm=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');
+		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Cargar un gasto');
+		$cargargastoadministrativo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Revisar todas las cargas');
+		// enlaces de cargas para tiendas edita ver filtrado
+		$cargastie=anchor('cargargastomanual/gastomanualrevisarlos','Cargas');
+		$cargargastoentidadestienda['gastomanualcargaruno']=anchor('cargargastomanual/gastomanualcargaruno','Cargar un gasto');
+		$cargargastoentidadestienda['gastomanualrevisarlos']=anchor('cargargastomanual/gastomanualfiltrardouno','Revisar un gasto');
+		// enlace especial experimental de cargas multipermisos para todos
+		$cargasrep=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');
+		$cargasgastoreportesvertodo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Revisar las cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
 
 		if(!$this->session->userdata('logueado'))
 			$labelindex = 'Ingreso';
@@ -57,7 +57,7 @@ class Menu extends CI_Model
 			{
 				$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
 			}
-			else if ($usuariocodgernow >= 998)
+			else if ($usuariocodgernow = 998)
 			{
 				$header['4adm'] = $nodes->m_header_nodes($cargasadm,$cargargastoadministrativo);
 				$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);

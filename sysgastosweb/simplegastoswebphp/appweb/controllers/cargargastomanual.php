@@ -1,8 +1,8 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+/** controlador de carga de gastos inicial sin crud para vistas, usado en emergencias */
 class Cargargastomanual extends CI_Controller {
 
-	protected $numeroordendespacho =  '';
 	private $usuariologin, $sessionflag, $usuariocodger, $acc_lectura, $acc_escribe, $acc_modifi;
 
 	function __construct()
@@ -14,22 +14,37 @@ class Cargargastomanual extends CI_Controller {
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
 		$this->load->model('menu');
+		$this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT',TRUE);
+		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0', TRUE);
+		$this->output->set_header('Pragma: no-cache', TRUE);
+		$this->output->set_header("Expires: Mon, 26 Jul 1997 05:00:00 GMT", TRUE);
 		$this->output->enable_profiler(TRUE);
 	}
 
+	/** verifica la sesion segun nuestra logica el flag logeado debe estar presente y tener el objeto session */
+	public function _verificarsesion()
+	{
+		if( $this->session->userdata('logueado') != TRUE)
+			redirect('manejousuarios/desverificarintranet');
+	}
+
 	/**
-	 * Index Page for this controller.
-	 * 		http://example.com/index.php/indexcontroler
-	 * 		http://example.com/index.php/indexcontroler/index
-	 * map to /index.php/indexcontroler/<method_name>
+	 * Index llama por defecto la entrada de llenar datos de ingreso de un gsto
 	 */
 	public function index()
 	{
-		if( $this->session->userdata('logueado') == FALSE)
-		{
-			redirect('manejousuarios/desverificarintranet');
-		}
+		$this->_verificarsesion();
 		$data['menu'] = $this->menu->general_menu();
+		$data['accionejecutada'] = 'gastomanualindex';
+		$this->load->view('header.php',$data);
+		$this->load->view('cargargastomanual.php',$data);
+		$this->load->view('footer.php',$data);
+	}
+
+	public function gastomanualcargaruno()
+	{
+		$this->_verificarsesion();
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
 		/* cargar y listaar las CATEGORIAS que se usaran para registros */
 		$sqlcategoria = "
 		select
@@ -40,6 +55,9 @@ class Cargargastomanual extends CI_Controller {
 		from categoria
 		  where ifnull(cod_categoria, '') <> '' and cod_categoria <> ''
 		";
+		if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
+			$sqlcategoria .= " and SUBSTRING(cod_categoria,12) NOT LIKE '1200%' ";
+		$sqlcategoria .= " ORDER BY des_categoria DESC ";
 		$resultadoscategoria = $this->db->query($sqlcategoria);
 		$arreglocategoriaes = array(''=>'');
 		foreach ($resultadoscategoria->result() as $row)
@@ -62,6 +80,9 @@ class Cargargastomanual extends CI_Controller {
 		join subcategoria as sb
 		on sb.cod_categoria = ca.cod_categoria
 		";
+		if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
+			$sqlsubcategoria .= " and SUBSTRING(sb.cod_categoria,12) NOT LIKE '1200%' ";
+		$sqlsubcategoria .= " ORDER BY ca.des_categoria DESC ";
 		$resultadossubcategoria = $this->db->query($sqlsubcategoria);
 		$arreglosubcategoriaes = array(''=>'');
 		foreach ($resultadossubcategoria->result() as $row)
@@ -79,26 +100,29 @@ class Cargargastomanual extends CI_Controller {
 		from entidad
 		  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
 		";
+		if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
+			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
 		$resultadosentidad = $this->db->query($sqlentidad);
 		$arregloentidades = array(''=>'');
 		foreach ($resultadosentidad->result() as $row)
 		{
-			$arregloentidades[''.$row->cod_entidad] = $row->cod_entidad . ' - ' . $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
+			$arregloentidades[$row->cod_entidad] = $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
 		}
 		$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
 		unset($arregloentidades['']);
 		/* ahora renderizar o pintar el formulario de carga la vista */
+		$data['menu'] = $this->menu->general_menu();
+		$data['accionejecutada'] = 'gastomanualcargaruno';
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastomanual.php',$data);
 		$this->load->view('footer.php',$data);
 	}
 
-	public function registrargasto()
+	public function gastomanualcargarunolisto()
 	{
-		if( $this->session->userdata('logueado') == FALSE)
-		{
-			redirect('manejousuarios/desverificarintranet');
-		}
+		$this->_verificarsesion();
+		$data['menu'] = $this->menu->general_menu();
+		$data['accionejecutada'] = 'gastomanualfiltrardouno';
 		$userdata = $this->session->all_userdata();
 		$usercorreo = $userdata['correo'];
 		$userintran = $userdata['intranet'];
