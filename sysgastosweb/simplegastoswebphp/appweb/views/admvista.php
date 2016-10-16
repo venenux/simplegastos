@@ -40,7 +40,7 @@
 			,
 			anchor('admcategorias/admcategorias/list',form_button('admcategorias/admcategorias/list', 'Editar Categorias', 'class="btn btn-primary btn-large b10" '))
 		);
-		$tablabotonscatego = form_fieldset('Gestion de Usuarios',array('class'=>'container_blue containerin')) . PHP_EOL;
+		$tablabotonscatego = form_fieldset('Gestion de Categorias',array('class'=>'container_blue containerin')) . PHP_EOL;
 		$tablabotonscatego .= $this->table->generate();
 		$tablabotonscatego .= form_fieldset_close() . PHP_EOL;
 
@@ -50,7 +50,7 @@
 			,
 			anchor('admsubcategorias/admsubcategorias/list',form_button('admsubcategorias/admsubcategorias/list', 'Editar Subcategorias', 'class="btn btn-primary btn-large b10" '))
 		);
-		$tablabotonssubcat = form_fieldset('Gestion de Centros de costo',array('class'=>'container_blue containerin')) . PHP_EOL;
+		$tablabotonssubcat = form_fieldset('Gestion de SubCategorias',array('class'=>'container_blue containerin')) . PHP_EOL;
 		$tablabotonssubcat .= $this->table->generate();
 		$tablabotonssubcat .= form_fieldset_close() . PHP_EOL;
 
@@ -59,6 +59,7 @@
 		$botonesgestion = $this->table->generate();
 	}
 	echo $botonesgestion;
+	if( isset($advertenciaformato)) echo $advertenciaformato;
 	echo $output;
 	echo $botonesgestion;
 

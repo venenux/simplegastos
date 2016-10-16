@@ -36,6 +36,7 @@ class admusuarios extends CI_Controller {
 		$data['logueado'] = $this->session->userdata('logueado');
 		$data['menu'] = $this->menu->general_menu();
 		$data['admvistaurlaccion'] = 'admusuariosentidad';
+		$data['advertenciaformato'] = "Los usuarios se crea o asigna clave es con actualizacion de clave de intranet, aqui ud los habilita entrar o no";
 		$data['js_files'] = $output->js_files;
 		$data['css_files'] = $output->css_files;
 		$data['output'] = $output->output;
@@ -52,46 +53,43 @@ class admusuarios extends CI_Controller {
 
 	public function admusuariosavanzado()
 	{
-		$this->config->load('grocery_crud');
-		$this->config->set_item('grocery_crud_dialog_forms',false);
-		$this->config->set_item('grocery_crud_default_per_page',10);
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
+		$crud->unset_export();
 		$crud->set_table('usuarios');
-		$crud->set_relation_n_n('sucursal', 'entidad_usuario', 'entidad', 'intranet', 'cod_entidad', 'des_entidad');
-		$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
+		$crud->set_subject('Usuarios');	// columns y fields no pueden ir juntos bug crud
+		$currentState = $crud->getState();
+		//$crud->set_relation_n_n('sucursal', 'entidad_usuario', 'entidad', 'intranet', 'cod_entidad', 'des_entidad'); // TODO error insertando
+		//$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
+		$crud->columns('ficha','nombre','intranet',/*'sucursal',*/'estado','cod_fondo','sessionficha','acc_lectura','acc_escribe','acc_modifi','sessionflag','fecha_ultimavez');
 		$crud->display_as('ficha','Ficha/CI')
 			 ->display_as('nombre','Nombre')
 			 ->display_as('intranet','Intranet')
-			 ->display_as('sucursal','Codger')
-			 ->display_as('cod_fondo','Fondo')
+			// ->display_as('sucursal','Codger') // bug se borra asociacion si nuevo usuario
+			// ->display_as('cod_fondo','Fondo')
 			 ->display_as('sessionficha','Creado')
 			 ->display_as('fecha_ultimavez','Session')
 			 ->display_as('acc_lectura','Accede')
 			 ->display_as('acc_escribe','Crea')
 			 ->display_as('acc_modifi','Altera')
 			 ->display_as('sessionflag','Modificado'); // si usa add_fiels y unset_add no inserta
-		$crud->set_subject('Usuarios');	// columns y fields no pueden ir juntos bug crud
-		$crud->columns('ficha','nombre','intranet','sucursal','estado','cod_fondo','sessionficha','acc_lectura','acc_escribe','acc_modifi','sessionflag','fecha_ultimavez');
-		$crud->add_fields('nombre','ficha','intranet','sucursal','estado','cod_fondo','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
-		$crud->edit_fields('nombre','ficha','intranet','sucursal','estado','cod_fondo','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
+		$crud->add_fields('nombre','ficha','intranet','estado','cod_fondo','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
+		$crud->edit_fields('nombre','ficha','intranet',/*'sucursal',*/'estado','cod_fondo','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
 		$crud->field_type('sessionficha', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('acc_lectura', 'set',self::$modulosadm);
 		$crud->field_type('acc_escribe', 'set',self::$modulosadm);
 		$crud->field_type('acc_modifi', 'set',self::$modulosadm);
 		$currentState = $crud->getState();
+		$crud->unset_read(); // TODO: bug error muestra la clave desnuda
 		if($currentState == 'add')
 		{
-			$crud->required_fields('ficha','intranet','sucursal','nombre','estado');
-			$crud->set_rules('intranet', 'Intranet', 'trim|alphanumeric');
-			$crud->set_rules('nombre', 'Intranet', 'trim|alphanumeric');
-			$crud->set_rules('ficha', 'Ficha', 'trim|numeric');
-			$crud->callback_add_field('sessionficha', function () {	return '<input type="text" maxlength="50" value="'.date("Ymd").'" name="fecha_ficha" readonly="true">';	});
+			$crud->required_fields('ficha','intranet','nombre','estado');
+			$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		}
 		else if ($currentState == 'edit')
 		{
-			$crud->required_fields('ficha','sucursal','nombre','estado');
+			$crud->required_fields('ficha',/*'sucursal',*/'nombre','estado');
 			$crud->field_type('intranet', 'readonly');
 		}
 		$crud->callback_before_insert(array($this,'extradatainsert'));

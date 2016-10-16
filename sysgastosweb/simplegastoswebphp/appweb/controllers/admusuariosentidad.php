@@ -37,6 +37,7 @@ class admusuariosentidad extends CI_Controller {
 		$data['menu'] = $this->menu->general_menu();
 		$data['output'] = $output; // TODO: output tiene mAs datos sacarlos y meterlos en $data hace funcionar todo normal
 		$data['admvistaurlaccion'] = 'admusuariosentidad';
+		$data['advertenciaformato'] = "Aqui se listan los usuarios, los centros de costos mas abajo, y para editarlos debe usar los botones para activar la ediccion (solo nivel administrativo).";
 		$data['js_files'] = $output->js_files;
 		$data['css_files'] = $output->css_files;
 		$data['output'] = $output->output;
@@ -91,32 +92,9 @@ class admusuariosentidad extends CI_Controller {
 			 ->display_as('sessionflag','Modificado'); // si usa add_fiels y unset_add no inserta
 		$crud->set_subject('Usuarios');	// columns y fields no pueden ir juntos bug crud
 		$crud->columns('ficha','nombre','intranet','sucursal','estado','cod_fondo','sessionficha','acc_lectura','acc_escribe','acc_modifi','sessionflag','fecha_ultimavez');
-		$crud->add_fields('nombre','ficha','intranet','sucursal','estado','cod_fondo','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
-		$crud->edit_fields('nombre','ficha','intranet','sucursal','estado','cod_fondo','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
-		$crud->field_type('sessionficha', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
-		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
-		$crud->field_type('acc_lectura', 'set',self::$modulosadm);
-		$crud->field_type('acc_escribe', 'set',self::$modulosadm);
-		$crud->field_type('acc_modifi', 'set',self::$modulosadm);
-		$currentState = $crud->getState();
-		if($currentState == 'add')
-		{
-			$crud->required_fields('ficha','intranet','sucursal','nombre','estado');
-			$crud->set_rules('intranet', 'Intranet', 'trim|alphanumeric');
-			$crud->set_rules('nombre', 'Intranet', 'trim|alphanumeric');
-			$crud->set_rules('ficha', 'Ficha', 'trim|numeric');
-			$crud->callback_add_field('sessionficha', function () {	return '<input type="text" maxlength="50" value="'.date("Ymd").'" name="fecha_ficha" readonly="true">';	});
-		}
-		else if ($currentState == 'edit')
-		{
-			$crud->required_fields('ficha','sucursal','nombre','estado');
-			$crud->field_type('intranet', 'readonly');
-		}
-		$crud->callback_before_insert(array($this,'extradatainsert'));
-		$crud->callback_before_update(array($this,'echapajacuando'));
-		$crud->field_type('estado','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'SUSPENDIDO' => 'SUSPENDIDO'));
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admusuariosentidad"));
 		$crud->unset_add();
+		$crud->unset_read();
 		$crud->unset_edit();
 		$crud->unset_delete();
 		$output = $crud->render();
@@ -146,23 +124,6 @@ class admusuariosentidad extends CI_Controller {
 		$crud->unset_add_fields('sessionflag');
 		$crud->set_relation_n_n('nam_usuario', 'entidad_usuario', 'usuarios', 'cod_entidad', 'intranet', 'nombre');
 		$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
-		$currentState = $crud->getState();
-		if($currentState == 'add')
-		{
-			$crud->required_fields('cod_entidad','abr_entidad','abr_zona','des_entidad','estado');
-			$crud->set_rules('cod_entidad', 'Centro de Costo (codger)', 'trim|numeric');
-		}
-		else if ($currentState == 'edit')
-		{
-			$crud->required_fields('abr_entidad','abr_zona','des_entidad','estado');
-			$crud->field_type('cod_entidad', 'readonly');
-			$crud->field_type('sessionflag', 'readonly');
-		}
-		$crud->set_rules('abr_entidad', 'Siglas', 'trim|alphanumeric');
-		$crud->set_rules('abr_zona', 'Zona', 'trim|alphanumeric');
-		$crud->set_rules('des_entidad', 'Nombre', 'trim|alphanumeric');
-		$crud->field_type('status','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'CERRADO' => 'CERRADO', 'ESPECIAL' => 'ESPECIAL'));
-		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admusuariosentidad"));
 		$crud->unset_add();
 		$crud->unset_edit();
@@ -197,22 +158,6 @@ class admusuariosentidad extends CI_Controller {
 		} else {
 			return $output;
 		}
-	}
-
-
-	function extradatainsert($post_array)
-	{
-		//$post_array['cod_fondo'] = // verificar sea uno no seleccionado
-		$post_array['sessionficha'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
-		// TODO: insert para tabla log
-		return $post_array;
-	}
-
-	function echapajacuando($post_array, $primary_key)
-	{
-		$post_array['sessionflag'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
-		// TODO: insert para tabla log
-		return $post_array;
 	}
 
 }
