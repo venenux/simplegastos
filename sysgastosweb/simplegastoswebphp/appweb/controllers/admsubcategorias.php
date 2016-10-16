@@ -34,6 +34,7 @@ class admsubcategorias extends CI_Controller {
 		$data['logueado'] = $this->session->userdata('logueado');
 		$data['menu'] = $this->menu->general_menu();
 		$data['admvistaurlaccion'] = 'admcategoriasconceptos';
+		$data['advertenciaformato'] = "A DIFERENCIA DE LAS CATEGORIAS, <br>TODA SUBCATEGORIA ES MOSTRADA SI LA CATEGORIA A LA QUE PERTENECE NO ES ADMINISTRATIVA!";
 		$data['js_files'] = $output->js_files;
 		$data['css_files'] = $output->css_files;
 		$data['output'] = $output->output;
@@ -67,6 +68,7 @@ class admsubcategorias extends CI_Controller {
 		$crud->field_type('fecha_subcategoria', 'invisible',''.date("Ymd"));
 		$crud->field_type('des_subcategoria', 'text');
 		$crud->unset_texteditor('des_subcategoria');
+		$crud->unset_export();
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}');
 		$currentState = $crud->getState();
 		if($currentState == 'add')

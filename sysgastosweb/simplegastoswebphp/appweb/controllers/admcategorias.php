@@ -34,6 +34,7 @@ class admcategorias extends CI_Controller {
 		$data['logueado'] = $this->session->userdata('logueado');
 		$data['menu'] = $this->menu->general_menu();
 		$data['admvistaurlaccion'] = 'admcategoriasconceptos';
+		$data['advertenciaformato'] = "RECUERDE SI AGREGA UNA CATEGORIA ADMINISTRATIVA EL FORMATO ES CAT2016000012XXXX <br>los ultimos 4 'X' no deben repetirse de otra categoria, y.. <br>UNA CATEGORIA NO PUEDE ESTAR HUERFANA, debe tener al menos una subcategoria!";
 		$data['js_files'] = $output->js_files;
 		$data['css_files'] = $output->css_files;
 		$data['output'] = $output->output;
@@ -66,6 +67,7 @@ class admcategorias extends CI_Controller {
 		$crud->field_type('fecha_categoria', 'invisible',''.date("Ymd"));
 		$crud->field_type('des_categoria', 'text');
 		$crud->unset_texteditor('des_categoria');
+		$crud->unset_export();
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
@@ -76,7 +78,7 @@ class admcategorias extends CI_Controller {
 		else if ($currentState == 'edit')
 		{
 			$crud->required_fields('des_categoria');
-			$crud->field_type('cod_categoria', 'readonly');
+			//$crud->field_type('cod_categoria', 'readonly');
 			$crud->set_rules('des_categoria', 'Descripcion', 'trim|alphanumeric');
 		}
 		$crud->callback_before_insert(array($this,'datospostinsertcat'));
@@ -88,7 +90,7 @@ class admcategorias extends CI_Controller {
 
 	function datospostinsertcat($post_array)
 	{
-		$post_array['cod_categoria'] = 'CAT'.date("YmdHis");
+		//$post_array['cod_categoria'] = 'CAT'.date("YmdHis");
 		$post_array['fecha_categoria'] = date("Ymd");
 		// TODO: insert para tabla log
 		return $post_array;
