@@ -1,4 +1,3 @@
-
 DROP SCHEMA IF EXISTS `gastossystema` ;
 CREATE SCHEMA IF NOT EXISTS `gastossystema` DEFAULT CHARACTER SET utf8 ;
 USE `gastossystema` ;
@@ -7,7 +6,6 @@ USE `gastossystema` ;
 -- Table `categoria`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `categoria` ;
-
 CREATE  TABLE IF NOT EXISTS `categoria` (
   `cod_categoria` VARCHAR(40) NOT NULL COMMENT 'CATYYYYMMDDhhmmss' ,
   `des_categoria` VARCHAR(400) NOT NULL COMMENT 'descripcion o nombre categoria' ,
@@ -21,7 +19,6 @@ COMMENT = 'nivel 1 clasificacion gasto';
 -- Table `entidad`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `entidad` ;
-
 CREATE  TABLE IF NOT EXISTS `entidad` (
   `cod_entidad` VARCHAR(40) NOT NULL COMMENT 'codger entidad o id sucursal' ,
   `abr_entidad` VARCHAR(40) NOT NULL COMMENT 'abrebiacion de esta entidad' ,
@@ -39,7 +36,6 @@ COMMENT = 'las entidades que se le adjudican gastos';
 -- Table `entidad_usuario`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `entidad_usuario` ;
-
 CREATE  TABLE IF NOT EXISTS `entidad_usuario` (
   `intranet` VARCHAR(40) NOT NULL COMMENT 'usuario relacionado' ,
   `cod_entidad` VARCHAR(40) NOT NULL COMMENT 'entidad asociado' ,
@@ -52,7 +48,6 @@ COMMENT = 'relacion usuario contra entidad que adjudica gastos';
 -- Table `fondo`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `fondo` ;
-
 CREATE  TABLE IF NOT EXISTS `fondo` (
   `cod_fondo` VARCHAR(40) NOT NULL COMMENT 'FONYYYYMMDDhhmmss' ,
   `fecha_fondo` VARCHAR(40) NOT NULL COMMENT 'cada nuevo deposito es por fecha' ,
@@ -67,7 +62,6 @@ COMMENT = 'fondos de montos manejados';
 -- Table `log`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `log` ;
-
 CREATE  TABLE IF NOT EXISTS `log` (
   `cod_log` VARCHAR(40) NOT NULL COMMENT 'LOGyyyymmddhhmmss' ,
   `operacion` VARCHAR(20000) NULL DEFAULT NULL COMMENT 'en que modulo controlador y que realizo... y que tablas afecto' ,
@@ -77,27 +71,9 @@ COMMENT = 'tabla de chismoso, cada operacion se graba aqui';
 
 
 -- -----------------------------------------------------
--- Table `registro_adjuntos`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `registro_adjuntos` ;
-
-CREATE  TABLE IF NOT EXISTS `registro_adjuntos` (
-  `cod_registro` VARCHAR(40) NOT NULL COMMENT 'GASYYYYMMDDhhmmss' ,
-  `cod_adjuntos` VARCHAR(40) NOT NULL COMMENT 'ADJYYYYMMDDhhmmss' ,
-  `factura_rif` VARCHAR(40) NULL COMMENT 'rif de la factura si tiene' ,
-  `factura_num` VARCHAR(40) NULL COMMENT 'numero de la factura' ,
-  `factura_bin` BLOB NULL COMMENT 'escaneo de la factura' ,
-  `sessionflag` VARCHAR(40) NULL DEFAULT NULL COMMENT 'quien modifico YYYYMMDDhhmmss + codger + . + ficha' ,
-  `sessionficha` VARCHAR(40) NULL DEFAULT NULL COMMENT 'quien lo creo YYYYMMDDhhmmss + codger + . + ficha' ,
-  PRIMARY KEY (`cod_adjuntos`) )
-COMMENT = 'escaneados de los registro o gasto adjudicado';
-
-
--- -----------------------------------------------------
 -- Table `registro_gastos`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `registro_gastos` ;
-
 CREATE  TABLE IF NOT EXISTS `registro_gastos` (
   `cod_registro` VARCHAR(40) NOT NULL COMMENT 'GASYYYYMMDDhhmmss usa fecha y hora' ,
   `cod_entidad` VARCHAR(40) NOT NULL COMMENT 'codger de la entidad al cual se le adjudica' ,
@@ -106,14 +82,14 @@ CREATE  TABLE IF NOT EXISTS `registro_gastos` (
   `mon_registro` DECIMAL(20,2) NOT NULL COMMENT 'monto de cuanto se gasto' ,
   `des_concepto` VARCHAR(400) NOT NULL COMMENT 'descripcion del gasto' ,
   `des_detalle` VARCHAR(10000) NULL DEFAULT NULL COMMENT 'detalle opcional del gasto' ,
-  `des_estado` VARCHAR(40) NULL DEFAULT NULL COMMENT 'porque cambio de estado' ,
+  `des_estado` VARCHAR(400) NULL DEFAULT NULL COMMENT 'porque cambio de estado' ,
   `estado` VARCHAR(40) NULL DEFAULT 'PENDIENTE' COMMENT 'APROBADO|RECHAZADO|PENDIENTE|INVALIDO' ,
   `tipo_gasto` VARCHAR(40) NULL DEFAULT 'EGRESO' COMMENT 'EGRESO|CONTRIBUYENTE' ,
   `factura1_rif` VARCHAR(40) NULL DEFAULT NULL COMMENT 'rif si factura es contribuyente' ,
   `factura1_num` VARCHAR(40) NULL DEFAULT NULL COMMENT 'mumero de factura opcinal' ,
-  `factura1_bin` BLOB NULL DEFAULT NULL COMMENT 'factura por defecto si la sube' ,
+  `factura1_bin` VARCHAR(10000) NULL DEFAULT NULL COMMENT 'factura por defecto si la sube' ,
   `fecha_concepto` VARCHAR(40) NULL DEFAULT NULL COMMENT 'YYYYMMDD de la factura si tiene' ,
-  `fecha_registro` VARCHAR(40) NOT NULL COMMENT 'para mostrar usuario y auditoria cuando' ,
+  `fecha_registro` VARCHAR(40) NULL DEFAULT NULL COMMENT 'para mostrar usuario y auditoria cuando' ,
   `sessionflag` VARCHAR(40) NULL DEFAULT NULL COMMENT 'quien modifico YYYYMMDDhhmmss + codger + . + ficha' ,
   `sessionficha` VARCHAR(40) NULL DEFAULT NULL COMMENT 'quien lo creo YYYYMMDDhhmmss + codger + . + ficha' ,
   PRIMARY KEY (`cod_registro`) )
@@ -124,7 +100,6 @@ COMMENT = 'descripcion y monto gastos o concepto';
 -- Table `subcategoria`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `subcategoria` ;
-
 CREATE  TABLE IF NOT EXISTS `subcategoria` (
   `cod_categoria` VARCHAR(40) NOT NULL COMMENT 'CATYYYYMMDDhhmmss tabla categoria' ,
   `cod_subcategoria` VARCHAR(40) NOT NULL COMMENT 'SUBYYYYMMDDhhmmss' ,
@@ -139,7 +114,6 @@ COMMENT = 'nivel 2 clasificacion gasto';
 -- Table `usuarios`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `usuarios` ;
-
 CREATE  TABLE IF NOT EXISTS `usuarios` (
   `ficha` VARCHAR(40) NULL COMMENT 'id usuario, cedula en vnzla' ,
   `intranet` VARCHAR(40) NOT NULL COMMENT 'login del usuario, id del correo' ,
@@ -158,32 +132,11 @@ CREATE  TABLE IF NOT EXISTS `usuarios` (
   PRIMARY KEY (`intranet`) )
 COMMENT = 'tabla de usuarios';
 
-
--- -----------------------------------------------------
--- Table `registro_adjunto_gasto`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `registro_adjunto_gasto` ;
-
-CREATE  TABLE IF NOT EXISTS `registro_adjunto_gasto` (
-  `cod_registro` VARCHAR(40) NOT NULL ,
-  `cod_adjuntos` VARCHAR(40) NOT NULL ,
-  `sessionflag` VARCHAR(40) NULL COMMENT 'quien modifico YYYYMMDDhhmmss + codger + . + ficha' ,
-  PRIMARY KEY (`cod_registro`, `cod_adjuntos`) )
-COMMENT = 'relacion un registro y varios adjuntos';
-
-USE `gastossystema` ;
-
--- -----------------------------------------------------
--- Placeholder table for view `fondos`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `fondos` (`cod_fondo` INT, `mon_fondo` INT, `fecha_fondo` INT, `cod_quien` INT, `quien` INT);
-
 -- -----------------------------------------------------
 -- View `fondos`
 -- -----------------------------------------------------
 DROP VIEW IF EXISTS `fondos` ;
 DROP TABLE IF EXISTS `fondos`;
-USE `gastossystema`;
 CREATE   OR REPLACE VIEW `fondos` AS
 SELECT
      ifnull(fo.cod_fondo,'N/A') as cod_fondo,
@@ -203,11 +156,12 @@ SELECT
 ORDER BY fecha_fondo DESC;
 
 
+START TRANSACTION;
+
+
 -- -----------------------------------------------------
 -- Data for table `categoria`
 -- -----------------------------------------------------
-START TRANSACTION;
-USE `gastossystema`;
 INSERT INTO `categoria` (`cod_categoria`, `des_categoria`, `fecha_categoria`, `sessionflag`) VALUES ('CAT20161002000000', 'Especial', '20161003', NULL);
 INSERT INTO `categoria` (`cod_categoria`, `des_categoria`, `fecha_categoria`, `sessionflag`) VALUES ('CAT20161002010001', 'CATE 1', '20161003', NULL);
 INSERT INTO `categoria` (`cod_categoria`, `des_categoria`, `fecha_categoria`, `sessionflag`) VALUES ('CAT20161002010002', 'CATE 2', '20161007', NULL);
@@ -243,10 +197,10 @@ INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `
 INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161007221932', '001', 'CAT20161002010002', 'SUB20161007221439', 1000.50, 'gastp de suc 1 cate 2 sub2', 'otros 2', NULL, 'APROBADO', NULL, NULL, NULL, NULL, '20161007', '20161007', NULL, '');
 INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161007222129', '001', 'CAT20161002010002', 'SUB20161007221415', 1000.50, 'gastp de suc 1 cate 2 sub 1', 'otros 3', NULL, 'APROBADO', NULL, NULL, NULL, NULL, '20161007', '20161007', 'admin_user20161007222221', '');
 INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161007222327', '002', 'CAT20161002010002', 'SUB20161007221415', 1000.50, 'gasto de sucs 2 en cat 2 sub 1', 'otros', NULL, 'APROBADO', NULL, NULL, NULL, NULL, '20161007', '20161007', NULL, '');
-INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161007222414', '002', 'CAT20161002010001', 'SUB20161007221219', 2000.50, 'gasto de suc 2 cat 1 sub 1', 'ninguno', NULL, 'APROBADO', NULL, NULL, NULL, NULL, '20161007', '20161007', 'admin_user20161007222428', '');
-INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161007222736', '003', 'CAT20161002010001', 'SUB20161007221219', 1000.50, 'gasto de suc 3 cat 1 sub 1', 'otros 5', NULL, 'APROBADO', NULL, NULL, NULL, NULL, '20161007', '20161007', 'admin_user20161007222756', '');
-INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161007222850', '003', 'CAT20161002010002', 'SUB20161007221415', 2000.50, 'gastos de suc 3 en cat 2 sub 1', 'est 1', NULL, 'APROBADO', NULL, NULL, NULL, NULL, '20161007', '20161007', NULL, '');
-INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161007222941', '003', 'CAT20161002010002', 'SUB20161007221439', 1000.50, 'gastos de suc 3 en cat 2 sub 2', 'esta', NULL, 'APROBADO', NULL, NULL, NULL, NULL, '20161007', '20161007', NULL, '');
+INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161007222414', '002', 'CAT20161002010001', 'SUB20161007221219', 2000.50, 'gasto de suc 2 cat 1 sub 1', 'ninguno', NULL, 'NULL', NULL, NULL, NULL, NULL, '20161007', '20161007', 'admin_user20161007222428', '');
+INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161007222736', '003', 'CAT20161002010001', 'SUB20161007221219', 1000.50, 'gasto de suc 3 cat 1 sub 1', 'otros 5', NULL, 'NULL', NULL, NULL, NULL, NULL, '20161007', '20161007', 'admin_user20161007222756', '');
+INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161007222850', '003', 'CAT20161002010002', 'SUB20161007221415', 2000.50, 'gastos de suc 3 en cat 2 sub 1', 'est 1', NULL, 'NULL', NULL, NULL, NULL, NULL, '20161007', '20161007', NULL, '');
+INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161007222941', '003', 'CAT20161002010002', 'SUB20161007221439', 1000.50, 'gastos de suc 3 en cat 2 sub 2', 'esta', NULL, 'NULL', NULL, NULL, NULL, NULL, '20161007', '20161007', NULL, '');
 INSERT INTO `registro_gastos` (`cod_registro`, `cod_entidad`, `cod_categoria`, `cod_subcategoria`, `mon_registro`, `des_concepto`, `des_detalle`, `des_estado`, `estado`, `tipo_gasto`, `factura1_rif`, `factura1_num`, `factura1_bin`, `fecha_concepto`, `fecha_registro`, `sessionflag`, `sessionficha`) VALUES ('GAS20161008005532', '000', 'CAT20161002010001', 'SUB20161002000001', 3000.00, 'gasto especial', 'estra', NULL, 'NULL', NULL, NULL, NULL, NULL, '20161008', '20161008', NULL, '');
 
 -- -----------------------------------------------------
