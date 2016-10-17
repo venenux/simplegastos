@@ -286,7 +286,12 @@ procesar_usuario()
         if [[ $gruporevisar == *"presidencia"* ]]; then
             mysql -u $elproyectoug -p$elproyectocg -h $elproyectohg -e "INSERT INTO gastossystema.usuarios ( intranet, clave, nombre, estado, acc_lectura, acc_escribe, acc_modifi, sessionficha) VALUES ( '$username', '$claveuse', '$username', 'ACTIVO', 'TODO', 'TODO', 'TODO', 'systema');" $elproyectodbg >/dev/null 2>&1
         else
+            if [[ $gruporevisar == *"contabilidad"* ]]; then
+            mysql -u $elproyectoug -p$elproyectocg -h $elproyectohg -e "INSERT INTO gastossystema.usuarios ( intranet, clave, nombre, estado, acc_lectura, acc_escribe, acc_modifi, sessionficha) VALUES ( '$username', '$claveuse', '$username', 'ACTIVO', 'TODO', 'TODO', 'TODO', 'systema');" $elproyectodbg >/dev/null 2>&1
+            echo "e"
+            else
             mysql -u $elproyectoug -p$elproyectocg -h $elproyectohg -e "INSERT INTO gastossystema.usuarios ( intranet, clave, nombre, estado, acc_lectura, acc_escribe, acc_modifi, sessionficha) VALUES ( '$username', '$claveuse', '$username', 'INACTIVO', 'NADA', 'NADA', 'NADA', 'systema');" $elproyectodbg >/dev/null 2>&1
+            fi
         fi
     fi
     echo "paso 4: accesoweb I/O conflict, si no accede cambiar la clave $username errores:$errore " >> $archivolog
@@ -457,7 +462,10 @@ cambiarclave()
 	# 4 integracion con redmine el gestor de proyectos del departamento
 	mysql -u $elproyectou -p$elproyectoc -h $elproyectoh -e "UPDATE users SET hashed_password=sha1(sha1('$claveuse')), salt='' WHERE login='$username';" $elproyectodb >/dev/null 2>&1
         # extra integracion con systema gastos:
-	mysql -u $elproyectoug -p$elproyectocg -h $elproyectohg -e "SET SQL_SAFE_UPDATES=0;UPDATE gastossystema.usuarios SET clave='$claveuse', sessionficha='intranet' WHERE intranet='$username';" $elproyectodbg >/dev/null 2>&1
+
+        mysql -u $elproyectoug -p$elproyectocg -h $elproyectohg -e "INSERT INTO gastossystema.usuarios ( intranet, clave, nombre, estado, acc_lectura, acc_escribe, acc_modifi, sessionficha) VALUES ( '$username', md5('$claveuse'), '$username', 'INACTIVO', 'NADA', 'NADA', 'NADA', 'systema');" $elproyectodbg >/dev/null 2>&1
+
+	mysql -u $elproyectoug -p$elproyectocg -h $elproyectohg -e "SET SQL_SAFE_UPDATES=0;UPDATE gastossystema.usuarios SET clave=md5('$claveuse'), sessionficha='intranet' WHERE intranet='$username';" $elproyectodbg >/dev/null 2>&1
 
     touch $archivosconfig/.webproyectsaccess;touch $archivosconfig/.webarchivosaccess; touch $archivosconfig/.webreportesaccess
 	# 5) accesos web dav claves para el permiso via wervidor web (basic authz)
@@ -489,9 +497,6 @@ cambiarclave()
 	 respuestasalir
 	curl http://$adminusersys:$adminusercla@$dominio/elfichero/ocs/v1.php/cloud/users/$username -s -d password="$claveuse" --user $adminusersys:$adminusercla -XPUT -k >/dev/null 2>&1
 	 respuestasalir
-	if [ "$comando" == "clave" -a "$claveuse" != "" ]; then
-	exit $errore
-	fi
 }
 
 aumentarquotamail()
