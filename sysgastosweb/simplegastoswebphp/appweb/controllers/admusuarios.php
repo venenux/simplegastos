@@ -100,7 +100,7 @@ class admusuarios extends CI_Controller {
 		$crud->callback_before_insert(array($this,'extradatainsert'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->field_type('estado','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'SUSPENDIDO' => 'SUSPENDIDO'));
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuarios")));
+		//$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuarios")));
 		$output = $crud->render();
 		$this->_esputereport($output);
 	}

@@ -30,7 +30,7 @@ class admcategorias extends CI_Controller {
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
 		if( $this->session->userdata('logueado') == FALSE)
 			redirect('manejousuarios/desverificarintranet');
-		if ($usuariocodgernow < 990 and $usuariocodgernow > 399 )
+		if ( ($usuariocodgernow < 990 and $usuariocodgernow > 399) and ! ($usuariocodgernow == ''))
 			redirect('cargargastomanual/gastomanualrevisarlos');
 		$userdata = $this->session->all_userdata();
 		$data['username'] = $this->session->userdata('username');

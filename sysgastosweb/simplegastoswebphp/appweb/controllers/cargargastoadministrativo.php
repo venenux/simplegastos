@@ -124,7 +124,7 @@ class cargargastoadministrativo extends CI_Controller {
 			$cod_categoria = $this->input->get_post('cod_categoria');
 			$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 			// filtrar, crear una vista en vez de usar tabla con todos los datos
-			if ($usuariocodgernow != 998)
+			if ( ! ($usuariocodgernow == 998) and ! ($usuariocodgernow == "") )
 			{
 				$tablaregistros = "registro_gastos_".$userintran."";
 				$this->db->trans_strict(TRUE); // todo o nada
@@ -244,7 +244,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->columns('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','fecha_concepto','tipo_gasto','estado','des_estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionficha','sessionflag');
 		$crud->add_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto','estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionficha');
 		$crud->edit_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto','estado','des_estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionflag');
-		$crud->set_relation('cod_entidad','entidad','{des_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
+		$crud->set_relation('cod_entidad','entidad','{cod_entidad} - {des_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria','subcategoria','{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
 		$data['addde'] = $usuariocodgernow;

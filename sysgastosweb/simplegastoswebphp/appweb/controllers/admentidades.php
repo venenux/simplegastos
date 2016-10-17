@@ -53,7 +53,7 @@ class admentidades extends CI_Controller {
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
 		if( $this->session->userdata('logueado') == FALSE)
 			redirect('manejousuarios/desverificarintranet');
-		if ($usuariocodgernow < 990 and $usuariocodgernow > 399 )
+		if ( ($usuariocodgernow < 990 and $usuariocodgernow > 399) and ! ($usuariocodgernow == ''))
 			redirect('cargargastomanual/gastomanualrevisarlos');
 		$userdata = $this->session->all_userdata();
 		$crud = new grocery_CRUD();
@@ -92,7 +92,7 @@ class admentidades extends CI_Controller {
 		$crud->set_rules('des_entidad', 'Nombre', 'trim|alphanumeric');
 		$crud->field_type('status','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'CERRADO' => 'CERRADO', 'ESPECIAL' => 'ESPECIAL'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admusuariosentidad"));
+		//$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admusuariosentidad"));
 		$output = $crud->render();
 		$this->_esputereport($output);
 	}
