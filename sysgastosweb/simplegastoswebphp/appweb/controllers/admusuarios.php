@@ -29,7 +29,12 @@ class admusuarios extends CI_Controller {
 
 	public function _esputereport($output = null)
 	{
-		$this->_verificarsesion();
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		if( $this->session->userdata('logueado') == FALSE)
+			redirect('manejousuarios/desverificarintranet');
+		if ($usuariocodgernow < 990 and $usuariocodgernow > 399 )
+			redirect('cargargastomanual/gastomanualrevisarlos');
+		$userdata = $this->session->all_userdata();
 		$data['username'] = $this->session->userdata('username');
 		$data['nombre'] = $this->session->userdata('nombre');
 		$data['correo'] = $this->session->userdata('correo');

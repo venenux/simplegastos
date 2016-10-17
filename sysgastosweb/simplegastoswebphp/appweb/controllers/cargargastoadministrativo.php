@@ -98,11 +98,11 @@ class cargargastoadministrativo extends CI_Controller {
 	/* metodo de acceso url de gastos a mostrar los registros, detecta la accion ejecutada que son de dos tipos mostrar o filtrar */
 	public function gastoregistros()
 	{
-		if( $this->session->userdata('logueado') == FALSE)
-		{
-			redirect('manejousuarios/desverificarintranet');
-		}
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		if( $this->session->userdata('logueado') == FALSE)
+			redirect('manejousuarios/desverificarintranet');
+		if ($usuariocodgernow < 990 and $usuariocodgernow > 399 )
+			redirect('cargargastomanual/gastomanualrevisarlos');
 		$userdata = $this->session->all_userdata();
 		$usercorreo = $userdata['correo'];
 		$usersessid = $userdata['session_id'];

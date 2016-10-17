@@ -50,6 +50,12 @@ class admentidades extends CI_Controller {
 
 	public function admsucursalesyusuarios()
 	{
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		if( $this->session->userdata('logueado') == FALSE)
+			redirect('manejousuarios/desverificarintranet');
+		if ($usuariocodgernow < 990 and $usuariocodgernow > 399 )
+			redirect('cargargastomanual/gastomanualrevisarlos');
+		$userdata = $this->session->all_userdata();
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->unset_export();
