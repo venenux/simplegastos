@@ -31,9 +31,7 @@ class cargargastoentidadestienda extends CI_Controller {
 			redirect('manejousuarios/desverificarintranet');
 		}
 		$data['menu'] = $this->menu->general_menu();
-
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
-
 		/* cargar y listaar las CATEGORIAS que se usaran para registros */
 			$sqlcategoria = "
 			select
@@ -43,9 +41,8 @@ class cargargastoentidadestienda extends CI_Controller {
 			 ifnull(sessionflag,'') as sessionflag
 			from categoria
 			  where ifnull(cod_categoria, '') <> '' and cod_categoria <> ''
+			  SUBSTRING(cod_categoria,12) NOT LIKE '1200%'
 			";
-			if($usuariocodgernow >399 and $usuariocodgernow < 998)
-				$sqlcategoria .= " and cod_categoria NOT LIKE 'CAT2016000012%'";
 			$resultadoscategoria = $this->db->query($sqlcategoria);
 			$arreglocategoriaes = array(''=>'');
 			foreach ($resultadoscategoria->result() as $row)
@@ -67,9 +64,8 @@ class cargargastoentidadestienda extends CI_Controller {
 			FROM categoria as ca
 			join subcategoria as sb
 			on sb.cod_categoria = ca.cod_categoria
+			where CONVERT(SUBSTRING(ca.cod_categoria,4),UNSIGNED) < 20160000009999
 			";
-			if($usuariocodgernow >399 and $usuariocodgernow < 998)
-				$sqlsubcategoria .= " and sb.cod_categoria NOT LIKE 'CAT2016000012%'";
 			$resultadossubcategoria = $this->db->query($sqlsubcategoria);
 			$arreglosubcategoriaes = array(''=>'');
 			foreach ($resultadossubcategoria->result() as $row)
@@ -86,9 +82,8 @@ class cargargastoentidadestienda extends CI_Controller {
 			 ifnull(des_entidad,'sin_descripcion') as des_entidad
 			from entidad
 			  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
+			  and cod_entidad = '".$usuariocodgernow."'
 			";
-			if($usuariocodgernow >399 and $usuariocodgernow < 998)
-				$data['pepe'] = $sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
 			$resultadosentidad = $this->db->query($sqlentidad);
 			$arregloentidades = array(''=>'');
 			foreach ($resultadosentidad->result() as $row)
@@ -99,7 +94,6 @@ class cargargastoentidadestienda extends CI_Controller {
 			unset($arregloentidades['']);
 		/* ahora renderizar o pintar el formulario de carga la vista */
 		$data['accionejecutada'] = 'cargardatosadministrativosfiltrar';
-		$data['ver4'] = $usuariocodgernow;
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastoentidadestienda.php',$data);
 		$this->load->view('footer.php',$data);
@@ -114,6 +108,23 @@ class cargargastoentidadestienda extends CI_Controller {
 		}
 		$userdata = $this->session->all_userdata();
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		$sqlentidad = "
+			select
+			 abr_entidad, abr_zona, des_entidad,
+			 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
+			 ifnull(des_entidad,'sin_descripcion') as des_entidad
+			from entidad
+			  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
+			  and cod_entidad = '".$usuariocodgernow."'
+			";
+			$resultadosentidad = $this->db->query($sqlentidad);
+			$arregloentidades = array(''=>'');
+			foreach ($resultadosentidad->result() as $row)
+			{
+				$arregloentidades[''.$row->cod_entidad] = $row->cod_entidad . ' - ' . $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
+				$esteentidadabr = $row->abr_entidad;
+				$esteentidadcod = $row->cod_entidad;
+			}
 		$usercorreo = $userdata['correo'];
 		$usersessid = $userdata['session_id'];
 		$userintran = $userdata['intranet'];
@@ -124,7 +135,7 @@ class cargargastoentidadestienda extends CI_Controller {
 		$data['accionejecutada'] = 'cargardatosadministrativosfiltrar';
 		if ($accionejecutada = 'cargardatosadministrativosfiltrar')
 		{
-			$tablaregistros = "registro_gasto_".$userintran."";
+			$tablaregistros = "registro_gastos_".$userintran."";
 			// OBTENER DATOS DE FORMULARIO ***************************** /
 			$fec_registroini = $this->input->get_post('fec_registroini');
 			$fec_registrofin = $this->input->get_post('fec_registrofin');
@@ -139,18 +150,18 @@ class cargargastoentidadestienda extends CI_Controller {
 			$this->db->trans_begin();
 				$sqltableviewbyentidadporusuario = "
 				DROP TABLE IF EXISTS ".$tablaregistros." ;";
+			$this->db->query($sqltableviewbyentidadporusuario);
 			if ($this->db->trans_status() === FALSE)
 				$this->db->trans_rollback();
 			else
 				$this->db->trans_commit();
 			$this->db->trans_begin();
-				$this->db->query($sqltableviewbyentidadporusuario);
 				$sqltableviewbyentidadporusuario = "
 				CREATE TABLE IF NOT EXISTS `".$tablaregistros."`
 				SELECT registro_gastos.*
 				FROM (`registro_gastos`)
 				WHERE
-				 cod_registro <> ''
+				 cod_registro <> '' and cod_entidad = '".$usuariocodgernow."'
 				";
 
 				if ( $cod_entidad != '')
@@ -191,6 +202,7 @@ class cargargastoentidadestienda extends CI_Controller {
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->set_primary_key('cod_registro');
 		$crud->set_subject('Gasto');
+		$crud->set_subject('Gasto');
 		$crud
 			 ->display_as('cod_registro','Codigo')
 			 ->display_as('cod_entidad','Centro')
@@ -198,28 +210,39 @@ class cargargastoentidadestienda extends CI_Controller {
 			 ->display_as('cod_subcategoria','Subcategoria')
 			 ->display_as('mon_registro','Monto')
 			 ->display_as('des_concepto','Concepto')
-			 ->display_as('des_registro','Detalles')
-			 ->display_as('fecha_registro','Cuando')
-			 ->display_as('num_factura1','Factura<br>Numero')
-			 ->display_as('bin_factura1','Factura<br>Escaneada')
-			 ->display_as('fecha_factura1','Factura<br>Fecha')
+			 ->display_as('des_detalle','Detalles')
+			 ->display_as('des_estado','Justificacion')
+			 ->display_as('fecha_concepto','Fecha<br>Concepto')
+			 ->display_as('fecha_registro','Fecha<br>Registro')
+			 ->display_as('tipo_gasto','Tipo')
+			 ->display_as('factura1_num','Factura<br>Numero')
+			 ->display_as('factura1_rif','Factura<br>Rif')
+			 ->display_as('factura1_bin','Factura<br>Escaneada')
+		//	 ->display_as('cod_fondo','Fondo')
 			 ->display_as('sessionflag','Modificado')
-			 ->display_as('sessionficha','Creador')
-			 ->display_as('cod_fondo','Fondo');
-
-		$crud->columns('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','des_registro','estado','num_factura1','bin_factura1','fecha_factura1','cod_registro','sessionficha','sessionflag');
-		$crud->add_fields('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','des_registro','estado','num_factura1','bin_factura1','fecha_factura1','cod_registro','sessionficha');
-		$crud->edit_fields('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','des_registro','estado','num_factura1','bin_factura1','fecha_factura1','cod_registro','sessionflag');
+			 ->display_as('sessionficha','Creador');
+		$crud->columns('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','fecha_concepto','tipo_gasto','estado','des_estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionficha','sessionflag');
+		$crud->add_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto','estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionficha');
+		$crud->edit_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto','estado','des_estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionflag');
 		$crud->set_relation('cod_entidad','entidad','{des_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria','subcategoria','{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
-
-		$crud->unset_delete();
+		if ($usuariocodgernow < 990 and $usuariocodgernow > 998 )
+		{
+			$crud->unset_operations();
+		}
 		$crud->required_fields('cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','ext_registro');
-		// TODO mkdir directorio de codger usuario
-		$crud->set_field_upload('bin_factura1','appweb/archivoscargas'); // TODO mkdir directorio suir el del codger usuario
+		$directoriofacturas = 'appweb/archivoscargas/' . date("Y") . '/' .date("Ym");
+		if ( ! is_dir($directoriofacturas) )
+		{
+			if ( is_file($directoriofacturas) )
+				unlink($directoriofacturas);
+			mkdir($directoriofacturas, 0777, true);
+			chmod($directoriofacturas,0777);
+		}
+		$crud->set_field_upload('factura1_bin',$directoriofacturas);
 		//$crud->field_type('cod_registro', 'readonly'); // esto no se puede si ya se hizo algo antes
-//		if($usuariocodgernow >399 and $usuariocodgernow < 998)
+		if($usuariocodgernow >399 and $usuariocodgernow < 998)
 			$crud->field_type('cod_entidad', 'invisible',$usuariocodgernow);
 		$crud->set_rules('des_concepto', 'Concepto', 'trim|alphanumeric');
 		$crud->set_rules('mon_registro', 'Monto', 'trim|decimal');
@@ -239,8 +262,8 @@ class cargargastoentidadestienda extends CI_Controller {
 		else if ($currentState == 'edit')
 		{
 			$crud->field_type('cod_registro', 'readonly'); // esto no se puede si ya se hizo algo antes
-			if($usuariocodgernow >399 and $usuariocodgernow < 998)
-				$crud->field_type('cod_entidad', 'readonly'); // tiendas no editan entidad, viene asignada
+			//if($usuariocodgernow >399 and $usuariocodgernow < 998)
+			//	$crud->field_type('cod_entidad', 'readonly'); // tiendas no editan entidad, viene asignada
 			//$crud->field_type('cod_categoria', 'readonly');
 			//$crud->field_type('cod_subcategoria', 'readonly');
 			$crud->field_type('fecha_registro', 'readonly');

@@ -186,7 +186,7 @@ class mimatrixcontroller extends CI_Controller {
 		 // generar fila por fila la tabla
 		$maxcat=count($categorias) ;
 		$elgraantootal =0;
-		$tablestyle = array( 'table_open'  => '<table border="1" cellpadding="2" cellspacing="2" class="table display groceryCrudTable dataTable ui default ">' );
+		$tablestyle = array( 'table_open'  => '<table border="1" cellpadding="2" cellspacing="2" class="table tablelist datalistperfil ui default ">', 'cell_start' => '<td  class="odd">', );
 		$this->table->set_caption(NULL);
 		$this->table->clear();
 		$this->table->set_template($tablestyle);

@@ -181,7 +181,7 @@ function loadDataTable(this_datatables) {
 		"sDom": 'T<"clear"><"H"lfr>t<"F"ip>',
 	    "oTableTools": {
 	    	"aButtons": aButtons,
-	        "sSwfPath": base_url+"assets/grocery_crud/themes/datatables/extras/TableTools/media/swf/copy_csv_xls_pdf.swf"
+	        "sSwfPath": base_url+"assets/grocery_crud/themes/datatables/extras/TableTools/media/swf/copy_csv_xls.swf"
 	    }
 	});
 }

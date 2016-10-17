@@ -10,6 +10,8 @@
 	$valoresinputfechafin = array('name'=>$idfechasta,'id'=>$idfechasta, 'onclick'=>'javascript:NewCssCal(\''.$idfechasta.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechasta, $$idfechasta));
 	//echo 'Fecha del gasto:'.form_input($valoresinputfecha).br().PHP_EOL;
 
+	$usuariocodgernow = $this->session->userdata('cod_entidad');
+
 	// si variables vacias llenar con datos mientras tanto
 	if( !isset($accionejecutada) ) $accionejecutada = 'cargardatosadministrativosfiltrar';
 	if( !isset($list_entidad) ) $list_entidad = array('cod_entidad' => 'nombregalpon','cod_entidad2' => 'nombregalpon2');
@@ -26,7 +28,7 @@
 			$this->table->add_row('Filto Fecha desde:',form_input($valoresinputfechaini).br().PHP_EOL);
 			$this->table->add_row('Filto Fecha hasta:',form_input($valoresinputfechafin).br().PHP_EOL);
 			$this->table->add_row('Por Categoria/Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);
-			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL );
+			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad, $usuariocodgernow).'(automatico)'.br().PHP_EOL );
 			$this->table->add_row('Monto menor o igual', form_input('mon_registroigual','').br().PHP_EOL);
 			$this->table->add_row('Monto mayor o igual', form_input('mon_registromayor','').br().PHP_EOL);
 			$this->table->add_row('Por Concepto :', form_input('des_registrolike','').br().PHP_EOL);
