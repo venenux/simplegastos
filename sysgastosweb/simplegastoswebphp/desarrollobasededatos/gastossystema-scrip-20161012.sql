@@ -170,9 +170,9 @@ INSERT INTO `categoria` (`cod_categoria`, `des_categoria`, `fecha_categoria`, `s
 -- Data for table `entidad`
 -- -----------------------------------------------------
 INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('000', 'SYS', 'TODAS', 'systemas', 'ACTIVO', NULL, '999', NULL);
-INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('111', 'SUC1', 'CAPITAL', 'Sucursal 1', 'ACTIVO', 'FON20160101010101', '01', NULL);
-INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('222', 'SUC2', 'ZON-CEN', 'Sucursal 2', 'ACTIVO', NULL, '02', NULL);
-INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('333', 'SUC3', 'ZON-CEN', 'Sucursal 3', 'ACTIVO', 'FON20160101010103', '03', NULL);
+INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('001', 'SUC1', 'CAPITAL', 'Sucursal 1', 'ACTIVO', 'FON20160101010101', '01', NULL);
+INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('002', 'SUC2', 'ZON-CEN', 'Sucursal 2', 'ACTIVO', NULL, '02', NULL);
+INSERT INTO `entidad` (`cod_entidad`, `abr_entidad`, `abr_zona`, `des_entidad`, `status`, `cod_fondo`, `sello`, `sessionflag`) VALUES ('003', 'SUC3', 'ZON-CEN', 'Sucursal 3', 'ACTIVO', 'FON20160101010103', '03', NULL);
 
 -- -----------------------------------------------------
 -- Data for table `entidad_usuario`
@@ -216,5 +216,17 @@ INSERT INTO `subcategoria` (`cod_categoria`, `cod_subcategoria`, `des_subcategor
 INSERT INTO `usuarios` (`ficha`, `intranet`, `clave`, `sello`, `nombre`, `detalles`, `cod_fondo`, `estado`, `acc_lectura`, `acc_escribe`, `acc_modifi`, `fecha_ultimavez`, `sessionflag`, `sessionficha`) VALUES ('99999990', 'admin_user', '9990', '', 'Administrador', NULL, NULL, 'ACTIVO', '', '', '', '', '20160101', NULL);
 INSERT INTO `usuarios` (`ficha`, `intranet`, `clave`, `sello`, `nombre`, `detalles`, `cod_fondo`, `estado`, `acc_lectura`, `acc_escribe`, `acc_modifi`, `fecha_ultimavez`, `sessionflag`, `sessionficha`) VALUES ('12345678', 'usuario1', '123', '01', 'Usuario Apellido', NULL, 'FON20160101010105', 'ACTIVO', '', '', '', NULL, '20161007', 'admin_user20161007220657');
 INSERT INTO `usuarios` (`ficha`, `intranet`, `clave`, `sello`, `nombre`, `detalles`, `cod_fondo`, `estado`, `acc_lectura`, `acc_escribe`, `acc_modifi`, `fecha_ultimavez`, `sessionflag`, `sessionficha`) VALUES ('12345679', 'usuario2', '123', '02', 'Persona Apellido', NULL, NULL, 'ACTIVO', '', '', '', NULL, '20161007', 'admin_user20161007220816');
+
+
+-- -----------------------------------------------------
+-- Data for administracion
+-- -----------------------------------------------------
+INSERT INTO `gastossystema`.`entidad` (`cod_entidad`, `abr_zona`, `des_entidad`)
+VALUES ('1000', 'VE-CAP', 'Administracion systema');
+INSERT INTO `gastossystema`.`usuarios` (`ficha`,`intranet`, `clave`, `sello`, `nombre`, `estado`)
+VALUES ('99999990', 'adminuser', '9990', '34', 'Admin user', 'ACTIVO');
+INSERT INTO `entidad_usuario` (`intranet`, `cod_entidad`, `sessionflag`)
+VALUES ('adminuser', '1000', NULL);
+
 
 COMMIT;
