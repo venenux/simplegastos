@@ -258,13 +258,13 @@ class Cargargastomanual extends CI_Controller {
 				and cod_entidad = '".$usuariocodgernow."' and SUBSTRING(cod_categoria,12) NOT LIKE '1200%'
 				AND CONVERT(SUBSTRING(cod_registro,4,6),UNSIGNED) > ".date('Ym',strtotime("-1 month"))."
 				AND CONVERT(SUBSTRING(cod_registro,4,6),UNSIGNED) <= ".date('Ym')." ";
-				if ( $cod_categoria != '')		$sqltablagastousr .= " AND registro_gastos.cod_categoria = '".$cod_categoria."' ";
-				if ( $cod_subcategoria != '')	$sqltablagastousr .= " AND registro_gastos.cod_subcategoria = '".$cod_subcategoria."' ";
-				if ( $des_registrolike != '')	$sqltablagastousr .= " AND registro_gastos.des_concepto LIKE '%".$des_concepto."%' ";
-				if ( $fec_registroini != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) >= ".$fec_registroini." ";
-				if ( $fec_registrofin != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) <= ".$fec_registrofin." ";
-				if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro <= ".$mon_registroigual." ";
-				if ( $mon_registromayor != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro >= ".$mon_registromayor." ";
+				if ( $cod_categoria != '')		$sqltablagastousr .= " AND registro_gastos.cod_categoria = '".$this->db->escape_str($cod_categoria)."' ";
+				if ( $cod_subcategoria != '')	$sqltablagastousr .= " AND registro_gastos.cod_subcategoria = '".$this->db->escape_str($cod_subcategoria)."' ";
+				if ( $des_registrolike != '')	$sqltablagastousr .= " AND registro_gastos.des_concepto LIKE '%".$this->db->escape_str($des_concepto)."%' ";
+				if ( $fec_registroini != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) >= ".$this->db->escape_str($fec_registroini)." ";
+				if ( $fec_registrofin != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) <= ".$this->db->escape_str($fec_registrofin)." ";
+				if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro <= ".$this->db->escape_str($mon_registroigual)." ";
+				if ( $mon_registromayor != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro >= ".$this->db->escape_str($mon_registromayor)." ";
 		$sqltablaentidadusr = "
 			CREATE TABLE IF NOT EXISTS  `".$tablaentidades."`
 			select cod_entidad, abr_entidad, abr_zona, des_entidad
@@ -342,8 +342,8 @@ class Cargargastomanual extends CI_Controller {
 			chmod($directoriofacturas,0777);
 		}
 		$crud->set_field_upload('factura1_bin',$directoriofacturas);
-		$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
-		$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
+		//$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
+		//$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
 		$output = $crud->render();
 
 		// TERMINAR EL PROCESO (solo paso 1) **************************************************** /
@@ -370,7 +370,7 @@ class Cargargastomanual extends CI_Controller {
 	/* ver quien hizo la carga en cada columna de la tabla de registros mostrada */
 	function _callback_verusuario($value, $row)
 	{
-		if ($value != '' )
+	/*	if ($value != '' )
 		{
 			$usuariover = explode('.',$value);	$intranet = '';
 			if (isset($usuariover[1]))
@@ -384,9 +384,9 @@ class Cargargastomanual extends CI_Controller {
 						$intranet = $row->intranet;
 					return "<a href='".site_url('admusuariosentidad/admusuariosavanzado/read/'.$intranet)."'>$value</a>";
 				}
-			}else
+			}else*/
 				return $value;
-		}
+		//}
 	}
 
 }

@@ -32,8 +32,8 @@
 			anchor('cargargastomanual/gastomanualcargaruno',form_button('cargargastomanual/gastomanualcargaruno/add', 'Registrar Gasto', 'class="btn btn-primary btn-large b10" '))
 			,
 			anchor('cargargastomanual/gastomanualrevisarlos',form_button('cargargastomanual/gastomanualrevisarlos/list', 'Revisar Gastos', 'class="btn btn-primary btn-large b10" '))
-			,
-			anchor('cargargastomanual/gastomanualfiltrarlos',form_button('cargargastomanual/gastomanualfiltrarlos/veruno', 'Editar Gasto', 'class="btn btn-primary btn-large b10" '))
+			/*,
+			anchor('cargargastomanual/gastomanualfiltrarlos',form_button('cargargastomanual/gastomanualfiltrarlos/veruno', 'Editar Gasto', 'class="btn btn-primary btn-large b10" '))*/
 		);
 	$tablabotonsgasto = form_fieldset('Gestion y Registro de Gastos',array('class'=>'container_blue containerin')) . PHP_EOL;
 	$tablabotonsgasto .= $this->table->generate();
@@ -92,7 +92,7 @@
 			$this->table->add_row('Tipo gasto:', form_dropdown('tipo_gasto', $tipo_gasto , $classinput));
 			$this->table->add_row('Factura Numero :', form_input('factura1_num','', $classinput).br().PHP_EOL);
 			$this->table->add_row('Factura RIF:', form_input('factura1_rif','', $classinput).br().PHP_EOL);
-			$this->table->add_row('Factura escaneada', form_upload(array('name'  => 'nam_archivo', 'id'=>'nam_archivo')).br().PHP_EOL );
+			$this->table->add_row('Factura escaneada', form_upload(array('name'  => 'factura1_bin', 'id'=>'factura1_bin')).br().PHP_EOL );
 		echo $this->table->generate().br().PHP_EOL;
 		echo form_submit('login', 'Registrar gasto', 'class="btn btn-primary btn-large b10"');
 		echo form_close() . PHP_EOL;
