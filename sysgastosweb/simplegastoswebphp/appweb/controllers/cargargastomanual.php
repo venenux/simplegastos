@@ -45,100 +45,91 @@ class Cargargastomanual extends CI_Controller {
 	{
 		$this->_verificarsesion();
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
-		/* cargar y listaar las CATEGORIAS que se usaran para registros */
-		$sqlcategoria = "
-		select
-		 ifnull(cod_categoria,'99999999999999') as cod_categoria,      -- YYYYMMDDhhmmss
-		 ifnull(des_categoria,'sin_descripcion') as des_categoria,
-		 ifnull(fecha_categoria, 'INVALIDO') as fecha_categoria,
-		 ifnull(sessionflag,'') as sessionflag
-		from categoria
-		  where ifnull(cod_categoria, '') <> '' and cod_categoria <> ''
-		";
+
+		// ########## ini cargar y listaar las CATEGORIAS que se usaran para registros
+		$sqlcategoria = " select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
+		 from categoria where ifnull(cod_categoria, '') <> '' and cod_categoria <> '' ";
 		if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
-			$sqlcategoria .= " and SUBSTRING(cod_categoria,12) NOT LIKE '1200%' ";
+			$sqlcategoria .= " and SUBSTRING(cod_categoria,12) NOT LIKE '1200%' "; // TODO "NOT LIKE" es mysql solamente
 		$sqlcategoria .= " ORDER BY des_categoria DESC ";
 		$resultadoscategoria = $this->db->query($sqlcategoria);
 		$arreglocategoriaes = array(''=>'');
 		foreach ($resultadoscategoria->result() as $row)
-		{
-			$arreglocategoriaes[''.$row->cod_categoria] = '' . $row->des_categoria . '-' . $row->fecha_categoria;
-		}
+			$arreglocategoriaes[''.$row->cod_categoria] = '' . $row->des_categoria;
 		$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
-		unset($arreglocategoriaes['']);
-		/* cargar y listaar las SUBCATEGORIAS que se usaran para registros */
+
+		// ########## ini cargar y listaar las SUBCATEGORIAS que se usaran para registros
 		$sqlsubcategoria = "
-		SELECT
-		ca.cod_categoria,
-		ca.des_categoria,
-		sb.cod_subcategoria,
-		sb.des_subcategoria,
-		ca.fecha_categoria,
-		sb.fecha_subcategoria,
-		sb.sessionflag
-		FROM categoria as ca
-		join subcategoria as sb
-		on sb.cod_categoria = ca.cod_categoria
-		";
+		SELECT ifnull(ca.cod_categoria,'99999') as cod_categoria,
+		ca.des_categoria,  sb.cod_subcategoria,  sb.des_subcategoria
+		FROM categoria as ca join subcategoria as sb on sb.cod_categoria = ca.cod_categoria ";
 		if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
 			$sqlsubcategoria .= " and SUBSTRING(sb.cod_categoria,12) NOT LIKE '1200%' ";
 		$sqlsubcategoria .= " ORDER BY ca.des_categoria DESC ";
 		$resultadossubcategoria = $this->db->query($sqlsubcategoria);
 		$arreglosubcategoriaes = array(''=>'');
 		foreach ($resultadossubcategoria->result() as $row)
-		{
 			$arreglosubcategoriaes[''.$row->cod_subcategoria] = $row->des_categoria . ' - ' . $row->des_subcategoria;
-		}
 		$data['list_subcategoria'] = $arreglosubcategoriaes; // agrega este arreglo una lista para el combo box
-		unset($arreglosubcategoriaes['']);
-		/* cargar y listaar las UBIUCACIONES que se usaran para registros */
-		$sqlentidad = "
-		select
-		 abr_entidad, abr_zona, des_entidad,
-		 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
-		 ifnull(des_entidad,'sin_descripcion') as des_entidad
-		from entidad
-		  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
-		";
+
+		// ########## ini cargar y listaar EL TIPO DE GASTO que se usaran para registros
+		$tipo_gasto = array( 'EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE');
+		$data['tipo_gasto'] = $tipo_gasto;
+
+		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
+		$sqlentidad = " select abr_entidad, abr_zona, des_entidad, ifnull(cod_entidad,'99999999999999') as cod_entidad
+		from entidad where ifnull(cod_entidad, '') <> '' and cod_entidad <> '' ";
 		if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
 			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
+		else
+			$arregloentidades = array(''=>'');
 		$resultadosentidad = $this->db->query($sqlentidad);
-		$arregloentidades = array(''=>'');
 		foreach ($resultadosentidad->result() as $row)
-		{
 			$arregloentidades[$row->cod_entidad] = $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
-		}
 		$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
-		unset($arregloentidades['']);
-		/* ahora renderizar o pintar el formulario de carga la vista */
+
+		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'gastomanualcargaruno';
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastomanual.php',$data);
 		$this->load->view('footer.php',$data);
 	}
+	// ********* FIN carargastomanual uno solo ***************************
 
 	public function gastomanualcargarunolisto()
 	{
 		$this->_verificarsesion();
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'gastomanualfiltrardouno';
-		$userdata = $this->session->all_userdata();
-		$usercorreo = $userdata['correo'];
-		$userintran = $userdata['intranet'];
-		$sessionflag1 = $this->session->userdata('username').date("YmdHis");
-		// OBTENER DATOS DE FORMULARIO ***************************** /
-		$fec_registro = $this->input->get_post('fec_registro');
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		$userintran = $this->session->userdata('intranet');
+
+		$sessionflag1 = date("YmdHis") . $usuariocodgernow . '.' .$this->session->userdata('username');
+		// ******* OBTENER DATOS DE FORMULARIO ***************************** /
+		$fecha_concepto = $this->input->get_post('fecha_concepto');
 		$mon_registro = $this->input->get_post('mon_registro');
-		$des_registro = $this->input->get_post('des_registro');
+		$des_concepto = $this->input->get_post('des_concepto');
+		$tipo_gasto = $this->input->get_post('tipo_gasto');
+		$factura1_num = $this->input->get_post('factura1_num');
+		$factura1_rif = $this->input->get_post('factura1_rif');
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
-		// GENERACION de la carga id codigo de registro
-		$cod_registro = 'GAS' . $fec_registro . date('His');
-		$cod_adjunto = $cod_registro . 'ADJ' . $fec_registro . date('His');
-		// OBTENER DATOS FORMULARIO CARGA DEL ARCHIVO ****************** */
-		$cargaconfig['upload_path'] = CATAPATH . '/appweb/archivoscargas';
-		$cargaconfig['allowed_types'] = 'gif|jpg|png';
+
+		// ******* GENERACION de la carga id codigo de registro
+		$fecha_registro = date('Ymd');
+		$cod_registro = 'GAS' . $fecha_registro . date('His');
+		// ******* CARGA DEL ARCHIVO ****************** */
+		$directoriofacturas = CATAPATH .'appweb/archivoscargas/' . date("Y") . '/' .date("Ym");
+		if ( ! is_dir($directoriofacturas) )
+		{
+			if ( is_file($directoriofacturas) )
+				unlink($directoriofacturas);
+			mkdir($directoriofacturas, 0777, true);
+			chmod($directoriofacturas,0777);
+		}
+		$cargaconfig['upload_path'] = $directoriofacturas;
+		$cargaconfig['allowed_types'] = 'gif|jpg|png|pdf|ods';
 		$cargaconfig['max_size']  = 0;  //$cargaconfig['max_size']= '100'; // en kilobytes
 		$cargaconfig['max_width'] = 0;
 		$cargaconfig['max_height'] = 0;
@@ -148,261 +139,254 @@ class Cargargastomanual extends CI_Controller {
 		$this->load->library('upload', $cargaconfig);
 		$this->upload->initialize($cargaconfig);
 		$this->upload->overwrite = true;
-		if ( $this->upload->do_upload('nam_archivo')) // nombre del campo alla en el formulario
+		if ( $this->upload->do_upload('factura1_bin')) // nombre del campo alla en el formulario
 		{
-			$file_data = $this->upload->data();
-			$filenamen = $cod_adjunto . $file_data['file_ext'];
-			$filenameorig =  $file_data['file_path'] . $file_data['file_name'];
-			$filenamenewe =  $file_data['file_path'] . $filenamen;
-			copy( $filenameorig, $filenamenewe); // TODO: rename en produccion // rename( $filenameorig, $filenamenewe);
-			//$file_data['file_name'] = $filenamen;
-			$data['upload_data'] = $file_data;
-			$data['archivos'] = $filenameorig . '-' . $filenamenewe ;
-			$data['filenamen'] = $filenamen;
 			$conadjunto = TRUE;
+			$factura1_data = $this->upload->data();
+			$factura1_bin = $factura1_data['full_path'];
 		}
 		else
 		{
-			// TODO manejo de error , aparte de si no uso archivo de carga "upload_errors"
 			$conadjunto = FALSE;
-			$data['filenamen'] = "sin archivos";
+			$factura1_bin = "S/A";
 		}
-		$cantidadLineas = 0;
-			$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
-			// procesar el registro sin el adjunto
-            $sqlregistrargasto = "
+		$data['factura1_bin'] = $factura1_bin;
+		$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
+		// ******* procesar el registro sin el adjunto
+		$sqlregistrargasto = "
             INSERT INTO registro_gastos
 			(
 			   cod_registro, cod_entidad,
 			   cod_subcategoria, cod_categoria,
-			   des_registro,
-			   mon_registro,
-			   fecha_registro, fecha_factura,
-			   sessionflag,
-			   estado,
-			   num_factura
+			   des_concepto, mon_registro,
+			   fecha_registro, fecha_concepto,
+			   sessionficha, tipo_gasto, estado,
+			   factura1_num, factura1_bin, factura1_rif
 			 )
 			VALUES
 			(
 			  '".$cod_registro."', '".$cod_entidad."',
 			  '".$cod_subcategoria."',(SELECT cod_categoria FROM subcategoria where cod_subcategoria = '".$cod_subcategoria."' LIMIT 1),
-			  '".$des_registro."',
-			  '".$mon_registro."',
-			  '".$fec_registro."',
-			  '',
-			  '".$sessionflag1."',
-			  'PROCESADO',
-			  ''
+			  '".$des_concepto."', '".$mon_registro."',
+			  '".$fecha_registro."', '".$fecha_concepto."',
+			  '".$sessionflag1."','".$tipo_gasto."','PENDIENTE',
+			  '".$factura1_num."','".$factura1_bin."','".$factura1_rif."'
 			)";
-			$this->db->query($sqlregistrargasto);
-			if ( $conadjunto )
-			{
-				$sqlregistrargasto2 = "
-				INSERT INTO gastossystema.registro_adjunto
-				(
-				  cod_adjunto,
-				  cod_registro,
-				  hex_adjunto,
-				  ruta_adjunto,
-				  fecha_adjunto,
-				  sessionflag,
-				  nam_adjunto,
-				  nam_archivo
-				 )
-				VALUES
-				(
-				'".$cod_adjunto."',
-				'".$cod_registro."',
-				'',
-				'".base_url("appweb/archivoscargas/".$filenamen)."',
-				'',
-				'".$sessionflag1."',
-				'".$filenamen."',
-				'".$filenameorig."'
-				)
-				";
-				$this->db->query($sqlregistrargasto2);
-			}
-		   // CARGA EXITOSA UESTRO DETALLE ************************************* /
-			$sqlregistro = "
-			SELECT
-			  registro_gastos.cod_registro,
-			  registro_adjunto.cod_adjunto,
-			  registro_gastos.cod_entidad,
-			  registro_gastos.cod_categoria,
-			  registro_gastos.cod_subcategoria,
-			  registro_gastos.des_registro,
-			  registro_gastos.mon_registro,
-			  categoria.des_categoria,
-			  subcategoria.des_subcategoria,
-			  entidad.des_entidad,
-			  entidad.abr_entidad,
-			  entidad.abr_zona,
-			  registro_gastos.estado,
-			  registro_gastos.num_factura,
-			  registro_adjunto.hex_adjunto,
-			  registro_adjunto.nam_adjunto,
-			  registro_adjunto.ruta_adjunto,
-			  registro_gastos.fecha_registro,
-			  registro_gastos.fecha_factura,
-			  registro_adjunto.fecha_adjunto,
-			  registro_gastos.sessionflag
-			FROM	 gastossystema.registro_gastos
-			LEFT JOIN	 gastossystema.registro_adjunto
-			ON	 registro_adjunto.cod_registro = registro_gastos.cod_registro
-			LEFT JOIN	 gastossystema.subcategoria
-			ON	 subcategoria.cod_subcategoria = registro_gastos.cod_subcategoria
-			LEFT JOIN	 gastossystema.categoria
-			ON	 categoria.cod_categoria = registro_gastos.cod_categoria
-			LEFT JOIN	 gastossystema.entidad
-			ON	 entidad.cod_entidad = registro_gastos.cod_entidad
-			WHERE	 ifnull(registro_gastos.cod_registro,'') <> '' and registro_gastos.cod_registro <> ''
-			ORDER BY cod_registro DESC	LIMIT 5";
-//--			 and cod_registro = '".$cod_registro." '
-		$resultadocarga = $this->db->query($sqlregistro); //row_array
-		$data['fileurls'] = site_url("appweb/archivoscargas/".$filenamenewe);
+		$this->db->query($sqlregistrargasto);
         // TERMINAR EL PROCESO (solo paso 1) **************************************************** /
 		$this->table->clear();
-		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="1" class="table">' );
-		$this->table->set_caption("Sus ultimas cargas:");
+		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="0" class="table containerblue tablelist">' );
+		$this->table->set_caption(null);
 		$this->table->set_template($tmplnewtable);
 		$this->table->set_heading(
 			'Registro',
-			'Categoria', 'Concepto',// 'des_categoria', 'des_subcategoria',
-			'Destino',  //'des_entidad','abr_entidad', 'abr_zona',
-			'Gasto', 'Monto',
-			'Estado',
-			'Realizado el',
+			'Monto','Tipo','Realizado el','Del dia',
 			'Adjunto'
-			// 	'fecha_factura', 	'fecha_adjunto',	'sessionflag'	'num_factura',
-			//	'hex_adjunto', 'nam_adjunto',// TODO : link para visualizar
-			//'cod_registro', 'cod_adjunto', 'cod_entidad', 'cod_categoria', 'cod_subcategoria'
 		);
-		$resultadocargatablatxtmsg = "| cod_producto \t| can_despachar \t| des_producto \t\t".PHP_EOL;
-		$resultadocargatabla = $resultadocarga->result_array();
-		foreach ($resultadocargatabla as $rowtable)
-		{
-			$this->table->add_row(
-			$rowtable['cod_registro'],
-			$rowtable['des_categoria'], $rowtable['des_subcategoria'],
-			$rowtable['des_entidad'] . ' ('.$rowtable['abr_entidad'].') -'. $rowtable['abr_zona'],
-			$rowtable['des_registro'], $rowtable['mon_registro'],
-			$rowtable['estado'],
-			$rowtable['fecha_registro'],
-			anchor_popup($rowtable['ruta_adjunto'],$filenamen,array('width'=>'800','height'=>'600','resizable'=>'yes'))
-			// $rowtable['fecha_factura'], $rowtable['fecha_adjunto'], $rowtable['sessionflag'],$rowtable['num_factura'],
-			//$rowtable['hex_adjunto'], $rowtable['nam_adjunto'], // TODO: link para descargar / visualizar
-			//$rowtable['cod_registro'], $rowtable['cod_adjunto'], $rowtable['cod_entidad'], $rowtable['cod_categoria'], $rowtable['cod_subcategoria']
-			);
-
-/*			$resultadocargatablatxtmsg .=
-			"| ".$rowtable['cod_producto'] .
-			" \t| ". $rowtable['can_cantidaddespachar'] .
-			" \t| ". $rowtable['des_producto'] .
-			' '.PHP_EOL;*/
-		}
+		$this->table->add_row(
+			$cod_registro, $mon_registro,
+			$tipo_gasto,$fecha_registro,$fecha_concepto,
+			anchor_popup($factura1_bin,$factura1_bin,array('width'=>'800','height'=>'600','resizable'=>'yes')));
 		$data['htmltablacargasregistros'] = $this->table->generate();
 		$data['menu'] = $this->menu->general_menu();
-		$data['accionejecutada'] = 'resultadocargardatos';
-		$data['upload_errors'] = $this->upload->display_errors('<p>', '</p>');
-		$data['userintran'] = $userintran;
-		$data['fec_registro'] = $fec_registro;
-		$data['mon_registro'] = $mon_registro;
-		$data['des_registro'] = $des_registro;
-		$data['cod_entidad'] = $cod_entidad;
-		$data['cod_subcategoria'] = $cod_subcategoria;
 		$data['cod_registro'] = $cod_registro;
-		$data['cantidadLineas'] = $cantidadLineas;
-		//$data['cantidadLineas'] = $cantidadLineas;
-		//$data['cantidadLineas'] = $cantidadLineas;
+		$data['accionejecutada'] = 'gastomanualfiltrardouno';
+		$data['upload_errors'] = $this->upload->display_errors('<p>', '</p>');
 		$this->load->helper(array('form', 'url','html'));
-		$this->load->library('table');
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastomanual.php',$data);
 		$this->load->view('footer.php',$data);
-		/*
-		// PROCESO POSTERIOR generacion de txt (y dale con el txt() para el ajuste
-		$sql = "SELECT right('000000000'+DBA.td_orden_despacho.cod_interno,10) as cp, null as v2, DBA.td_orden_despacho.cantidad as ca, null as v3, '' as v4, ";//DBA.td_orden_despacho.precio_venta ";
-		$sql .= " isnull(convert(integer, (DBA.td_orden_despacho.cantidad/(SELECT top 1 unid_empaque FROM DBA.ta_proveedor_producto where cod_proveedor<>'000000000000' and cod_interno=right('000000000'+DBA.td_orden_despacho.cod_interno,10)))),0) as bu ";
-		$sql .= "  FROM DBA.tm_orden_despacho join DBA.td_orden_despacho on DBA.tm_orden_despacho.cod_order=DBA.td_orden_despacho.cod_order WHERE dba.tm_orden_despacho.cod_order='".$filenamen."'";
-		// TODO agregazr columna de precio sacar de subselect de la orden despacho
-		// TODO agregar numero de linea incrementar, sacar del numero de la linea
-	//}
-	//public function generacionautomatica()
-	//{
-		$this->load->dbutil();
-		$querypaltxt = $this->db->query($sql);
-		$correocontenido = $this->dbutil->csv_from_result($querypaltxt, "\t", "\n", '', FALSE);
-		// volvar a un archivo de esta orden despacho asociada:
-		// volvar a un archivo de esta orden despacho asociada:
-		$this->load->helper('file');
-		//appweb/archivoscargas
-		$filenameneweordendespachoadjuntar = $cargaconfig['upload_path'] . '/ordendespachogenerada' . $this->numeroordendespacho . '.txt';
-		if ( ! write_file($filenameneweordendespachoadjuntar, $correocontenido))
-		{
-			 echo 'Unable to write the file';
-		}
-		//$intranet='0000a';
-		$sql = "select top 1 correo from dba.tm_codmsc_correo where codmsc='".$intranet."'";
-		$sqlcorreoorigen = $this->db->query($sql);
-		$obtuvecorreo = 0;
-		foreach ($sqlcorreoorigen->result() as $correorow)
-		{
-			$correoorigenaenviarle = $correorow->correo;
-			$obtuvecorreo++;
-		}
-		if ($obtuvecorreo < 1)
-			$correoorigenaenviarle = 'ordenesdespachos@intranet1.net.ve, lenz_gerardo@intranet1.net.ve';
-
-		$this->load->library('email');
-		/*
-		// esta configuracion requiere mejoras en la libreia, no conecta bien ssl
-		$configm1['protocol'] = 'smtp';
-		$configm1['smtp_host'] = 'ssl://intranet1.net.ve';
-		$configm1['smtp_port'] = '465';
-		$configm1['smtp_timeout'] = '8';
-		$configm1['smtp_user'] = 'lenz_gerardo';
-		$configm1['smtp_pass'] = 'deide.3';
-		$configm1['charset'] = 'utf-8';
-		$configm1['starttls'] = TRUE;
-		$configm1['smtp_crypto'] = 'tls';
-		$configm1['newline'] = "\n";
-		$configm1['mailtype'] = 'text'; // or html
-		$configm1['validation'] = FALSE; // bool whether to validate email or not
-		$this->email->initialize($configm1);
-		$this->email->from('ordenesdespachos@intranet1.net.ve', 'ordenesdespachos');
-		$this->email->cc($correousuariosesion);
-		$this->email->to($correoorigenaenviarle); // enviar a los destinos de galpones
-		$this->email->subject('Orden Despacho '. $this->numeroordendespacho .' Origen:'.$intranet.' Destino:'.$fec_registro);
-		//$messageenviar = str_replace("\n", "\r\n", $correocontenido);
-		$this->email->message('Orden de despacho adjunta.'.PHP_EOL.PHP_EOL.$correocontenido );
-		$this->email->attach($filenameneweordendespachoadjuntar);
-		$this->email->send();
-*/
-
-/*
-		$configm2['protocol'] = 'mail';// en sysdevel y sysnet envia pero syscenter no
-		$configm2['wordwrap'] = FALSE;
-		$configm2['starttls'] = TRUE; // requiere sendmail o localmail use courierd START_TLS_REQUIRED=1 sendmail no envia
-		$configm2['smtp_crypto'] = 'tls';
-//		$configm2['mailtype'] = 'html';
-
-		$this->load->library('email');
-		$this->email->initialize($configm2);
-		$this->email->from('ordenesdespachos@intranet1.net.ve', 'ordenesdespachos');
-//		if ($obtuvecorreo < 1)
-		    $this->email->cc($correousuariosesion);
-		$this->email->reply_to('ordenesdespachos@intranet1.net.ve', 'ordenesdespachos');
-		$this->email->to($correoorigenaenviarle ); // enviar a los destinos de galpones
-		//if ($obtuvecorreo < 1)
-			$this->email->subject('Registro de gasto '. $this->numeroordendespacho .' Responsable:'.$intranet.' Fecha registro:'.$fec_registro);
-		//else
-		//	$this->email->subject('Orden prueba '. $this->numeroordendespacho .' Origen:'.$intranet.' Destino:'.$fec_registro);
-		$this->email->message('Orden de despacho adjunta.'.PHP_EOL.PHP_EOL.'**************************************'.PHP_EOL.PHP_EOL.$resultadocargatablatxtmsg.$data['htmltablageneradodetalle'].'***************************************'.PHP_EOL.PHP_EOL.'Orden para el galpon cargar oasis:'.PHP_EOL.PHP_EOL.$correocontenido );
-		$this->email->attach($filenameneweordendespachoadjuntar);
-		$this->email->send();
-
-		//echo $this->email->print_debugger();
-*/
 	}
+
+	// ############# INI gastomanualrevisarlos revisa todos los gstos crud bonito ############
+	public function gastomanualrevisarlos()
+	{
+		$this->_verificarsesion();
+		$data['menu'] = $this->menu->general_menu();
+		$data['accionejecutada'] = 'gastomanualrevisarlos';
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		$userintran = $this->session->userdata('intranet');
+
+		// ******* ini nombres de tablas para filtrar los datos:
+		$segurodelatabla = rand(6,9);
+		//$segurodelatabla = date("YmdHis");
+		$tablaentidades = "entidad_" . $userintran . $segurodelatabla;
+		$tablacategoria = "categoria_" . $userintran . $segurodelatabla;
+		$tablasubcatego = "subcategoria_" . $userintran . $segurodelatabla;
+		$tablaregistros = "registro_gastos_".$userintran . $segurodelatabla;
+
+		// ****** ini limpieza de tablas antes de mostrar y despues que se muestra mas abajo al final
+		$this->db->trans_strict(TRUE); // todo o nada
+		$this->db->trans_begin();
+			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaentidades." ;";
+			$this->db->query($sqldatostablasfiltrados);
+			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablacategoria." ;";
+			$this->db->query($sqldatostablasfiltrados);
+			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablasubcatego." ;";
+			$this->db->query($sqldatostablasfiltrados);
+			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
+			$this->db->query($sqldatostablasfiltrados);
+			if ($this->db->trans_status() === FALSE)
+			{
+				$this->db->trans_rollback();
+				$data['output'] = "Error ejecutando su filtro, repita el proceso, si persiste consulte systemas";
+				$this->load->view('header.php',$data);
+				$this->load->view('cargargastoadministrativo.php',$data);
+				$this->load->view('footer.php',$data);
+				return;
+			}
+			else
+				$this->db->trans_commit();
+		// ****** fin limpieza de tablas antes de mostrar y despues que se muestra mas abajo al final
+
+		// ****** ini post/get si vino algun filtro tomo los valores
+		$fec_registroini = $this->input->get_post('fec_registroini');
+		$fec_registrofin = $this->input->get_post('fec_registrofin');
+		$mon_registroigual = $this->input->get_post('mon_registroigual');
+		$mon_registromayor = $this->input->get_post('mon_registromayor');
+		$des_registrolike = $this->input->get_post('des_registrolike');
+		$cod_entidad = $this->input->get_post('cod_entidad');
+		$cod_categoria = $this->input->get_post('cod_categoria');
+		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
+		// ****** fin post/get si vino algun filtro tomo los valores
+
+		// ****** ini relleno una tabla para mostrar solo en el crud lo relaciona
+		$this->db->trans_begin();
+			$sqltablagastousr = "
+				CREATE TABLE IF NOT EXISTS `".$tablaregistros."` SELECT registro_gastos.* FROM (`registro_gastos`)
+				WHERE cod_registro <> ''
+				and cod_entidad = '".$usuariocodgernow."' and SUBSTRING(cod_categoria,12) NOT LIKE '1200%'
+				AND CONVERT(SUBSTRING(cod_registro,4,6),UNSIGNED) > ".date('Ym',strtotime("-1 month"))."
+				AND CONVERT(SUBSTRING(cod_registro,4,6),UNSIGNED) <= ".date('Ym')." ";
+				if ( $cod_categoria != '')		$sqltablagastousr .= " AND registro_gastos.cod_categoria = '".$cod_categoria."' ";
+				if ( $cod_subcategoria != '')	$sqltablagastousr .= " AND registro_gastos.cod_subcategoria = '".$cod_subcategoria."' ";
+				if ( $des_registrolike != '')	$sqltablagastousr .= " AND registro_gastos.des_concepto LIKE '%".$des_concepto."%' ";
+				if ( $fec_registroini != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) >= ".$fec_registroini." ";
+				if ( $fec_registrofin != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) <= ".$fec_registrofin." ";
+				if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro <= ".$mon_registroigual." ";
+				if ( $mon_registromayor != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro >= ".$mon_registromayor." ";
+		$sqltablaentidadusr = "
+			CREATE TABLE IF NOT EXISTS  `".$tablaentidades."`
+			select cod_entidad, abr_entidad, abr_zona, des_entidad
+			from entidad where ifnull(cod_entidad, '') <> '' and cod_entidad <> '' ";
+			if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
+				$sqltablaentidadusr .= "and cod_entidad = '".$usuariocodgernow."' ";
+		$sqltablacategorias = "
+			CREATE TABLE IF NOT EXISTS  `".$tablacategoria."` (primary key (cod_categoria))
+			select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
+			from categoria where ifnull(cod_categoria, '') <> '' and cod_categoria <> ''  ";
+			if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
+				$sqltablacategorias .= " and SUBSTRING(cod_categoria,12) NOT LIKE '1200%' ";
+			$sqltablacategorias .= " ORDER BY des_categoria DESC ";
+		$sqltablasubcatego = "
+			CREATE TABLE IF NOT EXISTS  `".$tablasubcatego."` (primary key (cod_subcategoria))
+			SELECT ifnull(ca.cod_categoria,'99999') as cod_categoria,
+			ca.des_categoria as des_categoria,  sb.cod_subcategoria as cod_subcategoria,  sb.des_subcategoria  as des_subcategoria
+			FROM categoria as ca join subcategoria as sb on sb.cod_categoria = ca.cod_categoria ";
+			if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
+				$sqltablasubcatego .= " and SUBSTRING(sb.cod_categoria,12) NOT LIKE '1200%' ";
+			$sqltablasubcatego .= " ORDER BY ca.des_categoria DESC ";
+		// ejecutsamos los querys que crean las 4 tablas a usar en el crud con datos ya filtrados
+		$this->db->query($sqltablagastousr);
+		$this->db->query($sqltablaentidadusr);
+		$this->db->query($sqltablacategorias);
+		$this->db->query($sqltablasubcatego);
+		if ($this->db->trans_status() === FALSE)
+		{
+			$this->db->trans_rollback();
+			$data['output'] = "Error ejecutando su filtro, repita el proceso, si persiste consulte systemas";
+			$this->load->view('header.php',$data);
+			$this->load->view('cargargastoadministrativo.php',$data);
+			$this->load->view('footer.php',$data);
+			return;
+		}
+		else
+			$this->db->trans_commit();
+		// ****** fin relleno de tablas para mostrar solo en el crud lo relacionado unicamente
+
+		// ****** ini mostrar vita crud para todos los registros del mes actual y el mes anterior
+		$this->load->helper(array('inflector','url'));
+		$this->load->library('grocery_CRUD');
+		$crud = new grocery_CRUD();
+		$crud->set_table($tablaregistros);
+		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
+		$crud->set_primary_key('cod_registro');
+		$crud->display_as('cod_registro','Codigo')
+			 ->display_as('cod_entidad','Centro')
+			 ->display_as('cod_categoria','Categoria')
+			 ->display_as('cod_subcategoria','Subcategoria')
+			 ->display_as('mon_registro','Monto')
+			 ->display_as('des_concepto','Concepto')
+			 ->display_as('des_detalle','Detalles')
+			 ->display_as('des_estado','Justificacion')
+			 ->display_as('fecha_concepto','Fecha<br>Gasto')
+			 ->display_as('fecha_registro','Fecha<br>Registro')
+			 ->display_as('tipo_gasto','Tipo')
+			 ->display_as('factura1_num','Factura<br>Numero')
+			 ->display_as('factura1_rif','Factura<br>Rif')
+			 ->display_as('factura1_bin','Factura<br>Escaneada')
+		//	 ->display_as('cod_fondo','Fondo')
+			 ->display_as('sessionflag','Modificado')
+			 ->display_as('sessionficha','Creador');
+		$crud->columns('fecha_registro','fecha_concepto','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto','estado','des_estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionficha','sessionflag');
+		$crud->set_relation('cod_entidad',$tablaentidades,'{des_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
+		$crud->set_relation('cod_categoria',$tablacategoria,'{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
+		$crud->set_relation('cod_subcategoria',$tablasubcatego,'{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
+		$crud->unset_operations();
+		$directoriofacturas = 'appweb/archivoscargas/' . date("Y") . '/' .date("Ym");
+		if ( ! is_dir($directoriofacturas) )
+		{
+			if ( is_file($directoriofacturas) )
+				unlink($directoriofacturas);
+			mkdir($directoriofacturas, 0777, true);
+			chmod($directoriofacturas,0777);
+		}
+		$crud->set_field_upload('factura1_bin',$directoriofacturas);
+		$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
+		$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
+		$output = $crud->render();
+
+		// TERMINAR EL PROCESO (solo paso 1) **************************************************** /
+		$data['menu'] = $this->menu->general_menu();
+		$data['accionejecutada'] = 'gastomanualrevisarlos';
+		$data['js_files'] = $output->js_files;
+		$data['css_files'] = $output->css_files;
+		$data['output'] = $output->output;
+		$this->load->view('header.php',$data);
+		$this->load->view('cargargastomanual.php',$data);
+		$this->load->view('footer.php',$data);
+
+		// ******** limpiar de las tablas "disque temporales" con datos filtrados para hacer crud
+			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaentidades." ;";
+			$this->db->query($sqldatostablasfiltrados);
+			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablacategoria." ;";
+			$this->db->query($sqldatostablasfiltrados);
+			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablasubcatego." ;";
+			$this->db->query($sqldatostablasfiltrados);
+			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
+			$this->db->query($sqldatostablasfiltrados);
+	}
+
+	/* ver quien hizo la carga en cada columna de la tabla de registros mostrada */
+	function _callback_verusuario($value, $row)
+	{
+		if ($value != '' )
+		{
+			$usuariover = explode('.',$value);	$intranet = '';
+			if (isset($usuariover[1]))
+			{	if ($usuariover[1] != null)
+				{
+					$sqlquien = "select intranet from usuarios where intranet = '".$usuariover[1]."'";
+					$sqlquienresult = $this->db->query($sqlquien);
+					$intranet = '';
+			//if ($sqlquienresult->num_rows() > 0)
+					foreach ($sqlquienresult->result() as $row)
+						$intranet = $row->intranet;
+					return "<a href='".site_url('admusuariosentidad/admusuariosavanzado/read/'.$intranet)."'>$value</a>";
+				}
+			}else
+				return $value;
+		}
+	}
+
 }

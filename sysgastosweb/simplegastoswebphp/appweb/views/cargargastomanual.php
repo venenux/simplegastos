@@ -1,5 +1,7 @@
 	<?php
 
+	$classinput = array('class'=>' form-input-box btn containerin');
+
 	//  cargar la session o aseguramiento que exista un objeto session
 	if( !isset($this->session) )
 		$usuariocodgernow = null;
@@ -9,6 +11,9 @@
 	// que parte del formulario y a donde ira a viajar el html
 	if( !isset($accionejecutada) )
 		$accionejecutada = 'gastomanualindex';
+
+	if( !isset( $tipo_gasto) )
+		 $tipo_gasto = array( 'EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE');
 
 	// cargar las ubicciones/centro costo o aseguramiento que exista
 	if( !isset($list_entidad) )
@@ -56,7 +61,7 @@
 		echo form_fieldset('Cargas y registros de gastos',array('class'=>'container_blue containerin ')) . PHP_EOL;
 		echo form_hidden('accionejecutada',$accionejecutada).br().PHP_EOL;
 		echo $botonesgestion . PHP_EOL;
-		echo $tabledelfiltrocualesgastos . PHP_EOL;
+		//echo $tabledelfiltrocualesgastos . PHP_EOL;
 		if( isset($css_files) )
 			foreach($css_files as $file)
 			{	echo '<link type="text/css" rel="stylesheet" href="'.$file.'" />';	}
@@ -68,24 +73,27 @@
 	}
 	else if ($accionejecutada == 'gastomanualcargaruno')
 	{
-		$fec_registro=date('Ymd');
-		$idfecdesde='fec_registro';
+		$fecha_concepto=date('Ymd');
+		$idfecdesde='fecha_concepto';
 		$valoresinputfecha = array('name'=>$idfecdesde,'id'=>$idfecdesde, 'onclick'=>'javascript:NewCssCal(\''.$idfecdesde.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecdesde, $$idfecdesde));
 
-		$separadores = array(''=>'', '\t'=>'Tabulador (|)', ','=>'Coma (,)',';'=>'PuntoComa (;)');
 		$htmlformaattributos = array('name'=>'formularioordendespachogenerar','class'=>'formularios','onSubmit'=>'return validageneric(this);');
 		echo br().PHP_EOL;
 		echo $botonesgestion . PHP_EOL;
-		echo form_fieldset('Ingrese los datos por favor',array('class'=>'container_blue containerin')) . PHP_EOL;
-		echo form_open_multipart('cargargastoex/registrargasto/', $htmlformaattributos) . PHP_EOL;
+		echo form_fieldset('<strong>Ingreso de un Gasto</strong> Ingrese los datos por favor',array('class'=>'container_blue containerin')) . PHP_EOL;
+		echo form_open_multipart('cargargastomanual/gastomanualcargarunolisto/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
-			$this->table->add_row('Fecha del gasto:',form_input($valoresinputfecha).'(no mas de 3 dias atras)'.br().PHP_EOL);
-			$this->table->add_row('Categoria - Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);
-			$this->table->add_row('Centro de Costo:', form_dropdown('cod_entidad', $list_entidad, $usuariocodgernow ));
-			$this->table->add_row('Monto adjudicar', form_input('mon_registro','').br().PHP_EOL);
-			$this->table->add_row('Descripcion del detalle :', form_input('des_registro','').br().PHP_EOL);
-			$this->table->add_row('Adjuntar documento', form_upload(array('name'  => 'nam_archivo', 'id'=>'nam_archivo')).br().PHP_EOL );
-		echo $this->table->generate();
+		$this->table->set_template(array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">','cell_start' => '<td class="form-field-box odd">', ) );
+			$this->table->add_row('Fecha del gasto:',form_input($valoresinputfecha).'(no mas de 3 dias atras)'.br().PHP_EOL, $classinput);
+			$this->table->add_row('Centro de Costo:', form_dropdown('cod_entidad', $list_entidad, $usuariocodgernow, $classinput ));
+			$this->table->add_row('Categoria Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria, $classinput).br().PHP_EOL);
+			$this->table->add_row('Monto', form_input('mon_registro','', $classinput).br().PHP_EOL);
+			$this->table->add_row('Concepto :', form_input('des_concepto','', $classinput).br().PHP_EOL);
+			$this->table->add_row('Tipo gasto:', form_dropdown('tipo_gasto', $tipo_gasto , $classinput));
+			$this->table->add_row('Factura Numero :', form_input('factura1_num','', $classinput).br().PHP_EOL);
+			$this->table->add_row('Factura RIF:', form_input('factura1_rif','', $classinput).br().PHP_EOL);
+			$this->table->add_row('Factura escaneada', form_upload(array('name'  => 'nam_archivo', 'id'=>'nam_archivo')).br().PHP_EOL );
+		echo $this->table->generate().br().PHP_EOL;
 		echo form_submit('login', 'Registrar gasto', 'class="btn btn-primary btn-large b10"');
 		echo form_close() . PHP_EOL;
 		echo form_fieldset_close() . PHP_EOL;
@@ -103,7 +111,7 @@
 		if( isset($js_files) )
 			foreach($js_files as $file)
 			{	echo '<script src="'.$file.'"></script>';	}
-		echo $output;
+		echo $htmltablacargasregistros; // $output
 		echo form_fieldset_close() . PHP_EOL;
 		echo br().PHP_EOL;
 		echo $botonesgestion . PHP_EOL;
