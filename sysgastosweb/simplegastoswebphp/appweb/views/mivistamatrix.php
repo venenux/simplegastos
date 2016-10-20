@@ -1,4 +1,4 @@
-	<h1>Matrix de Gastos Tiendas X Categorías</h1>
+	<h1>Matriz de Gastos Tiendas X Categorías</h1>
 	<?php
 	
 	$typcs='text/css';
@@ -33,9 +33,9 @@
 		echo form_fieldset('Ingrese datos solo si desea filtrar la matrix',array('class'=>'container_blue containerin')) . PHP_EOL;
 		echo form_open_multipart('/mimatrixcontroller/secciontablamatrix/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
-			$this->table->add_row('Fecha deseada',form_input($inputfechaattr).br().PHP_EOL);
-			$this->table->add_row('Categoria - Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);
-			$this->table->add_row('Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL );
+			$this->table->add_row('Fecha del mes deseado',form_input($inputfechaattr).'(filtrara la matrix en el mes de la fecha que escoja)'.br().PHP_EOL) ;
+			/*$this->table->add_row('Categoria - Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);
+			$this->table->add_row('Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL );*/
 		echo $this->table->generate();
 		echo form_submit('vermatrix', 'Ver la matrix', 'class="btn btn-primary btn-large b10"');
 		echo form_close() . PHP_EOL;
@@ -48,27 +48,21 @@
 	else if ($seccionpagina == 'secciontablamatrix')
 	{
 		$this->table->clear();
+		$tablestyle = array( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table display groceryCrudTable dataTable ui default ">' );
 		$this->table->add_row(
-			anchor('admcategorias/admcategorias/add',form_button('admcategorias/admcategorias/add', '<< Mes Anterior', 'class="btn btn-primary btn-large b10" '))
+			'<center>'.anchor('mimatrixcontroller/secciontablamatrix/'.(date("Ym")-1),form_button('admcategorias/admcategorias/add', '<< Mes Anterior', 'class="btn btn-primary btn-large b10" ')).'</center>'
 			,
-			anchor('admcategorias/admcategorias/list',form_button('admcategorias/admcategorias/list', 'Mes Siguiente >>', 'class="btn btn-primary btn-large b10" '))
+			'<center>'.anchor('mimatrixcontroller/secciontablamatrix/'.(date("Ym")+1),form_button('admcategorias/admcategorias/list', 'Mes Siguiente >>', 'class="btn btn-primary btn-large b10" ')).'</center>'
 		);
-		$tablabotonmes = form_fieldset(' Seleccionar Mes',array('class'=>'container_blue containerin')) . PHP_EOL;
-		$tablabotonmes .= $this->table->generate();
-		
-		$tablabotonmes .= form_fieldset_close() . PHP_EOL;
+		$tablabotonmes = $this->table->generate();
 
-		$this->table->clear();
-			$this->table->add_row($tablabotonmes);
-			
-		$botonesmes = $this->table->generate();
 		//info usuarios
 		echo 'Usuario actual : '.$userintranet.' ('.$usercorreo.'), Fecha gasto: '.$fechafiltramatrix.'<br>'.PHP_EOL;
 		// mostrar la tabla botones
-		echo $botonesmes;
+		echo $tablabotonmes;
 		// mostrar la tabla tiendas x categorias
 		echo $htmlquepintamatrix . PHP_EOL;
-		echo $botonesmes;
+		echo $tablabotonmes;
 		
 		
 	

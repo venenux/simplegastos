@@ -7,7 +7,7 @@ div.containerssearch {
 	outline:none;
 }
 
-table.tablesforms  { border-top: 0px solid #007; border-left: 0px solid #007; width: 60%; vertical-align: middle; text-align: center; }
+table.tablesforms  { border-top: 0px solid #007; border-left: 0px solid #007; width: 60%; vertical-align: middle; text-align: right; }
 table.tablesforms th { border-bottom: 0px solid #007; border-right: 0px solid #007; }
 table.tablesforms td { border-bottom: 0px solid #007; border-right: 0px solid #007; }
 
@@ -42,7 +42,7 @@ ul.tabs
 	padding: 2px 0;
 	margin:0;
 	list-style-type: none;
-	text-align: center; /*set to left, center, or right to align the tabs as desired*/
+	text-align: right; /*set to left, center, or right to align the tabs as desired*/
 }
 
 ul.tabs li

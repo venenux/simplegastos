@@ -44,8 +44,17 @@ class mimatrixcontroller extends CI_Controller {
 		$usercorreo = $userdata['correo'];
 		$userintranet = $userdata['intranet'];
 		$sessionflag = $this->session->userdata('username').date("YmdHis");
-				$usuariocodgernow = $this->session->userdata('cod_entidad');
-
+       	if( $this->session->userdata('logueado') == FALSE)
+        {
+            redirect('manejousuarios/desverificarintranet');
+        }
+       	
+       	$usuariocodgernow = $this->session->userdata('cod_entidad');
+        if( $usuariocodgernow == null)
+        {
+            redirect('manejousuarios/desverificarintranet');
+        }
+        
 		/* cargar y listaar las CATEGORIAS que se usaran para registros */
 			$sqlcategoria = "
 			select
@@ -121,9 +130,13 @@ class mimatrixcontroller extends CI_Controller {
 
 	}
 
-	public function secciontablamatrix()
+	public function secciontablamatrix( $aniomes = NULL)
 	{
 		/* ***** ini manejo de sesion ******************* */
+		if ($aniomes== NULL)
+		{
+			$aniomes=date("Ym");
+		}
 		$userdata = $this->session->all_userdata();
 		$this->_verificarsesion();
 		$usercorreo = $userdata['correo'];
@@ -132,18 +145,82 @@ class mimatrixcontroller extends CI_Controller {
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
 		$data['menu'] = $this->menu->general_menu();
+ 
+		/* ***** ini OBTENER DATOS DE FORMULARIO (con esto no me meto todavia) ***************************** */
+		$cod_entidad = $this->input->get_post('cod_entidad');
+		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
+		$fechafiltramatrix = $this->input->get_post('fechafiltramatrix');
+		if ($fechafiltramatrix== '')
+		{
+			if($aniomes=='')
+			{	
+				$fechafiltramatrix=date('Ym');
+			}
+			else
+			{
+				$fechafiltramatrix=$aniomes;
+			}
+		}
+		$aniomes=substr($fechafiltramatrix, 0, 6); //¿recorte de un recorte?
+		$fechafiltramatrix=$aniomes;
+		/* ***** fin OBTENER DATOS DE FORMULARIO ***************************** */
+		// averiguar si elusuario es administrativo o usuario de tienda
+        	if( $this->session->userdata('logueado') == FALSE)
+        {
+            redirect('manejousuarios/desverificarintranet');
+        }
+        $usuariocodgernow = $this->session->userdata('cod_entidad');
+        if( $usuariocodgernow == null)
+        {
+            redirect('manejousuarios/desverificarintranet');
+        }
 
 		/* ******** inicio de los querys ************* */
 		$this->load->helper(array('form', 'url','inflector'));
+         
+         /*************** preparar el query para las sucursales */
+         
+         
+         
+         /*determinar nivel de usuario para mostrar
+           las tiendas (sucursales) en la matrix           */
+          if ($usuariocodgernow > 990 and $usuariocodgernow < 998 )
+		  { $queryentidades=  $queryentidades ="
+		    select
+		     ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
+		   from
+		    entidad
+		    where (cod_entidad > '399' and cod_entidad < '990') " ;
+		   }
+	      if ($usuariocodgernow > 399 and $usuariocodgernow < 990  )
+		  { $queryentidades =  " 
+		    select
+		     ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
+		   from
+		    entidad
+		    where cod_entidad = '".$usuariocodgernow."'" ;
+		   }
+	      if ($usuariocodgernow < 399 )
+		  { $queryentidades=  $queryentidades ="
+		    select
+		     ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
+		   from
+		    entidad
+		    where  ifnull(cod_entidad,'') <> '' " ;
+		   }
+	      
+	      if($usuariocodgernow == 998)
+	      {$queryentidades = "
+	        select
+		     ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
+		   from
+		    entidad
+		    where  ifnull(cod_entidad,'') <> '' " ;
+	       }
+		   // pero filtrar las entidades activas nada mas
+			$queryentidades = $queryentidades." and status= 'ACTIVO' order by abr_zona desc";	 
          // buscar las tiendas en un rango ordenadas por zona
-		 $queryentidades ="
-		 select
-		   ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
-		 from
-		   entidad
-		  where (cod_entidad >=000 and   cod_entidad <=005) or (cod_entidad >=400 and   cod_entidad <=998)
-		    and abr_entidad <>'' order by abr_zona
-		 ";
+		 
 		$indicet=0;
 		$lastiendas= $this->db->query($queryentidades);
 		$tiendas= array();
@@ -154,14 +231,26 @@ class mimatrixcontroller extends CI_Controller {
 		$xtiendas= (string)count($tiendas);// ya se cuantas tiendas
 
 
-		// crear el query sql para cargar las cabeceras
+		/* crear el query sql para cargar las cabeceras, tomando en cuenta
+		 el nivel usuario (codger) para listar  */
+		
 		$querycabeceras ="
 		SELECT
 		   cod_categoria as codex, substring(des_categoria, 1, 4)  as categoria
 		FROM
 		   categoria
 		";
-		// aquiio se establece las cabeceras
+		/* si el codger es 998 es administrativo, se muestran TODAS LAS 
+		 CATEGORIAS , pero no se muestra esa vista a las tiendas*/ 
+		if ($usuariocodgernow > 399 and $usuariocodgernow < 990 )
+         {// si no se filtra que categorias ve la tienda
+          $querycabeceras = $querycabeceras . " where  cast(substring(cod_categoria,10,8) as unsigned) < 120000";  
+          }
+        
+		// aqui se establece las cabeceras lueego de ejecutar el query
+		
+		
+		
 		$micabeceras = $this->db->query($querycabeceras);
         $finalindex=1;
         $filafinal=array(0=>'Totales ('.$xtiendas.'):');
@@ -171,27 +260,19 @@ class mimatrixcontroller extends CI_Controller {
 		{
 			$categorias[$row->codex]=$row->categoria;
             //aprovecho este ciclo para cargar con cero los totales
-            $filafinal[$finalindex]= 0.00;
+            $filafinal[$finalindex]= (float)0.00;
 		    $finalindex= $finalindex+1;
 		}
 		$categorias[count($categorias)]='TOTAL:';
 
-		/* ***** ini OBTENER DATOS DE FORMULARIO (con esto no me meto todavia) ***************************** */
-		$fechafiltramatrix = $this->input->get_post('fechafiltramatrix');
-		if( $fechafiltramatrix == '' or empty($fechafiltramatrix))
-			$fechafiltramatrix = date('Ymd');
-		$cod_entidad = $this->input->get_post('cod_entidad');
-		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
-		/* ***** fin OBTENER DATOS DE FORMULARIO ***************************** */
 		 // generar fila por fila la tabla
 		$maxcat=count($categorias) ;
 		$elgraantootal =0;
-		$tablestyle = array( 'table_open'  => '<table border="1" cellpadding="2" cellspacing="2" class="table tablelist datalistperfil ui default ">', 'cell_start' => '<td  class="odd">', );
+		$tablestyle = array( 'table_open'  => '<table border="1" cellpadding="2" cellspacing="2" class="table display groceryCrudTable dataTable ui default ">' );
 		$this->table->set_caption(NULL);
 		$this->table->clear();
 		$this->table->set_template($tablestyle);
 		$this->table->set_heading($categorias);
-		$fechachucuta=substr($fechafiltramatrix, 0, 6);
 		foreach($tiendas as $indicetienda => $tiend)
 		{
 			$icat=0;
@@ -209,7 +290,7 @@ class mimatrixcontroller extends CI_Controller {
 				and
 				  registro_gastos.cod_categoria='".$indicecategoria."'
 				and
-				  registro_gastos.fecha_registro like '%".$fechachucuta."%'
+				  registro_gastos.fecha_concepto like '".$fechafiltramatrix."%'
 				 ";
 
                 //aqui se calcula el gasto categoria por tienda
@@ -236,13 +317,13 @@ class mimatrixcontroller extends CI_Controller {
 			      from registro_gastos where
 			        registro_gastos.cod_entidad = '".$indicetienda."'
 			      	and
-				  registro_gastos.fecha_registro like '%".$fechachucuta."%'      ";
+				  registro_gastos.fecha_concepto like '".$fechafiltramatrix."%'      ";
 
 			      $totaltienda=$this->db->query($querygastotiendasfullcat);
 			      foreach ($totaltienda->result() as $row)
 		          { $totalfullcat=$row->sumatienda;break;}
                     //acumular el total cada categoria
-			        $fila[$icat]= (float)$totalfullcat;
+			        $fila[$icat]=(float)$totalfullcat;
 			     
 
 			      }
@@ -252,7 +333,7 @@ class mimatrixcontroller extends CI_Controller {
 
 		//   uff tanto  trabajo
 	  }
-		$filafinal[$finalindex+1]= $elgraantootal;
+		$filafinal[$finalindex+1]= (float)$elgraantootal;
 		$this->table->add_row($filafinal);
 		$data['htmlquepintamatrix'] = $this->table->generate(); // html generado lo envia a la matrix
 		/* ***** fin pintar una tabla recorriendo el query **************** */
@@ -260,9 +341,9 @@ class mimatrixcontroller extends CI_Controller {
 		$data['Categorias Cargadas'] = $categorias;
 		$data['Tiendas Cargadas:'] = $tiendas;
 		$data['Fecha:']=$fechafiltramatrix;
-		$data['Fecha recortada:']=$fechachucuta;
 		$data['seccionpagina'] = 'secciontablamatrix';
 		$data['userintran'] = $userintranet;
+		$data['codger (nivel acceso):']= $usuariocodgernow;
 		$data['fechafiltramatrix'] = $fechafiltramatrix;
 		$data['cod_entidad'] = $cod_entidad;
 		$data['cod_subcategoria'] = $cod_subcategoria;

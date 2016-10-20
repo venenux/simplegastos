@@ -1,6 +1,6 @@
 h1{
 	font-family:Verdana, Arial, Helvetica, sans-serif;
-	font-size:30px;
+	font-size:20px;
 }
 
 .titlesubpage {
@@ -24,7 +24,7 @@ h1{
 
 p{
 	font-family:Georgia, "Times New Roman", Times, serif;
-	font-size:12px;
+	font-size:10px;
 }
 
 fieldset{
@@ -64,9 +64,9 @@ td.tablecontainer {
 	padding: 12px;
 }
 
-#footer{
+footer{
 	font-family:Arial, Helvetica, sans-serif;
-	font-size:10px;
+	font-size:4px;
 }
 
 .arribaizquierda{
@@ -110,7 +110,7 @@ a {
 /* - begin - class datalist para las tablas de datos */
 /* ----------------------------------------------- */
 
-.datosheaders { border: 1px solid #007; width: 270px; height: 20px; background: #F0F0F0 url(../media/tabbg.gif) 0 0 repeat-x; }
+.datosheaders { border: 1px solid #007; width: 100px; height: 20px; background: #F0F0F0 url(../media/tabbg.gif) 0 0 repeat-x; }
 .datosheaders a { text-decoration:none; }
 table.datalist { border: 1px solid #007; width: 75%; }
 td.datalist { border: 1px solid #007; }
@@ -118,12 +118,12 @@ td.datalist { border: 1px solid #007; }
 .even { background-color: #eff; }
 .odd { background-color: #eef; }
 table.datalistperfil { border: 0.5px solid #007; width: 90%; }
-table.datalistperfil th { font-size:11px; }
+table.datalistperfil th { font-size:9px; }
 
 /* ----------------------------------------------- */
 /* - begin - class menu css from piccoro's library */
 /* ----------------------------------------------- */
-.menu 		{ margin: 0px; font-size: medium; width: 100%; float: none; }
+.menu 		{ margin: 0px; font-size: small; width: 100%; float: none; }
 table.menutable{ color: blue; border: 1px solid green; }
 .menunodes 	{ -webkit-border-radius: 6px; -moz-border-radius: 6px; border-radius: 6px; }
 .menutable 	{ -webkit-border-radius: 6px; -moz-border-radius: 6px; border-radius: 6px; }
@@ -201,7 +201,7 @@ div.field_heading {
 
 }
 div.type_heading {
-        font-size:18px;
+        font-size:10px;
         margin: 0px 0 9px 0;
         clear: both;
 
