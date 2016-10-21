@@ -120,36 +120,44 @@ class Cargargastomanual extends CI_Controller {
 		$fecha_registro = date('Ymd');
 		$cod_registro = 'GAS' . $fecha_registro . date('His');
 		// ******* CARGA DEL ARCHIVO ****************** */
-		$directoriofacturas = CATAPATH .'appweb/archivoscargas/' . date("Y") . '/' .date("Ym");
+		$directoriofacturas = 'appweb/archivoscargas/' . date("Y") . '/' .date("Ym");
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
-				unlink($directoriofacturas);
+			{	unlink($directoriofacturas);	}
 			mkdir($directoriofacturas, 0777, true);
 			chmod($directoriofacturas,0777);
 		}
 		$cargaconfig['upload_path'] = $directoriofacturas;
-		$cargaconfig['allowed_types'] = 'gif|jpg|png|pdf|ods';
+		$cargaconfig['allowed_types'] = 'gif|jpg|png|jpeg';
 		$cargaconfig['max_size']  = 0;  //$cargaconfig['max_size']= '100'; // en kilobytes
 		$cargaconfig['max_width'] = 0;
 		$cargaconfig['max_height'] = 0;
 		//$cargaconfig['remove_spaces'] = true;
 		$cargaconfig['encrypt_name'] = TRUE;
-		$this->load->helper(array('form', 'url','inflector'));
 		$this->load->library('upload', $cargaconfig);
+		$this->load->helper('inflector');
 		$this->upload->initialize($cargaconfig);
-		$this->upload->overwrite = true;
-		if ( $this->upload->do_upload('factura1_bin')) // nombre del campo alla en el formulario
+		$this->upload->do_upload('factura1_bin');
+		$file_data = $this->upload->data();
+		$filenamen = $cod_registro . $file_data['file_ext'];
+        $filenameorig =  $file_data['file_path'] . $file_data['file_name'];
+        $filenamenewe =  $file_data['file_path'] . $filenamen;
+        rename( $filenameorig, $filenamenewe); // TODO: rename
+
+		if ( is_file($filenamenewe) ) // nombre del campo alla en el formulario
 		{
 			$conadjunto = TRUE;
-			$factura1_data = $this->upload->data();
-			$factura1_bin = $factura1_data['full_path'];
+			$factura1_data = $file_data;
+			$factura1_bin = $filenamen;
 		}
 		else
 		{
 			$conadjunto = FALSE;
 			$factura1_bin = "S/A";
 		}
+		$file_data = $this->upload->data();
+		$data['file_data'] = $file_data;
 		$data['factura1_bin'] = $factura1_bin;
 		$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
 		// ******* procesar el registro sin el adjunto
@@ -337,13 +345,11 @@ class Cargargastomanual extends CI_Controller {
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
-				unlink($directoriofacturas);
+			{	unlink($directoriofacturas);	}
 			mkdir($directoriofacturas, 0777, true);
 			chmod($directoriofacturas,0777);
 		}
 		$crud->set_field_upload('factura1_bin',$directoriofacturas);
-		//$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
-		//$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
 		$output = $crud->render();
 
 		// TERMINAR EL PROCESO (solo paso 1) **************************************************** /
@@ -365,28 +371,6 @@ class Cargargastomanual extends CI_Controller {
 			$this->db->query($sqldatostablasfiltrados);
 			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
 			$this->db->query($sqldatostablasfiltrados);
-	}
-
-	/* ver quien hizo la carga en cada columna de la tabla de registros mostrada */
-	function _callback_verusuario($value, $row)
-	{
-	/*	if ($value != '' )
-		{
-			$usuariover = explode('.',$value);	$intranet = '';
-			if (isset($usuariover[1]))
-			{	if ($usuariover[1] != null)
-				{
-					$sqlquien = "select intranet from usuarios where intranet = '".$usuariover[1]."'";
-					$sqlquienresult = $this->db->query($sqlquien);
-					$intranet = '';
-			//if ($sqlquienresult->num_rows() > 0)
-					foreach ($sqlquienresult->result() as $row)
-						$intranet = $row->intranet;
-					return "<a href='".site_url('admusuariosentidad/admusuariosavanzado/read/'.$intranet)."'>$value</a>";
-				}
-			}else*/
-				return $value;
-		//}
 	}
 
 }

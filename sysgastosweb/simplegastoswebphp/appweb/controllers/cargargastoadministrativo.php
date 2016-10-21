@@ -260,13 +260,17 @@ class cargargastoadministrativo extends CI_Controller {
 			$crud->unset_delete();
 		}
 		else if ($usuariocodgernow != 998 )
-			$crud->unset_operations();
+		{
+			$crud->unset_add();
+			$crud->unset_edit();
+			$crud->unset_delete();
+		}
 		$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto','des_estado');
 		$directoriofacturas = 'appweb/archivoscargas/' . date("Y") . '/' .date("Ym");
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
-				unlink($directoriofacturas);
+			{	unlink($directoriofacturas);	}
 			mkdir($directoriofacturas, 0777, true);
 			chmod($directoriofacturas,0777);
 		}
