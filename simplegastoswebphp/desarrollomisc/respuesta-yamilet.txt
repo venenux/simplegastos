@@ -1,0 +1,167 @@
+buenos días, les agradezco que nos quiera ayuda lo pronto posible  con este nuevo sistema. 
+
+realice una prueba para ver si se adapta a los que estamos solicitado y ah arrojado lo siguiente.
+
+1- las personas que hacer la carga de los gasto en el departamento no tiene manera de adjuntar documentos que certifique el por que de su cancelación o pago en caso que sea nomina las personas que allí perciben dinero  entre otros gasto que se realiza y escaneamos dicha información y le colocamos inperbinculo que lleva el 2do cuadro.
+
+2- se necesita que coloque todas las categoría faltan PUBLICIDAD, ADUANA Y DÉBITOS
+
+3- es importante que el cuadro nos lleve a la matriz para poder verificar las carga que estamos realizado por categoría.
+
+4-yo como master no puedo ver ni la matriz ni ver los detallado por categoría según las carga que se haya cargado.
+
+5- las carga que realice es prueba YA QUE NECESITAMOS ENTRA DE LLENO CON EL CUADRO LO ANTE POSIBLE.
+
+6- Ya prácticamente por la fecha no podemos carga este mes que esta en curso por eso les pido a reglar todo los detalle para entra de llano con el mismo.
+
+7- las tiendas van a carga con el usuario que ustedes le coloque al gerente de la tienda y que cuando el mismo se trasladado de la tienda no pueda carga con ese mismo en otra parte.
+
+NOTA:
+ES IMPORTANTE QUE  SR LENZ QUE ES LA PERSONAS QUE A ESTADO PREGUNTADO  SOBRE EL CUADRO QUE ESTAMOS TRABAJANDO ACTUAL MENTE  EN EL DEPARTAMENTO ESTE TAMBIÉN AL TANTO DE DICHO PROCESO YA QUE A EL ES LA PERSONAS QUE MAS LE HEMOS EXPLICADO CON DETALLE LOS QUE NECESITAMOS.
+
+hoy le pregunte y no me supo dar respuesta ya que no esta altano de los mismo.
+
+gracias  
+
+
+CATEGORIAS
+
+NOMINA	MANT.	CONST.	SERVICIOS 	HONORARIOS 	TRANSPORTE	PROV.	IMPUESTOS	EQUIPOS	CONSUMIBLES	PUBLICIDAD	DEBITOS	ADUANA	INMUEBLES	DORA 	VARIOS
+
+
+UBICACIONES (ADM)
+
+PRESIDENCIA 
+NOMINA
+BANCOS
+ALCALDIA
+LEGAL
+SERVICIO G
+PAGOS 
+ADUANA
+GASTOS 
+CICLICO
+SISTEMA 
+SOPORTE
+OPERACIONES
+INVENTARIO
+BLUEBERRY D
+SUPERVISION
+ADM BQMTO
+ADM RCS
+GRUPO CONTABLE
+
+RUICES 
+GANPON SABAL
+GALPON 9
+GALPON 12
+GALPON NUEVO
+ZONA
+RDC
+
+OFIC. LIDO
+MULTINVEST
+DON RAFAEL
+LA ESTANCIA
+CABUDARE
+CONST. TIGRE
+CONST. GUARENA
+
+CPF
+
+
+UBICACIONES (SUC)
+
+ACA
+LAD
+ARC
+TMT
+QUI
+CAR
+SRQ
+TOC
+BLT
+CCI
+MRC
+SBC
+LIM
+PA1
+NA1
+NA2
+STT
+STB
+CAS
+CHA
+GUA
+VC1
+VC2
+VC3
+VC4
+VIC
+MA1
+MA2
+PCB
+TRU
+BRN
+VLR
+MRD
+SCR
+SB2
+COR
+COH
+COF
+PF1
+PF2
+MB1
+MB2
+TIG
+BOL
+ORI
+SFX
+PLC
+MRG
+MTI 
+MT2
+
+
+	000-systemas
+	111-presidencia
+	113-impuestosvnz
+	122-tesoreriavnz
+	132-rrhhvnz
+	134-nominavnz
+	135-operacionesvnz
+	136-rrhhvnz
+	142-inventariovnz
+	157-mercanciasvnz
+	161-soporte
+	161-soportevnz
+	172-acopio-vnz
+	174-servicios-generales
+	202-analisisyreportes
+	202-showroomropa
+	202-showroomropavnz
+	203-showroomhogar
+	204-gastosvnz
+	206-auditoriavnz
+	206-cuentasvnz
+	207-supervisionvnz
+	210-gestion-coc
+	220-comercalizacion-vnz
+	245-operacionesvnz
+	301-medios
+	777-soporte-vnz
+	888-costarica
+	888-panama
+	999-encargados
+	999-galpones
+	999-tiendas-and
+	999-tiendas-cap
+	999-tiendas-cen
+	999-tiendas-coc
+	999-tiendas-csr
+	999-tiendas-faz
+	999-tiendas-ori
+	999-tiendas-pan
+	999-tiendas-pur
+	999-todos
