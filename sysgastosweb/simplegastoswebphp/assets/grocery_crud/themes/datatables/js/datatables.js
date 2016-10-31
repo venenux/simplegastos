@@ -30,7 +30,7 @@ $(document).ready(function() {
 	if(!unset_export)
 	{
 		aButtons.push(    {
-	         "sExtends":    "xls",
+	         "sExtends":    "ods",
 	         "sButtonText": export_text,
 	         "mColumns": mColumns
 	     });
