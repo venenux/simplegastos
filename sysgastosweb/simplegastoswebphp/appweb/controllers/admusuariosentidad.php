@@ -114,16 +114,20 @@ class admusuariosentidad extends CI_Controller {
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->set_table('entidad');
 		$crud->set_subject('Sucursal');
-		$crud->columns('abr_zona','abr_entidad','des_entidad','tipo_entidad','status','nam_usuario','cod_entidad','sello','cod_fondo','sessionflag');
+		$crud->columns('abr_zona','abr_entidad','des_entidad','tipo_entidad','status','nam_usuario','cod_entidad','sello','rif_razonsocial','num_telefonofijo','num_celularenc1','cod_fondo','sessionflag');
 		$crud->display_as('abr_entidad','Siglas')
 			 ->display_as('abr_zona','Zona')
 			 ->display_as('des_entidad','Nombre')
+			 ->display_as('cod_fondo','Fondo')
 			 ->display_as('tipo_entidad','Tipo')
 			 ->display_as('status','Estado')
 			 ->display_as('nam_usuario','Asociados')
 			 ->display_as('cod_entidad','Codger')
+			 ->display_as('rif_sucursal','Rif')
+			 ->display_as('rif_razonsocial','Razon')
+			 ->display_as('num_telefonofijo','Telefono')
+			 ->display_as('num_celularenc1','Celular')
 			 ->display_as('sello','Sello')
-			 ->display_as('cod_fondo','Fondo')
 			 ->display_as('sessionflag','Modificado');
 		$crud->unset_add_fields('sessionflag');
 		$crud->set_relation_n_n('nam_usuario', 'entidad_usuario', 'usuarios', 'cod_entidad', 'intranet', 'nombre');

@@ -27,9 +27,9 @@ class Menu extends CI_Model
 		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Cargar un gasto');
 		$cargargastoadministrativo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Revisar todas las cargas');
 		// enlaces de cargas para tiendas edita ver filtrado
-		$cargastie=anchor('cargargastomanual/gastomanualrevisarlos','Cargas');
-		$cargargastoentidadestienda['gastomanualcargaruno']=anchor('cargargastomanual/gastomanualcargaruno','Cargar gasto');
-		$cargargastoentidadestienda['gastomanualrevisarlos']=anchor('cargargastomanual/gastomanualrevisarlos','Revisar gastos');
+		$cargastie=anchor('cargargastosucursales/gastosucursalesrevisarlos','Gasto');
+		$cargargastoentidadestienda['cargargastosucursalesuno']=anchor('cargargastosucursales/gastomanualcargaruno','Cargar gasto');
+		$cargargastoentidadestienda['gastosucursalesrevisarlos']=anchor('cargargastosucursales/gastosucursalesrevisarlos','Revisar gastos');
 		// enlace especial experimental de cargas multipermisos para todos
 		$cargasrep=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');
 		$cargasgastoreportesvertodo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Revisar las cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
@@ -66,6 +66,7 @@ class Menu extends CI_Model
 					$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
 					$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
 					$header['7'] = $nodes->m_header_nodes($systemalog,array());
+					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
 				}
 				else if  ($usuariocodgernow >= 990 and $usuariocodgernow < 998 )
 				{
