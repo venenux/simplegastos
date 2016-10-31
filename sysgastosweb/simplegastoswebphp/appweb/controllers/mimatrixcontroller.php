@@ -161,7 +161,7 @@ class mimatrixcontroller extends CI_Controller {
 				$fechafiltramatrix=$aniomes;
 			}
 		}
-		$aniomes=substr($fechafiltramatrix, 0, 6); //¿recorte de un recorte?
+		$aniomes=substr($fechafiltramatrix, 0, 6); //¿recorte de un recorte? si!
 		$fechafiltramatrix=$aniomes;
 		/* ***** fin OBTENER DATOS DE FORMULARIO ***************************** */
 		// averiguar si elusuario es administrativo o usuario de tienda
@@ -268,7 +268,7 @@ class mimatrixcontroller extends CI_Controller {
 		 // generar fila por fila la tabla
 		$maxcat=count($categorias) ;
 		$elgraantootal =0;
-		$tablestyle = array( 'table_open'  => '<table border="1" cellpadding="2" cellspacing="2" class="table display groceryCrudTable dataTable ui default ">' );
+		$tablestyle = array( 'table_open'  => '<table border="1" cellpadding="0" cellspacing="0" class="table display groceryCrudTable dataTable ui default ">' );
 		$this->table->set_caption(NULL);
 		$this->table->clear();
 		$this->table->set_template($tablestyle);

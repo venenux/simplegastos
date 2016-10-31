@@ -60,7 +60,7 @@ class admcategorias extends CI_Controller {
 		$crud = new grocery_CRUD();
 		$crud->set_table('categoria');
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
-//		$crud->columns('des_categoria','tipo_categoria','fecha_categoria','cod_categoria','sessionflag');
+		$crud->columns('des_categoria','tipo_categoria','fecha_categoria','cod_categoria','sessionflag');
 		$crud->display_as('cod_categoria','Codigo')
 			 ->display_as('des_categoria','Categoria')
 			 ->display_as('tipo_categoria','Tipo')
@@ -90,7 +90,7 @@ class admcategorias extends CI_Controller {
 		}
 		$crud->callback_before_insert(array($this,'datospostinsertcat'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admcategorias"));
+		//$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admcategorias"));
 		$output = $crud->render();
 		$this->_esputereport($output);
 	}

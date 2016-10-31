@@ -124,7 +124,7 @@ class cargargastoadministrativo extends CI_Controller {
 			$cod_categoria = $this->input->get_post('cod_categoria');
 			$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 			// filtrar, crear una vista en vez de usar tabla con todos los datos
-			if ( ! ($usuariocodgernow == 998) and ! ($usuariocodgernow == "") )
+			if ($usuariocodgernow != 998 and $usuariocodgernow != '')
 			{
 				$tablaregistros = "registro_gastos_".$userintran."";
 				$this->db->trans_strict(TRUE); // todo o nada

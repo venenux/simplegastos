@@ -56,7 +56,7 @@ class Menu extends CI_Model
 			$header['0'] = $nodes->m_header_nodes($inicio, $inicionlogin);
 			if ( ! $usuariocodgernow == "" )
 			{
-				if( $usuariocodgernow >399 and $usuariocodgernow < 990)
+				if( $usuariocodgernow < 990)
 				{
 					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
 				}
