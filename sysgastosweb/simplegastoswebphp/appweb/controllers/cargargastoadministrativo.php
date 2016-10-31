@@ -225,14 +225,14 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->set_subject('Gasto');
 		$crud
 			 ->display_as('cod_registro','Codigo')
-			 ->display_as('cod_entidad','Centro')
+			 ->display_as('cod_entidad','Centro<br>Coste')
 			 ->display_as('cod_categoria','Categoria')
 			 ->display_as('cod_subcategoria','Subcategoria')
 			 ->display_as('mon_registro','Monto')
 			 ->display_as('des_concepto','Concepto')
 			 ->display_as('des_detalle','Detalles')
 			 ->display_as('des_estado','Justificacion')
-			 ->display_as('tipo_concepto','Tipo Gasto')
+			 ->display_as('tipo_concepto','Tipo<br>Gasto')
 			 ->display_as('fecha_concepto','Fecha<br>Gasto')
 			 ->display_as('fecha_registro','Fecha<br>Registro')
 			 ->display_as('factura_tipo','Factura<br>Tipo')
@@ -242,9 +242,9 @@ class cargargastoadministrativo extends CI_Controller {
 		//	 ->display_as('cod_fondo','Fondo')
 			 ->display_as('sessionflag','Modificado')
 			 ->display_as('sessionficha','Creador');
-		$crud->columns('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','fecha_concepto','tipo_concepto','estado','des_estado','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha','sessionflag');
-		$crud->add_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','estado','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha');
-		$crud->edit_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','estado','des_estado','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionflag');
+		$crud->columns('fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro','sessionficha','sessionflag');
+		$crud->add_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha');
+		$crud->edit_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionflag');
 		$crud->set_relation('cod_entidad','entidad','{des_entidad} - {cod_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria','subcategoria','{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
@@ -283,7 +283,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->field_type('sessionficha', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('fecha_registro', 'invisible',''.date("Ymd"));
-		$crud->field_type('tipo_concepto','dropdown',array('NORMAL' => 'NORMAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO'));
+		$crud->field_type('tipo_concepto','dropdown',array('SUCURSAL' => 'SUCURSAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO'));
 		$crud->field_type('factura_tipo','dropdown',array('EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE'));
 		$crud->field_type('des_detalle','text');
 		$crud->field_type('des_estado','text');
@@ -297,7 +297,7 @@ class cargargastoadministrativo extends CI_Controller {
 			if ($usuariocodgernow >= 990 or $usuariocodgernow < 10 )
 			{
 				$crud->field_type('estado', 'invisible','PENDIENTE');
-				$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto');
+				$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','factura_tipo');
 			}
 		}
 		else if ($currentState == 'edit')
@@ -309,7 +309,7 @@ class cargargastoadministrativo extends CI_Controller {
 			if ($usuariocodgernow >= 990 or $usuariocodgernow < 10 )
 			{
 				$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'RECHAZADO' => 'RECHAZADO'));
-				$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto','des_estado');
+				$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','factura_tipo','des_estado');
 			}
 			//$crud->field_type('cod_entidad', 'readonly'); // tiendas no editan entidad, viene asignada
 			//$crud->field_type('cod_categoria', 'readonly');

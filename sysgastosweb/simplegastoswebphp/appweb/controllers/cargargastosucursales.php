@@ -455,7 +455,7 @@ class Cargargastosucursales extends CI_Controller {
 		$userintran = $this->session->userdata('intranet');
 
 		// ******* ini nombres de tablas para filtrar los datos:
-		$segurodelatabla = rand(6,9);
+		$segurodelatabla = rand(6,8);
 		//$segurodelatabla = date("YmdHis");
 		$tablaentidades = "entidad_" . $userintran . $segurodelatabla;
 		$tablacategoria = "categoria_" . $userintran . $segurodelatabla;

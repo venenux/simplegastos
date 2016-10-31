@@ -25,13 +25,13 @@
 --
 
 DROP TABLE IF EXISTS `categoria`;
-CREATE TABLE IF NOT EXISTS "categoria" (
-  "cod_categoria" varchar(40) NOT NULL COMMENT 'CATYYYYMMDDhhmmss',
-  "des_categoria" varchar(400) NOT NULL COMMENT 'descripcion o nombre categoria',
-  "tipo_categoria" varchar(40) DEFAULT NULL COMMENT 'ADMINISTRATIVO|NORMAL',
-  "fecha_categoria" varchar(40) DEFAULT NULL COMMENT 'fecha creacion al usuario',
-  "sessionflag" varchar(40) DEFAULT NULL COMMENT 'quien altero YYYYMMDDhhmmss+codger+.+user',
-  PRIMARY KEY ("cod_categoria")
+CREATE TABLE IF NOT EXISTS `categoria` (
+  `cod_categoria` varchar(40) NOT NULL COMMENT 'CATYYYYMMDDhhmmss',
+  `des_categoria` varchar(400) NOT NULL COMMENT 'descripcion o nombre categoria',
+  `tipo_categoria` varchar(40) DEFAULT NULL COMMENT 'ADMINISTRATIVO|NORMAL',
+  `fecha_categoria` varchar(40) DEFAULT NULL COMMENT 'fecha creacion al usuario',
+  `sessionflag` varchar(40) DEFAULT NULL COMMENT 'quien altero YYYYMMDDhhmmss+codger+.+user',
+  PRIMARY KEY (`cod_categoria`)
 );
 
 --
@@ -66,25 +66,25 @@ INSERT INTO `categoria` VALUES('CAT20161002010002', 'CATE 2', NULL, '20161007', 
 --
 
 DROP TABLE IF EXISTS `entidad`;
-CREATE TABLE IF NOT EXISTS "entidad" (
-  "cod_entidad" varchar(40) NOT NULL COMMENT 'codger entidad o id sucursal',
-  "abr_entidad" varchar(40) NOT NULL COMMENT 'abrebiacion de esta entidad',
-  "abr_zona" varchar(40) NOT NULL COMMENT 'siglas de la zona geografica',
-  "des_entidad" varchar(400) NOT NULL COMMENT 'descripcion sucursal',
-  "status" varchar(40) NOT NULL COMMENT 'ACTIVA|CERRADA|SUSPENDIDA|ESPECIAL',
-  "tipo_entidad" varchar(40) DEFAULT NULL COMMENT 'ADMINISTRATIVA|SUCURSAL',
-  "cod_fondo" varchar(40) DEFAULT NULL COMMENT 'fondo o monto disponible si aplica',
-  "sello" varchar(40) DEFAULT NULL COMMENT 'sello asociado oasis',
-  "rif_sucursal" varchar(40) DEFAULT NULL COMMENT 'Rif razon social',
-  "rif_razonsocial" varchar(40) DEFAULT NULL COMMENT 'Nombre razon social',
-  "des_administradora" varchar(40) DEFAULT NULL COMMENT 'Nombre del usuario administradora',
-  "num_telefonofijo" varchar(40) DEFAULT NULL COMMENT 'Numero telefono fijo',
-  "des_nombreenc1" varchar(40) DEFAULT NULL COMMENT 'Nombre encargado o jefe',
-  "num_celularenc1" varchar(40) DEFAULT NULL COMMENT 'Numero telefono encargado o jefe',
-  "des_nombreenc2" varchar(40) DEFAULT NULL COMMENT 'Nombre segundo encargado',
-  "num_celularenc2" varchar(40) DEFAULT NULL COMMENT 'Numero Telefono segundo',
-  "sessionflag" varchar(40) DEFAULT NULL COMMENT 'quien altero YYYYMMDDhhmmss+codger+.+user',
-  PRIMARY KEY ("cod_entidad")
+CREATE TABLE IF NOT EXISTS `entidad` (
+  `cod_entidad` varchar(40) NOT NULL COMMENT 'codger entidad o id sucursal',
+  `abr_entidad` varchar(40) NOT NULL COMMENT 'abrebiacion de esta entidad',
+  `abr_zona` varchar(40) NOT NULL COMMENT 'siglas de la zona geografica',
+  `des_entidad` varchar(400) NOT NULL COMMENT 'descripcion sucursal',
+  `status` varchar(40) NOT NULL COMMENT 'ACTIVA|CERRADA|SUSPENDIDA|ESPECIAL',
+  `tipo_entidad` varchar(40) DEFAULT NULL COMMENT 'ADMINISTRATIVA|SUCURSAL',
+  `cod_fondo` varchar(40) DEFAULT NULL COMMENT 'fondo o monto disponible si aplica',
+  `sello` varchar(40) DEFAULT NULL COMMENT 'sello asociado oasis',
+  `rif_sucursal` varchar(40) DEFAULT NULL COMMENT 'Rif razon social',
+  `rif_razonsocial` varchar(40) DEFAULT NULL COMMENT 'Nombre razon social',
+  `des_administradora` varchar(40) DEFAULT NULL COMMENT 'Nombre del usuario administradora',
+  `num_telefonofijo` varchar(40) DEFAULT NULL COMMENT 'Numero telefono fijo',
+  `des_nombreenc1` varchar(40) DEFAULT NULL COMMENT 'Nombre encargado o jefe',
+  `num_celularenc1` varchar(40) DEFAULT NULL COMMENT 'Numero telefono encargado o jefe',
+  `des_nombreenc2` varchar(40) DEFAULT NULL COMMENT 'Nombre segundo encargado',
+  `num_celularenc2` varchar(40) DEFAULT NULL COMMENT 'Numero Telefono segundo',
+  `sessionflag` varchar(40) DEFAULT NULL COMMENT 'quien altero YYYYMMDDhhmmss+codger+.+user',
+  PRIMARY KEY (`cod_entidad`)
 );
 
 --
@@ -256,11 +256,11 @@ INSERT INTO `entidad` VALUES('999', 'EST', 'VE-CAP', 'Estancia Real (Castellana)
 --
 
 DROP TABLE IF EXISTS `entidad_usuario`;
-CREATE TABLE IF NOT EXISTS "entidad_usuario" (
-  "intranet" varchar(40) NOT NULL COMMENT 'usuario relacionado',
-  "cod_entidad" varchar(40) NOT NULL COMMENT 'entidad asociado',
-  "sessionflag" varchar(40) DEFAULT NULL COMMENT 'quien altero YYYYMMDDhhmmss+codger+.+user',
-  PRIMARY KEY ("intranet","cod_entidad")
+CREATE TABLE IF NOT EXISTS `entidad_usuario` (
+  `intranet` varchar(40) NOT NULL COMMENT 'usuario relacionado',
+  `cod_entidad` varchar(40) NOT NULL COMMENT 'entidad asociado',
+  `sessionflag` varchar(40) DEFAULT NULL COMMENT 'quien altero YYYYMMDDhhmmss+codger+.+user',
+  PRIMARY KEY (`intranet`,`cod_entidad`)
 );
 
 --
@@ -371,25 +371,25 @@ CREATE TABLE IF NOT EXISTS `marixtodoscruda` (
 --
 
 DROP TABLE IF EXISTS `registro_gastos`;
-CREATE TABLE IF NOT EXISTS "registro_gastos" (
-  "cod_registro" varchar(40) NOT NULL COMMENT 'GASYYYYMMDDhhmmss usa fecha y hora',
-  "cod_entidad" varchar(40) NOT NULL COMMENT 'codger de la entidad al cual se le adjudica',
-  "cod_categoria" varchar(40) NOT NULL COMMENT 'categoria del gasto',
-  "cod_subcategoria" varchar(40) NOT NULL COMMENT 'cual subcategoria no puede faltar',
-  "mon_registro" decimal(20,2) NOT NULL COMMENT 'monto de cuanto se gasto',
-  "des_concepto" varchar(400) NOT NULL COMMENT 'descripcion del gasto',
-  "des_detalle" varchar(10000) DEFAULT NULL COMMENT 'detalle opcional del gasto',
-  "des_estado" varchar(40) DEFAULT NULL COMMENT 'porque cambio de estado',
-  "estado" varchar(40) DEFAULT 'PENDIENTE' COMMENT 'APROBADO|RECHAZADO|PENDIENTE|INVALIDO',
-  "tipo_gasto" varchar(40) DEFAULT 'EGRESO' COMMENT 'EGRESO|CONTRIBUYENTE',
-  "factura1_rif" varchar(40) DEFAULT NULL COMMENT 'rif si factura es contribuyente',
-  "factura1_num" varchar(40) DEFAULT NULL COMMENT 'mumero de factura opcinal',
-  "factura1_bin" varchar(10000) DEFAULT NULL COMMENT 'factura por defecto si la sube',
-  "fecha_concepto" varchar(40) DEFAULT NULL COMMENT 'YYYYMMDD de la factura si tiene',
-  "fecha_registro" varchar(40) NOT NULL COMMENT 'para mostrar usuario y auditoria cuando',
-  "sessionflag" varchar(40) DEFAULT NULL COMMENT 'quien modifico YYYYMMDDhhmmss + codger + . + ficha',
-  "sessionficha" varchar(40) DEFAULT NULL COMMENT 'quien lo creo YYYYMMDDhhmmss + codger + . + ficha',
-  PRIMARY KEY ("cod_registro")
+CREATE TABLE IF NOT EXISTS `registro_gastos` (
+  `cod_registro` varchar(40) NOT NULL COMMENT 'GASYYYYMMDDhhmmss usa fecha y hora',
+  `cod_entidad` varchar(40) NOT NULL COMMENT 'codger de la entidad al cual se le adjudica',
+  `cod_categoria` varchar(40) NOT NULL COMMENT 'categoria del gasto',
+  `cod_subcategoria` varchar(40) NOT NULL COMMENT 'cual subcategoria no puede faltar',
+  `mon_registro` decimal(20,2) NOT NULL COMMENT 'monto de cuanto se gasto',
+  `des_concepto` varchar(400) NOT NULL COMMENT 'descripcion del gasto',
+  `des_detalle` varchar(10000) DEFAULT NULL COMMENT 'detalle opcional del gasto',
+  `des_estado` varchar(40) DEFAULT NULL COMMENT 'porque cambio de estado',
+  `estado` varchar(40) DEFAULT 'PENDIENTE' COMMENT 'APROBADO|RECHAZADO|PENDIENTE|INVALIDO',
+  `tipo_gasto` varchar(40) DEFAULT 'EGRESO' COMMENT 'EGRESO|CONTRIBUYENTE',
+  `factura1_rif` varchar(40) DEFAULT NULL COMMENT 'rif si factura es contribuyente',
+  `factura1_num` varchar(40) DEFAULT NULL COMMENT 'mumero de factura opcinal',
+  `factura1_bin` varchar(10000) DEFAULT NULL COMMENT 'factura por defecto si la sube',
+  `fecha_concepto` varchar(40) DEFAULT NULL COMMENT 'YYYYMMDD de la factura si tiene',
+  `fecha_registro` varchar(40) NOT NULL COMMENT 'para mostrar usuario y auditoria cuando',
+  `sessionflag` varchar(40) DEFAULT NULL COMMENT 'quien modifico YYYYMMDDhhmmss + codger + . + ficha',
+  `sessionficha` varchar(40) DEFAULT NULL COMMENT 'quien lo creo YYYYMMDDhhmmss + codger + . + ficha',
+  PRIMARY KEY (`cod_registro`)
 );
 
 --
@@ -2766,14 +2766,14 @@ INSERT INTO `registro_gastos` VALUES('GAS20161030140010', '600', 'CAT20160000000
 --
 
 DROP TABLE IF EXISTS `subcategoria`;
-CREATE TABLE IF NOT EXISTS "subcategoria" (
-  "cod_categoria" varchar(40) NOT NULL COMMENT 'CATYYYYMMDDhhmmss tabla categoria',
-  "cod_subcategoria" varchar(40) NOT NULL COMMENT 'SUBYYYYMMDDhhmmss',
-  "des_subcategoria" varchar(400) NOT NULL COMMENT 'descripcion o nombre subcategoria',
-  "tipo_subcategoria" varchar(40) DEFAULT NULL COMMENT 'ADMINISTRATIVA|NORMAL',
-  "fecha_subcategoria" varchar(40) DEFAULT NULL COMMENT 'fecha creacion al usuario',
-  "sessionflag" varchar(40) DEFAULT NULL COMMENT 'quien altero YYYYMMDDhhmmss+codger+.+user',
-  PRIMARY KEY ("cod_subcategoria")
+CREATE TABLE IF NOT EXISTS `subcategoria` (
+  `cod_categoria` varchar(40) NOT NULL COMMENT 'CATYYYYMMDDhhmmss tabla categoria',
+  `cod_subcategoria` varchar(40) NOT NULL COMMENT 'SUBYYYYMMDDhhmmss',
+  `des_subcategoria` varchar(400) NOT NULL COMMENT 'descripcion o nombre subcategoria',
+  `tipo_subcategoria` varchar(40) DEFAULT NULL COMMENT 'ADMINISTRATIVA|NORMAL',
+  `fecha_subcategoria` varchar(40) DEFAULT NULL COMMENT 'fecha creacion al usuario',
+  `sessionflag` varchar(40) DEFAULT NULL COMMENT 'quien altero YYYYMMDDhhmmss+codger+.+user',
+  PRIMARY KEY (`cod_subcategoria`)
 );
 
 --
@@ -2876,23 +2876,23 @@ INSERT INTO `subcategoria` VALUES('CAT20160000000342', 'SUB20161028115652', 'PAG
 --
 
 DROP TABLE IF EXISTS `usuarios`;
-CREATE TABLE IF NOT EXISTS "usuarios" (
-  "ficha" varchar(40) DEFAULT NULL COMMENT 'id usuario, cedula en vnzla',
-  "intranet" varchar(40) NOT NULL COMMENT 'login del usuario, id del correo',
-  "clave" varchar(40) DEFAULT NULL COMMENT 'clave de intranet',
-  "sello" varchar(40) DEFAULT NULL COMMENT 'OJO: usado como referencia',
-  "nombre" varchar(400) DEFAULT NULL COMMENT 'nombre y apellido',
-  "detalles" varchar(400) DEFAULT NULL COMMENT 'datos extra del usuario',
-  "cod_fondo" varchar(40) DEFAULT NULL COMMENT 'fondo o monto asociado si aplica',
-  "estado" varchar(40) NOT NULL COMMENT 'ACTIVO|INACTIVO|SUSPENDIDO|INVALIDO',
-  "tipo_usuario" varchar(40) DEFAULT NULL COMMENT 'ADMINISTRATIVO|NORMAL',
-  "acc_lectura" varchar(4000) DEFAULT NULL COMMENT 'donde y que puede ver',
-  "acc_escribe" varchar(4000) DEFAULT NULL COMMENT 'donde y que puede adjudicar gasto',
-  "acc_modifi" varchar(4000) DEFAULT NULL COMMENT 'donde y que puede modificar gastos',
-  "fecha_ultimavez" varchar(40) DEFAULT NULL COMMENT 'ultima vez que entro sesion',
-  "sessionflag" varchar(40) DEFAULT NULL COMMENT 'quien altero YYYYMMDDhhmmss+codger+.+user',
-  "sessionficha" varchar(40) DEFAULT NULL COMMENT 'quien lo creo YYYYMMDDhhmmss+codger+.+user',
-  PRIMARY KEY ("intranet")
+CREATE TABLE IF NOT EXISTS `usuarios` (
+  `ficha` varchar(40) DEFAULT NULL COMMENT 'id usuario, cedula en vnzla',
+  `intranet` varchar(40) NOT NULL COMMENT 'login del usuario, id del correo',
+  `clave` varchar(40) DEFAULT NULL COMMENT 'clave de intranet',
+  `sello` varchar(40) DEFAULT NULL COMMENT 'OJO: usado como referencia',
+  `nombre` varchar(400) DEFAULT NULL COMMENT 'nombre y apellido',
+  `detalles` varchar(400) DEFAULT NULL COMMENT 'datos extra del usuario',
+  `cod_fondo` varchar(40) DEFAULT NULL COMMENT 'fondo o monto asociado si aplica',
+  `estado` varchar(40) NOT NULL COMMENT 'ACTIVO|INACTIVO|SUSPENDIDO|INVALIDO',
+  `tipo_usuario` varchar(40) DEFAULT NULL COMMENT 'ADMINISTRATIVO|NORMAL',
+  `acc_lectura` varchar(4000) DEFAULT NULL COMMENT 'donde y que puede ver',
+  `acc_escribe` varchar(4000) DEFAULT NULL COMMENT 'donde y que puede adjudicar gasto',
+  `acc_modifi` varchar(4000) DEFAULT NULL COMMENT 'donde y que puede modificar gastos',
+  `fecha_ultimavez` varchar(40) DEFAULT NULL COMMENT 'ultima vez que entro sesion',
+  `sessionflag` varchar(40) DEFAULT NULL COMMENT 'quien altero YYYYMMDDhhmmss+codger+.+user',
+  `sessionficha` varchar(40) DEFAULT NULL COMMENT 'quien lo creo YYYYMMDDhhmmss+codger+.+user',
+  PRIMARY KEY (`intranet`)
 );
 
 --
@@ -3138,7 +3138,24 @@ INSERT INTO `usuarios` VALUES(NULL, 'victoria', '793f3e55608f1527bf5ac088abf14d1
 --
 DROP TABLE IF EXISTS `marixtodoscruda`;
 
-CREATE VIEW "gastossystema"."marixtodoscruda" AS select "a"."cod_entidad" AS "cod_entidad","b"."des_entidad" AS "des_entidad","a"."cod_categoria" AS "cod_categoria","c"."des_categoria" AS "des_categoria",sum(ifnull("a"."mon_registro",0)) AS "mon_registro",substr("a"."fecha_concepto",1,6) AS "fecha_concepto","a"."fecha_registro" AS "fecha_registro" from (("gastossystema"."registro_gastos" "a" left join "gastossystema"."entidad" "b" on(("a"."cod_entidad" = "b"."cod_entidad"))) left join "gastossystema"."categoria" "c" on(("a"."cod_categoria" = "c"."cod_categoria"))) group by "a"."cod_entidad","a"."cod_categoria","a"."fecha_concepto","a"."fecha_registro" union select "gastossystema"."entidad"."cod_entidad" AS "cod_entidad","gastossystema"."entidad"."des_entidad" AS "des_entidad","gastossystema"."categoria"."cod_categoria" AS "cod_categoria","gastossystema"."categoria"."des_categoria" AS "des_categoria",0 AS "0",'' AS "",'' AS "" from ("gastossystema"."categoria" join "gastossystema"."entidad") group by "gastossystema"."entidad"."cod_entidad","gastossystema"."categoria"."cod_categoria";
+CREATE VIEW `gastossystema`.`marixtodoscruda` AS select `a`.`cod_entidad` AS `cod_entidad`,`b`.`des_entidad` AS `des_entidad`,`a`.`cod_categoria` AS `cod_categoria`,`c`.`des_categoria` AS `des_categoria`,sum(ifnull(`a`.`mon_registro`,0)) AS `mon_registro`,substr(`a`.`fecha_concepto`,1,6) AS `fecha_concepto`,`a`.`fecha_registro` AS `fecha_registro` from ((`gastossystema`.`registro_gastos` `a` left join `gastossystema`.`entidad` `b` on((`a`.`cod_entidad` = `b`.`cod_entidad`))) left join `gastossystema`.`categoria` `c` on((`a`.`cod_categoria` = `c`.`cod_categoria`))) group by `a`.`cod_entidad`,`a`.`cod_categoria`,`a`.`fecha_concepto`,`a`.`fecha_registro` union select `gastossystema`.`entidad`.`cod_entidad` AS `cod_entidad`,`gastossystema`.`entidad`.`des_entidad` AS `des_entidad`,`gastossystema`.`categoria`.`cod_categoria` AS `cod_categoria`,`gastossystema`.`categoria`.`des_categoria` AS `des_categoria`,0 AS `0`,'','' from (`gastossystema`.`categoria` join `gastossystema`.`entidad`) group by `gastossystema`.`entidad`.`cod_entidad`,`gastossystema`.`categoria`.`cod_categoria`;
+
+
+
+--
+-- Estructura actualizada sin destruir los datos
+--
+ALTER TABLE `gastossystema`.`registro_gastos`
+	CHANGE COLUMN `des_estado` `des_estado` VARCHAR(400) NULL DEFAULT NULL COMMENT 'porque cambio de estado'  ,
+	CHANGE COLUMN `tipo_gasto` `factura_tipo` VARCHAR(40) NULL DEFAULT 'EGRESO' COMMENT 'EGRESO|CONTRIBUYENTE'  , 
+	CHANGE COLUMN `factura1_rif` `factura_rif` VARCHAR(40) NULL DEFAULT NULL COMMENT 'rif si factura es contribuyente'  , 
+	CHANGE COLUMN `factura1_num` `factura_num` VARCHAR(40) NULL DEFAULT NULL COMMENT 'mumero de factura opcinal'  , 
+	CHANGE COLUMN `factura1_bin` `factura_bin` VARCHAR(10000) NULL DEFAULT NULL COMMENT 'ruta/hex64 de factura por defecto si la sube'  , 
+	CHANGE COLUMN `fecha_registro` `fecha_registro` VARCHAR(40) NULL DEFAULT NULL COMMENT 'para mostrar usuario y auditoria cuando' ;
+
+ALTER TABLE `gastossystema`.`registro_gastos`
+	ADD COLUMN `tipo_concepto` VARCHAR(40) NULL DEFAULT NULL COMMENT 'ADMINISTRATIVO|NORMAL'  AFTER `des_concepto` ;
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
