@@ -232,19 +232,20 @@ class cargargastoadministrativo extends CI_Controller {
 			 ->display_as('des_concepto','Concepto')
 			 ->display_as('des_detalle','Detalles')
 			 ->display_as('des_estado','Justificacion')
-			 ->display_as('fecha_concepto','Fecha<br>Concepto')
+			 ->display_as('tipo_concepto','Tipo Gasto')
+			 ->display_as('fecha_concepto','Fecha<br>Gasto')
 			 ->display_as('fecha_registro','Fecha<br>Registro')
-			 ->display_as('tipo_gasto','Tipo')
-			 ->display_as('factura1_num','Factura<br>Numero')
-			 ->display_as('factura1_rif','Factura<br>Rif')
-			 ->display_as('factura1_bin','Factura<br>Escaneada')
+			 ->display_as('factura_tipo','Factura<br>Tipo')
+			 ->display_as('factura_num','Factura<br>Numero')
+			 ->display_as('factura_rif','Factura<br>Rif')
+			 ->display_as('factura_bin','Factura<br>Escaneada')
 		//	 ->display_as('cod_fondo','Fondo')
 			 ->display_as('sessionflag','Modificado')
 			 ->display_as('sessionficha','Creador');
-		$crud->columns('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','fecha_concepto','tipo_gasto','estado','des_estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionficha','sessionflag');
-		$crud->add_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto','estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionficha');
-		$crud->edit_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto','estado','des_estado','factura1_num','factura1_rif','factura1_bin','cod_registro','sessionflag');
-		$crud->set_relation('cod_entidad','entidad','{cod_entidad} - {des_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
+		$crud->columns('fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','fecha_concepto','tipo_concepto','estado','des_estado','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha','sessionflag');
+		$crud->add_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','estado','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha');
+		$crud->edit_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','estado','des_estado','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionflag');
+		$crud->set_relation('cod_entidad','entidad','{des_entidad} - {cod_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria','subcategoria','{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
 		$data['addde'] = $usuariocodgernow;
@@ -265,7 +266,7 @@ class cargargastoadministrativo extends CI_Controller {
 			$crud->unset_edit();
 			$crud->unset_delete();
 		}
-		$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_gasto','des_estado');
+		$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','des_estado');
 		$directoriofacturas = 'appweb/archivoscargas/' . date("Y") . '/' .date("Ym");
 		if ( ! is_dir($directoriofacturas) )
 		{
@@ -274,14 +275,16 @@ class cargargastoadministrativo extends CI_Controller {
 			mkdir($directoriofacturas, 0777, true);
 			chmod($directoriofacturas,0777);
 		}
-		$crud->set_field_upload('factura1_bin',$directoriofacturas);
+		$crud->set_field_upload('factura_bin',$directoriofacturas);
 		//$crud->field_type('cod_registro', 'readonly'); // esto no se puede si ya se hizo algo antes
 		$crud->set_rules('des_concepto', 'Concepto', 'trim|alphanumeric');
 		$crud->set_rules('mon_registro', 'Monto', 'trim|decimal');
 		$crud->set_rules('cod_entidad', 'Centro de Costo', 'trim|alphanumeric');
 		$crud->field_type('sessionficha', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
-		$crud->field_type('tipo_gasto','dropdown',array('EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE'));
+		$crud->field_type('fecha_registro', 'invisible',''.date("Ymd"));
+		$crud->field_type('tipo_concepto','dropdown',array('NORMAL' => 'NORMAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO'));
+		$crud->field_type('factura_tipo','dropdown',array('EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE'));
 		$crud->field_type('des_detalle','text');
 		$crud->field_type('des_estado','text');
 		$crud->unset_texteditor('des_detalle');
@@ -289,7 +292,6 @@ class cargargastoadministrativo extends CI_Controller {
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
-			$crud->field_type('fecha_registro', 'invisible',date("Ymd"));
 			$crud->callback_add_field('cod_registro', function () {	return '<input type="text" maxlength="50" value="GAS'.date("YmdHis").'" name="cod_registro" readonly="true">';	});
 			$crud->callback_add_field('fecha_concepto', function () {	$fecha_concepto=date('Ymd');	$idfeccon='fecha_concepto';	$valoresinputfechacon = array('name'=>$idfeccon,'id'=>$idfeccon, 'onclick'=>'javascript:NewCssCal(\''.$idfeccon.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfeccon, $$idfeccon));	return form_input($valoresinputfechacon);	});
 			if ($usuariocodgernow >= 990 or $usuariocodgernow < 10 )
@@ -302,7 +304,8 @@ class cargargastoadministrativo extends CI_Controller {
 		{
 			$crud->field_type('fecha_registro', 'readonly');
 			$crud->field_type('cod_registro', 'readonly'); // esto no se puede si ya se hizo algo antes
-			$crud->callback_edit_field('fecha_concepto', function () {	$fecha_concepto=date('Ymd');	$idfeccon='fecha_concepto';	$valoresinputfechacon = array('name'=>$idfeccon,'id'=>$idfeccon, 'onclick'=>'javascript:NewCssCal(\''.$idfeccon.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfeccon, $$idfeccon));	return form_input($valoresinputfechacon);	});
+			$crud->callback_edit_field('fecha_concepto',array($this,'_editarfechagasto'));
+
 			if ($usuariocodgernow >= 990 or $usuariocodgernow < 10 )
 			{
 				$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'RECHAZADO' => 'RECHAZADO'));
@@ -314,8 +317,8 @@ class cargargastoadministrativo extends CI_Controller {
 		}
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->callback_before_insert(array($this,'generarcodigo'));
-		$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
-		$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
+		//$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
+		//$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
 
 		$this->load->library('gc_dependent_select');
 		$configfielsjoin = array(
@@ -338,26 +341,11 @@ class cargargastoadministrativo extends CI_Controller {
 		$this->load->view('footer.php',$data);
 	}
 
-	/* ver quien hizo la carga en cada columna de la tabla de registros mostrada */
-	function _callback_verusuario($value, $row)
+	function _editarfechagasto($value, $primary_key)
 	{
-		if ($value != '' )
-		{
-			$usuariover = explode('.',$value);	$intranet = '';
-			if (isset($usuariover[1]))
-			{	if ($usuariover[1] != null)
-				{
-					$sqlquien = "select intranet from usuarios where intranet = '".$usuariover[1]."'";
-					$sqlquienresult = $this->db->query($sqlquien);
-					$intranet = '';
-			//if ($sqlquienresult->num_rows() > 0)
-					foreach ($sqlquienresult->result() as $row)
-						$intranet = $row->intranet;
-					return "<a href='".site_url('admusuariosentidad/admusuariosavanzado/read/'.$intranet)."'>$value</a>";
-				}
-			}else
-				return $value;
-		}
+		$fecha_concepto=$value;
+		$idfeccon='fecha_concepto';	$valoresinputfechacon = array('name'=>$idfeccon,'id'=>$idfeccon, 'onclick'=>'javascript:NewCssCal(\''.$idfeccon.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfeccon, $$idfeccon));
+		return form_input($valoresinputfechacon);
 	}
 
 	/* llamar preupdate antes actualizar adiciona quien esta realizando la actualizacion */
@@ -373,9 +361,8 @@ class cargargastoadministrativo extends CI_Controller {
 	{
 		$fec_registro=date('Ymd');
 		$post_array['cod_registro'] = 'GAS'.date("YmdHis");
-		$post_array['recha_registro'] = $fec_registro;
+		$post_array['fecha_registro'] = $fec_registro;
 		$post_array['sessionficha'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
-	//	$post_array['fecha_registro'] = date_format(date_create($post_array['fec_registro']),'Ymd');
 		// TODO: insert para tabla log
 		return $post_array;
 	}
