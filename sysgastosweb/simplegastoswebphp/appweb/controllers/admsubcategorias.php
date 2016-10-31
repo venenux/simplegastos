@@ -60,38 +60,40 @@ class admsubcategorias extends CI_Controller {
 		$crud = new grocery_CRUD();
 		$crud->set_table('subcategoria');
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
-		$crud->columns('cod_categoria','des_subcategoria','fecha_subcategoria','cod_subcategoria','sessionflag');
+		$crud->columns('cod_categoria','des_subcategoria','tipo_subcategoria','cod_subcategoria','fecha_subcategoria','sessionflag');
 		$crud->display_as('cod_subcategoria','Codigo')
 			 ->display_as('cod_categoria','Categoria')
 			 ->display_as('des_subcategoria','SubCategoria')
+			 ->display_as('tipo_subcategoria','Tipo')
 			 ->display_as('fecha_subcategoria','Creado')
 			 ->display_as('sessionflag','Modificado');
 		$crud->set_subject('Subcategorias');
-		$crud->add_fields('cod_categoria','cod_subcategoria','des_subcategoria','fecha_subcategoria');
-		$crud->edit_fields('cod_categoria','cod_subcategoria','des_subcategoria','sessionflag');
+		$crud->add_fields('cod_categoria','tipo_subcategoria','cod_subcategoria','des_subcategoria','fecha_subcategoria');
+		$crud->edit_fields('cod_categoria','tipo_subcategoria','cod_subcategoria','des_subcategoria','sessionflag');
+		$crud->field_type('tipo_subcategoria','dropdown',array('NORMAL' => 'NORMAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO'));
 		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('fecha_subcategoria', 'invisible',''.date("Ymd"));
 		$crud->field_type('des_subcategoria', 'text');
 		$crud->unset_texteditor('des_subcategoria');
-		$crud->unset_export();
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}');
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
-			$crud->required_fields('cod_categoria','des_subcategoria');
+			$crud->required_fields('tipo_subcategoria','cod_categoria','des_subcategoria');
 			$crud->set_rules('cod_subcategoria', 'Codigo', 'trim|alphanumeric');
 			$crud->set_rules('des_subcategoria', 'Descripcion', 'trim|alphanumeric');
 			$crud->callback_add_field('cod_subcategoria', function () {	return '<input type="text" maxlength="50" value="SUB'.date("YmdHis").'" name="cod_subcategoria" readonly="true">';	});
 		}
 		else if ($currentState == 'edit')
 		{
-			$crud->required_fields('cod_categoria','des_subcategoria');
+			$crud->required_fields('tipo_subcategoria','cod_categoria','des_subcategoria');
+			$crud->field_type('fecha_subcategoria', 'readonly');
 			$crud->field_type('cod_subcategoria', 'readonly');
 			$crud->set_rules('des_subcategoria', 'Descripcion', 'trim|alphanumeric');
 		}
 		$crud->callback_before_insert(array($this,'datospostinsertsub'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admcategoriasconceptos")); // TODO usar en tablas temporales de crud tiendas, esta es la solcuion
+		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admsubcategorias")); // TODO usar en tablas temporales de crud tiendas, esta es la solcuion
 		$output = $crud->render();
 		$this->_esputereport($output);
 	}
@@ -99,7 +101,8 @@ class admsubcategorias extends CI_Controller {
 	function datospostinsertsub($post_array)
 	{
 		$post_array['cod_subcategoria'] = 'SUB'.date("YmdHis");
-		$post_array['fecha_subcategoria'] = date("Ymd");
+		$post_array['fecha_subcategoria'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
+		$post_array['sessionflag'] = null;
 		// TODO: insert para tabla log
 		return $post_array;
 	}

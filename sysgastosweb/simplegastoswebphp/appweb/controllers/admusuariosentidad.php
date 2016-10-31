@@ -60,14 +60,14 @@ class admusuariosentidad extends CI_Controller {
 
 		$output1 = $this->admusuariosavanzado();
 		$output2 = $this->admsucursalesyusuarios();
-		$output3 = $this->admsoloverlosfondos();
+//		$output3 = $this->admsoloverlosfondos();
 
-		$js_files = $output1->js_files + $output2->js_files + $output3->js_files;
-		$css_files = $output1->css_files + $output2->css_files + $output3->css_files;
+		$js_files = $output1->js_files + $output2->js_files/* + $output3->js_files*/;
+		$css_files = $output1->css_files + $output2->css_files/* + $output3->css_files*/;
 		$output = ""
-		."<h4>Usuarios del sistema</h4>".$output1->output
-		."<h4>Centro de Costos</h4>".$output2->output
-		."<h4>Fondos registrados</h4>".$output3->output
+		."<h4>Listado de Usuarios del sistema</h4>".$output1->output
+		."<h4>Listado de Centro de Costos</h4>".$output2->output
+//		."<h4>Fondos registrados</h4>".$output3->output
 		."";
 
 		$this->_esputereport((object)array(
@@ -84,24 +84,22 @@ class admusuariosentidad extends CI_Controller {
 		$crud->set_table('usuarios');
 		$crud->set_relation_n_n('sucursal', 'entidad_usuario', 'entidad', 'intranet', 'cod_entidad', 'des_entidad');
 		$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
+		$crud->columns('ficha','nombre','intranet','sucursal','tipo_usuario','estado','cod_fondo','acc_lectura','acc_escribe','acc_modifi','fecha_ultimavez','sessionficha','sessionflag');
 		$crud->display_as('ficha','Ficha/CI')
 			 ->display_as('nombre','Nombre')
 			 ->display_as('intranet','Intranet')
-			 ->display_as('sucursal','Codger')
+			 ->display_as('sucursal','Asociacion')
 			 ->display_as('cod_fondo','Fondo')
-			 ->display_as('sessionficha','Creado')
-			 ->display_as('fecha_ultimavez','Session')
+			 ->display_as('tipo_usuario','Tipo')
+			 ->display_as('sessionficha','Session')
+			 ->display_as('fecha_ultimavez','Ultima')
 			 ->display_as('acc_lectura','Accede')
 			 ->display_as('acc_escribe','Crea')
 			 ->display_as('acc_modifi','Altera')
 			 ->display_as('sessionflag','Modificado'); // si usa add_fiels y unset_add no inserta
 		$crud->set_subject('Usuarios');	// columns y fields no pueden ir juntos bug crud
-		$crud->columns('ficha','nombre','intranet','sucursal','estado','cod_fondo','sessionficha','acc_lectura','acc_escribe','acc_modifi','sessionflag','fecha_ultimavez');
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admusuariosentidad"));
-		$crud->unset_add();
-		$crud->unset_read();
-		$crud->unset_edit();
-		$crud->unset_delete();
+		$crud->unset_operations();
 		$output = $crud->render();
 		if($crud->getState() != 'list') {
 			$this->_esputereport($output);
@@ -116,23 +114,22 @@ class admusuariosentidad extends CI_Controller {
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->set_table('entidad');
 		$crud->set_subject('Sucursal');
-		$crud->columns('abr_entidad','abr_zona','cod_entidad','des_entidad','status','cod_fondo','nam_usuario','sello','sessionflag');
-		$crud->display_as('cod_entidad','Cod. Centro')
-			 ->display_as('abr_entidad','Cod. Siglas')
-			 ->display_as('abr_zona','Cod. Zona')
+		$crud->columns('abr_zona','abr_entidad','des_entidad','tipo_entidad','status','nam_usuario','cod_entidad','sello','cod_fondo','sessionflag');
+		$crud->display_as('abr_entidad','Siglas')
+			 ->display_as('abr_zona','Zona')
 			 ->display_as('des_entidad','Nombre')
-			 ->display_as('cod_fondo','Fondo')
-			 ->display_as('sello','Sello')
+			 ->display_as('tipo_entidad','Tipo')
 			 ->display_as('status','Estado')
 			 ->display_as('nam_usuario','Asociados')
+			 ->display_as('cod_entidad','Codger')
+			 ->display_as('sello','Sello')
+			 ->display_as('cod_fondo','Fondo')
 			 ->display_as('sessionflag','Modificado');
 		$crud->unset_add_fields('sessionflag');
 		$crud->set_relation_n_n('nam_usuario', 'entidad_usuario', 'usuarios', 'cod_entidad', 'intranet', 'nombre');
 		$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admusuariosentidad"));
-		$crud->unset_add();
-		$crud->unset_edit();
-		$crud->unset_delete();
+		$crud->unset_operations();
 		$output = $crud->render();
 		if($crud->getState() != 'list') {
 			$this->_esputereport($output);
@@ -145,7 +142,7 @@ class admusuariosentidad extends CI_Controller {
 	{
 		$crud = new grocery_CRUD();
 		//$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
-		$crud->set_table('fondos');
+		$crud->set_table('fondos');  // TODO : requiere trato especias y vista fondos creada
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->columns('fecha_fondo','mon_fondo','quien','cod_quien','cod_fondo','sessionflag');
 		$crud->display_as('cod_fondo','Codigo')

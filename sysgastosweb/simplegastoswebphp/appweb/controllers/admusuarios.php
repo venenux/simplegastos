@@ -64,22 +64,19 @@ class admusuarios extends CI_Controller {
 		$crud->set_table('usuarios');
 		$crud->set_subject('Usuarios');	// columns y fields no pueden ir juntos bug crud
 		$currentState = $crud->getState();
-		//$crud->set_relation_n_n('sucursal', 'entidad_usuario', 'entidad', 'intranet', 'cod_entidad', 'des_entidad'); // TODO error insertando
-		//$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
-		$crud->columns('ficha','nombre','intranet',/*'sucursal',*/'estado','cod_fondo','sessionficha','acc_lectura','acc_escribe','acc_modifi','sessionflag','fecha_ultimavez');
+		$crud->columns('ficha','nombre','intranet','estado','tipo_usuario','sessionficha','acc_lectura','acc_escribe','acc_modifi','sessionflag','fecha_ultimavez');
 		$crud->display_as('ficha','Ficha/CI')
 			 ->display_as('nombre','Nombre')
 			 ->display_as('intranet','Intranet')
-			// ->display_as('sucursal','Codger') // bug se borra asociacion si nuevo usuario
-			// ->display_as('cod_fondo','Fondo')
+			 ->display_as('tipo_usuario','Tipo')
 			 ->display_as('sessionficha','Creado')
 			 ->display_as('fecha_ultimavez','Session')
 			 ->display_as('acc_lectura','Accede')
 			 ->display_as('acc_escribe','Crea')
 			 ->display_as('acc_modifi','Altera')
 			 ->display_as('sessionflag','Modificado'); // si usa add_fiels y unset_add no inserta
-		$crud->add_fields('nombre','ficha','intranet','estado','cod_fondo','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
-		$crud->edit_fields('nombre','ficha','intranet',/*'sucursal',*/'estado','cod_fondo','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
+		$crud->add_fields('nombre','ficha','intranet','tipo_usuario','estado','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
+		$crud->edit_fields('nombre','ficha','intranet','tipo_usuario','estado','acc_lectura','acc_escribe','acc_modifi','sessionficha','sessionflag');
 		$crud->field_type('sessionficha', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('acc_lectura', 'set',self::$modulosadm);
@@ -89,18 +86,20 @@ class admusuarios extends CI_Controller {
 		$crud->unset_read(); // TODO: bug error muestra la clave desnuda
 		if($currentState == 'add')
 		{
-			$crud->required_fields('ficha','intranet','nombre','estado');
+			$crud->required_fields('ficha','intranet','nombre','tipo_usuario','estado');
 			$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		}
 		else if ($currentState == 'edit')
 		{
-			$crud->required_fields('ficha',/*'sucursal',*/'nombre','estado');
+			$crud->required_fields('ficha','nombre','tipo_usuario','estado');
 			$crud->field_type('intranet', 'readonly');
+			$crud->field_type('sessionficha', 'readonly');
 		}
 		$crud->callback_before_insert(array($this,'extradatainsert'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->field_type('estado','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'SUSPENDIDO' => 'SUSPENDIDO'));
-		//$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuarios")));
+		$crud->field_type('tipo_usuario','dropdown',array('NORMAL' => 'NORMAL', 'SUCURSAL' => 'SUCURSAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO'));
+		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url(strtolower(__CLASS__."/admusuarios")));
 		$output = $crud->render();
 		$this->_esputereport($output);
 	}

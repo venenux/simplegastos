@@ -15,10 +15,9 @@ class Menu extends CI_Model
 		$menu = new MenuLib;
 		$nodes = new MenuNodes;
 
-		$admins=anchor('admgeneral','Gestion');
-		$admgeneral['admusuariosentidad']=anchor('admusuariosentidad','Usuarios');
-		$admgeneral['admcategoriasconceptos']=anchor('admcategoriasconceptos','Categorias');
-		$admgeneral['admgastoslog']=anchor('admgastoslog','Log');
+		$admins=anchor('admusuariosentidad','Gestion');
+		$admgeneral['admusuarios']=anchor('admusuarios','Usuarios');
+		$admgeneral['admsubcategorias']=anchor('admsubcategorias','Categorias');
 
 		$vistas=anchor('mimatrixcontroller','Matrix');
 		$vistaglobal=array();
@@ -43,6 +42,8 @@ class Menu extends CI_Model
 		$inicio=anchor('indexcontroler',$labelindex);
 		$intranet=anchor('http://intranet1.net.ve','Intranet');
 		$elcorreo=anchor('http://intranet1.net.ve/elcorreo','Correo');
+		$systemalog=anchor('admgastoslog','Logs');
+
 
 		// el
 		$header['2'] = $nodes->m_header_nodes($intranet, array());
@@ -50,25 +51,26 @@ class Menu extends CI_Model
 		if($this->session->userdata('logueado'))
 		{
 			$usuariocodgernow = $this->session->userdata('cod_entidad');
-		
+
 			$inicionlogin['manejousuarios/manejousuarios']=anchor('manejousuarios/desverificarintranet','Salir');
 			$header['0'] = $nodes->m_header_nodes($inicio, $inicionlogin);
 			if ( ! $usuariocodgernow == "" )
 			{
-			if( $usuariocodgernow >399 and $usuariocodgernow < 990)
-			{
-				$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
-			}
-			else if ($usuariocodgernow = 998 and $usuariocodgernow != '' )
-			{
-				$header['4adm'] = $nodes->m_header_nodes($cargasadm,$cargargastoadministrativo);
-				$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
-				$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
-			}
-			else if  ($usuariocodgernow >= 990 and $usuariocodgernow < 998 )
-			{
-				$header['4rep'] = $nodes->m_header_nodes($cargasrep,$cargasgastoreportesvertodo);
-			}
+				if( $usuariocodgernow >399 and $usuariocodgernow < 990)
+				{
+					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
+				}
+				else if ($usuariocodgernow = 998 and $usuariocodgernow != '' )
+				{
+					$header['4adm'] = $nodes->m_header_nodes($cargasadm,$cargargastoadministrativo);
+					$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
+					$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
+					$header['7'] = $nodes->m_header_nodes($systemalog,array());
+				}
+				else if  ($usuariocodgernow >= 990 and $usuariocodgernow < 998 )
+				{
+					$header['4rep'] = $nodes->m_header_nodes($cargasrep,$cargasgastoreportesvertodo);
+				}
 			}
 		}
 		else

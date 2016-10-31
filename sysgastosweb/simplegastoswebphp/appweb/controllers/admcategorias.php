@@ -60,17 +60,19 @@ class admcategorias extends CI_Controller {
 		$crud = new grocery_CRUD();
 		$crud->set_table('categoria');
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
-		$crud->columns('des_categoria','fecha_categoria','cod_categoria','sessionflag');
+//		$crud->columns('des_categoria','tipo_categoria','fecha_categoria','cod_categoria','sessionflag');
 		$crud->display_as('cod_categoria','Codigo')
 			 ->display_as('des_categoria','Categoria')
+			 ->display_as('tipo_categoria','Tipo')
 			 ->display_as('fecha_categoria','Creado')
 			 ->display_as('sessionflag','Modificado');
 		$crud->set_subject('Categorias');
-		$crud->add_fields('cod_categoria','des_categoria','fecha_categoria');
-		$crud->edit_fields('cod_categoria','des_categoria','sessionflag');
+		$crud->add_fields('cod_categoria','des_categoria','tipo_categoria','fecha_categoria');
+		$crud->edit_fields('cod_categoria','des_categoria','tipo_categoria','sessionflag');
 		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('fecha_categoria', 'invisible',''.date("Ymd"));
 		$crud->field_type('des_categoria', 'text');
+		$crud->field_type('tipo_categoria','dropdown',array('NORMAL' => 'NORMAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO'));
 		$crud->unset_texteditor('des_categoria');
 		$crud->unset_export();
 		$currentState = $crud->getState();
@@ -78,7 +80,7 @@ class admcategorias extends CI_Controller {
 		{
 			$crud->required_fields('des_categoria');
 			$crud->set_rules('des_categoria', 'Descripcion', 'trim|alphanumeric');
-			$crud->callback_add_field('cod_categoria', function () {	return '<input type="text" maxlength="50" value="CAT'.date("YmdHis").'" name="cod_categoria" readonly="true">';	});
+			$crud->callback_add_field('cod_categoria', function () {	return '<input type="text" maxlength="50" value="CAT'.date("YmdHis").'" name="cod_categoria" >';	});
 		}
 		else if ($currentState == 'edit')
 		{
@@ -88,7 +90,7 @@ class admcategorias extends CI_Controller {
 		}
 		$crud->callback_before_insert(array($this,'datospostinsertcat'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admcategoriasconceptos"));
+		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admcategorias"));
 		$output = $crud->render();
 		$this->_esputereport($output);
 	}
@@ -96,7 +98,7 @@ class admcategorias extends CI_Controller {
 	function datospostinsertcat($post_array)
 	{
 		//$post_array['cod_categoria'] = 'CAT'.date("YmdHis");
-		$post_array['fecha_categoria'] = date("Ymd");
+		$post_array['fecha_categoria'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
 		// TODO: insert para tabla log
 		return $post_array;
 	}

@@ -58,12 +58,11 @@ class admentidades extends CI_Controller {
 		$userdata = $this->session->all_userdata();
 		$crud = new grocery_CRUD();
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
-		$crud->unset_export();
 		$crud->set_table('entidad');
 		$crud->set_subject('Sucursal');
 		$crud->set_relation_n_n('nam_usuario', 'entidad_usuario', 'usuarios', 'cod_entidad', 'intranet', 'nombre');
 		$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
-		$crud->columns('abr_entidad','abr_zona','cod_entidad','des_entidad','status','cod_fondo','nam_usuario','sello','sessionflag');
+		$crud->columns('abr_entidad','abr_zona','cod_entidad','des_entidad','status','tipo_entidad','cod_fondo','nam_usuario','sello','sessionflag');
 		$crud->display_as('cod_entidad','Cod. Centro')
 			 ->display_as('abr_entidad','Cod. Siglas')
 			 ->display_as('abr_zona','Cod. Zona')
@@ -71,28 +70,30 @@ class admentidades extends CI_Controller {
 			 ->display_as('cod_fondo','Fondo')
 			 ->display_as('sello','Sello')
 			 ->display_as('status','Estado')
+			 ->display_as('tipo_entidad','Tipo')
 			 ->display_as('nam_usuario','Asociados')
 			 ->display_as('sessionflag','Modificado');
 		$crud->unset_add_fields('sessionflag','nam_usuario'); // TODO: bug no asocia usuario en crear
-		$crud->unset_export();
+		//$crud->unset_export(); // tabletools.js need ods eent csv extension
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
-			$crud->required_fields('cod_entidad','abr_entidad','abr_zona','des_entidad','status');
+			$crud->required_fields('cod_entidad','abr_entidad','abr_zona','des_entidad','tipo_entidad','status');
 			$crud->set_rules('cod_entidad', 'Centro de Costo (codger)', 'trim|numeric');
 		}
 		else if ($currentState == 'edit')
 		{
-			$crud->required_fields('abr_entidad','abr_zona','des_entidad','status');
+			$crud->required_fields('abr_entidad','abr_zona','des_entidad','tipo_entidad','status');
 			$crud->field_type('cod_entidad', 'readonly');
 			$crud->field_type('sessionflag', 'readonly');
 		}
 		$crud->set_rules('abr_entidad', 'Siglas', 'trim|alphanumeric');
 		$crud->set_rules('abr_zona', 'Zona', 'trim|alphanumeric');
 		$crud->set_rules('des_entidad', 'Nombre', 'trim|alphanumeric');
+		$crud->field_type('tipo_entidad','dropdown',array('NORMAL' => 'NORMAL', 'SUCURSAL' => 'SUCURSAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO'));
 		$crud->field_type('status','dropdown',array('ACTIVO' => 'ACTIVO', 'INACTIVO' => 'INACTIVO', 'CERRADO' => 'CERRADO', 'ESPECIAL' => 'ESPECIAL'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
-		//$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admusuariosentidad"));
+		//$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admentidades"));
 		$output = $crud->render();
 		$this->_esputereport($output);
 	}
