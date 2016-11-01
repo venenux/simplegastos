@@ -589,7 +589,7 @@ INSERT INTO `registro_gastos` VALUES('GAS20161019152728', '930', 'CAT20160000000
 INSERT INTO `registro_gastos` VALUES('GAS20161019152829', '710', 'CAT20160000000243', 'SUB20161009161929', '599.93', 'COMPRA DE TIRRAP', NULL, NULL, 'PENDIENTE', 'EGRESO', 'J402885016', '04', 'GAS20161019152829.jpg', '20161014', '20161019', NULL, '20161019152829710.eltigre');
 INSERT INTO `registro_gastos` VALUES('GAS20161019152936', '710', 'CAT20160000000427', 'SUB20161009161958', '2000.00', 'compra de refrigerio', NULL, NULL, 'PENDIENTE', 'EGRESO', 'J-40288501-6', '05', 'GAS20161019152936.jpg', '20161015', '20161019', NULL, '20161019152936710.eltigre');
 INSERT INTO `registro_gastos` VALUES('GAS20161019153034', '710', 'CAT20160000000220', 'SUB20161009161926', '15000.00', 'INSTALACION DEL CAPASITADOR DE LA BOMBA', NULL, NULL, 'PENDIENTE', 'EGRESO', 'J-40288501-6', '06', 'S/A', '20161015', '20161019', NULL, '20161019153034710.eltigre');
-INSERT INTO `registro_gastos` VALUES('GAS20161019153037', '745', 'CAT20160000000243', 'SUB20161009161929', '8760.00', 'COMPRA DE VALVULA CHECK BRONCE 1"', NULL, NULL, 'PENDIENTE', 'CONTRIBUYENTE', 'J-30640468-6', '00008839', 'GAS20161019153037.jpg', '20161013', '20161019', NULL, '20161019153037745.sanfelix');
+INSERT INTO `registro_gastos` VALUES('GAS20161019153037', '745', 'CAT20160000000243', 'SUB20161009161929', '8760.00', 'COMPRA DE VALVULA CHECK BRONCE 1`', NULL, NULL, 'PENDIENTE', 'CONTRIBUYENTE', 'J-30640468-6', '00008839', 'GAS20161019153037.jpg', '20161013', '20161019', NULL, '20161019153037745.sanfelix');
 INSERT INTO `registro_gastos` VALUES('GAS20161019153129', '710', 'CAT20160000000220', 'SUB20161009161926', '15000.00', 'INSTALACION DEL CAPASITADOR DE LA BOMBA', NULL, NULL, 'PENDIENTE', 'EGRESO', 'J-40288501-6', '06', 'GAS20161019153129.jpg', '20161015', '20161019', NULL, '20161019153129710.eltigre');
 INSERT INTO `registro_gastos` VALUES('GAS20161019153300', '920', 'CAT20160000000294', 'SUB20161009161933', '745.00', 'pago de luz de tienda mes de octubre ', NULL, NULL, 'PENDIENTE', 'EGRESO', 'J297168419', 'S/N', 'GAS20161019153300.jpg', '20161019', '20161019', NULL, '20161019153300920.barquisimetoc');
 INSERT INTO `registro_gastos` VALUES('GAS20161019153451', '745', 'CAT20160000000243', 'SUB20161009161929', '180.00', 'COMPRA DE NIPLE 1X5 PVC', NULL, NULL, 'PENDIENTE', 'CONTRIBUYENTE', 'J-29460730-6', '00187754', 'GAS20161019153451.jpg', '20161013', '20161019', NULL, '20161019153451745.sanfelix');
@@ -3141,6 +3141,7 @@ DROP TABLE IF EXISTS `marixtodoscruda`;
 CREATE VIEW `gastossystema`.`marixtodoscruda` AS select `a`.`cod_entidad` AS `cod_entidad`,`b`.`des_entidad` AS `des_entidad`,`a`.`cod_categoria` AS `cod_categoria`,`c`.`des_categoria` AS `des_categoria`,sum(ifnull(`a`.`mon_registro`,0)) AS `mon_registro`,substr(`a`.`fecha_concepto`,1,6) AS `fecha_concepto`,`a`.`fecha_registro` AS `fecha_registro` from ((`gastossystema`.`registro_gastos` `a` left join `gastossystema`.`entidad` `b` on((`a`.`cod_entidad` = `b`.`cod_entidad`))) left join `gastossystema`.`categoria` `c` on((`a`.`cod_categoria` = `c`.`cod_categoria`))) group by `a`.`cod_entidad`,`a`.`cod_categoria`,`a`.`fecha_concepto`,`a`.`fecha_registro` union select `gastossystema`.`entidad`.`cod_entidad` AS `cod_entidad`,`gastossystema`.`entidad`.`des_entidad` AS `des_entidad`,`gastossystema`.`categoria`.`cod_categoria` AS `cod_categoria`,`gastossystema`.`categoria`.`des_categoria` AS `des_categoria`,0 AS `0`,'','' from (`gastossystema`.`categoria` join `gastossystema`.`entidad`) group by `gastossystema`.`entidad`.`cod_entidad`,`gastossystema`.`categoria`.`cod_categoria`;
 
 
+-- --------------------------------------------------------
 
 --
 -- Estructura actualizada sin destruir los datos
@@ -3155,6 +3156,12 @@ ALTER TABLE `gastossystema`.`registro_gastos`
 
 ALTER TABLE `gastossystema`.`registro_gastos`
 	ADD COLUMN `tipo_concepto` VARCHAR(40) NULL DEFAULT NULL COMMENT 'ADMINISTRATIVO|NORMAL'  AFTER `des_concepto` ;
+
+
+--
+-- Ajuste de los datos de produccion erroneos o incompletos
+--
+
 
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
