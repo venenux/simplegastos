@@ -20,17 +20,20 @@ SELECT SUBSTRING(a.sessionficha,1,8),a.* FROM gastossystema.registro_gastos as a
 SET SQL_SAFE_UPDATES = 0;
 UPDATE `gastossystema`.`registro_gastos` 
 	SET `tipo_concepto`='ADMINISTRATIVO' 
-	WHERE CONVERT(`cod_entidad`,UNSIGNED)<399 and CONVERT(`cod_entidad`,UNSIGNED)>987;
+	WHERE CONVERT(`cod_entidad`,UNSIGNED)<399 or CONVERT(`cod_entidad`,UNSIGNED)>987;
 
 SET SQL_SAFE_UPDATES = 0;
 UPDATE `gastossystema`.`registro_gastos` 
-	SET `tipo_concepto`='NORMAL' 
+	SET `tipo_concepto`='SUCURSAL' 
 	WHERE CONVERT(`cod_entidad`,UNSIGNED)>399 and CONVERT(`cod_entidad`,UNSIGNED)<987;
 
 SET SQL_SAFE_UPDATES = 0;
 UPDATE `gastossystema`.`registro_gastos` 
+	SET `tipo_concepto`='SUCURSAL' 
+	WHERE `tipo_concepto`='NORMAL' ;
+
+UPDATE `gastossystema`.`registro_gastos` 
 	SET `fecha_registro`='20161017' WHERE `fecha_registro`='' and `sessionflag` <> '';
 
-SET SQL_SAFE_UPDATES = 0;
 UPDATE `gastossystema`.`registro_gastos` 
 	SET `fecha_registro`= SUBSTRING(`sessionficha`,1,8) WHERE `sessionficha`<>'' and `fecha_registro` = '';
