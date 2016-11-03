@@ -32,10 +32,10 @@ class cargargastosucursalesadm extends CI_Controller {
 		{
 			if (in_array("998", $usuariocodgernow) or in_array("1000", $usuariocodgernow) )
 				$this->nivel = 'administrador';
+			else if (in_array("163", $usuariocodgernow) or in_array("251", $usuariocodgernow) )
+				$this->nivel = 'contabilidad';
 			else
-			{
 				$this->nivel = 'especial';
-			}
 		}
 		else
 		{
@@ -43,6 +43,8 @@ class cargargastosucursalesadm extends CI_Controller {
 				$this->nivel = 'administrador';
 			else if( $usuariocodgernow > 399 and $usuariocodgernow < 998 )
 				$this->nivel = 'sucursal';
+			else if ( $usuariocodgernow == '163' or $usuariocodgernow == '251' )
+				$this->nivel = 'contabilidad';
 			else
 				$this->nivel = 'especial';
 		}
@@ -114,7 +116,7 @@ class cargargastosucursalesadm extends CI_Controller {
 			$sqlentidad .= " and cod_entidad = ''";
 		if ( $this->nivel == 'especial' )
 			$sqlentidad .= " and tipo_entidad <> 'ADMINISTRATIVO' and tipo_entidad NOT LIKE 'ADMINISTRATI%' ";
-		if ( $this->nivel == 'sucursal' )
+		if ( $this->nivel == 'sucursal' or $this->nivel == 'contabilidad' )
 			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
 		$arregloentidades = array();
 		$resultadosentidad = $this->db->query($sqlentidad);
@@ -281,7 +283,6 @@ class cargargastosucursalesadm extends CI_Controller {
 		// ########## ini cargar y listaar las CATEGORIAS que se usaran para registros
 		$sqlcategoria = " select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
 		 from categoria where ifnull(cod_categoria, '') <> '' and cod_categoria <> '' ";
-		$sqlcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
 		if ( $this->nivel == 'ninguno' )
 			$sqlcategoria .= " and cod_categoria = ''";
 		if ( $this->nivel != 'administrador' )
@@ -320,7 +321,7 @@ class cargargastosucursalesadm extends CI_Controller {
 			$sqlentidad .= " and cod_entidad = ''";
 		if ( $this->nivel == 'especial' )
 			$sqlentidad .= " and tipo_entidad <> 'ADMINISTRATIVO' and tipo_entidad NOT LIKE 'ADMINISTRATI%' ";
-		if ( $this->nivel == 'sucursal' )
+		if ( $this->nivel == 'sucursal' or $this->nivel == 'contabilidad' )
 			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
 		$arregloentidades = array();
 		$resultadosentidad = $this->db->query($sqlentidad);
@@ -556,6 +557,7 @@ class cargargastosucursalesadm extends CI_Controller {
 				WHERE cod_registro <> ''
 				AND CONVERT(SUBSTRING(fecha_concepto,1,6),UNSIGNED) >= CONVERT('".(date('Ym')-1)."',UNSIGNED)
 				AND CONVERT(SUBSTRING(fecha_concepto,1,6),UNSIGNED) <= CONVERT('".date('Ym')."',UNSIGNED) ";
+				if ( $this->nivel == 'contabilidad' ) 	$sqltablagastousr .= " and factura_tipo = 'CONTRIBUYENTE'";
 				if ( $this->nivel == 'sucursal' ) 	$sqltablagastousr .= " and cod_entidad = '".$usuariocodgernow."'";
 				if ( $this->nivel == 'especial' ) 	$sqltablagastousr .= " and tipo_concepto <> 'ADMINISTRATIVO' and tipo_concepto NOT LIKE 'ADMINISTRATI%' ";
 				if ( $this->nivel == 'ninguno' ) 	$sqltablagastousr .= " and tipo_concepto = '' ";
@@ -568,7 +570,11 @@ class cargargastosucursalesadm extends CI_Controller {
 				if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro <= ".$this->db->escape_str($mon_registroigual)." ";
 				if ( $mon_registromayor != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro >= ".$this->db->escape_str($mon_registromayor)." ";
 		// ejecutsamos los querys que crean las 4 tablas a usar en el crud con datos ya filtrados
-		$sqltablagastousr .= " LIMIT 10";
+		$sqltablagastousr .= " ORDER BY fecha_concepto DESC ";
+		if ( $this->nivel == 'sucursal')
+			$sqltablagastousr .= " LIMIT 600";
+		else
+			$sqltablagastousr .= " LIMIT 1000";
 		$this->db->query($sqltablagastousr);
 		if ($this->db->trans_status() === FALSE)
 		{
@@ -594,6 +600,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$crud->display_as('cod_registro','Codigo')
 			 ->display_as('cod_categoria','Categoria')
 			 ->display_as('cod_subcategoria','Subcategoria')
+			 ->display_as('cod_entidad','Centro<br>Coste')
 			 ->display_as('mon_registro','Monto')
 			 ->display_as('des_concepto','Concepto')
 			 ->display_as('des_detalle','Detalles')
@@ -604,7 +611,10 @@ class cargargastosucursalesadm extends CI_Controller {
 			 ->display_as('factura_num','Factura<br>Numero')
 			 ->display_as('factura_rif','Factura<br>Rif')
 			 ->display_as('factura_bin','Factura<br>Escaneada');
-		$crud->columns('fecha_concepto','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','des_estado','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro');
+		if ( $this->nivel == 'sucursal' or $this->nivel == 'administrador')
+			$crud->columns('fecha_concepto','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','des_estado','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro');
+		else
+			$crud->columns('fecha_concepto','cod_categoria','cod_subcategoria','cod_entidad','mon_registro','des_concepto','estado','des_estado','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro');
 		$crud->set_relation('cod_entidad',$tablaentidades,'{des_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria',$tablacategoria,'{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria',$tablasubcatego,'{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
