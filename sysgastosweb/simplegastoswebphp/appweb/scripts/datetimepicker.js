@@ -67,7 +67,7 @@ var ShowMonthYear = true;//Show Month and Year in Calendar header.
 var ThemeBg = "";//Background image of Calendar window.
 var PrecedeZero = true;//Preceding zero [true|false]
 var MondayFirstDay = true;//true:Use Monday as first day; false:Sunday as first day. [true|false]  //added in version 1.7
-var UseImageFiles = true;//Use image files with "arrows" and "close" button
+var UseImageFiles = false;//Use image files with "arrows" and "close" button
 var imageFilesPath = "images2/";
 //Configurable parameters end
 
@@ -417,7 +417,7 @@ Calendar.prototype.FormatDate = function (pDate)
 	if (PrecedeZero === true)
 	{
 		if ((pDate < 10) && String(pDate).length===1) //length checking added in version 2.2
-		{		
+		{
 			pDate = "0" + pDate;
 		}
 		if (MonthDigit < 10)
@@ -469,7 +469,7 @@ function GenCell(pValue, pHighLight, pColor, pClickable)
 
 	if (pColor === undefined)
 	    pColor = CalBgColor;
-	
+
 	if (pClickable !== undefined){
 		PClickable = pClickable;
 	}
@@ -698,7 +698,7 @@ function RenderCssCal(bNewCal)
 		//if End Year + Current Year = Cal.Year. Disable.
 		else if (Cal.Year > (dtToday.getFullYear()+EndYear))
 		{
-		    strCell = GenCell(j, false, DisableColor, false); 
+		    strCell = GenCell(j, false, DisableColor, false);
 		}
 		else if ((j === dtToday.getDate()) && (Cal.Month === dtToday.getMonth()) && (Cal.Year === dtToday.getFullYear()))
 		{
@@ -1096,7 +1096,7 @@ function NewCssCal(pCtrl, pFormat, pScroller, pShowTime, pTimeMode, pShowSeconds
 		        Cal.Year = parseInt(strYear, 10);
 		}
 		//end parse year
-		
+
 		//parse Date
 		if ((parseInt(strDate, 10) <= Cal.GetMonDays()) && (parseInt(strDate, 10) >= 1)) {
 			Cal.Date = strDate;
@@ -1166,7 +1166,7 @@ function closewin(id) {
                 callback(id, Cal.FormatDate(Cal.Date));
         }
     }
-    
+
 	var CalId = document.getElementById(id);
 	CalId.focus();
 	winCal.style.visibility = 'hidden';
