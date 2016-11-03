@@ -27,12 +27,13 @@ class Menu extends CI_Model
 		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Cargar un gasto');
 		$cargargastoadministrativo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Revisar todas las cargas');
 		// enlaces de cargas para tiendas edita ver filtrado
-		$cargastie=anchor('cargargastosucursales/gastosucursalesrevisarlos','Gasto');
-		$cargargastoentidadestienda['cargargastosucursalesuno']=anchor('cargargastosucursales/gastomanualcargaruno','Cargar gasto');
-		$cargargastoentidadestienda['gastosucursalesrevisarlos']=anchor('cargargastosucursales/gastosucursalesrevisarlos','Revisar gastos');
+		$cargastie=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Gasto');
+		$cargargastoentidadestienda['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar gasto');
+		$cargargastoentidadestienda['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Revisar gastos');
 		// enlace especial experimental de cargas multipermisos para todos
-		$cargasrep=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');
-		$cargasgastoreportesvertodo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Revisar las cargas'); // TODO: verificar permiso y este menu solo cargfa en administrativos
+		$cargasrep=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Gasto');
+		$cargasgastoreportesvertodo['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar gasto');
+		$cargasgastoreportesvertodo['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Revisar gastos');
 
 		if(!$this->session->userdata('logueado'))
 			$labelindex = 'Ingreso';
@@ -56,7 +57,7 @@ class Menu extends CI_Model
 			$header['0'] = $nodes->m_header_nodes($inicio, $inicionlogin);
 			if ( ! $usuariocodgernow == "" )
 			{
-				if( $usuariocodgernow < 990)
+				if( $usuariocodgernow != 998)
 				{
 					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
 				}
@@ -68,7 +69,7 @@ class Menu extends CI_Model
 					$header['7'] = $nodes->m_header_nodes($systemalog,array());
 					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
 				}
-				else if  ($usuariocodgernow >= 990 and $usuariocodgernow < 998 )
+				else
 				{
 					$header['4rep'] = $nodes->m_header_nodes($cargasrep,$cargasgastoreportesvertodo);
 				}

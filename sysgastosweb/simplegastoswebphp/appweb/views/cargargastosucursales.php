@@ -14,8 +14,11 @@
 	if( !isset($accionejecutada) )
 		$accionejecutada = 'gastosucursalesindex';
 
-	if( !isset( $factura_tipo) )
-		 $factura_tipo = array( 'EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE');
+	if( !isset( $list_factura_tipo) )
+		 $list_factura_tipo = array( 'EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE');
+
+	if( !isset( $list_tipo_concepto) )
+		 $list_tipo_concepto = array( 'SUCURSAL' => 'SUCURSAL');
 
 	// cargar las ubicciones/centro costo o aseguramiento que exista
 	if( !isset($list_entidad) )
@@ -31,9 +34,9 @@
 	$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' );
 	$this->table->set_template($tmplnewtable);
 	$this->table->add_row(
-			anchor('cargargastosucursales/gastomanualcargaruno',form_button('cargargastomanual/gastomanualcargaruno/add', 'Registrar Gasto', 'class="btn btn-primary btn-large b10" '))
+			anchor($haciacontrolador.'/gastomanualcargaruno',form_button('cargargastomanual/gastomanualcargaruno/add', 'Registrar Gasto', 'class="btn btn-primary btn-large b10" '))
 			,
-			anchor('cargargastosucursales/gastosucursalesrevisarlos',form_button('cargargastomanual/gastomanualrevisarlos/list', 'Revisar Gastos', 'class="btn btn-primary btn-large b10" '))
+			anchor($haciacontrolador.'/gastosucursalesrevisarlos',form_button('cargargastomanual/gastomanualrevisarlos/list', 'Revisar Gastos', 'class="btn btn-primary btn-large b10" '))
 			/*,
 			anchor('cargargastomanual/gastomanualfiltrarlos',form_button('cargargastomanual/gastomanualfiltrarlos/veruno', 'Editar Gasto', 'class="btn btn-primary btn-large b10" '))*/
 		);
@@ -61,7 +64,7 @@
 	else if ($accionejecutada == 'gastosucursalesrevisarlos')
 	{
 		echo br().PHP_EOL;
-		echo form_fieldset('Cargas y registros de gastos',array('class'=>'containerin ')) . PHP_EOL;
+		echo form_fieldset('Cargas del mes actual y el anterior : <strong>'. date("Y/M") .' y '.date("Y/M", strtotime('-1 month')).'</strong>',array('class'=>'containerin ')) . PHP_EOL;
 		echo form_hidden('accionejecutada',$accionejecutada).br().PHP_EOL;
 		echo $botonesgestion . PHP_EOL;
 		//echo $tabledelfiltrocualesgastos . PHP_EOL;
@@ -84,7 +87,7 @@
 		echo br().PHP_EOL;
 		echo $botonesgestion . PHP_EOL;
 		echo form_fieldset('<strong>Ingreso de un Gasto</strong> Ingrese los datos por favor',array('class'=>'containerin')) . PHP_EOL;
-		echo form_open_multipart('cargargastosucursales/gastomanualcargarunolisto/', $htmlformaattributos) . PHP_EOL;
+		echo form_open_multipart($haciacontrolador.'/gastomanualcargarunolisto/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
 
 		$this->table->set_template(array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">','cell_start' => '<td class="form-field-box odd">', ) );
@@ -93,6 +96,7 @@
 			$this->table->add_row('Categoria y SubCategoria:', form_dropdown('cod_subcategoria', $list_subcategoria, '', $classinput).br().PHP_EOL);
 			$this->table->add_row('Monto (punto para decimal, sin coma)', form_input('mon_registro', '0.00', $classinput).br().PHP_EOL);
 			$this->table->add_row('Concepto o Detalle:', form_input('des_concepto', '', $classinput).br().PHP_EOL);
+			$this->table->add_row('Concepto tipo:', form_dropdown('tipo_concepto', $list_tipo_concepto , 'SUCURSAL', $classinput).br().PHP_EOL);
 			$this->table->add_row('Factura tipo:', form_dropdown('factura_tipo', $list_factura_tipo , 'CONTRIBUYENTE', $classinput));
 			$this->table->add_row('Factura Numero (contribuyente):', form_input('factura_num', '', $classinput).br().PHP_EOL);
 			$this->table->add_row('Factura RIF (contribuyente):', form_input('factura_rif', '', $classinput).br().PHP_EOL);
@@ -114,8 +118,8 @@
 		$htmlformaattributos = array('name'=>'cargargastoucursal','class'=>'formularios','onSubmit'=>'return validageneric(this);');
 		echo br().PHP_EOL;
 		echo $botonesgestion . PHP_EOL;
-		echo form_fieldset('<strong>Ediccion de un Gasto</strong> Ingrese los datos por favor',array('class'=>'containerin')) . PHP_EOL;
-		echo form_open_multipart('cargargastosucursales/gastomanualeditarunolisto/', $htmlformaattributos) . PHP_EOL;
+		echo form_fieldset('<strong>Ediccion de Gasto CODIGO:"'.$cod_registro.'"</strong>',array('class'=>'containerin')) . PHP_EOL;
+		echo form_open_multipart($haciacontrolador.'/gastomanualeditarunolisto/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
 
 		$this->table->set_template(array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">','cell_start' => '<td class="form-field-box odd">', ) );
@@ -124,6 +128,7 @@
 			$this->table->add_row('Categoria y SubCategoria:', form_dropdown('cod_subcategoria', $list_subcategoria, $cod_subcategoria, $classinput).br().PHP_EOL);
 			$this->table->add_row('Monto (punto para decimal, sin coma)', form_input('mon_registro',$mon_registro, $classinput).br().PHP_EOL);
 			$this->table->add_row('Concepto o Detalle:', form_input('des_concepto',$des_concepto, $classinput).br().PHP_EOL);
+			$this->table->add_row('Concepto tipo:', form_dropdown('tipo_concepto', $list_tipo_concepto , 'SUCURSAL', $classinput).br().PHP_EOL);
 			$this->table->add_row('Factura tipo:', form_dropdown('factura_tipo', $list_factura_tipo , $factura_tipo, $classinput));
 			$this->table->add_row('Factura Numero (contribuyente):', form_input('factura_num', $factura_num, $classinput).br().PHP_EOL);
 			$this->table->add_row('Factura RIF (contribuyente):', form_input('factura_rif', $factura_rif, $classinput).br().PHP_EOL);

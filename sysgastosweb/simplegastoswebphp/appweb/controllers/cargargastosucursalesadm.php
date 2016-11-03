@@ -1,9 +1,10 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /** controlador de carga de gastos inicial sin crud para vistas, usado en emergencias */
-class cargargastosucursales extends CI_Controller {
+class cargargastosucursalesadm extends CI_Controller {
 
 	private $usuariologin, $sessionflag, $usuariocodger, $acc_lectura, $acc_escribe, $acc_modifi;
+	private $nivel = "ninguno";
 
 	function __construct()
 	{
@@ -26,6 +27,25 @@ class cargargastosucursales extends CI_Controller {
 	{
 		if( $this->session->userdata('logueado') != TRUE)
 			redirect('manejousuarios/desverificarintranet');
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		if( is_array($usuariocodgernow) )
+		{
+			if (in_array("998", $usuariocodgernow) or in_array("1000", $usuariocodgernow) )
+				$this->nivel = 'administrador';
+			else
+			{
+				$this->nivel = 'especial';
+			}
+		}
+		else
+		{
+			if( $usuariocodgernow == '998' or $usuariocodgernow == '1000' )
+				$this->nivel = 'administrador';
+			else if( $usuariocodgernow > 399 or $usuariocodgernow < 998 )
+				$this->nivel = 'sucursal';
+			else
+				$this->nivel = 'especial';
+		}
 	}
 
 	/**
@@ -36,7 +56,7 @@ class cargargastosucursales extends CI_Controller {
 		$this->_verificarsesion();
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'gastosucursalesindex';	// para cargar parte especifica de la vista envio un parametro accion
-		$data['haciacontrolador'] = 'cargargastosucursales';	// para cargar parte especifica de la vista envio un parametro accion
+		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastosucursales.php',$data);
 		$this->load->view('footer.php',$data);
@@ -50,7 +70,10 @@ class cargargastosucursales extends CI_Controller {
 		// ########## ini cargar y listaar las CATEGORIAS que se usaran para registros
 		$sqlcategoria = " select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
 		 from categoria where ifnull(cod_categoria, '') <> '' and cod_categoria <> '' ";
-		$sqlcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
+		if ( $this->nivel == 'ninguno' )
+			$sqlcategoria .= " and cod_categoria = ''";
+		if ( $this->nivel != 'administrador' )
+			$sqlcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
 		$sqlcategoria .= " ORDER BY des_categoria DESC ";
 		$resultadoscategoria = $this->db->query($sqlcategoria);
 		$arreglocategoriaes = array(''=>'');
@@ -63,7 +86,10 @@ class cargargastosucursales extends CI_Controller {
 		SELECT ifnull(ca.cod_categoria,'99999') as cod_categoria,
 		ca.des_categoria,  sb.cod_subcategoria,  sb.des_subcategoria
 		FROM categoria as ca join subcategoria as sb on sb.cod_categoria = ca.cod_categoria ";
-		$sqlsubcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
+		if ( $this->nivel == 'ninguno' )
+			$sqlsubcategoria .= " and cod_subcategoria = ''";
+		if ( $this->nivel != 'administrador' )
+			$sqlsubcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
 		$sqlsubcategoria .= " ORDER BY ca.des_categoria DESC ";
 		$resultadossubcategoria = $this->db->query($sqlsubcategoria);
 		$arreglosubcategoriaes = array(''=>'');
@@ -75,15 +101,21 @@ class cargargastosucursales extends CI_Controller {
 		$list_factura_tipo = array( 'EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE');
 		$data['list_factura_tipo'] = $list_factura_tipo;
 
+		// ########## ini cargar y listaar EL TIPO DE GASTO que se usaran para registros
+		if ( $this->nivel != 'sucursal' )	$list_tipo_concepto = array( 'SUCURSAL' => 'SUCURSAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO');
+		else					$list_tipo_concepto = array( 'SUCURSAL' => 'SUCURSAL');
+		$data['list_tipo_concepto'] = $list_tipo_concepto;
+
 		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
 		$sqlentidad = " select abr_entidad, abr_zona, des_entidad, ifnull(cod_entidad,'99999999999999') as cod_entidad
 		from entidad where ifnull(cod_entidad, '') <> '' and cod_entidad <> '' ";
-		if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
+		if ( $this->nivel == 'ninguno' )
+			$sqlentidad .= " and cod_entidad = ''";
+		if ( $this->nivel == 'especial' )
 			$sqlentidad .= " and tipo_entidad <> 'ADMINISTRATIVO' and tipo_entidad NOT LIKE 'ADMINISTRATI%' ";
-		if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
+		if ( $this->nivel == 'sucursal' )
 			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
-		else
-			$arregloentidades = array(''=>'');
+		$arregloentidades = array();
 		$resultadosentidad = $this->db->query($sqlentidad);
 		foreach ($resultadosentidad->result() as $row)
 			$arregloentidades[$row->cod_entidad] = $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
@@ -93,7 +125,7 @@ class cargargastosucursales extends CI_Controller {
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'gastomanualcargaruno';
 		$data['mens'] = $mens;
-		$data['haciacontrolador'] = 'cargargastosucursales';	// para cargar parte especifica de la vista envio un parametro accion
+		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastosucursales.php',$data);
 		$this->load->view('footer.php',$data);
@@ -127,11 +159,12 @@ class cargargastosucursales extends CI_Controller {
 		$dias = floor($dias);
 		if ( $dias > 12 )
 		{
-			$mens = "La fecha no puede ser futura y debe ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
+			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
 			return $this->gastomanualcargaruno( $mens );
 		}
 		$mon_registro = $this->input->get_post('mon_registro');
 		$des_concepto = $this->input->get_post('des_concepto');
+		$tipo_concepto = $this->input->get_post('tipo_concepto');
 		$factura_tipo = $this->input->get_post('factura_tipo');
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
@@ -209,7 +242,7 @@ class cargargastosucursales extends CI_Controller {
 			  '".$cod_subcategoria."',(SELECT cod_categoria FROM subcategoria where cod_subcategoria = '".$cod_subcategoria."' LIMIT 1),
 			  '".$this->db->escape_str($des_concepto)."', '".$this->db->escape_str($mon_registro)."',
 			  '".$fecha_registro."', '".$fecha_concepto."',
-			  '".$sessionflag1."','SUCURSAL','PENDIENTE',
+			  '".$sessionflag1."','".$tipo_concepto."','PENDIENTE',
 			  '".$factura_tipo."','".$this->db->escape_str($factura_num)."','".$factura_bin."','".$this->db->escape_str($factura_rif)."'
 			)";
 		$this->db->query($sqlregistrargasto);
@@ -233,7 +266,7 @@ class cargargastosucursales extends CI_Controller {
 		$data['accionejecutada'] = 'gastomanualfiltrardouno';
 		$data['upload_errors'] = $this->upload->display_errors('<p>', '</p>');
 		$this->load->helper(array('form', 'url','html'));
-		$data['haciacontrolador'] = 'cargargastosucursales';	// para cargar parte especifica de la vista envio un parametro accion
+		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastosucursales.php',$data);
 		$this->load->view('footer.php',$data);
@@ -248,6 +281,10 @@ class cargargastosucursales extends CI_Controller {
 		$sqlcategoria = " select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
 		 from categoria where ifnull(cod_categoria, '') <> '' and cod_categoria <> '' ";
 		$sqlcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
+		if ( $this->nivel == 'ninguno' )
+			$sqlcategoria .= " and cod_categoria = ''";
+		if ( $this->nivel != 'administrador' )
+			$sqlcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
 		$sqlcategoria .= " ORDER BY des_categoria DESC ";
 		$resultadoscategoria = $this->db->query($sqlcategoria);
 		$arreglocategoriaes = array();
@@ -260,7 +297,10 @@ class cargargastosucursales extends CI_Controller {
 		SELECT ifnull(ca.cod_categoria,'99999') as cod_categoria,
 		ca.des_categoria,  sb.cod_subcategoria,  sb.des_subcategoria
 		FROM categoria as ca join subcategoria as sb on sb.cod_categoria = ca.cod_categoria ";
-		$sqlsubcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
+		if ( $this->nivel == 'ninguno' )
+			$sqlsubcategoria .= " and cod_subcategoria = ''";
+		if ( $this->nivel != 'administrador' )
+			$sqlsubcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
 		$sqlsubcategoria .= " ORDER BY ca.des_categoria DESC ";
 		$resultadossubcategoria = $this->db->query($sqlsubcategoria);
 		$arreglosubcategoriaes = array();
@@ -275,12 +315,13 @@ class cargargastosucursales extends CI_Controller {
 		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
 		$sqlentidad = " select abr_entidad, abr_zona, des_entidad, ifnull(cod_entidad,'99999999999999') as cod_entidad
 		from entidad where ifnull(cod_entidad, '') <> '' and cod_entidad <> '' ";
-		if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
+		if ( $this->nivel == 'ninguno' )
+			$sqlentidad .= " and cod_entidad = ''";
+		if ( $this->nivel == 'especial' )
 			$sqlentidad .= " and tipo_entidad <> 'ADMINISTRATIVO' and tipo_entidad NOT LIKE 'ADMINISTRATI%' ";
-		if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
+		if ( $this->nivel == 'sucursal' )
 			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
-		else
-			$arregloentidades = array();
+		$arregloentidades = array();
 		$resultadosentidad = $this->db->query($sqlentidad);
 		foreach ($resultadosentidad->result() as $row)
 			$arregloentidades[$row->cod_entidad] = $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
@@ -305,7 +346,7 @@ class cargargastosucursales extends CI_Controller {
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'gastomanualeditaruno';
 		$data['mens'] = $mens;
-		$data['haciacontrolador'] = 'cargargastosucursales';	// para cargar parte especifica de la vista envio un parametro accion
+		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastosucursales.php',$data);
 		$this->load->view('footer.php',$data);
@@ -322,6 +363,7 @@ class cargargastosucursales extends CI_Controller {
 		$sessionflag1 = date("YmdHis") . $usuariocodgernow . '.' .$this->session->userdata('username');
 		// ******* OBTENER DATOS DE FORMULARIO ***************************** /
 		$this->load->library('form_validation');
+		$cod_registro = $this->input->get_post('cod_registro');
 		$this->form_validation->set_rules('mon_registro', 'Monto (punto o coma SOLO PARA DECIMALES', 'required');
 		$this->form_validation->set_rules('des_concepto', 'Concepto o detalle de que gasto', 'required');
 		$this->form_validation->set_rules('factura_tipo', 'CONTRIBUYENTE debe ser el tipo si el archivo es factura', 'required');
@@ -329,7 +371,7 @@ class cargargastosucursales extends CI_Controller {
 		if ( $this->form_validation->run() == FALSE )
 		{
 			$mens = validation_errors();
-			return $this->gastomanualcargaruno( $mens );
+			return $this->gastomanualeditaruno( $mens, $cod_registro );
 		}
 		$fecha_concepto = $this->input->get_post('fecha_concepto');
 		$dias	= (strtotime(date("Ymd"))-strtotime($fecha_concepto))/86400;
@@ -337,11 +379,12 @@ class cargargastosucursales extends CI_Controller {
 		$dias = floor($dias);
 		if ( $dias > 16 )
 		{
-			$mens = "La fecha no puede ser futura y debe ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
-			return $this->gastomanualcargaruno( $mens );
+			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
+			return $this->gastomanualeditaruno( $mens, $cod_registro );
 		}
 		$mon_registro = $this->input->get_post('mon_registro');
 		$des_concepto = $this->input->get_post('des_concepto');
+		$tipo_concepto = $this->input->get_post('tipo_concepto');
 		$factura_tipo = $this->input->get_post('factura_tipo');
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
@@ -375,8 +418,6 @@ class cargargastosucursales extends CI_Controller {
 		$filenamen = $cod_registro .'1'. $file_data['file_ext'];
 		$filenameorig =  $file_data['file_path'] . $file_data['file_name'];
 		$filenamenewe =  $file_data['file_path'] . $filenamen;
-		if ( $factura_tipo == 'CONTRIBUYENTE' )
-		{
 			if ( $this->input->get_post('factura_bin') != '' and $file_data['file_name'] == '' )
 			{
 				$conadjunto = FALSE;
@@ -387,8 +428,11 @@ class cargargastosucursales extends CI_Controller {
 			{
 				if ( $file_data['file_name'] == '' )
 				{
-					$this->gastomanualeditaruno($mens = '<br>CUANDO ES CONTRIBUYENTE Debe subir un archivo escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO', $cod_registro);
-					return;
+					if ( $factura_tipo == 'CONTRIBUYENTE' )
+					{
+						$this->gastomanualeditaruno($mens = '<br>CUANDO ES CONTRIBUYENTE Debe subir un archivo escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO', $cod_registro);
+						return;
+					}
 				}
 				else
 					rename( $filenameorig, $filenamenewe ); // TODO: rename
@@ -406,7 +450,6 @@ class cargargastosucursales extends CI_Controller {
 					$linkadjunto = '';
 				}
 			}
-		}
 		$file_data = $this->upload->data();
 		$data['file_data'] = $file_data;
 		$data['factura_bin'] = $factura_bin;
@@ -420,10 +463,11 @@ class cargargastosucursales extends CI_Controller {
 					cod_subcategoria='".$cod_subcategoria."',
 					mon_registro='".$this->db->escape_str($mon_registro)."',
 					des_concepto='".$this->db->escape_str($des_concepto)."',
-					tipo_concepto='NORMAL',
+					tipo_concepto='".$tipo_concepto."',
 					factura_tipo='".$factura_tipo."',
 					factura_rif='".$this->db->escape_str($factura_rif)."',
-					factura_num='".$this->db->escape_str($factura_num)."',";
+					factura_num='".$this->db->escape_str($factura_num)."',
+					fecha_concepto='".$this->db->escape_str($fecha_concepto)."',";
 				if ( $conadjunto )
 					$sqlregistrargasto .= "
 					factura_bin='".$factura_bin."',";
@@ -450,7 +494,7 @@ class cargargastosucursales extends CI_Controller {
 		$data['accionejecutada'] = 'gastomanualfiltrardouno';
 //		$data['upload_errors'] = $this->upload->display_errors('<p>', '</p>');
 		$this->load->helper(array('form', 'url','html'));
-		$data['haciacontrolador'] = 'cargargastosucursales';	// para cargar parte especifica de la vista envio un parametro accion
+		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastosucursales.php',$data);
 		$this->load->view('footer.php',$data);
@@ -468,20 +512,14 @@ class cargargastosucursales extends CI_Controller {
 		// ******* ini nombres de tablas para filtrar los datos:
 		$segurodelatabla = rand(6,8);
 		//$segurodelatabla = date("YmdHis");
-		$tablaentidades = "entidad_" . $userintran . $segurodelatabla;
-		$tablacategoria = "categoria_" . $userintran . $segurodelatabla;
-		$tablasubcatego = "subcategoria_" . $userintran . $segurodelatabla;
+		$tablaentidades = "entidad";
+		$tablacategoria = "categoria";
+		$tablasubcatego = "subcategoria";
 		$tablaregistros = "registro_gastos_".$userintran . $segurodelatabla;
 
 		// ****** ini limpieza de tablas antes de mostrar y despues que se muestra mas abajo al final
 		$this->db->trans_strict(TRUE); // todo o nada
 		$this->db->trans_begin();
-			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaentidades." ;";
-			$this->db->query($sqldatostablasfiltrados);
-			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablacategoria." ;";
-			$this->db->query($sqldatostablasfiltrados);
-			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablasubcatego." ;";
-			$this->db->query($sqldatostablasfiltrados);
 			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
 			$this->db->query($sqldatostablasfiltrados);
 			if ($this->db->trans_status() === FALSE)
@@ -489,7 +527,7 @@ class cargargastosucursales extends CI_Controller {
 				$this->db->trans_rollback();
 				$data['output'] = "Error ejecutando su filtro, repita el proceso, si persiste consulte systemas";
 				$this->load->view('header.php',$data);
-				$data['haciacontrolador'] = 'cargargastosucursales';	// para cargar parte especifica de la vista envio un parametro accion
+				$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 				$this->load->view('cargargastosucursales.php',$data);
 				$this->load->view('footer.php',$data);
 				return;
@@ -514,49 +552,27 @@ class cargargastosucursales extends CI_Controller {
 			$sqltablagastousr = "
 				CREATE TABLE IF NOT EXISTS `".$tablaregistros."` SELECT registro_gastos.* FROM (`registro_gastos`)
 				WHERE cod_registro <> ''
-				and cod_entidad = '".$usuariocodgernow."'
-				and tipo_concepto <> 'ADMINISTRATIVO' and tipo_concepto NOT LIKE 'ADMINISTRATI%'
-				AND CONVERT(SUBSTRING(fecha_concepto,1,6),UNSIGNED) > CONVERT('".(date('Ym')-1)."',UNSIGNED)
+				AND CONVERT(SUBSTRING(fecha_concepto,1,6),UNSIGNED) >= CONVERT('".(date('Ym')-1)."',UNSIGNED)
 				AND CONVERT(SUBSTRING(fecha_concepto,1,6),UNSIGNED) <= CONVERT('".date('Ym')."',UNSIGNED) ";
+				if ( $this->nivel == 'sucursal' ) 	$sqltablagastousr .= " and cod_entidad = '".$usuariocodgernow."'";
+				if ( $this->nivel == 'especial' ) 	$sqltablagastousr .= " and tipo_concepto <> 'ADMINISTRATIVO' and tipo_concepto NOT LIKE 'ADMINISTRATI%' ";
+				if ( $this->nivel == 'ninguno' ) 	$sqltablagastousr .= " and tipo_concepto = '' ";
+				$data['nivel'] = $this->nivel;
 				if ( $cod_categoria != '')		$sqltablagastousr .= " AND registro_gastos.cod_categoria = '".$this->db->escape_str($cod_categoria)."' ";
 				if ( $cod_subcategoria != '')	$sqltablagastousr .= " AND registro_gastos.cod_subcategoria = '".$this->db->escape_str($cod_subcategoria)."' ";
 				if ( $des_registrolike != '')	$sqltablagastousr .= " AND registro_gastos.des_concepto LIKE '%".$this->db->escape_str($des_concepto)."%' ";
-				if ( $fec_registroini != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) >= ".$this->db->escape_str($fec_registroini)." ";
-				if ( $fec_registrofin != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) <= ".$this->db->escape_str($fec_registrofin)." ";
+				if ( $fec_registroini != '')	$sqltablagastousr .= " AND CONVERT(fecha_concepto,UNSIGNED) >= ".$this->db->escape_str($fec_registroini)." ";
+				if ( $fec_registrofin != '')	$sqltablagastousr .= " AND CONVERT(fecha_concepto,UNSIGNED) <= ".$this->db->escape_str($fec_registrofin)." ";
 				if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro <= ".$this->db->escape_str($mon_registroigual)." ";
 				if ( $mon_registromayor != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro >= ".$this->db->escape_str($mon_registromayor)." ";
-		$sqltablaentidadusr = "
-			CREATE TABLE IF NOT EXISTS  `".$tablaentidades."`
-			select cod_entidad, abr_entidad, abr_zona, des_entidad
-			from entidad where ifnull(cod_entidad, '') <> '' and cod_entidad <> '' ";
-			if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
-				$sqltablaentidadusr .= "and cod_entidad = '".$usuariocodgernow."' ";
-		$sqltablacategorias = "
-			CREATE TABLE IF NOT EXISTS  `".$tablacategoria."` (primary key (cod_categoria))
-			select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
-			from categoria where ifnull(cod_categoria, '') <> '' and cod_categoria <> ''  ";
-			if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
-				$sqltablacategorias .= " and SUBSTRING(cod_categoria,12) NOT LIKE '1200%' ";
-			$sqltablacategorias .= " ORDER BY des_categoria DESC ";
-		$sqltablasubcatego = "
-			CREATE TABLE IF NOT EXISTS  `".$tablasubcatego."` (primary key (cod_subcategoria))
-			SELECT ifnull(ca.cod_categoria,'99999') as cod_categoria,
-			ca.des_categoria as des_categoria,  sb.cod_subcategoria as cod_subcategoria,  sb.des_subcategoria  as des_subcategoria
-			FROM categoria as ca join subcategoria as sb on sb.cod_categoria = ca.cod_categoria ";
-			if ( $usuariocodgernow != 998 or ( $usuariocodgernow > 399 and $usuariocodgernow < 998) )
-				$sqltablasubcatego .= " and SUBSTRING(sb.cod_categoria,12) NOT LIKE '1200%' ";
-			$sqltablasubcatego .= " ORDER BY ca.des_categoria DESC ";
 		// ejecutsamos los querys que crean las 4 tablas a usar en el crud con datos ya filtrados
 		$this->db->query($sqltablagastousr);
-		$this->db->query($sqltablaentidadusr);
-		$this->db->query($sqltablacategorias);
-		$this->db->query($sqltablasubcatego);
 		if ($this->db->trans_status() === FALSE)
 		{
 			$this->db->trans_rollback();
 			$data['output'] = "Error ejecutando su filtro, repita el proceso, si persiste consulte systemas";
 			$this->load->view('header.php',$data);
-			$data['haciacontrolador'] = 'cargargastosucursales';	// para cargar parte especifica de la vista envio un parametro accion
+			$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 			$this->load->view('cargargastosucursales.php',$data);
 			$this->load->view('footer.php',$data);
 			return;
@@ -591,9 +607,13 @@ class cargargastosucursales extends CI_Controller {
 		$crud->set_relation('cod_subcategoria',$tablasubcatego,'{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
 		$crud->unset_add();
 		$crud->unset_edit();
-		$crud->unset_read();
 		$crud->unset_delete();
-		$crud->add_action('Editar', '', '','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
+		if ( $this->nivel == 'sucursal' or $this->nivel == 'administrador')
+			$crud->add_action('Editar', '', '','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
+//		if ( $this->nivel == 'especial' or $this->nivel == 'administrador')
+			$crud->add_action('Erroneo', '', '','ui-icon-plus',array($this,'_cargargastosucursalnotificacodigo'));
+		if ($this->nivel == 'administrador')
+			$crud->add_action('Eliminar', '', '','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
 		$directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
 		{
@@ -612,24 +632,61 @@ class cargargastosucursales extends CI_Controller {
 		$data['css_files'] = $output->css_files;
 		$data['output'] = $output->output;
 		$this->load->view('header.php',$data);
-		$data['haciacontrolador'] = 'cargargastosucursales';	// para cargar parte especifica de la vista envio un parametro accion
+		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$this->load->view('cargargastosucursales.php',$data);
 		$this->load->view('footer.php',$data);
 
 		// ******** limpiar de las tablas "disque temporales" con datos filtrados para hacer crud
-			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaentidades." ;";
-			$this->db->query($sqldatostablasfiltrados);
-			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablacategoria." ;";
-			$this->db->query($sqldatostablasfiltrados);
-			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablasubcatego." ;";
-			$this->db->query($sqldatostablasfiltrados);
 			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
 			$this->db->query($sqldatostablasfiltrados);
 	}
 
 	function _cargargastosucursaleditandocodigo($primary_key , $row)
 	{
-		return site_url('cargargastosucursales/gastomanualeditaruno').'?cod_registro='.$row->cod_registro;
+		return site_url('cargargastosucursalesadm/gastomanualeditaruno').'?cod_registro='.$row->cod_registro;
+	}
+
+	function _cargargastosucursaleliminacodigo($primary_key , $row)
+	{
+		return site_url('cargargastosucursalesadm/gastomanualeditaruno').'?cod_registro='.$row->cod_registro;
+	}
+
+	function _cargargastosucursalnotificacodigo($primary_key, $row)
+	{
+		// TODO: enviar notificacion
+	}
+
+	public function enviarnotificacion($llave, $row)
+	{
+		$sql = "select intranet from gastossystema.entidad_usuario where cod_entidad='".$row->cod_entidad."'";
+		$this->load->database('gastossystema');
+		$sqlcorreonotificar = $this->db->query($sql);
+		$correoaenviar = '';
+		$cuantosenviar = 0;
+		foreach ($sqlcorreonotificar->result() as $correorow)
+		{
+			$correoaenviar .= $correorow->intranet .'@intranet1.net.ve, ';
+			$cuantosenviar++;
+		}
+		$correoaenviar = substr($correoaenviar, 0, -2);
+		if ($cuantosenviar < 1)
+			$correoaenviar = $this->session->userdata('correo') . ', lenz_gerardo@intranet1.net.ve';
+
+		$this->load->library('email');
+		$configm2['protocol'] = 'mail';// en sysdevel y sysnet envia pero syscenter no
+		$configm2['wordwrap'] = FALSE;
+		$configm2['starttls'] = TRUE; // requiere sendmail o localmail use courierd START_TLS_REQUIRED=1 sendmail no envia
+		$configm2['smtp_crypto'] = 'tls';
+//		$configm2['mailtype'] = 'html';
+		$this->email->initialize($configm2);
+		$this->email->from('gastostiendasvnz@intranet1.net.ve', 'gastostiendasvnz');
+		//    $this->email->cc($correousuariosesion);
+		$this->email->reply_to('gastostiendasvnz@intranet1.net.ve', 'gastostiendasvnz');
+		$this->email->to($correoaenviar ); // enviar a los destinos de galpones
+		$this->email->subject('Gasto erroneo '. $row->cod_registro);
+		$this->email->message('El gasto de codigo '.$row->cod_registro.' esta errado, se debe revisar y corregirlo.'.PHP_EOL.PHP_EOL );
+		//	$this->email->attach($filenameneweordendespachoadjuntar);
+		$this->email->send();
 	}
 
 }
