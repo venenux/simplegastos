@@ -159,6 +159,29 @@
 		echo br().PHP_EOL;
 		echo $botonesgestion . PHP_EOL;
 	}
+	else if ($accionejecutada == 'gastonotificacionerror')
+	{
+		echo br().PHP_EOL;
+
+		echo form_fieldset('<strong>ENVIAR CORREO</strong>',array('class'=>'containerin')) . PHP_EOL;
+		$this->table->clear();
+		$this->table->set_template(array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">','cell_start' => '<td class="form-field-box odd">', ) );
+			$this->table->add_row('Codigo error:',$cod_registro);
+			$this->table->add_row('De quien es el gasto:', $cod_entidad);
+			$this->table->add_row('Resultado:', $this->session->flashdata('email_sent') );
+		echo $this->table->generate().br().PHP_EOL;
+		echo form_fieldset_close() . PHP_EOL;
+
+		echo form_fieldset('<strong>ERRORES PENDIENTES</strong>',array('class'=>'containerin')) . PHP_EOL;
+		$this->table->clear();
+		$this->table->set_template(array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">','cell_start' => '<td class="form-field-box odd">', ) );
+			$this->table->add_row('Concepto o Detalle:', form_input('des_concepto', '', $classinput).br().PHP_EOL);
+			$this->table->add_row('Concepto tipo:', form_dropdown('tipo_concepto', $list_tipo_concepto , 'SUCURSAL', $classinput).br().PHP_EOL);
+		echo $this->table->generate().br().PHP_EOL;
+		echo form_fieldset_close() . PHP_EOL;
+
+		echo br().PHP_EOL;
+	}
 	echo 'ESTADO OPERACION:<strong>'.$mens.'</strong>';
 	?>
 	</div>

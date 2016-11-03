@@ -174,9 +174,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->set_relation('cod_entidad','entidad','{des_entidad} - {cod_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria','subcategoria','{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
-		//	$crud->unset_add();
-		//	$crud->unset_edit();
-		//	$crud->unset_delete();
+		$crud->add_action('Erroneo', '', '','ui-icon-plus',array($this,'_cargargastosucursalnotificacodigo'));
 		$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','des_estado');
 		$directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
@@ -266,4 +264,10 @@ class cargargastoadministrativo extends CI_Controller {
 		// TODO: insert para tabla log
 		return $post_array;
 	}
+
+	function _cargargastosucursalnotificacodigo($primary_key, $row)
+	{
+		return "javascript:window.open ('".site_url('/cargargastosucursalesadm/enviarnotificacion/'.$row->cod_registro.'/'.$row->cod_entidad)."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
+	}
+
 }

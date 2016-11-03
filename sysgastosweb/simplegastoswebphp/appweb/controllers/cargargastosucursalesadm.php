@@ -41,7 +41,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		{
 			if( $usuariocodgernow == '998' or $usuariocodgernow == '1000' )
 				$this->nivel = 'administrador';
-			else if( $usuariocodgernow > 399 or $usuariocodgernow < 998 )
+			else if( $usuariocodgernow > 399 and $usuariocodgernow < 998 )
 				$this->nivel = 'sucursal';
 			else
 				$this->nivel = 'especial';
@@ -66,6 +66,7 @@ class cargargastosucursalesadm extends CI_Controller {
 	{
 		$this->_verificarsesion();
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		$data['nivel'] = $this->session->userdata('cod_entidad');
 
 		// ########## ini cargar y listaar las CATEGORIAS que se usaran para registros
 		$sqlcategoria = " select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
@@ -507,6 +508,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'gastosucursalesrevisarlos';
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		$data['pepe'] = $usuariocodgernow;
 		$userintran = $this->session->userdata('intranet');
 
 		// ******* ini nombres de tablas para filtrar los datos:
@@ -566,6 +568,7 @@ class cargargastosucursalesadm extends CI_Controller {
 				if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro <= ".$this->db->escape_str($mon_registroigual)." ";
 				if ( $mon_registromayor != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro >= ".$this->db->escape_str($mon_registromayor)." ";
 		// ejecutsamos los querys que crean las 4 tablas a usar en el crud con datos ya filtrados
+		$sqltablagastousr .= " LIMIT 10";
 		$this->db->query($sqltablagastousr);
 		if ($this->db->trans_status() === FALSE)
 		{
@@ -610,7 +613,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$crud->unset_delete();
 		if ( $this->nivel == 'sucursal' or $this->nivel == 'administrador')
 			$crud->add_action('Editar', '', '','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
-//		if ( $this->nivel == 'especial' or $this->nivel == 'administrador')
+		if ( $this->nivel == 'especial' or $this->nivel == 'administrador')
 			$crud->add_action('Erroneo', '', '','ui-icon-plus',array($this,'_cargargastosucursalnotificacodigo'));
 		if ($this->nivel == 'administrador')
 			$crud->add_action('Eliminar', '', '','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
@@ -653,16 +656,23 @@ class cargargastosucursalesadm extends CI_Controller {
 
 	function _cargargastosucursalnotificacodigo($primary_key, $row)
 	{
-		// TODO: enviar notificacion
+		return "javascript:window.open ('enviarnotificacion/".$row->cod_registro."/".$row->cod_entidad."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
 	}
 
-	public function enviarnotificacion($llave, $row)
+	public function enviarnotificacion($codigo,$aquien)
 	{
-		$sql = "select intranet from gastossystema.entidad_usuario where cod_entidad='".$row->cod_entidad."'";
+		$squ = "SELECT des_entidad FROM gastossystema.entidad where cod_entidad=".$aquien.";";
+		$sql = "select intranet from gastossystema.entidad_usuario where cod_entidad='".$aquien."'";
 		$this->load->database('gastossystema');
 		$sqlcorreonotificar = $this->db->query($sql);
+		$sqlnombrenotificar = $this->db->query($squ);
 		$correoaenviar = '';
 		$cuantosenviar = 0;
+		foreach ($sqlnombrenotificar->result() as $nombrerow)
+		{
+			$dquien = $nombrerow->des_entidad ;
+			break;
+		}
 		foreach ($sqlcorreonotificar->result() as $correorow)
 		{
 			$correoaenviar .= $correorow->intranet .'@intranet1.net.ve, ';
@@ -670,7 +680,10 @@ class cargargastosucursalesadm extends CI_Controller {
 		}
 		$correoaenviar = substr($correoaenviar, 0, -2);
 		if ($cuantosenviar < 1)
-			$correoaenviar = $this->session->userdata('correo') . ', lenz_gerardo@intranet1.net.ve';
+			if ( $this->session->userdata('correo') != '' )
+				$correoaenviar = $this->session->userdata('correo') . ', lenz_gerardo@intranet1.net.ve';
+			else
+				$correoaenviar = 'lenz_gerardo@intranet1.net.ve';
 
 		$this->load->library('email');
 		$configm2['protocol'] = 'mail';// en sysdevel y sysnet envia pero syscenter no
@@ -683,10 +696,25 @@ class cargargastosucursalesadm extends CI_Controller {
 		//    $this->email->cc($correousuariosesion);
 		$this->email->reply_to('gastostiendasvnz@intranet1.net.ve', 'gastostiendasvnz');
 		$this->email->to($correoaenviar ); // enviar a los destinos de galpones
-		$this->email->subject('Gasto erroneo '. $row->cod_registro);
-		$this->email->message('El gasto de codigo '.$row->cod_registro.' esta errado, se debe revisar y corregirlo.'.PHP_EOL.PHP_EOL );
+		$this->email->subject('Gasto erroneo '. $codigo);
+		$this->email->message('El gasto de codigo '.$codigo.' esta errado, se debe revisar y corregirlo.'.PHP_EOL.PHP_EOL );
 		//	$this->email->attach($filenameneweordendespachoadjuntar);
-		$this->email->send();
+		$data['accionejecutada'] = 'gastonotificacionerror';
+		$data['cod_registro'] = $codigo;
+		$data['cod_entidad'] =$dquien;
+		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
+		if($this->email->send())
+		{
+			$this->session->set_flashdata("email_sent","Correo enviado con notificacion.");
+			$data['resultadomsg'] = "Notificacion de correo para correccion enviada";
+		}
+		else
+		{
+			$this->session->set_flashdata("email_sent","Correo no enviado, sistema en desarrollo.");
+			$data['resultadomsg'] = "Correo no enviado, sistema en desarrollo.";
+		}
+		$data['mens'] = 'Envio de notificacion gasto errado';
+		$this->load->view('cargargastosucursales.php',$data);
 	}
 
 }
