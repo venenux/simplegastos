@@ -28,7 +28,7 @@ function checkAvailable()
 	if ( ver > -1 )
 	{
 		if ( ver >= 9.0 )
-			msg = "Usted esta usando un navegador ineficiente, en un sistema operativo no seguro. Actualize a chromium o Iceweasel."
+			msg = "Usted esta usando un navegador ineficiente, en un sistema operativo no seguro. Actualize a chromium 25 o Iceweasel/firefox 24."
 		alert( msg );
 	}
 }

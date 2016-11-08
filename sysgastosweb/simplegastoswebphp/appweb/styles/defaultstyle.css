@@ -16,12 +16,56 @@ fieldset.exitos{ color: blue; border: 2px solid blue; }
 /* ----------------------------------------------- */
 /* - clases para contenedores e formularios - */
 /* ------------------------------------------------ */
-.input { border: 4px solid #B3B4BD;}
-.text { border: 4px solid #B3B4BD;}
-.textarea { border: 4px solid #B3B4BD;}
-.select { border: 4px solid #B3B4BD;}
-.checkbox { border: 4px solid #B3B4BD;}
-.option { border: 4px solid #B3B4BD;}
+.input { border: 1px solid #B3B4BD;
+	*border: 0;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+		filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+		*zoom: 1;
+		-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+		-moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.text { border: 1px solid #B3B4BD;
+	*border: 0;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+		filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+		*zoom: 1;
+		-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+		-moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.textarea { border: 1px solid #B3B4BD;
+	*border: 0;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+		filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+		*zoom: 1;
+		-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+		-moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.select { border: 1px solid #B3B4BD;
+	*border: 0;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		filter: progid:dximagetransform.microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
+		filter: progid:dximagetransform.microsoft.gradient(enabled=false);
+		*zoom: 1;
+		-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+		-moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+.checkbox { border: 1px solid #B3B4BD;}
+.option { border: 1px solid #B3B4BD;}
 /* ----------------------------------------------- */
 /* - fin clases para contenedores e formularios - */
 /* ------------------------------------------------ */
