@@ -82,6 +82,8 @@ class Manejousuarios extends CI_Controller
 		 ";
 		//$query = $this->dbxmppusers->query($sqlusuario);
 		$query = $this->db->query($sqlusuario);
+		$cuantosusuario = 0;
+		$cuantoscodgers = 0;
 		$objetousuario = $query->result();
 		if ($objetousuario)
 		{

@@ -41,7 +41,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		{
 			if( $usuariocodgernow == '998' or $usuariocodgernow == '1000' )
 				$this->nivel = 'administrador';
-			else if( $usuariocodgernow > 399 and $usuariocodgernow < 998 )
+			else if( ( $usuariocodgernow > 399 and $usuariocodgernow < 998) or $usuariocodgernow == '196' or $usuariocodgernow == '252' or $usuariocodgernow == '200' )
 				$this->nivel = 'sucursal';
 			else if ( $usuariocodgernow == '163' or $usuariocodgernow == '251' )
 				$this->nivel = 'contabilidad';
@@ -158,11 +158,16 @@ class cargargastosucursalesadm extends CI_Controller {
 		}
 		$fecha_concepto = $this->input->get_post('fecha_concepto');
 		$dias	= (strtotime(date("Ymd"))-strtotime($fecha_concepto))/86400;
-		$dias 	= abs($dias);
+		//$dias 	= abs($dias);
 		$dias = floor($dias);
-		if ( $dias > 12 )
+		if ( $dias > 29)
 		{
-			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
+			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . abs($dias) . " dias es muy atras!";
+			return $this->gastomanualcargaruno( $mens );
+		}
+		if ( $dias < 0)
+		{
+			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . abs($dias) . " dias es muy adelante!";
 			return $this->gastomanualcargaruno( $mens );
 		}
 		$mon_registro = $this->input->get_post('mon_registro');
@@ -379,10 +384,15 @@ class cargargastosucursalesadm extends CI_Controller {
 		$dias	= (strtotime(date("Ymd"))-strtotime($fecha_concepto))/86400;
 		$dias 	= abs($dias);
 		$dias = floor($dias);
-		if ( $dias > 16 )
+		if ( $dias > 29 )
 		{
 			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
 			return $this->gastomanualeditaruno( $mens, $cod_registro );
+		}
+		if ( $dias < 0)
+		{
+			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . abs($dias) . " dias es muy adelante!";
+			return $this->gastomanualcargaruno( $mens );
 		}
 		$mon_registro = $this->input->get_post('mon_registro');
 		$des_concepto = $this->input->get_post('des_concepto');
@@ -572,9 +582,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		// ejecutsamos los querys que crean las 4 tablas a usar en el crud con datos ya filtrados
 		$sqltablagastousr .= " ORDER BY fecha_concepto DESC ";
 		if ( $this->nivel == 'sucursal')
-			$sqltablagastousr .= " LIMIT 600";
-		else
-			$sqltablagastousr .= " LIMIT 1000";
+			$sqltablagastousr .= " LIMIT 1600";
 		$this->db->query($sqltablagastousr);
 		if ($this->db->trans_status() === FALSE)
 		{
@@ -611,10 +619,10 @@ class cargargastosucursalesadm extends CI_Controller {
 			 ->display_as('factura_num','Factura<br>Numero')
 			 ->display_as('factura_rif','Factura<br>Rif')
 			 ->display_as('factura_bin','Factura<br>Escaneada');
-		if ( $this->nivel == 'sucursal' or $this->nivel == 'administrador')
-			$crud->columns('fecha_concepto','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','des_estado','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro');
+		if ( $this->nivel != 'sucursal')
+			$crud->columns('fecha_concepto','cod_categoria','cod_subcategoria','cod_entidad','mon_registro','des_concepto','estado','cod_registro','des_estado','factura_tipo','factura_num','factura_rif','factura_bin','fecha_registro','fecha_concepto');
 		else
-			$crud->columns('fecha_concepto','cod_categoria','cod_subcategoria','cod_entidad','mon_registro','des_concepto','estado','des_estado','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro');
+			$crud->columns('fecha_concepto','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','des_estado','cod_registro','factura_tipo','factura_num','factura_rif','factura_bin','fecha_registro','fecha_concepto');
 		$crud->set_relation('cod_entidad',$tablaentidades,'{des_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria',$tablacategoria,'{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria',$tablasubcatego,'{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'

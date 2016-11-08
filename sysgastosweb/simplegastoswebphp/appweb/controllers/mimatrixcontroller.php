@@ -240,15 +240,6 @@ class mimatrixcontroller extends CI_Controller {
 		FROM
 		   categoria
 		";
-		/* si el codger es 998 es administrativo, se muestran TODAS LAS 
-		 CATEGORIAS , pero no se muestra esa vista a las tiendas*/ 
-		if ($usuariocodgernow > 399 and $usuariocodgernow < 990 )
-         {// si no se filtra que categorias ve la tienda
-          $querycabeceras = $querycabeceras . " where  cast(substring(cod_categoria,10,8) as unsigned) < 120000";  
-          }
-        
-		// aqui se establece las cabeceras lueego de ejecutar el query
-		
 		
 		
 		$micabeceras = $this->db->query($querycabeceras);

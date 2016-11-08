@@ -15,6 +15,7 @@
 
 $config['benchmarks']           = TRUE;
 $config['config']               = TRUE;
+$config['console']               = TRUE;
 $config['controller_info']      = TRUE;
 $config['get']                  = TRUE;
 $config['http_headers']         = TRUE;
