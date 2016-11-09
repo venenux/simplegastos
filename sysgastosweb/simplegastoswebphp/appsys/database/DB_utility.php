@@ -216,7 +216,7 @@ class CI_DB_utility extends CI_DB_forge {
 			}
 
 			$out = rtrim($out);
-			$out = rtrim($out,$delim); // TODO PICCORO poner en el git subirlo
+			$out = rtrim($out,$delim);
 			$out .= $newline;
 		}
 
@@ -230,7 +230,7 @@ class CI_DB_utility extends CI_DB_forge {
 				$out .= $enclosure.str_replace($enclosure, $enclosure.$enclosure, $item).$enclosure.$delim;
 			}
 			$out = rtrim($out);
-			$out = rtrim($out,$delim); // TODO PICCORO poner en el git subirlo
+			$out = rtrim($out,$delim);
 			$out .= $newline;
 		}
 
