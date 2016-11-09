@@ -63,7 +63,7 @@ class CI_DB_odbc_result extends CI_DB_result {
 	function list_fields()
 	{
 		$field_names = array();
-		for ($i = 1; $i <= $this->num_fields(); $i++) // TODO PENDING PICCORO subir a git
+		for ($i = 0; $i < $this->num_fields(); $i++)
 		{
 			$field_names[]	= odbc_field_name($this->result_id, $i);
 		}
