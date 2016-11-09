@@ -38,6 +38,34 @@ UPDATE `gastossystema`.`registro_gastos`
 UPDATE `gastossystema`.`registro_gastos` 
 	SET `fecha_registro`= SUBSTRING(`sessionficha`,1,8) WHERE `sessionficha`<>'' and `fecha_registro` = '';
 
+/* 20161109 unificacion de info en subcategorias */
+
+-- todo eventual unificado
+SET SQL_SAFE_UPDATES = 0;
+UPDATE `gastossystema`.`registro_gastos` SET `cod_subcategoria`='SUB20161009151904' 
+WHERE cod_subcategoria = 'SUB20161009151905' or cod_subcategoria = 'SUB20161009151906';
+DELETE FROM `gastossystema`.`subcategoria` WHERE `cod_subcategoria`='SUB20161009151905';
+DELETE FROM `gastossystema`.`subcategoria` WHERE `cod_subcategoria`='SUB20161009151906';
+
+-- todo temporada unificado
+SET SQL_SAFE_UPDATES = 0;
+UPDATE `gastossystema`.`registro_gastos` SET `cod_subcategoria`='SUB20161009151901' 
+WHERE cod_subcategoria = 'SUB20161009151903';
+DELETE FROM `gastossystema`.`subcategoria` WHERE `cod_subcategoria`='SUB20161009151903';
+
+-- todo liquidacion unificado
+SET SQL_SAFE_UPDATES = 0;
+UPDATE `gastossystema`.`registro_gastos` SET `cod_subcategoria`='SUB20161009151916' 
+	WHERE cod_subcategoria = 'SUB20161009151917' 
+	OR  cod_subcategoria = 'SUB20161009151918' 
+	OR  cod_subcategoria = 'SUB20161009151919' 
+	OR cod_subcategoria = 'SUB20161020105303';
+DELETE FROM `gastossystema`.`subcategoria` WHERE `cod_subcategoria`='SUB20161009151917';
+DELETE FROM `gastossystema`.`subcategoria` WHERE `cod_subcategoria`='SUB20161009151918';
+DELETE FROM `gastossystema`.`subcategoria` WHERE `cod_subcategoria`='SUB20161009151919';
+DELETE FROM `gastossystema`.`subcategoria` WHERE `cod_subcategoria`='SUB20161020105303';
+
+
 /* ********** 20161102 actualizacion soporte minimo gastos erroneos y notificaciones */
 
 ALTER TABLE `gastossystema`.`categoria` CHARACTER SET = utf8 , 
@@ -78,3 +106,6 @@ CREATE  TABLE IF NOT EXISTS `gastossystema`.`registro_errado` (
   `sessionficha` VARCHAR(40) NULL DEFAULT NULL COMMENT 'quien lo creo YYYYMMDDhhmmss + codger + . + ficha' ,
   PRIMARY KEY (`cod_registro`) )
 COMMENT = 'notificaciones de errores cargados a usuarios' ;
+
+
+
