@@ -1616,20 +1616,18 @@ class CI_Email {
 			return FALSE;
 		}
 
-		//$this->_smtp_connect(); // TODO cambio realizado subir al git
-        if (!$this->_smtp_connect()) {
-            return FALSE;
-        }
+		if (!$this->_smtp_connect()) {
+		    return FALSE;	       // connect smtp but still not determinate wich smtp nature of, see starttls next function
+		}
 
-        if ($this->starttls) {
-            if (! $this->_send_command('starttls')) {
-                $this->_set_error_message('email_starttls_failed');
-                return FALSE;
-            } // TODO cambio realizado subir al git
-            stream_socket_enable_crypto($this->_smtp_connect, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
-            // Re-issue hello to get updated service list (RFC 3207 section 4.2)
-            $this->_send_command('hello');
-        }
+		if ($this->starttls) {
+		    if (! $this->_send_command('starttls')) {
+		        $this->_set_error_message('email_starttls_failed');
+		        return FALSE;
+		    }
+		    stream_socket_enable_crypto($this->_smtp_connect, true, STREAM_CRYPTO_METHOD_TLS_CLIENT);
+		    $this->_send_command('hello');
+		}
 
 		$this->_smtp_authenticate();
 
@@ -2091,8 +2089,8 @@ class CI_Email {
 						'mov'	=>	'video/quicktime',
 						'avi'	=>	'video/x-msvideo',
 						'movie'	=>	'video/x-sgi-movie',
-						'doc'	=>	'application/msword',
-						'word'	=>	'application/msword',
+						'odt'	=>	'application/msword',
+						'ods'	=>	'application/msword',
 						'xl'	=>	'application/excel',
 						'eml'	=>	'message/rfc822'
 					);
