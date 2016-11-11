@@ -4,11 +4,17 @@
 
 	$fec_registroini=date('Ymd');
 	$idfecdesde='fec_registroini';
-	$valoresinputfechaini = array('name'=>$idfecdesde,'id'=>$idfecdesde, 'onclick'=>'javascript:NewCssCal(\''.$idfecdesde.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecdesde, $$idfecdesde));
-	$fec_registrofin=date('Ymd');
+	$valoresinputfecha1ini = array('name'=>$idfecdesde,'id'=>$idfecdesde, 'onclick'=>'javascript:NewCssCal(\''.$idfecdesde.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecdesde, $$idfecdesde));
+	$fec_registrofin='';
 	$idfechasta='fec_registrofin';
-	$valoresinputfechafin = array('name'=>$idfechasta,'id'=>$idfechasta, 'onclick'=>'javascript:NewCssCal(\''.$idfechasta.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechasta, $$idfechasta));
-	//echo 'Fecha del gasto:'.form_input($valoresinputfecha).br().PHP_EOL;
+	$valoresinputfecha1fin = array('name'=>$idfechasta,'id'=>$idfechasta, 'onclick'=>'javascript:NewCssCal(\''.$idfechasta.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechasta, $$idfechasta));
+
+	$fec_conceptoini=date('Ymd');
+	$idfecdesde='fec_conceptoini';
+	$valoresinputfecha2ini = array('name'=>$idfecdesde,'id'=>$idfecdesde, 'onclick'=>'javascript:NewCssCal(\''.$idfecdesde.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecdesde, $$idfecdesde));
+	$fec_conceptofin='';
+	$idfechasta='fec_conceptofin';
+	$valoresinputfecha2fin = array('name'=>$idfechasta,'id'=>$idfechasta, 'onclick'=>'javascript:NewCssCal(\''.$idfechasta.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechasta, $$idfechasta));
 
 	// si variables vacias llenar con datos mientras tanto
 	if( !isset($accionejecutada) ) $accionejecutada = 'cargardatosadministrativosfiltrar';
@@ -24,8 +30,8 @@
 		echo form_fieldset('Ingrese los datos por favor',array('class'=>'container_blue containerin')) . PHP_EOL;
 		echo form_open_multipart('cargargastoadministrativo/gastoregistros/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
-			$this->table->add_row('Filto Fecha desde:',form_input($valoresinputfechaini).br().PHP_EOL);
-			$this->table->add_row('Filto Fecha hasta:',form_input($valoresinputfechafin).br().PHP_EOL);
+			$this->table->add_row('Fue Creado el/entre:',form_input($valoresinputfecha1ini).PHP_EOL.' y '.form_input($valoresinputfecha1fin).br().PHP_EOL);
+			$this->table->add_row('De Fechado el/entre:',form_input($valoresinputfecha2ini).PHP_EOL.' y '.form_input($valoresinputfecha2fin).br().PHP_EOL);
 			$this->table->add_row('Por Categoria/Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);
 			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL );
 			$this->table->add_row('Monto menor o igual', form_input('mon_registroigual','').br().PHP_EOL);
@@ -37,11 +43,6 @@
 		echo form_close() . PHP_EOL;
 		echo form_fieldset_close() . PHP_EOL;
 		echo br().PHP_EOL;
-		/*
-		echo form_fieldset('EJEMPLO DE COMO DEBE LLENARSE',array('class'=>'container_blue containerin ')) . PHP_EOL;
-		echo $tableejemplo;
-		echo form_fieldset_close() . PHP_EOL;
-		*/
 	}
 	else if ($accionejecutada == 'cargardatosadminnistrativosfiltrados')
 	{

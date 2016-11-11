@@ -64,11 +64,12 @@ class cargargastosucursalesadm extends CI_Controller {
 		$this->load->view('footer.php',$data);
 	}
 
-	public function gastomanualcargaruno($mens = NULL)
+	public function gastomanualfiltrarlos()
 	{
 		$this->_verificarsesion();
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
 		$data['nivel'] = $this->session->userdata('cod_entidad');
+		$data['usercodger'] = $usuariocodgernow;
 
 		// ########## ini cargar y listaar las CATEGORIAS que se usaran para registros
 		$sqlcategoria = " select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
@@ -111,7 +112,77 @@ class cargargastosucursalesadm extends CI_Controller {
 
 		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
 		$sqlentidad = " select abr_entidad, abr_zona, des_entidad, ifnull(cod_entidad,'99999999999999') as cod_entidad
-		from entidad where ifnull(cod_entidad, '') <> '' and cod_entidad <> '' ";
+		from entidad where ifnull(cod_entidad, '') <> '' and ( cod_entidad <> '' or cod_entidad = '".$usuariocodgernow."')";
+		if ( $this->nivel == 'ninguno' )
+			$sqlentidad .= " and cod_entidad = ''";
+		if ( $this->nivel == 'especial' )
+			$sqlentidad .= " and tipo_entidad <> 'ADMINISTRATIVO' and tipo_entidad NOT LIKE 'ADMINISTRATI%' ";
+		if ( $this->nivel == 'sucursal' or $this->nivel == 'contabilidad' )
+			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
+		$arregloentidades = array();
+		$resultadosentidad = $this->db->query($sqlentidad);
+		foreach ($resultadosentidad->result() as $row)
+			$arregloentidades[$row->cod_entidad] = $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
+		$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
+
+		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
+		$data['menu'] = $this->menu->general_menu();
+		$data['accionejecutada'] = 'gastomanualfiltrarlos';	// para cargar parte especifica de la vista envio un parametro accion
+		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
+		$this->load->view('header.php',$data);
+		$this->load->view('cargargastosucursales.php',$data);
+		$this->load->view('footer.php',$data);
+	}
+
+	public function gastomanualcargaruno($mens = NULL)
+	{
+		$this->_verificarsesion();
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		$data['nivel'] = $this->session->userdata('cod_entidad');
+		$data['usercodger'] = $usuariocodgernow;
+
+		// ########## ini cargar y listaar las CATEGORIAS que se usaran para registros
+		$sqlcategoria = " select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
+		 from categoria where ifnull(cod_categoria, '') <> '' and cod_categoria <> '' ";
+		if ( $this->nivel == 'ninguno' )
+			$sqlcategoria .= " and cod_categoria = ''";
+		if ( $this->nivel != 'administrador' )
+			$sqlcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
+		$sqlcategoria .= " ORDER BY des_categoria DESC ";
+		$resultadoscategoria = $this->db->query($sqlcategoria);
+		$arreglocategoriaes = array(''=>'');
+		foreach ($resultadoscategoria->result() as $row)
+			$arreglocategoriaes[''.$row->cod_categoria] = '' . $row->des_categoria;
+		$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
+
+		// ########## ini cargar y listaar las SUBCATEGORIAS que se usaran para registros
+		$sqlsubcategoria = "
+		SELECT ifnull(ca.cod_categoria,'99999') as cod_categoria,
+		ca.des_categoria,  sb.cod_subcategoria,  sb.des_subcategoria
+		FROM categoria as ca join subcategoria as sb on sb.cod_categoria = ca.cod_categoria ";
+		if ( $this->nivel == 'ninguno' )
+			$sqlsubcategoria .= " and cod_subcategoria = ''";
+		if ( $this->nivel != 'administrador' )
+			$sqlsubcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
+		$sqlsubcategoria .= " ORDER BY ca.des_categoria DESC ";
+		$resultadossubcategoria = $this->db->query($sqlsubcategoria);
+		$arreglosubcategoriaes = array(''=>'');
+		foreach ($resultadossubcategoria->result() as $row)
+			$arreglosubcategoriaes[''.$row->cod_subcategoria] = $row->des_categoria . ' - ' . $row->des_subcategoria;
+		$data['list_subcategoria'] = $arreglosubcategoriaes; // agrega este arreglo una lista para el combo box
+
+		// ########## ini cargar y listaar EL TIPO DE GASTO que se usaran para registros
+		$list_factura_tipo = array( 'EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE');
+		$data['list_factura_tipo'] = $list_factura_tipo;
+
+		// ########## ini cargar y listaar EL TIPO DE GASTO que se usaran para registros
+		if ( $this->nivel != 'sucursal' )	$list_tipo_concepto = array( 'SUCURSAL' => 'SUCURSAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO');
+		else					$list_tipo_concepto = array( 'SUCURSAL' => 'SUCURSAL');
+		$data['list_tipo_concepto'] = $list_tipo_concepto;
+
+		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
+		$sqlentidad = " select abr_entidad, abr_zona, des_entidad, ifnull(cod_entidad,'99999999999999') as cod_entidad
+		from entidad where ifnull(cod_entidad, '') <> '' and ( cod_entidad <> '' or cod_entidad = '".$usuariocodgernow."') ";
 		if ( $this->nivel == 'ninguno' )
 			$sqlentidad .= " and cod_entidad = ''";
 		if ( $this->nivel == 'especial' )
@@ -284,6 +355,7 @@ class cargargastosucursalesadm extends CI_Controller {
 	{
 		$this->_verificarsesion();
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		$data['usercodger'] = $usuariocodgernow;
 
 		// ########## ini cargar y listaar las CATEGORIAS que se usaran para registros
 		$sqlcategoria = " select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
@@ -321,7 +393,7 @@ class cargargastosucursalesadm extends CI_Controller {
 
 		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
 		$sqlentidad = " select abr_entidad, abr_zona, des_entidad, ifnull(cod_entidad,'99999999999999') as cod_entidad
-		from entidad where ifnull(cod_entidad, '') <> '' and cod_entidad <> '' ";
+		from entidad where ifnull(cod_entidad, '') <> '' and ( cod_entidad <> '' or cod_entidad = '".$usuariocodgernow."') ";
 		if ( $this->nivel == 'ninguno' )
 			$sqlentidad .= " and ( cod_entidad = '' or cod_entidad = '".$usuariocodgernow."')";
 		if ( $this->nivel == 'especial' )
@@ -650,6 +722,17 @@ class cargargastosucursalesadm extends CI_Controller {
 		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$this->load->view('cargargastosucursales.php',$data);
 		$this->load->view('footer.php',$data);
+
+/*
+ *combinado con la url de administradores, si es administrador lo lleva a su interfaz y se devuelve
+* TODO : campo de concepto tiene que ser mas ancho
+* TODO: url de devolucion no puede ser por fecha, sino por alguna manera de que sea el ultimo gasto, se usa el modificado y creado
+* TODO : pendiente remover de tabla errores si hay gasto erroneo arreglado
+* TODO : pendiente mostrar que y donde estan los gastos erroneos
+
+
+ * */
+
 
 		// ******** limpiar de las tablas "disque temporales" CUIDADO! no usar a la ligera!!!!
 		if ( ! in_array("edit", $urlsegmentos) or ! in_array("add", $urlsegmentos) )

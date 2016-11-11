@@ -28,6 +28,19 @@
 	if( !isset($list_categoria) ) $list_categoria = array('' => 'N/A');
 	if( !isset($list_subcategoria) ) $list_subcategoria = array('' => 'Sin permiso para cargar');
 
+	$fec_registroini=date('Ymd');
+	$idfecdesde='fec_registroini';
+	$valoresinputfecha1ini = array('name'=>$idfecdesde,'id'=>$idfecdesde, 'onclick'=>'javascript:NewCssCal(\''.$idfecdesde.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecdesde, $$idfecdesde));
+	$fec_registrofin='';
+	$idfechasta='fec_registrofin';
+	$valoresinputfecha1fin = array('name'=>$idfechasta,'id'=>$idfechasta, 'onclick'=>'javascript:NewCssCal(\''.$idfechasta.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechasta, $$idfechasta));
+
+	$fec_conceptoini=date('Ymd');
+	$idfecdesde='fec_conceptoini';
+	$valoresinputfecha2ini = array('name'=>$idfecdesde,'id'=>$idfecdesde, 'onclick'=>'javascript:NewCssCal(\''.$idfecdesde.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecdesde, $$idfecdesde));
+	$fec_conceptofin='';
+	$idfechasta='fec_conceptofin';
+	$valoresinputfecha2fin = array('name'=>$idfechasta,'id'=>$idfechasta, 'onclick'=>'javascript:NewCssCal(\''.$idfechasta.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechasta, $$idfechasta));
 
 	// pintar botones de gestion para carga manual ya que las acciones de agregar y ver son customizadas
 	$botongestion1 = anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastomanual/gastomanualcargaruno/add', 'Registrar Gasto', 'class="btn btn-primary btn-large b10" '));
@@ -55,6 +68,27 @@
 		echo $botonesgestion . PHP_EOL;
 		echo form_fieldset_close() . PHP_EOL;
 		echo br().PHP_EOL;
+	}
+	else if ($accionejecutada == 'gastomanualfiltrarlos')
+	{
+		echo br().PHP_EOL;
+		echo form_fieldset('Puede dejar campos en blanco para filtrar : <strong>'. date("Y/M") .' y '.date("Y/M", strtotime('-1 month')).'</strong> SOLO LOS ULTIMOS 500 GASTOS!!!',array('class'=>'containerin ')) . PHP_EOL;
+		echo $botonesgestion . PHP_EOL;
+				$htmlformaattributos = array('name'=>'formularioordendespachogenerar','class'=>'formularios','onSubmit'=>'return validageneric(this);');
+		echo form_open_multipart('cargargastosucursalesadm/gastosucursalesrevisarlos', $htmlformaattributos) . PHP_EOL;
+		$this->table->clear();
+			$this->table->add_row('Fue Creado el/entre:',form_input($valoresinputfecha1ini).PHP_EOL.' y '.form_input($valoresinputfecha1fin).br().PHP_EOL);
+			$this->table->add_row('De Fechado el/entre:',form_input($valoresinputfecha2ini).PHP_EOL.' y '.form_input($valoresinputfecha2fin).br().PHP_EOL);
+			$this->table->add_row('Por Categoria/Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);
+			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad, $usercodger).'(automatico)'.br().PHP_EOL );
+			$this->table->add_row('Monto menor o igual', form_input('mon_registroigual','').br().PHP_EOL);
+			$this->table->add_row('Monto mayor o igual', form_input('mon_registromayor','').br().PHP_EOL);
+			$this->table->add_row('Por Concepto :', form_input('des_registrolike','').br().PHP_EOL);
+		echo $this->table->generate();
+		echo form_hidden('accionejecutada',$accionejecutada).br().PHP_EOL;
+		echo form_submit('gastofiltrarya', 'Ver reporte gasto', 'class="btn btn-primary btn-large b10"');
+		echo form_close() . PHP_EOL;
+		echo form_fieldset_close() . PHP_EOL;
 	}
 	else if ($accionejecutada == 'gastosucursalesrevisarlos')
 	{
@@ -88,7 +122,6 @@
 		$this->table->set_template(array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">','cell_start' => '<td class="form-field-box odd">', ) );
 			$this->table->add_row('Fecha del gasto (10 dias maximo):',form_input($valoresinputfecha).'(no mas de 10 dias atras)'.br().PHP_EOL, $classinput);
 			$this->table->add_row('De quien es el gasto:', form_dropdown('cod_entidad', $list_entidad, $usuariocodgernow, $classinput ));
-			$this->table->add_row('Categoria y SubCategoria:', form_dropdown('cod_subcategoria', $list_subcategoria, '', $classinput).br().PHP_EOL);
 			$this->table->add_row('Monto (punto para decimal, sin coma)', form_input('mon_registro', '0.00', $classinput).' OJO: sin separador de miles!'.br().PHP_EOL);
 			$this->table->add_row('Concepto o Detalle:', form_input('des_concepto', '', $classinput).br().PHP_EOL);
 			$this->table->add_row('Concepto tipo:', form_dropdown('tipo_concepto', $list_tipo_concepto , 'SUCURSAL', $classinput).br().PHP_EOL);
