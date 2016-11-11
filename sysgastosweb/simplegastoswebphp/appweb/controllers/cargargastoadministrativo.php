@@ -229,7 +229,9 @@ class cargargastoadministrativo extends CI_Controller {
 			'url' => base_url() . 'index.php/' . strtolower(__CLASS__) . '/' . strtolower(__FUNCTION__) . '/'	//'ajax_loader' => base_url() . 'style/images/'. 'ajax-loader.gif'//'segment_name' =>'Your_segment_name' // It's an optional parameter. by default "get_items"
 		);
 		$outputjoincatysubcat = new gc_dependent_select($crud, $configfielsjoin, $configtablejoin);
+		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/cargargastosucursalesadm/gastosucursalesrevisarlos/list/?fec_registroini=".date('Ymd').""));
 		$output = $crud->render();
+		//else if ($currentState == 'edit')
 		$output->output.= $outputjoincatysubcat->get_js();
 		// TERMINAR EL PROCESO (solo paso 1) **************************************************** /
 		$data['menu'] = $this->menu->general_menu();
