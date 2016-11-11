@@ -144,7 +144,7 @@ class cargargastoadministrativo extends CI_Controller {
 			if ( $fec_registrofin != '')
 				$crud->where('CONVERT(fecha_registro,UNSIGNED) <= ',$fec_registrofin);
 			if ( $mon_registroigual != '')
-				$crud->where('mon_registro <= ',$mon_registroigual);
+				$crud->like('mon_registro',$mon_registroigual, 'after');
 			if ( $mon_registromayor != '')
 				$crud->where('mon_registro >= ',$mon_registromayor);
 		//	$crud->where($tablaregistros.'.cod_categoria > ', '399');
@@ -160,15 +160,15 @@ class cargargastoadministrativo extends CI_Controller {
 			 ->display_as('des_detalle','Detalles')
 			 ->display_as('des_estado','Justificacion')
 			 ->display_as('tipo_concepto','Tipo<br>Gasto')
-			 ->display_as('fecha_concepto','Fecha<br>Gasto')
-			 ->display_as('fecha_registro','Fecha<br>Registro')
+			 ->display_as('fecha_concepto','Fecha<br>Gastado')
+			 ->display_as('fecha_registro','Fecha<br>Ingresado')
 			 ->display_as('factura_tipo','Factura<br>Tipo')
 			 ->display_as('factura_num','Factura<br>Numero')
 			 ->display_as('factura_rif','Factura<br>Rif')
 			 ->display_as('factura_bin','Factura<br>Escaneada')
 			 ->display_as('sessionflag','Modificado')
 			 ->display_as('sessionficha','Creador');
-		$crud->columns('fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro','sessionficha','sessionflag');
+		$crud->columns('fecha_concepto','fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro','sessionficha','sessionflag');
 		$crud->add_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha');
 		$crud->edit_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionflag');
 		$crud->set_relation('cod_entidad','entidad','{des_entidad} - {cod_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'

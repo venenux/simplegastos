@@ -2,14 +2,14 @@
 
 	$this->load->helper('html');
 
-	$fec_registroini=date('Ymd');
+	$fec_registroini='';
 	$idfecdesde='fec_registroini';
 	$valoresinputfecha1ini = array('name'=>$idfecdesde,'id'=>$idfecdesde, 'onclick'=>'javascript:NewCssCal(\''.$idfecdesde.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecdesde, $$idfecdesde));
 	$fec_registrofin='';
 	$idfechasta='fec_registrofin';
 	$valoresinputfecha1fin = array('name'=>$idfechasta,'id'=>$idfechasta, 'onclick'=>'javascript:NewCssCal(\''.$idfechasta.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechasta, $$idfechasta));
 
-	$fec_conceptoini=date('Ymd');
+	$fec_conceptoini='';
 	$idfecdesde='fec_conceptoini';
 	$valoresinputfecha2ini = array('name'=>$idfecdesde,'id'=>$idfecdesde, 'onclick'=>'javascript:NewCssCal(\''.$idfecdesde.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecdesde, $$idfecdesde));
 	$fec_conceptofin='';
@@ -34,7 +34,7 @@
 			$this->table->add_row('De Fechado el/entre:',form_input($valoresinputfecha2ini).PHP_EOL.' y '.form_input($valoresinputfecha2fin).br().PHP_EOL);
 			$this->table->add_row('Por Categoria/Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);
 			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL );
-			$this->table->add_row('Monto menor o igual', form_input('mon_registroigual','').br().PHP_EOL);
+			$this->table->add_row('Monto similar a:', form_input('mon_registroigual','').br().PHP_EOL);
 			$this->table->add_row('Monto mayor o igual', form_input('mon_registromayor','').br().PHP_EOL);
 			$this->table->add_row('Por Concepto :', form_input('des_registrolike','').br().PHP_EOL);
 		echo $this->table->generate();

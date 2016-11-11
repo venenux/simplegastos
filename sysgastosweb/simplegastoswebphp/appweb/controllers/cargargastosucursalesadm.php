@@ -596,7 +596,7 @@ class cargargastosucursalesadm extends CI_Controller {
 				$fec_conceptofin = $this->input->get_post('fec_conceptofin');
 				$fec_registroini = $this->input->get_post('fec_registroini');
 				$fec_registrofin = $this->input->get_post('fec_registrofin');
-				$mon_registrolike = $this->input->get_post('mon_registrolike');
+				$mon_registroigual = $this->input->get_post('mon_registroigual');
 				$des_registrolike = $this->input->get_post('des_registrolike');
 				$cod_entidad = $this->input->get_post('cod_entidad'); // no importaperfil, si no viene no lo usa
 				$cod_categoria = $this->input->get_post('cod_categoria');
@@ -635,13 +635,14 @@ class cargargastosucursalesadm extends CI_Controller {
 					if ( $fec_registroini != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) >= ".$this->db->escape_str($fec_registroini)." ";
 					if ( $fec_registrofin != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) <= ".$this->db->escape_str($fec_registrofin)." ";
 					if ( $des_registrolike != '')	$sqltablagastousr .= " AND registro_gastos.des_concepto LIKE '%".$this->db->escape_str($des_concepto)."%' ";
-					if ( $mon_registrolike != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro LIKE '%".$this->db->escape_str($mon_registrolike)."%' ";
+					if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro LIKE '".$this->db->escape_str($mon_registroigual)."%' ";
 					if ( $cod_entidad != '')		$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
 					if ( $cod_categoria != '')		$sqltablagastousr .= " AND registro_gastos.cod_categoria = '".$this->db->escape_str($cod_categoria)."' ";
 					if ( $cod_subcategoria != '')	$sqltablagastousr .= " AND registro_gastos.cod_subcategoria = '".$this->db->escape_str($cod_subcategoria)."' ";
 					if ( in_array("list", $urlsegmentos) and $fec_registroini != '')	$sqltablagastousr .= "AND CONVERT(fecha_registro,UNSIGNED) >= ".$fec_registroini." ";
 					$sqltablagastousr .= " ORDER BY fecha_concepto DESC, fecha_registro DESC ";
-					$sqltablagastousr .= " LIMIT 400";
+			if ( $this->nivel != 'administrador')
+					$sqltablagastousr .= " LIMIT 800";
 				$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
 			$this->db->query($sqldatostablasfiltrados);	// remuevo la viejas o datos viejos si hay aun
 			$this->db->query($sqltablagastousr);		// recreo con el select la tabla temporal y se usara
@@ -673,16 +674,16 @@ class cargargastosucursalesadm extends CI_Controller {
 			 ->display_as('des_concepto','Concepto')
 			 ->display_as('des_detalle','Detalles')
 			 ->display_as('des_estado','Correcciones')
-			 ->display_as('fecha_concepto','Fecha<br>Gasto')
-			 ->display_as('fecha_registro','Fecha<br>Registro')
+			 ->display_as('fecha_concepto','Fecha<br>Gastado')
+			 ->display_as('fecha_registro','Fecha<br>Ingresado')
 			 ->display_as('factura_tipo','Factura<br>Tipo')
 			 ->display_as('factura_num','Factura<br>Numero')
 			 ->display_as('factura_rif','Factura<br>Rif')
 			 ->display_as('factura_bin','Factura<br>Escaneada');
 		if ( $this->nivel != 'sucursal')
-			$crud->columns('fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','des_concepto','mon_registro','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro','sessionficha','sessionflag');
+			$crud->columns('fecha_concepto','fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','des_concepto','mon_registro','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha','sessionflag');
 		else
-			$crud->columns('fecha_concepto','cod_categoria','cod_subcategoria','des_concepto','mon_registro','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro','sessionficha','sessionflag');
+			$crud->columns('fecha_concepto','fecha_registro','cod_categoria','cod_subcategoria','des_concepto','mon_registro','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha','sessionflag');
 		$crud->set_relation('cod_entidad',$tablaentidades,'{des_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria',$tablacategoria,'{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria',$tablasubcatego,'{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
