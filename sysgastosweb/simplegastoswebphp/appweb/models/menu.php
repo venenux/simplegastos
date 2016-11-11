@@ -29,11 +29,11 @@ class Menu extends CI_Model
 		// enlaces de cargas para tiendas edita ver filtrado
 		$cargastie=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Gasto');
 		$cargargastoentidadestienda['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar gasto');
-		$cargargastoentidadestienda['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Revisar gastos');
+		$cargargastoentidadestienda['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar gasto');
 		// enlace especial experimental de cargas multipermisos para todos
 		$cargasrep=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Gasto');
 		$cargasgastoreportesvertodo['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar gasto');
-		$cargasgastoreportesvertodo['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Revisar gastos');
+		$cargasgastoreportesvertodo['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar gasto');
 
 		if(!$this->session->userdata('logueado'))
 			$labelindex = 'Ingreso';
@@ -63,11 +63,11 @@ class Menu extends CI_Model
 				}
 				else if ($usuariocodgernow = 998 and $usuariocodgernow != '' )
 				{
+					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
 					$header['4adm'] = $nodes->m_header_nodes($cargasadm,$cargargastoadministrativo);
 					$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
 					$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
 					$header['7'] = $nodes->m_header_nodes($systemalog,array());
-					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
 				}
 				else
 				{
