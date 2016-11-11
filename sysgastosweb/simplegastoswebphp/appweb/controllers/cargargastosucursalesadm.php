@@ -102,12 +102,12 @@ class cargargastosucursalesadm extends CI_Controller {
 		$data['list_subcategoria'] = $arreglosubcategoriaes; // agrega este arreglo una lista para el combo box
 
 		// ########## ini cargar y listaar EL TIPO DE GASTO que se usaran para registros
-		$list_factura_tipo = array( 'EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE');
+		$list_factura_tipo = array(''=>'', 'EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE');
 		$data['list_factura_tipo'] = $list_factura_tipo;
 
 		// ########## ini cargar y listaar EL TIPO DE GASTO que se usaran para registros
-		if ( $this->nivel != 'sucursal' )	$list_tipo_concepto = array( 'SUCURSAL' => 'SUCURSAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO');
-		else					$list_tipo_concepto = array( 'SUCURSAL' => 'SUCURSAL');
+		if ( $this->nivel != 'sucursal' )	$list_tipo_concepto = array(''=>'', 'SUCURSAL' => 'SUCURSAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO');
+		else					$list_tipo_concepto = array(''=>'', 'SUCURSAL' => 'SUCURSAL');
 		$data['list_tipo_concepto'] = $list_tipo_concepto;
 
 		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
