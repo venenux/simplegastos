@@ -642,7 +642,9 @@ class cargargastosucursalesadm extends CI_Controller {
 					if ( in_array("list", $urlsegmentos) and $fec_registroini != '')	$sqltablagastousr .= "AND CONVERT(fecha_registro,UNSIGNED) >= ".$fec_registroini." ";
 					$sqltablagastousr .= " ORDER BY fecha_concepto DESC, fecha_registro DESC ";
 			if ( $this->nivel != 'administrador')
-					$sqltablagastousr .= " LIMIT 800";
+				$sqltablagastousr .= " LIMIT 800";
+			else
+				$sqltablagastousr .= " LIMIT 2000";
 				$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
 			$this->db->query($sqldatostablasfiltrados);	// remuevo la viejas o datos viejos si hay aun
 			$this->db->query($sqltablagastousr);		// recreo con el select la tabla temporal y se usara

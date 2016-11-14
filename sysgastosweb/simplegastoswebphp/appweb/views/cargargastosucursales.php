@@ -27,6 +27,7 @@
 	// cargar las categorias y subcategorias o aseguramiento que exista
 	if( !isset($list_categoria) ) $list_categoria = array('' => 'N/A');
 	if( !isset($list_subcategoria) ) $list_subcategoria = array('' => 'Sin permiso para cargar');
+	if( !isset($cod_subcategoria) ) $cod_subcategoria = '';
 
 	$fec_registroini='';
 	$idfecdesde='fec_registroini';
@@ -118,9 +119,9 @@
 		echo form_fieldset('<strong>Ingreso de un Gasto</strong> Ingrese los datos por favor',array('class'=>'containerin')) . PHP_EOL;
 		echo form_open_multipart($haciacontrolador.'/gastomanualcargarunolisto/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
-
 		$this->table->set_template(array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">','cell_start' => '<td class="form-field-box odd">', ) );
 			$this->table->add_row('Fecha del gasto (10 dias maximo):',form_input($valoresinputfecha).'(no mas de 10 dias atras)'.br().PHP_EOL, $classinput);
+			$this->table->add_row('Categoria y SubCategoria:', form_dropdown('cod_subcategoria', $list_subcategoria, $cod_subcategoria, $classinput).br().PHP_EOL);
 			$this->table->add_row('De quien es el gasto:', form_dropdown('cod_entidad', $list_entidad, $usuariocodgernow, $classinput ));
 			$this->table->add_row('Monto (punto para decimal, sin coma)', form_input('mon_registro', '0.00', $classinput).' OJO: sin separador de miles!'.br().PHP_EOL);
 			$this->table->add_row('Concepto o Detalle:', form_input('des_concepto', '', $classinput).br().PHP_EOL);
