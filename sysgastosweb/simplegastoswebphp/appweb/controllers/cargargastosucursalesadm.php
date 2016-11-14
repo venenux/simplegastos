@@ -834,8 +834,11 @@ class cargargastosucursalesadm extends CI_Controller {
 			$quiendebe = $quienaltero;
 
 
-		$data['can_rechazados'] = $rechazado;
-		$data['can_erroneos'] = $erroneos;
+		/* ******** obtencion de datos * **** */
+		$correoaenviar = $this->session->userdata('correo') . ', lenz_gerardo@intranet1.net.ve, ';
+		$correoaenviar .= $quiendebe .'@intranet1.net.ve';
+		$data['can_rechazados'] = $rechazado+0;
+		$data['can_erroneos'] = $erroneos+0;
 		$accionauditar = $this->input->get_post('accionauditar');
 		if ($accionauditar != '')
 		{
@@ -849,17 +852,43 @@ class cargargastosucursalesadm extends CI_Controller {
 			{
 				$consultanotificar = "INSERT INTO `gastossystema`.`registro_errado` (`cod_registro`, `cod_entidad`, `intranet`, `msg_errado`, sessionflag) VALUES ('".$codigo."', '".$cod_entidad."', '".$quiendebe."', '".$razone."', '".$sessionflag."');";
 				$sqlentidaderror = $this->db->query($consultaprocesar);
+				$data['can_erroneos'] = $erroneos+1;
 			}
 			else if  ($estado == 'RECHAZADO' )
 				$data['can_rechazados'] = $rechazado+1;
-			$data['mens'] = 'Envio de notificacion realizada';
+			$correomsg = "Gasto ".$estado." por ".$razone.": \nCodigo ".$codigo." modificado el ".$cuandolocreo." alterado el ".$cuandoaltero." \nde ".$des_entidad;
+			if ( $estado == 'ERRONEO' OR $estado == 'RECHAZADO' )
+			{
+				$this->load->library('email');
+				$configm2['protocol'] = 'mail';// en sysdevel y sysnet envia pero syscenter no
+				$configm2['wordwrap'] = FALSE;
+				$configm2['starttls'] = TRUE; // requiere sendmail o localmail use courierd START_TLS_REQUIRED=1 sendmail no envia
+				$configm2['smtp_crypto'] = 'tls';
+		//		$configm2['mailtype'] = 'html';
+				$this->email->initialize($configm2);
+				$this->email->from('gastostiendasvnz@intranet1.net.ve', 'gastostiendasvnz');
+				//    $this->email->cc($correousuariosesion);
+				$this->email->reply_to('gastostiendasvnz@intranet1.net.ve', 'gastostiendasvnz');
+				$this->email->to($correoaenviar ); // enviar a los destinos de galpones
+				$this->email->subject('Gasto erroneo '. $codigo);
+				$this->email->message($correomsg.PHP_EOL.PHP_EOL );
+				//	$this->email->attach($filenameneweordendespachoadjuntar);
+				if($this->email->send())
+				{
+					$this->session->set_flashdata("email_sent","Correo enviado con notificacion a ".$correoaenviar);
+					$data['resultadomsg'] = "Notificacion de correo para correccion enviada a ". $correoaenviar;
+				}
+				else
+				{
+					$this->session->set_flashdata("email_sent","Notificacion en cola sin correo enviad a ".$correoaenviar);
+					$data['resultadomsg'] = "Correo no enviado, notificacion en cola correo no enviado a ".$correoaenviar;
+				}
+			$data['mens'] = 'Envio de notificacion realizada'.br().br().PHP_EOL.$correomsg .br().br().$data['resultadomsg'] ;
+			}
+			$data['botongestion0'] = '';
 			$this->load->view('cargargastosucursales.php',$data);
 			return;
 		}
-		/* ******** obtencion de datos * **** */
-		$correoaenviar = $this->session->userdata('correo') . ', lenz_gerardo@intranet1.net.ve, ';
-		$correoaenviar .= $quiendebe .'@intranet1.net.ve';
-		$correomsg = "Gasto errado debe ajustarlo: \nCodigo ".$codigo." modificado el ".$cuandolocreo." alterado el ".$cuandoaltero." \nde ".$des_entidad;
 
 		if ( $estado == 'PENDIENTE' )
 		{
@@ -884,33 +913,6 @@ class cargargastosucursalesadm extends CI_Controller {
 		$htmlauditarcodigo .= form_hidden('accionauditar', 'terminado'); // no se puede resubir archivos, entonces comparo si cambio el nombre y tomo el subido nuevo, sino esta variable es el nombre viejo inalterado
 		$htmlauditarcodigo .= form_close() . PHP_EOL;
 		$data['htmlauditarcodigo'] = $htmlauditarcodigo;
-
-
-		$this->load->library('email');
-		$configm2['protocol'] = 'mail';// en sysdevel y sysnet envia pero syscenter no
-		$configm2['wordwrap'] = FALSE;
-		$configm2['starttls'] = TRUE; // requiere sendmail o localmail use courierd START_TLS_REQUIRED=1 sendmail no envia
-		$configm2['smtp_crypto'] = 'tls';
-//		$configm2['mailtype'] = 'html';
-		$this->email->initialize($configm2);
-		$this->email->from('gastostiendasvnz@intranet1.net.ve', 'gastostiendasvnz');
-		//    $this->email->cc($correousuariosesion);
-		$this->email->reply_to('gastostiendasvnz@intranet1.net.ve', 'gastostiendasvnz');
-		$this->email->to($correoaenviar ); // enviar a los destinos de galpones
-		$this->email->subject('Gasto erroneo '. $codigo);
-		$this->email->message('El gasto de codigo '.$codigo.' esta errado, se debe revisar y corregirlo.'.PHP_EOL.PHP_EOL );
-		//	$this->email->attach($filenameneweordendespachoadjuntar);
-		if($this->email->send())
-		{
-			$this->session->set_flashdata("email_sent","Correo enviado con notificacion.");
-			$data['resultadomsg'] = "Notificacion de correo para correccion enviada";
-		}
-		else
-		{
-			$this->session->set_flashdata("email_sent","Correo no enviado, sistema en desarrollo.");
-			$data['resultadomsg'] = "Correo no enviado, sistema en desarrollo.";
-		}
-
 		$this->load->view('cargargastosucursales.php',$data);
 	}
 

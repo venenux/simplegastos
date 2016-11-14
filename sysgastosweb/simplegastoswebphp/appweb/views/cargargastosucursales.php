@@ -44,7 +44,7 @@
 	$valoresinputfecha2fin = array('name'=>$idfechasta,'id'=>$idfechasta, 'onclick'=>'javascript:NewCssCal(\''.$idfechasta.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechasta, $$idfechasta));
 
 	// pintar botones de gestion para carga manual ya que las acciones de agregar y ver son customizadas
-	if( !isset($botongestion0) ) $botonesgestion0 = '';
+	if( !isset($botongestion0) ) $botongestion0 = '';
 	$botongestion1 = anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastomanual/gastomanualcargaruno/add', 'Registrar Gasto', 'class="btn btn-primary b10" '));
 	$botongestion2 = anchor('cargargastosucursalesadm/gastosucursalesrevisarlos',form_button('cargargastomanual/gastomanualrevisarlos/list', 'Revisar Ultimos', 'class="btn btn-primary b10" '));
 	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastomanual/gastomanualfiltrarlos/veruno', 'Filtrar Gasto', 'class="btn btn-primary b10" '));
@@ -186,7 +186,6 @@
 	else if ($accionejecutada == 'gastoauditoriacodigo')
 	{
 		echo br().PHP_EOL;
-		echo $botonesgestion . PHP_EOL;
 		echo form_fieldset('<strong>ERRORES PENDIENTES</strong>',array('class'=>'containerin')) . PHP_EOL;
 		if ( $accionauditar != '' )
 			echo br().PHP_EOL.$htmlauditarcodigo.br().PHP_EOL;
