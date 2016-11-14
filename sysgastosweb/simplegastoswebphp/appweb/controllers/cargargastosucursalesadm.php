@@ -56,6 +56,8 @@ class cargargastosucursalesadm extends CI_Controller {
 	public function index()
 	{
 		$this->_verificarsesion();
+		if ( $this->nivel == 'administrador')
+			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn btn-primary b10" '));
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'gastosucursalesindex';	// para cargar parte especifica de la vista envio un parametro accion
 		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
@@ -126,6 +128,8 @@ class cargargastosucursalesadm extends CI_Controller {
 		$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
 
 		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
+		if ( $this->nivel == 'administrador')
+			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn btn-primary b10" '));
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'gastomanualfiltrarlos';	// para cargar parte especifica de la vista envio un parametro accion
 		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
@@ -196,6 +200,8 @@ class cargargastosucursalesadm extends CI_Controller {
 		$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
 
 		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
+		if ( $this->nivel == 'administrador')
+			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn btn-primary b10" '));
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'gastomanualcargaruno';
 		$data['mens'] = $mens;
@@ -340,6 +346,8 @@ class cargargastosucursalesadm extends CI_Controller {
 			$factura_tipo,$fecha_registro,$fecha_concepto,
 			$linkadjunto);
 		$data['htmltablacargasregistros'] = $this->table->generate();
+		if ( $this->nivel == 'administrador')
+			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn btn-primary b10" '));
 		$data['menu'] = $this->menu->general_menu();
 		$data['cod_registro'] = $cod_registro;
 		$data['accionejecutada'] = 'gastomanualfiltrardouno';
@@ -422,6 +430,8 @@ class cargargastosucursalesadm extends CI_Controller {
 				$data[$rowkey] = $valuekey;
 
 		// ########## ini cargar y listaar el gasto editar
+		if ( $this->nivel == 'administrador')
+			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn btn-primary b10" '));
 		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'gastomanualeditaruno';
 		$data['mens'] = $mens;
@@ -559,6 +569,8 @@ class cargargastosucursalesadm extends CI_Controller {
 					sessionflag='".$sessionflag1."' WHERE cod_registro='".$cod_registro."'";
 		$this->db->query($sqlregistrargasto);
         // TERMINAR EL PROCESO (solo paso 1) **************************************************** /
+		if ( $this->nivel == 'administrador')
+			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn btn-primary b10" '));
 		$this->table->clear();
 		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="0" class="table containerblue tablelist">' );
 		$this->table->set_caption(null);
@@ -641,11 +653,11 @@ class cargargastosucursalesadm extends CI_Controller {
 					if ( $cod_subcategoria != '')	$sqltablagastousr .= " AND registro_gastos.cod_subcategoria = '".$this->db->escape_str($cod_subcategoria)."' ";
 					if ( in_array("list", $urlsegmentos) and $fec_registroini != '')	$sqltablagastousr .= "AND CONVERT(fecha_registro,UNSIGNED) >= ".$fec_registroini." ";
 					$sqltablagastousr .= " ORDER BY fecha_concepto DESC, fecha_registro DESC ";
+			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
 			if ( $this->nivel != 'administrador')
 				$sqltablagastousr .= " LIMIT 800";
 			else
 				$sqltablagastousr .= " LIMIT 2000";
-				$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
 			$this->db->query($sqldatostablasfiltrados);	// remuevo la viejas o datos viejos si hay aun
 			$this->db->query($sqltablagastousr);		// recreo con el select la tabla temporal y se usara
 			if ($this->db->trans_status() === FALSE)
@@ -700,6 +712,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		{
 			$crud->add_action('Editar', '', '','ui-icon-plus',array($this,'_cargargastoadministraeditandocodigo'));
 			$crud->add_action('Eliminar', '', '','ui-icon-plus',array($this,'_cargargastoadministraeliminacodigo'));
+			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn btn-primary b10" '));
 		}
 		else if ( $this->nivel == 'sucursal')
 			$crud->add_action('Editar', '', '','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));

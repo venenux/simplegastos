@@ -44,13 +44,14 @@
 	$valoresinputfecha2fin = array('name'=>$idfechasta,'id'=>$idfechasta, 'onclick'=>'javascript:NewCssCal(\''.$idfechasta.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechasta, $$idfechasta));
 
 	// pintar botones de gestion para carga manual ya que las acciones de agregar y ver son customizadas
+	if( !isset($botongestion0) ) $botonesgestion0 = '';
 	$botongestion1 = anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastomanual/gastomanualcargaruno/add', 'Registrar Gasto', 'class="btn btn-primary b10" '));
 	$botongestion2 = anchor('cargargastosucursalesadm/gastosucursalesrevisarlos',form_button('cargargastomanual/gastomanualrevisarlos/list', 'Revisar Ultimos', 'class="btn btn-primary b10" '));
 	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastomanual/gastomanualfiltrarlos/veruno', 'Filtrar Gasto', 'class="btn btn-primary b10" '));
 	$this->table->clear();
 	$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' );
 	$this->table->set_template($tmplnewtable);
-	$this->table->add_row($botongestion1,$botongestion2,$botongestion3);
+	$this->table->add_row($botongestion0,$botongestion1,$botongestion2,$botongestion3);
 	$botonesgestion = $this->table->generate();
 
 	// detectar que mostrar segun lo enviado desde el controlador
@@ -185,8 +186,7 @@
 	else if ($accionejecutada == 'gastoauditoriacodigo')
 	{
 		echo br().PHP_EOL;
-
-
+		echo $botonesgestion . PHP_EOL;
 		echo form_fieldset('<strong>ERRORES PENDIENTES</strong>',array('class'=>'containerin')) . PHP_EOL;
 		if ( $accionauditar != '' )
 			echo br().PHP_EOL.$htmlauditarcodigo.br().PHP_EOL;
