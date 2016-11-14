@@ -24,16 +24,14 @@ class Menu extends CI_Model
 		$vistaglobal['cargargastover']=anchor('mimatrixcontroller/mimatrixfiltrar','Vista Reporte');
 		// enlaces de cargas para administrativo edita, ver etc con permisologia
 		$cargasadm=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');
-		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Cargar un gasto');
-		$cargargastoadministrativo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Revisar todas las cargas');
-		// enlaces de cargas para tiendas edita ver filtrado
+		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Cargar directo');
+		$cargargastoadministrativo['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar como tienda');
+		$cargargastoadministrativo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Filtrar directo');
+		$cargargastoadministrativo['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar gastos');
+		// enlaces de cargas para tiendas y perfiles no administrativos edita ver filtrado
 		$cargastie=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Gasto');
 		$cargargastoentidadestienda['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar gasto');
 		$cargargastoentidadestienda['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar gasto');
-		// enlace especial experimental de cargas multipermisos para todos
-		$cargasrep=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Gasto');
-		$cargasgastoreportesvertodo['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar gasto');
-		$cargasgastoreportesvertodo['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar gasto');
 
 		if(!$this->session->userdata('logueado'))
 			$labelindex = 'Ingreso';
@@ -61,17 +59,12 @@ class Menu extends CI_Model
 				{
 					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
 				}
-				else if ($usuariocodgernow = 998 and $usuariocodgernow != '' )
+				else /* ($usuariocodgernow = 998 and $usuariocodgernow != '' ) */
 				{
-					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
-					$header['4adm'] = $nodes->m_header_nodes($cargasadm,$cargargastoadministrativo);
+					$header['4tie'] = $nodes->m_header_nodes($cargasadm,$cargargastoadministrativo);
 					$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
 					$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
 					$header['7'] = $nodes->m_header_nodes($systemalog,array());
-				}
-				else
-				{
-					$header['4rep'] = $nodes->m_header_nodes($cargasrep,$cargasgastoreportesvertodo);
 				}
 			}
 		}

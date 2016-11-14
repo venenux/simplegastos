@@ -2,6 +2,18 @@
 
 	$this->load->helper('html');
 
+	// pintar botones de gestion para carga manual ya que las acciones de agregar y ver son customizadas
+	$botongestion0 = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn btn-primary b10" '));
+	$botongestion1 = anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastosucursalesadm/gastomanualcargaruno', 'Cargar como tienda', 'class="btn btn-primary b10" '));
+	$botongestion2 = anchor('cargargastoadministrativo/index',form_button('cargargastoadministrativo/index', 'Filtrar directo', 'class="btn btn-primary b10" '));
+	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastosucursalesadm/gastomanualfiltrarlos', 'Filtrar gastos', 'class="btn btn-primary b10" '));
+	$this->table->clear();
+	$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' );
+	$this->table->set_template($tmplnewtable);
+	$this->table->add_row($botongestion0,$botongestion1,$botongestion2,$botongestion3);
+	$tablabotonsgasto = $this->table->generate();
+
+	// inicializar variables si no estan cargadas en el controlador
 	$fec_registroini='';
 	$idfecdesde='fec_registroini';
 	$valoresinputfecha1ini = array('name'=>$idfecdesde,'id'=>$idfecdesde, 'onclick'=>'javascript:NewCssCal(\''.$idfecdesde.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfecdesde, $$idfecdesde));
@@ -23,7 +35,7 @@
 	if( !isset($list_subcategoria) ) $list_subcategoria = array('cod_categoria' => 'Varios','cod_categoria2' => 'Gastos diversos');
 
 	// detectar que mostrar segun lo enviado desde el controlador
-	echo br();
+	echo $tablabotonsgasto;
 	if ($accionejecutada == 'cargardatosadministrativosfiltrar')
 	{
 		$htmlformaattributos = array('name'=>'formularioordendespachogenerar','class'=>'formularios','onSubmit'=>'return validageneric(this);');
@@ -56,5 +68,6 @@
 		echo $output;
 		echo form_fieldset_close() . PHP_EOL;
 	}
+	echo $tablabotonsgasto;
 
 	?>
