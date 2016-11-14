@@ -116,6 +116,8 @@ class cargargastoadministrativo extends CI_Controller {
 		{
 			$fec_registroini = $this->input->get_post('fec_registroini');
 			$fec_registrofin = $this->input->get_post('fec_registrofin');
+			$fec_conceptoini = $this->input->get_post('fec_conceptoini');
+			$fec_conceptofin = $this->input->get_post('fec_conceptofin');
 			$mon_registroigual = $this->input->get_post('mon_registroigual');
 			$mon_registromayor = $this->input->get_post('mon_registromayor');
 			$des_detallelike = $this->input->get_post('des_detallelike');
@@ -143,6 +145,10 @@ class cargargastoadministrativo extends CI_Controller {
 				$crud->where('CONVERT(fecha_registro,UNSIGNED) >= ',$fec_registroini);
 			if ( $fec_registrofin != '')
 				$crud->where('CONVERT(fecha_registro,UNSIGNED) <= ',$fec_registrofin);
+			if ( $fec_conceptoini != '')
+				$crud->where('CONVERT(fecha_concepto,UNSIGNED) <= ',$fec_conceptoini);
+			if ( $fec_conceptofin != '')
+				$crud->where('CONVERT(fecha_concepto,UNSIGNED) <= ',$fec_conceptofin);
 			if ( $mon_registroigual != '')
 				$crud->like('mon_registro',$mon_registroigual, 'after');
 			if ( $mon_registromayor != '')
