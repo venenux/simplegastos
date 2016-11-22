@@ -73,13 +73,13 @@
 				$htmlformaattributos = array('name'=>'formularioordendespachogenerar','class'=>'formularios','onSubmit'=>'return validageneric(this);');
 		echo form_open_multipart('cargargastosucursalesadm/gastosucursalesrevisarlos', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
-			$this->table->add_row('Fue Creado el/entre:',form_input($valoresinputfecha1ini).PHP_EOL.' y '.form_input($valoresinputfecha1fin).br().PHP_EOL);
-			$this->table->add_row('De Fechado el/entre:',form_input($valoresinputfecha2ini).PHP_EOL.' y '.form_input($valoresinputfecha2fin).br().PHP_EOL);
+			$this->table->add_row('Registrado en el sistema el/entre:',form_input($valoresinputfecha1ini).PHP_EOL.' y '.form_input($valoresinputfecha1fin).br().PHP_EOL);
+			$this->table->add_row('Fecha de factura o egreso el/entre:',form_input($valoresinputfecha2ini).PHP_EOL.' y '.form_input($valoresinputfecha2fin).br().PHP_EOL);
 			$this->table->add_row('Por Categoria/Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);
 			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad, $usercodger).'(automatico)'.br().PHP_EOL );
-			$this->table->add_row('Monto menor o igual', form_input('mon_registrolike','').br().PHP_EOL);
-			$this->table->add_row('Monto mayor o igual', form_input('mon_registromayor','').br().PHP_EOL);
-			$this->table->add_row('Por Concepto :', form_input('des_registrolike','').br().PHP_EOL);
+			$this->table->add_row('Monto exacto o cantidad igual a', form_input('mon_registroigual','').br().PHP_EOL);
+			$this->table->add_row('Monto mayor o igual a', form_input('mon_registromayor','').br().PHP_EOL);
+			$this->table->add_row('Por Concepto similar a:', form_input('des_registrolike','').br().PHP_EOL);
 		echo $this->table->generate();
 		echo form_hidden('accionejecutada',$accionejecutada).br().PHP_EOL;
 		echo form_submit('gastofiltrarya', 'Ver reporte gasto', 'class="btn btn-primary btn-large b10"');

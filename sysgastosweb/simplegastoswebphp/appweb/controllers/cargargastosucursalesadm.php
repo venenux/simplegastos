@@ -237,14 +237,14 @@ class cargargastosucursalesadm extends CI_Controller {
 		$dias	= (strtotime(date("Ymd"))-strtotime($fecha_concepto))/86400;
 		//$dias 	= abs($dias);
 		$dias = floor($dias);
-		if ( $dias > 29)
+		if ( $dias > 39)
 		{
 			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . abs($dias) . " dias es muy atras!";
 			return $this->gastomanualcargaruno( $mens );
 		}
 		if ( $dias < 0)
 		{
-			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . abs($dias) . " dias es muy adelante!";
+			$mens = "La fecha parece del futuro, revise su fecha de la computadora no puede adelantar : " . abs($dias) . " dias es muy adelante!";
 			return $this->gastomanualcargaruno( $mens );
 		}
 		$mon_registro = $this->input->get_post('mon_registro');
@@ -466,14 +466,14 @@ class cargargastosucursalesadm extends CI_Controller {
 		$dias	= (strtotime(date("Ymd"))-strtotime($fecha_concepto))/86400;
 		$dias 	= abs($dias);
 		$dias = floor($dias);
-		if ( $dias > 29 )
+		if ( $dias > 39 )
 		{
 			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
 			return $this->gastomanualeditaruno( $mens, $cod_registro );
 		}
 		if ( $dias < 0)
 		{
-			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . abs($dias) . " dias es muy adelante!";
+			$mens = "La fecha parece ser del futro, revise la de su computador : coloco unos " . abs($dias) . " dias es adelante!";
 			return $this->gastomanualcargaruno( $mens );
 		}
 		$mon_registro = $this->input->get_post('mon_registro');
@@ -609,6 +609,7 @@ class cargargastosucursalesadm extends CI_Controller {
 				$fec_registroini = $this->input->get_post('fec_registroini');
 				$fec_registrofin = $this->input->get_post('fec_registrofin');
 				$mon_registroigual = $this->input->get_post('mon_registroigual');
+				$mon_registromayor = $this->input->get_post('mon_registromayor');
 				$des_registrolike = $this->input->get_post('des_registrolike');
 				$cod_entidad = $this->input->get_post('cod_entidad'); // no importaperfil, si no viene no lo usa
 				$cod_categoria = $this->input->get_post('cod_categoria');
@@ -647,7 +648,8 @@ class cargargastosucursalesadm extends CI_Controller {
 					if ( $fec_registroini != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) >= ".$this->db->escape_str($fec_registroini)." ";
 					if ( $fec_registrofin != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) <= ".$this->db->escape_str($fec_registrofin)." ";
 					if ( $des_registrolike != '')	$sqltablagastousr .= " AND registro_gastos.des_concepto LIKE '%".$this->db->escape_str($des_concepto)."%' ";
-					if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro LIKE '".$this->db->escape_str($mon_registroigual)."%' ";
+					if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro = '".$this->db->escape_str($mon_registroigual)."' ";
+					if ( $mon_registromayor != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro LIKE '".$this->db->escape_str($mon_registromayor)."%' ";
 					if ( $cod_entidad != '')		$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
 					if ( $cod_categoria != '')		$sqltablagastousr .= " AND registro_gastos.cod_categoria = '".$this->db->escape_str($cod_categoria)."' ";
 					if ( $cod_subcategoria != '')	$sqltablagastousr .= " AND registro_gastos.cod_subcategoria = '".$this->db->escape_str($cod_subcategoria)."' ";
@@ -835,7 +837,7 @@ class cargargastosucursalesadm extends CI_Controller {
 
 
 		/* ******** obtencion de datos * **** */
-		$correoaenviar = $this->session->userdata('correo') . ', lenz_gerardo@intranet1.net.ve, ';
+		$correoaenviar = $this->session->userdata('correo') . ', systemasvnz@intranet1.net.ve, ';
 		$correoaenviar .= $quiendebe .'@intranet1.net.ve';
 		$data['can_rechazados'] = $rechazado+0;
 		$data['can_erroneos'] = $erroneos+0;
