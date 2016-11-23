@@ -231,6 +231,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		if ( $this->form_validation->run() == FALSE )
 		{
 			$mens = validation_errors();
+			log_message('info', $mens.'.');
 			return $this->gastomanualcargaruno( $mens );
 		}
 		$fecha_concepto = $this->input->get_post('fecha_concepto');
@@ -240,11 +241,13 @@ class cargargastosucursalesadm extends CI_Controller {
 		if ( $dias > 39)
 		{
 			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . abs($dias) . " dias es muy atras!";
+			log_message('info', $mens.'.');
 			return $this->gastomanualcargaruno( $mens );
 		}
 		if ( $dias < 0)
 		{
 			$mens = "La fecha parece del futuro, revise su fecha de la computadora no puede adelantar : " . abs($dias) . " dias es muy adelante!";
+			log_message('info', $mens.'.');
 			return $this->gastomanualcargaruno( $mens );
 		}
 		$mon_registro = $this->input->get_post('mon_registro');
@@ -288,6 +291,7 @@ class cargargastosucursalesadm extends CI_Controller {
 			if ( $file_data['file_name'] == '' )
 			{
 				$this->gastomanualcargaruno($mens = '<br>CUADNO ES CONTRIBUYENTE Debe subir un archivo escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO');
+				log_message('info', $mens.'.');
 				return;
 			}
 			else
@@ -460,6 +464,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		if ( $this->form_validation->run() == FALSE )
 		{
 			$mens = validation_errors();
+			log_message('info', $mens.'.');
 			return $this->gastomanualeditaruno( $mens, $cod_registro );
 		}
 		$fecha_concepto = $this->input->get_post('fecha_concepto');
@@ -469,11 +474,13 @@ class cargargastosucursalesadm extends CI_Controller {
 		if ( $dias > 39 )
 		{
 			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
+			log_message('info', $mens.'.');
 			return $this->gastomanualeditaruno( $mens, $cod_registro );
 		}
 		if ( $dias < 0)
 		{
 			$mens = "La fecha parece ser del futro, revise la de su computador : coloco unos " . abs($dias) . " dias es adelante!";
+			log_message('info', $mens.'.');
 			return $this->gastomanualcargaruno( $mens );
 		}
 		$mon_registro = $this->input->get_post('mon_registro');
@@ -525,6 +532,7 @@ class cargargastosucursalesadm extends CI_Controller {
 					if ( $factura_tipo == 'CONTRIBUYENTE' )
 					{
 						$this->gastomanualeditaruno($mens = '<br>CUANDO ES CONTRIBUYENTE Debe subir un archivo escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO', $cod_registro);
+						log_message('info', $mens.'.');
 						return;
 					}
 				}
@@ -774,12 +782,14 @@ class cargargastosucursalesadm extends CI_Controller {
 	function _cargargastoadministraeliminacodigo($primary_key , $row)
 	{
 		$enlace = site_url('cargargastoadministrativo/gastoregistros/delete/'.$row->cod_registro).'?cod_registro='.$row->cod_registro;
+		log_message('info', $this->session->userdata('username').' eliminando el gasto ' . $row->cod_registro);
 		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
 	}
 
 	function _cargargastosucursalauditar($primary_key, $row)
 	{
 		$enlace = site_url('cargargastosucursalesadm/auditar/'.$row->cod_registro).'?cod_registro='.$row->cod_registro;
+		log_message('info', $this->session->userdata('username').' auditando el gasto ' . $row->cod_registro);
 		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
 	}
 
