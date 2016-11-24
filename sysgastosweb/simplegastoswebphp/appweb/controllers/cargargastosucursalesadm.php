@@ -118,7 +118,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		if ( $this->nivel == 'ninguno' )
 			$sqlentidad .= " and (cod_entidad = '' or cod_entidad = '".$usuariocodgernow."')";
 		if ( $this->nivel == 'especial' )
-			$sqlentidad .= " and (tipo_entidad <> 'ADMINISTRATIVO' or cod_entidad = '".$usuariocodgernow."') and (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
+			$sqlentidad .= "  AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 1010 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 and (tipo_entidad <> 'ADMINISTRATIVO' or cod_entidad = '".$usuariocodgernow."') and (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
 		if ( $this->nivel == 'sucursal' or $this->nivel == 'contabilidad' )
 			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
 		$arregloentidades = array(''=>'');
@@ -188,9 +188,9 @@ class cargargastosucursalesadm extends CI_Controller {
 		$sqlentidad = " select abr_entidad, abr_zona, des_entidad, ifnull(cod_entidad,'99999999999999') as cod_entidad
 		from entidad where ifnull(cod_entidad, '') <> '' and ( cod_entidad <> '' or cod_entidad = '".$usuariocodgernow."')";
 		if ( $this->nivel == 'ninguno' )
-			$sqlentidad .= " and (cod_entidad = '' or cod_entidad = '".$usuariocodgernow."')";
+			$sqlentidad .= " and cod_entidad = '' ";
 		if ( $this->nivel == 'especial' )
-			$sqlentidad .= " and (tipo_entidad <> 'ADMINISTRATIVO' or cod_entidad = '".$usuariocodgernow."') and (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
+			$sqlentidad .= " AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 1010 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 and (tipo_entidad <> 'ADMINISTRATIVO' or cod_entidad = '".$usuariocodgernow."') and (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
 		if ( $this->nivel == 'sucursal' or $this->nivel == 'contabilidad' )
 			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
 		$arregloentidades = array();
@@ -409,7 +409,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		if ( $this->nivel == 'ninguno' )
 			$sqlentidad .= " and (cod_entidad = '' or cod_entidad = '".$usuariocodgernow."')";
 		if ( $this->nivel == 'especial' )
-			$sqlentidad .= " and (tipo_entidad <> 'ADMINISTRATIVO' or cod_entidad = '".$usuariocodgernow."') and (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
+			$sqlentidad .= " AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 1010 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 and (tipo_entidad <> 'ADMINISTRATIVO' or cod_entidad = '".$usuariocodgernow."') and (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
 		if ( $this->nivel == 'sucursal' or $this->nivel == 'contabilidad' )
 			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
 		$arregloentidades = array();
@@ -658,7 +658,22 @@ class cargargastosucursalesadm extends CI_Controller {
 					if ( $des_registrolike != '')	$sqltablagastousr .= " AND registro_gastos.des_concepto LIKE '%".$this->db->escape_str($des_concepto)."%' ";
 					if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro = '".$this->db->escape_str($mon_registroigual)."' ";
 					if ( $mon_registromayor != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro LIKE '".$this->db->escape_str($mon_registromayor)."%' ";
-					if ( $cod_entidad != '')		$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
+					if ( $cod_entidad != '')
+					{
+						if ( $this->nivel == 'sucursal' or $this->nivel == 'contabilidad' )
+							$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' AND (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$this->db->escape_str($cod_entidad)."') ";
+						else if ( $this->nivel == 'especial' )
+							$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 1010 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 ";
+						else if ( $this->nivel == 'administrativo' )
+							$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
+						else
+							$sqltablagastousr .= "  AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 1010 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 ";
+					}
+					else
+						if ( $this->nivel == 'administrativo' )
+							$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
+						else
+							$sqltablagastousr .= "  AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 1010 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109  ";
 					if ( $cod_categoria != '')		$sqltablagastousr .= " AND registro_gastos.cod_categoria = '".$this->db->escape_str($cod_categoria)."' ";
 					if ( $cod_subcategoria != '')	$sqltablagastousr .= " AND registro_gastos.cod_subcategoria = '".$this->db->escape_str($cod_subcategoria)."' ";
 					if ( in_array("list", $urlsegmentos) and $fec_registroini != '')	$sqltablagastousr .= "AND CONVERT(fecha_registro,UNSIGNED) >= ".$fec_registroini." ";
