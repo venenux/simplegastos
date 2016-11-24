@@ -190,7 +190,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		if ( $this->nivel == 'ninguno' )
 			$sqlentidad .= " and cod_entidad = '' ";
 		if ( $this->nivel == 'especial' )
-			$sqlentidad .= " AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 1010 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 and (tipo_entidad <> 'ADMINISTRATIVO' or cod_entidad = '".$usuariocodgernow."') and (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
+			$sqlentidad .= " AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 1010 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 "; //"and (tipo_entidad <> 'ADMINISTRATIVO' or cod_entidad = '".$usuariocodgernow."') and (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
 		if ( $this->nivel == 'sucursal' or $this->nivel == 'contabilidad' )
 			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
 		$arregloentidades = array();
@@ -409,7 +409,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		if ( $this->nivel == 'ninguno' )
 			$sqlentidad .= " and (cod_entidad = '' or cod_entidad = '".$usuariocodgernow."')";
 		if ( $this->nivel == 'especial' )
-			$sqlentidad .= " AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 1010 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 and (tipo_entidad <> 'ADMINISTRATIVO' or cod_entidad = '".$usuariocodgernow."') and (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
+			$sqlentidad .= " AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 1010 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 "; //." and (tipo_entidad <> 'ADMINISTRATIVO' or cod_entidad = '".$usuariocodgernow."') and (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
 		if ( $this->nivel == 'sucursal' or $this->nivel == 'contabilidad' )
 			$sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
 		$arregloentidades = array();
