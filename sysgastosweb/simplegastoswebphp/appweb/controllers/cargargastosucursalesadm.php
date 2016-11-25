@@ -647,7 +647,7 @@ class cargargastosucursalesadm extends CI_Controller {
 				$sqltablagastousr = "
 					CREATE TABLE IF NOT EXISTS `".$tablaregistros."` SELECT registro_gastos.* FROM (`registro_gastos`)
 					WHERE ( cod_registro <> '' or cod_entidad = '".$usuariocodgernow."') ";
-					if ( $this->nivel != 'administrativo' ) 	$sqltablagastousr .= "AND CONVERT(SUBSTRING(fecha_concepto,1,6),UNSIGNED) >= CONVERT('".(date('Ym')-1)."',UNSIGNED)";
+					if ( $this->nivel != 'administrador' ) 	$sqltablagastousr .= "AND CONVERT(SUBSTRING(fecha_concepto,1,6),UNSIGNED) >= CONVERT('".(date('Ym')-1)."',UNSIGNED)";
 					if ( $this->nivel == 'contabilidad' ) 	$sqltablagastousr .= " and factura_tipo = 'CONTRIBUYENTE'";
 					if ( $this->nivel == 'sucursal' ) 	$sqltablagastousr .= " and cod_entidad = '".$usuariocodgernow."'";
 					if ( $this->nivel == 'especial' ) 	$sqltablagastousr .= " and ( tipo_concepto <> 'ADMINISTRATIVO' or tipo_concepto NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
@@ -666,15 +666,13 @@ class cargargastosucursalesadm extends CI_Controller {
 							$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' AND (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$this->db->escape_str($cod_entidad)."') ";
 						else if ( $this->nivel == 'especial' )
 							$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 176 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 ";
-						else if ( $this->nivel == 'administrativo' )
+						else if ( $this->nivel == 'administrador' )
 							$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
 						else
 							$sqltablagastousr .= "  AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 176 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 ";
 					}
 					else
-						if ( $this->nivel == 'administrativo' )
-							$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
-						else
+						if ( $this->nivel != 'administrador' )
 							$sqltablagastousr .= "  AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 176 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109  ";
 					if ( $cod_categoria != '')		$sqltablagastousr .= " AND registro_gastos.cod_categoria = '".$this->db->escape_str($cod_categoria)."' ";
 					if ( $cod_subcategoria != '')	$sqltablagastousr .= " AND registro_gastos.cod_subcategoria = '".$this->db->escape_str($cod_subcategoria)."' ";
