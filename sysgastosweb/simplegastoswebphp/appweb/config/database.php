@@ -62,7 +62,7 @@ $db['gastossystema']['cachedir'] = '';
 $db['gastossystema']['char_set'] = 'utf8';
 $db['gastossystema']['dbcollat'] = 'utf8_general_ci';
 $db['gastossystema']['swap_pre'] = '';
-$db['gastossystema']['autoinit'] = TRUE;
+$db['gastossystema']['autoinit'] = FALSE;
 $db['gastossystema']['stricton'] = FALSE;
 
 // base de datos de oasis/sybase para datos de productos y ventas
@@ -79,7 +79,7 @@ $db['oasis']['cachedir'] = '';
 $db['oasis']['char_set'] = 'utf8';
 $db['oasis']['dbcollat'] = 'utf8_general_ci';
 $db['oasis']['swap_pre'] = '';
-$db['oasis']['autoinit'] = TRUE;
+$db['oasis']['autoinit'] = FALSE;
 $db['oasis']['stricton'] = FALSE;
 
 // base de datos de la nomina vnzla
@@ -96,7 +96,7 @@ $db['nominasaint']['cachedir'] = '';
 $db['nominasaint']['char_set'] = '';
 $db['nominasaint']['dbcollat'] = '';
 $db['nominasaint']['swap_pre'] = '';
-$db['nominasaint']['autoinit'] = TRUE;
+$db['nominasaint']['autoinit'] = FALSE;
 $db['nominasaint']['stricton'] = FALSE;
 
 // base de datos del chat
@@ -113,7 +113,7 @@ $db['simplexmpp']['cachedir'] = '';
 $db['simplexmpp']['char_set'] = 'utf8';
 $db['simplexmpp']['dbcollat'] = 'utf8_general_ci';
 $db['simplexmpp']['swap_pre'] = '';
-$db['simplexmpp']['autoinit'] = TRUE;
+$db['simplexmpp']['autoinit'] = FALSE;
 $db['simplexmpp']['stricton'] = FALSE;
 
 /*

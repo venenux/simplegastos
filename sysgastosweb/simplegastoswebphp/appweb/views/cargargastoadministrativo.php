@@ -4,9 +4,9 @@
 
 	// pintar botones de gestion para carga manual ya que las acciones de agregar y ver son customizadas
 	$botongestion0 = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn btn-primary b10" '));
-	$botongestion1 = anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastosucursalesadm/gastomanualcargaruno', 'Cargar como tienda', 'class="btn btn-primary b10" '));
+	$botongestion1 = '';//anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastosucursalesadm/gastomanualcargaruno', 'Cargar como tienda', 'class="btn btn-primary b10" '));
 	$botongestion2 = anchor('cargargastoadministrativo/index',form_button('cargargastoadministrativo/index', 'Filtrar directo', 'class="btn btn-primary b10" '));
-	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastosucursalesadm/gastomanualfiltrarlos', 'Filtrar gastos', 'class="btn btn-primary b10" '));
+	$botongestion3 = '';//anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastosucursalesadm/gastomanualfiltrarlos', 'Filtrar gastos', 'class="btn btn-primary b10" '));
 	$this->table->clear();
 	$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' );
 	$this->table->set_template($tmplnewtable);
@@ -42,8 +42,8 @@
 		echo form_fieldset('Ingrese los datos por favor',array('class'=>'container_blue containerin')) . PHP_EOL;
 		echo form_open_multipart('cargargastoadministrativo/gastoregistros/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
-			$this->table->add_row('Fue Creado el/entre:',form_input($valoresinputfecha1ini).PHP_EOL.' y '.form_input($valoresinputfecha1fin).br().PHP_EOL);
-			$this->table->add_row('De Fechado el/entre:',form_input($valoresinputfecha2ini).PHP_EOL.' y '.form_input($valoresinputfecha2fin).br().PHP_EOL);
+			$this->table->add_row('Fue Ingresado el/entre:',form_input($valoresinputfecha1ini).PHP_EOL.' y '.form_input($valoresinputfecha1fin).br().PHP_EOL);
+			$this->table->add_row('Fecha factura el/entre:',form_input($valoresinputfecha2ini).PHP_EOL.' y '.form_input($valoresinputfecha2fin).br().PHP_EOL);
 			$this->table->add_row('Por Categoria/Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);
 			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL );
 			$this->table->add_row('Monto similar a:', form_input('mon_registroigual','').br().PHP_EOL);

@@ -79,12 +79,13 @@ class cargargastoadministrativo extends CI_Controller {
 			 ifnull(des_entidad,'sin_descripcion') as des_entidad
 			from entidad
 			  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
+			order by des_entidad
 			";
 			$resultadosentidad = $this->db->query($sqlentidad);
 			$arregloentidades = array(''=>'');
 			foreach ($resultadosentidad->result() as $row)
 			{
-				$arregloentidades[''.$row->cod_entidad] = $row->cod_entidad . ' - ' . $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
+				$arregloentidades[''.$row->cod_entidad] = $row->abr_entidad .' - ' . $row->cod_entidad . ' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
 			}
 			$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
 			unset($arregloentidades['']);
@@ -180,7 +181,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->set_relation('cod_entidad','entidad','{des_entidad} - {cod_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		$crud->set_relation('cod_subcategoria','subcategoria','{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
-		$crud->add_action('Erroneo', '', '','ui-icon-plus',array($this,'_cargargastosucursalnotificacodigo'));
+		$crud->add_action('Auditar', '', '','ui-icon-plus',array($this,'_cargargastosucursalauditar'));
 		$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','des_estado');
 		$directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
@@ -221,6 +222,7 @@ class cargargastoadministrativo extends CI_Controller {
 		}
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->callback_before_insert(array($this,'generarcodigo'));
+		//$crud->callback_after_insert(array($this,'_ver_after_insert'));
 		//$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
 		//$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
 
@@ -235,7 +237,7 @@ class cargargastoadministrativo extends CI_Controller {
 			'url' => base_url() . 'index.php/' . strtolower(__CLASS__) . '/' . strtolower(__FUNCTION__) . '/'	//'ajax_loader' => base_url() . 'style/images/'. 'ajax-loader.gif'//'segment_name' =>'Your_segment_name' // It's an optional parameter. by default "get_items"
 		);
 		$outputjoincatysubcat = new gc_dependent_select($crud, $configfielsjoin, $configtablejoin);
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/cargargastosucursalesadm/gastosucursalesrevisarlos/list/?fec_registroini=".date('Ymd').""));
+		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/cargargastosucursalesadm/gastosucursalesrevisarlos/list/?sessionficha=".date("YmdH").'....'.$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username').""));
 		$output = $crud->render();
 		//else if ($currentState == 'edit')
 		$output->output.= $outputjoincatysubcat->get_js();
@@ -273,9 +275,19 @@ class cargargastoadministrativo extends CI_Controller {
 		return $post_array;
 	}
 
-	function _cargargastosucursalnotificacodigo($primary_key, $row)
+	function _ver_after_insert($post_array,$primary_key)
 	{
-		return "javascript:window.open ('".site_url('/cargargastosucursalesadm/enviarnotificacion/'.$row->cod_registro.'/'.$row->cod_entidad)."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
+		$enlace = site_url('cargargastoadministrativo/gastoregistros/read/'.$post_array['cod_registro']).'?cod_registro='.$post_array['cod_registro'];
+		log_message('info', $this->session->userdata('username').' insertado el gasto ' . $post_array['cod_registro']);
+		//redirect($enlace);
+		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
+	}
+
+	function _cargargastosucursalauditar($primary_key, $row)
+	{
+		$enlace = site_url('cargargastosucursalesadm/auditar/'.$row->cod_registro).'?cod_registro='.$row->cod_registro;
+		log_message('info', $this->session->userdata('username').' auditando el gasto ' . $row->cod_registro);
+		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
 	}
 
 }

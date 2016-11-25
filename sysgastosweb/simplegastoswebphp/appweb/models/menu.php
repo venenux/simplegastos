@@ -25,9 +25,9 @@ class Menu extends CI_Model
 		// enlaces de cargas para administrativo edita, ver etc con permisologia
 		$cargasadm=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');
 		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Cargar directo');
-		$cargargastoadministrativo['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar como tienda');
+		//$cargargastoadministrativo['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar como tienda');
 		$cargargastoadministrativo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Filtrar directo');
-		$cargargastoadministrativo['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar gastos');
+		//$cargargastoadministrativo['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar gastos');
 		// enlaces de cargas para tiendas y perfiles no administrativos edita ver filtrado
 		$cargastie=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Gasto');
 		$cargargastoentidadestienda['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar gasto');
@@ -61,7 +61,7 @@ class Menu extends CI_Model
 				}
 				else /* ($usuariocodgernow = 998 and $usuariocodgernow != '' ) */
 				{
-					$header['4tie'] = $nodes->m_header_nodes($cargasadm,$cargargastoadministrativo);
+					$header['4esp'] = $nodes->m_header_nodes($cargasadm,$cargargastoadministrativo);
 					$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
 					$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
 					$header['7'] = $nodes->m_header_nodes($systemalog,array());
