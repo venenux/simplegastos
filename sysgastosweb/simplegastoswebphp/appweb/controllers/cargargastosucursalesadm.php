@@ -657,7 +657,7 @@ class cargargastosucursalesadm extends CI_Controller {
 					if ( $fec_conceptofin != '')	$sqltablagastousr .= " AND CONVERT(fecha_concepto,UNSIGNED) <= ".$this->db->escape_str($fec_conceptofin)." ";
 					if ( $fec_registroini != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) >= ".$this->db->escape_str($fec_registroini)." ";
 					if ( $fec_registrofin != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) <= ".$this->db->escape_str($fec_registrofin)." ";
-					if ( $des_registrolike != '')	$sqltablagastousr .= " AND registro_gastos.des_concepto LIKE '%".$this->db->escape_str($des_concepto)."%' ";
+					if ( $des_registrolike != '')	$sqltablagastousr .= " AND registro_gastos.des_concepto LIKE '%".$this->db->escape_str($des_registrolike)."%' ";
 					if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro = '".$this->db->escape_str($mon_registroigual)."' ";
 					if ( $mon_registromayor != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro LIKE '".$this->db->escape_str($mon_registromayor)."%' ";
 					if ( $cod_entidad != '')
@@ -806,13 +806,12 @@ class cargargastosucursalesadm extends CI_Controller {
 	function _cargargastosucursalauditar($primary_key, $row)
 	{
 		$enlace = site_url('cargargastosucursalesadm/auditar/'.$row->cod_registro).'?cod_registro='.$row->cod_registro;
-		log_message('info', $this->session->userdata('username').' auditando el gasto ' . $row->cod_registro);
 		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
 	}
 
 	public function auditar($codigo = '')
 	{
-		$data['mens'] = 'Notificar gasto errado';
+		$data['mens'] = 'Notificar y auditoria de gasto';
 		$data['codigo'] = $codigo;
 		$data['accionauditar'] = 'ninguna';
 		$data['accionejecutada'] = 'gastoauditoriacodigo';
@@ -912,8 +911,11 @@ class cargargastosucursalesadm extends CI_Controller {
 					$this->session->set_flashdata("email_sent","Notificacion en cola sin correo enviad a ".$correoaenviar);
 					$data['resultadomsg'] = "Correo no enviado, notificacion en cola correo no enviado a ".$correoaenviar;
 				}
-			$data['mens'] = 'Envio de notificacion realizada'.br().br().PHP_EOL.$correomsg .br().br().$data['resultadomsg'] ;
+				$data['mens'] = 'Envio de notificacion realizada'.br().br().PHP_EOL.$correomsg .br().br().$data['resultadomsg'] ;
+				log_message('info', $this->session->userdata('username').' auditando error/rechazo el gasto ' . $data['resultadomsg']);
 			}
+			else
+				log_message('info', $this->session->userdata('username').' auditando aprobado el gasto ' . $codigo);
 			$data['botongestion0'] = '';
 			$this->load->view('cargargastosucursales.php',$data);
 			return;

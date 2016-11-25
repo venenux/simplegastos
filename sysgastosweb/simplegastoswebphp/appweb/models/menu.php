@@ -27,7 +27,7 @@ class Menu extends CI_Model
 		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Cargar directo');
 		//$cargargastoadministrativo['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar como tienda');
 		$cargargastoadministrativo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Filtrar directo');
-		//$cargargastoadministrativo['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar gastos');
+		$cargargastoadministrativo['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar RAPIDO');
 		// enlaces de cargas para tiendas y perfiles no administrativos edita ver filtrado
 		$cargastie=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Gasto');
 		$cargargastoentidadestienda['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar gasto');

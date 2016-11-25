@@ -121,7 +121,7 @@ class cargargastoadministrativo extends CI_Controller {
 			$fec_conceptofin = $this->input->get_post('fec_conceptofin');
 			$mon_registroigual = $this->input->get_post('mon_registroigual');
 			$mon_registromayor = $this->input->get_post('mon_registromayor');
-			$des_detallelike = $this->input->get_post('des_detallelike');
+			$des_registrolike = $this->input->get_post('des_registrolike');
 			$cod_entidad = $this->input->get_post('cod_entidad');
 			$cod_categoria = $this->input->get_post('cod_categoria');
 			$cod_subcategoria = $this->input->get_post('cod_subcategoria');
@@ -140,8 +140,8 @@ class cargargastoadministrativo extends CI_Controller {
 				$crud->where($tablaregistros.'.cod_categoria', $cod_categoria);
 			if ( $cod_subcategoria != '')
 				$crud->where($tablaregistros.'.cod_subcategoria',$cod_subcategoria);
-			if ( $des_detallelike != '')
-				$crud->where('des_concepto',$des_concepto);
+			if ( $des_registrolike != '')
+				$crud->like('des_concepto',$des_registrolike);
 			if ( $fec_registroini != '')
 				$crud->where('CONVERT(fecha_registro,UNSIGNED) >= ',$fec_registroini);
 			if ( $fec_registrofin != '')
@@ -290,7 +290,6 @@ class cargargastoadministrativo extends CI_Controller {
 	function _cargargastosucursalauditar($primary_key, $row)
 	{
 		$enlace = site_url('cargargastosucursalesadm/auditar/'.$row->cod_registro).'?cod_registro='.$row->cod_registro;
-		log_message('info', $this->session->userdata('username').' auditando el gasto ' . $row->cod_registro);
 		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
 	}
 

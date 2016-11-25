@@ -6,7 +6,7 @@
 	$botongestion0 = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn btn-primary b10" '));
 	$botongestion1 = '';//anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastosucursalesadm/gastomanualcargaruno', 'Cargar como tienda', 'class="btn btn-primary b10" '));
 	$botongestion2 = anchor('cargargastoadministrativo/index',form_button('cargargastoadministrativo/index', 'Filtrar directo', 'class="btn btn-primary b10" '));
-	$botongestion3 = '';//anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastosucursalesadm/gastomanualfiltrarlos', 'Filtrar gastos', 'class="btn btn-primary b10" '));
+	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastosucursalesadm/gastomanualfiltrarlos', 'Filtrar RAPIDO', 'class="btn btn-primary b10" '));
 	$this->table->clear();
 	$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' );
 	$this->table->set_template($tmplnewtable);
