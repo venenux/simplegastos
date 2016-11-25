@@ -191,6 +191,10 @@ class cargargastoadministrativo extends CI_Controller {
 			mkdir($directoriofacturas, 0777, true);
 			chmod($directoriofacturas,0777);
 		}
+		$urlsegmentos = $this->uri->segment_array();
+		if ( ! in_array("todos", $urlsegmentos) )
+			$crud->set_field_upload('factura_bin',$directoriofacturas);
+		$data['rutas'] = $urlsegmentos;
 		$crud->set_field_upload('factura_bin',$directoriofacturas);
 		$crud->set_rules('des_concepto', 'Concepto', 'trim|alphanumeric');
 		$crud->set_rules('mon_registro', 'Monto', 'trim|decimal');
