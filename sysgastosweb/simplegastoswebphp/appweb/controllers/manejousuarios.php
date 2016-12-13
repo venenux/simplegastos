@@ -73,9 +73,9 @@ class Manejousuarios extends CI_Controller
 		  ifnull(`usu`.`intranet`,'') <> ''
 		AND
 		  (
-			(`usu`.`clave` = md5('".$this->db->escape_str($contrasena)."') AND `usu`.`intranet` = '".$this->db->escape_str($nombre)."')
+			(`usu`.`clave` = CONVERT(md5('".$this->db->escape_str($contrasena)."'), CHAR(50)) AND `usu`.`intranet` = '".$this->db->escape_str($nombre)."')
 			  OR
-			(`usu`.`clave` = md5('".$this->db->escape_str($contrasena)."') AND `usu`.`ficha` = '".$this->db->escape_str($nombre)."')
+			(`usu`.`clave` = CONVERT(md5('".$this->db->escape_str($contrasena)."'), CHAR(50)) AND `usu`.`ficha` = '".$this->db->escape_str($nombre)."')
 		  )
 		AND
 		  ( usu.estado = 'ACTIVO' OR usu.estado = 'activo')
