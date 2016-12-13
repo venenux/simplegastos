@@ -663,7 +663,7 @@ class cargargastosucursalesadm extends CI_Controller {
 					if ( $cod_entidad != '')
 					{
 						if ( $this->nivel == 'sucursal' or $this->nivel == 'contabilidad' )
-							$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' AND (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$this->db->escape_str($cod_entidad)."') ";
+							$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' AND cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
 						else if ( $this->nivel == 'especial' )
 							$sqltablagastousr .= " AND registro_gastos.cod_entidad = '".$this->db->escape_str($cod_entidad)."' AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 176 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109 ";
 						else if ( $this->nivel == 'administrador' )
