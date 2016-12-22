@@ -20,6 +20,27 @@ class matrixcontroler extends CI_Controller {
 	{
 		if( $this->session->userdata('logueado') != TRUE)
 			redirect('manejousuarios/desverificarintranet');
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		if( is_array($usuariocodgernow) )
+		{
+			if (in_array("998", $usuariocodgernow) or in_array("1000", $usuariocodgernow) )
+				$this->nivel = 'administrador';
+			else if (in_array("163", $usuariocodgernow) or in_array("251", $usuariocodgernow) )
+				$this->nivel = 'contabilidad';
+			else
+				$this->nivel = 'especial';
+		}
+		else
+		{
+			if( $usuariocodgernow == '998' or $usuariocodgernow == '1000' )
+				$this->nivel = 'administrador';
+			else if( ( $usuariocodgernow > 399 and $usuariocodgernow < 998) or $usuariocodgernow == '196' or $usuariocodgernow == '252' or $usuariocodgernow == '200' )
+				$this->nivel = 'sucursal';
+			else if ( $usuariocodgernow == '163' or $usuariocodgernow == '251' )
+				$this->nivel = 'contabilidad';
+			else
+				$this->nivel = 'especial';
+		}
 	}
 
 	/**
@@ -32,7 +53,7 @@ class matrixcontroler extends CI_Controller {
 		$this->seccionmatrixpedirla();
 	}
 	
-	public function seccionmatrixpedirla()
+	public function seccionmatrixpedirla($mens = null)
 	{
 		/* ***** ini manejo de sesion ******************* */
 		$this->_verificarsesion();
@@ -102,77 +123,93 @@ class matrixcontroler extends CI_Controller {
 		/* ****** fin cargar y preparar para llamar y pintar vista ********** */
 	}
 
-	public function seccionmatrixresultado()
+	public function matrixtotalesfiltrado()
 	{
 		/* ***** ini manejo de sesion ******************* */
 		$this->_verificarsesion();
 		$userdata = $this->session->all_userdata();
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
 		$usercorreo = $userdata['correo'];
 		$userintranet = $userdata['intranet'];
-		$sessionflag = $this->session->userdata('username').date("YmdHis");
+		$sessionflag1 = date("YmdHis") . $usuariocodgernow . '.' .$this->session->userdata('username');
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
-		$data['menu'] = $this->menu->general_menu();
 		/* ***** fin manejo de sesion ******************* */
 		
-		/* **** hay que cargar las bae de datos */
-		$DBGASTO = $this->load->database('gastossystema',TRUE);
-		/* ***** fin ********** */
+		$data['accionejecutada'] = 'seccionmatrixresultado';
+		$userintran = $this->session->userdata('intranet');
+
+		// ******* OBTENER DATOS DE FORMULARIO ***************************** /
+		$this->load->library('form_validation');
 		
-		/* ******** inicio preparacino query cualquiera ejemplo ************* */
+		$fechainimatrix = $this->input->get_post('fechainimatrix');
+		$fechafinmatrix = $this->input->get_post('fechafinmatrix');
+		$this->form_validation->set_rules('fechainimatrix', 'Rango de fecha de inicio ', 'required');
+		$this->form_validation->set_rules('fechafinmatrix', 'Rango de fecha limite ', 'required');
+		
+		$cod_entidad = $this->input->get_post('cod_entidad');
+		$cod_categoria = $this->input->get_post('cod_categoria');
+		//if ( trim(str_replace(' ', '', $cod_entidad)) != '')
+		//$this->form_validation->set_rules('cod_entidad', 'Entidad o de quien es la suma', 'required');
+		//if ( trim(str_replace(' ', '', $cod_categoria)) != '')
+		//$this->form_validation->set_rules('cod_categoria', 'Categoria del gasto', 'required');
+		if ( $this->form_validation->run() == FALSE )
+		{
+			$mens = validation_errors();
+			log_message('info', $mens.'.');
+			return $this->seccionmatrixpedirla( $mens );
+		}
+		log_message('info', 'Cargando totales, filtrar '. $cod_entidad . ' en ' . $cod_categoria . ' identificacion como '.$sessionflag1);
+
+		$this->load->database('gastossystema');
+		$filtro1 = $filtro2 = $filtro3 = $filtro4 = '';
+		if ( trim(str_replace(' ', '', $cod_entidad)) != '')
+			$filtro1 = " and	a.cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
+		if ( trim(str_replace(' ', '', $fechainimatrix)) != '')
+			$filtro2 = " and CONVERT(a.fecha_concepto,UNSIGNED) >= CONVERT('".$this->db->escape_str($fechainimatrix)."',UNSIGNED)  ";
+		if ( trim(str_replace(' ', '', $fechafinmatrix)) != '')
+			$filtro3 = " and CONVERT(a.fecha_concepto,UNSIGNED) <= CONVERT('".$this->db->escape_str($fechafinmatrix)."',UNSIGNED)  ";
+		if ( trim(str_replace(' ', '', $cod_categoria)) != '')
+			$filtro4 = " and a.cod_categoria = '".$this->db->escape_str($cod_categoria)."' ";
+		/* ***** fin OBTENER DATOS FORMULARIO ********** */
+
+		
+		/* ******** inicio filtrar y resultado query cualquiera ejemplo ************* */
 		$this->load->helper(array('form', 'url','inflector'));
-		$cantidadLineas = 0;
 		// creanos nuestro query sql que trae datos
 		$sqlregistro = "
-			SELECT
-			  registro_gastos.cod_registro,
-			  registro_adjunto.cod_adjunto,
-			  registro_gastos.cod_entidad,
-			  registro_gastos.cod_categoria,
-			  registro_gastos.cod_subcategoria,
-			  registro_gastos.des_registro,
-			  registro_gastos.mon_registro,
-			  categoria.des_categoria,
-			  subcategoria.des_subcategoria,
-			  entidad.des_entidad,
-			  entidad.abr_entidad,
-			  entidad.abr_zona,
-			  registro_gastos.estado,
-			  registro_gastos.num_factura,
-			  registro_adjunto.hex_adjunto,
-			  registro_adjunto.nam_adjunto,
-			  registro_adjunto.ruta_adjunto,
-			  registro_gastos.fecha_registro,
-			  registro_gastos.fecha_factura,
-			  registro_adjunto.fecha_adjunto,
-			  registro_gastos.sessionflag
-			FROM	 gastossystema.registro_gastos
-			LEFT JOIN	 gastossystema.registro_adjunto
-			ON	 registro_adjunto.cod_registro = registro_gastos.cod_registro
-			LEFT JOIN	 gastossystema.subcategoria
-			ON	 subcategoria.cod_subcategoria = registro_gastos.cod_subcategoria
-			LEFT JOIN	 gastossystema.categoria
-			ON	 categoria.cod_categoria = registro_gastos.cod_categoria
-			LEFT JOIN	 gastossystema.entidad
-			ON	 entidad.cod_entidad = registro_gastos.cod_entidad
-			WHERE	 ifnull(registro_gastos.cod_registro,'') <> '' and registro_gastos.cod_registro <> ''
-			ORDER BY cod_registro DESC	LIMIT 5";
+			SELECT * FROM (
+					SELECT 
+						a.cod_entidad, b.des_entidad, 
+						a.cod_categoria, c.des_categoria,
+						ifnull(a.mon_registro,0) as mon_registro,
+						SUBSTRING(a.fecha_concepto,1,8) as fecha_concepto, a.fecha_registro,
+						a.fecha_concepto as fecha_gasto
+						,a.sessionficha
+					FROM registro_gastos a 
+						LEFT JOIN entidad b on a.cod_entidad=b.cod_entidad /* todas las entiddes deben registrar gasto*/
+						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
+					where 
+						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . "
+				     UNION
+					SELECT 
+						a.cod_entidad, 'Todas', 
+						a.cod_categoria, 'TOTAL',
+						IFNULL(SUM(IFNULL(a.mon_registro,0)),0) as mon_registro,
+						SUBSTRING(a.fecha_concepto,1,8) as fecha_concepto, a.fecha_registro,
+						a.fecha_concepto as fecha_gasto
+						, '".$this->db->escape_str($fechafinmatrix).".totalizador' as sessionficha
+					FROM registro_gastos a 
+						LEFT JOIN entidad b on a.cod_entidad=b.cod_entidad /* todas las entiddes deben registrar gasto*/
+						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
+					where 
+						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . " 
+			) AS tablatotaltemp
+			ORDER BY sessionficha			
+			";
 		
-		/* ***** ini OBTENER DATOS DE FORMULARIO ***************************** */
-		$fechafiltramatrix = $this->input->get_post('fechafiltramatrix');
-		$cod_entidad = $this->input->get_post('cod_entidad');
-		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
-		/* ***** fin OBTENER DATOS DE FORMULARIO ***************************** */
-		
-		/* ***** ini filtrar los resultados del query segun formulario **************** */
-		//if ( $fechafiltramatrix != '')
-		//	$sqlregistro .= "and CONVERT(fecha_registro,UNSIGNED INTEGER) = CONVERT('".$fechafiltramatrix."',UNSIGNED INTEGER)";
-		if ( $cod_entidad != '')
-			$sqlregistro .= "and cod_entidad = '".$cod_entidad."'";
-		if ( $cod_subcategoria != '')
-			$sqlregistro .= "and registro_gastos.cod_subcategoria = '".$cod_subcategoria."'";
-		$resultadocarga = $DBGASTO->query($sqlregistro); // ejecuto el query
-		/* ***** fin filtrar los resultados del query segun formulario **************** */
+		$resultadodbmatrix = $this->db->query($sqlregistro); // ejecuto el query
+		/* ***** fin filtrar y resultados del query segun formulario **************** */
 		
 		/* ***** ini pintar una tabla recorriendo el query **************** */
 		$this->load->helper(array('form', 'url','html'));
@@ -181,32 +218,24 @@ class matrixcontroler extends CI_Controller {
 		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="1" class="table">' );
 		$this->table->set_caption("Tabla de gastos");
 		$this->table->set_template($tmplnewtable);
-		$this->table->set_heading(
-				'Registro',	'Categoria', 'Subcategoria',// 'cod_categoria', 'des_categoria', 'des_subcategoria',
-				'Destino',  //'des_entidad','abr_entidad', 'abr_zona',
-				'Concepto descripcion', 'Monto', 'Estado', 'Realizado el'
-			);
-		$resultadocargatabla = $resultadocarga->result_array(); // llamo a los resultados del query
-		foreach ($resultadocargatabla as $rowtable)
+		$dataquery = $resultadodbmatrix->result_array();
+		foreach ($dataquery as $rowtable)
 		{
-			$this->table->add_row(
-				$rowtable['cod_registro'], $rowtable['des_categoria'], $rowtable['des_subcategoria'],
-				$rowtable['des_entidad'] . ' ('.$rowtable['abr_entidad'].') -'. $rowtable['abr_zona'],
-				$rowtable['des_registro'], $rowtable['mon_registro'], $rowtable['estado'], $rowtable['fecha_registro']
-			);
+			$this->table->add_row($rowtable);
 		}
 		$data['htmlquepintamatrix'] = $this->table->generate(); // html generado lo envia a la matrix
 		/* ***** fin pintar una tabla recorriendo el query **************** */
 		
 		
 		$data['menu'] = $this->menu->general_menu();
-		$data['seccionpagina'] = 'secciontablamatrix';
-		$data['userintran'] = $userintran;
-		$data['fechafiltramatrix'] = $fechafiltramatrix;
+		$data['seccionpagina'] = 'seccionmatrixresultado';
+		$data['userintran'] = $dataquery;
+		$data['fechainimatrix'] = $fechainimatrix;
+		$data['fechafinmatrix'] = $fechafinmatrix;
 		$data['cod_entidad'] = $cod_entidad;
-		$data['cod_subcategoria'] = $cod_subcategoria;
+		$data['cod_categoria'] = $cod_categoria;
 		$this->load->view('header.php',$data);
-		$this->load->view('cargargastoex.php',$data);
+		$this->load->view('matrixvista.php',$data);
 		$this->load->view('footer.php',$data);
 	}
 
@@ -217,9 +246,9 @@ class matrixcontroler extends CI_Controller {
 		$sql .= " isnull(convert(integer, (DBA.td_orden_despacho.cantidad/(SELECT top 1 unid_empaque FROM DBA.ta_proveedor_producto where cod_proveedor<>'000000000000' and cod_interno=right('000000000'+DBA.td_orden_despacho.cod_interno,10)))),0) as bu ";
 		$sql .= "  FROM DBA.tm_orden_despacho join DBA.td_orden_despacho on DBA.tm_orden_despacho.cod_order=DBA.td_orden_despacho.cod_order WHERE dba.tm_orden_despacho.cod_order='".$filenamen."'";
 		$this->load->dbutil();
-		$querypaltxt = $DBGASTO->query($sql);
+		$querypaltxt = $this->db->query($sql);
 		// ejemplo desde el sql generamos un adjunto
-		$correocontenido = $DBGASTOutil->csv_from_result($querypaltxt, "\t", "\n", '', FALSE);
+		$correocontenido = $this->dbutil->csv_from_result($querypaltxt, "\t", "\n", '', FALSE);
 		$this->load->helper('file');
 		$filenameneweordendespachoadjuntar = $cargaconfig['upload_path'] . '/ordendespachogenerada' . $this->numeroordendespacho . '.txt';
 		if ( ! write_file($filenameneweordendespachoadjuntar, $correocontenido))
@@ -228,7 +257,7 @@ class matrixcontroler extends CI_Controller {
 		}
 		// en la db buscamos el correo del usuario y vemos a cuantos se enviaran
 		$sql = "select top 1 correo from dba.tm_codmsc_correo where codmsc='".$intranet."'";
-		$sqlcorreoorigen = $DBGASTO->query($sql);
+		$sqlcorreoorigen = $this->db->query($sql);
 		$obtuvecorreo = 0;
 		foreach ($sqlcorreoorigen->result() as $correorow)
 		{

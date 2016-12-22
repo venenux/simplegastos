@@ -1,4 +1,4 @@
-CREATE VIEW `matrixdatoscruda` AS 
+CREATE OR REPLACE VIEW `matrixdatoscruda` AS 
     select 
         `a`.`cod_entidad` AS `cod_entidad`,
         `b`.`des_entidad` AS `des_entidad`,

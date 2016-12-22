@@ -1,4 +1,3 @@
-	<h1>Matrix de Gastos</h1>
 	<?php
 
 	/* ********* ini valores predeterminados ******************** */
@@ -9,7 +8,7 @@
 	if( !isset($fechafinmatrix) )
 	$fechafinmatrix=date('Ymt');$idfechafinmatrix='fechafinmatrix';$inputfechafin = array('name'=>$idfechafinmatrix,'id'=>$idfechafinmatrix, 'onclick'=>'javascript:NewCssCal(\''.$idfechafinmatrix.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechafinmatrix, $$idfechafinmatrix));
 	if( !isset($seccionpagina) ) 
-	$seccionpagina = 'seccionmatrixpedirla';
+	$seccionpagina = 'seccionmatrixpedirtotales';
 	if( !isset($list_entidad) ) 
 	$list_entidad = array('cod_entidad' => '');
 	if( !isset($list_categoria) ) 
@@ -19,11 +18,11 @@
 	/* ********* fin valores predeterminados ******************** */
 
 	/* ********* ini seccion de pagina formulario ******************** */
-	if ($seccionpagina == 'seccionmatrixpedirla')
+	if ($seccionpagina == 'seccionmatrixpedirtotales')
 	{
 		$separadores = array(''=>'', '\t'=>'Tabulador (|)', ','=>'Coma (,)',';'=>'PuntoComa (;)');
 		echo form_fieldset('Ingrese datos solo si desea filtrar la matrix',array('class'=>'containerin')) . PHP_EOL;
-		echo form_open_multipart('cargargastoex/registrargasto/', $htmlformaattributos) . PHP_EOL;
+		echo form_open_multipart('matrixcontroler/matrixtotalesfiltrado/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
 			$this->table->add_row('Rango:',form_input($inputfechaini). ' al '.form_input($inputfechafin).br().PHP_EOL );
 			$this->table->add_row('Categoria', form_dropdown('cod_categoria', $list_categoria).br().PHP_EOL);
@@ -37,7 +36,7 @@
 	/* ********* fin seccion de pagina formulario ******************** */
 
 	/* ********* ini seccion de pagina pinta matrix ******************** */
-	$this->load->helper('html');
+	//$this->load->helper('html');
 	if( isset($css_files) )
 		foreach($css_files as $file)
 		{	echo '<link type="text/css" rel="stylesheet" href="'.$file.'" />';	}
@@ -49,7 +48,7 @@
 
 		echo form_fieldset('Matrix de reporte de gatos',array('class'=>'container_blue containerin ')) . PHP_EOL;
 		echo br().PHP_EOL;
-		echo 'Usuario actual : '.$userintranet.' ('.$usercorreo.'), Fecha gasto: '.$fechafiltramatrix.'<br>'.PHP_EOL;
+		echo 'Filtros : '.$cod_entidad.' ('.$cod_categoria.'), Fecha gasto: '.$fechainimatrix.' al '.$fechafinmatrix.'<br>'.PHP_EOL;
 		echo br().PHP_EOL;
 		echo $htmlquepintamatrix;
 		echo form_fieldset_close() . PHP_EOL;
