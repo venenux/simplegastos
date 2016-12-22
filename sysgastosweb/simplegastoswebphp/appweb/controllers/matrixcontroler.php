@@ -177,8 +177,10 @@ class matrixcontroler extends CI_Controller {
 		/* ******** inicio filtrar y resultado query cualquiera ejemplo ************* */
 		$this->load->helper(array('form', 'url','inflector'));
 		// creanos nuestro query sql que trae datos
+		$tablatempototales = 'totalizar'.$userintran.rand(6,8);
+		$this->db->query("DROP TABLE IF EXISTS ".$tablatempototales); // ejecuto el query
 		$sqlregistro = "
-			SELECT * FROM (
+			CREATE TABLE IF NOT EXISTS ".$tablatempototales." SELECT * FROM (
 					SELECT 
 						a.cod_entidad, b.des_entidad, 
 						a.cod_categoria, c.des_categoria,
@@ -193,43 +195,47 @@ class matrixcontroler extends CI_Controller {
 						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . "
 				     UNION
 					SELECT 
-						a.cod_entidad, 'Todas', 
+						a.cod_entidad, 'Entidad', 
 						a.cod_categoria, 'TOTAL',
 						IFNULL(SUM(IFNULL(a.mon_registro,0)),0) as mon_registro,
 						SUBSTRING(a.fecha_concepto,1,8) as fecha_concepto, a.fecha_registro,
 						a.fecha_concepto as fecha_gasto
-						, '".$this->db->escape_str($fechafinmatrix).".totalizador' as sessionficha
+						, '".date("YmdHis").".totalizador' as sessionficha
 					FROM registro_gastos a 
 						LEFT JOIN entidad b on a.cod_entidad=b.cod_entidad /* todas las entiddes deben registrar gasto*/
 						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
 					where 
 						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . " 
 			) AS tablatotaltemp
-			ORDER BY sessionficha			
+			ORDER BY sessionficha DESC			
 			";
 		
-		$resultadodbmatrix = $this->db->query($sqlregistro); // ejecuto el query
+		$this->db->query($sqlregistro); // ejecuto el query
 		/* ***** fin filtrar y resultados del query segun formulario **************** */
 		
-		/* ***** ini pintar una tabla recorriendo el query **************** */
-		$this->load->helper(array('form', 'url','html'));
-		$this->load->library('table');
-		$this->table->clear();
-		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="1" class="table">' );
-		$this->table->set_caption("Tabla de gastos");
-		$this->table->set_template($tmplnewtable);
-		$dataquery = $resultadodbmatrix->result_array();
-		foreach ($dataquery as $rowtable)
-		{
-			$this->table->add_row($rowtable);
-		}
-		$data['htmlquepintamatrix'] = $this->table->generate(); // html generado lo envia a la matrix
-		/* ***** fin pintar una tabla recorriendo el query **************** */
-		
-		
+		$this->load->helper(array('inflector','url'));
+		$this->load->library('grocery_CRUD');
+		$crud = new grocery_CRUD();
+		$crud->set_table($tablatempototales);
+		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
+		$crud->set_primary_key('sessionficha');
+		$crud->display_as('des_entidad','Entidad')
+			 ->display_as('des_categoria','Centro<br>Coste')
+			 ->display_as('mon_registro','Monto')
+			 ->display_as('fecha_gasto','Fecha<br>Estimada')
+			 ->display_as('fecha_concepto','Fecha<br>Gasto')
+			 ->display_as('fecha_registro','Fecha<br>Ingresado')
+			 ->display_as('sessionficha','Registro<br>Autor');
+		$crud->columns('des_entidad','des_categoria','mon_registro','fecha_concepto','fecha_registro','sessionficha','fecha_gasto');
+		$crud->unset_operations();
+		$crud->callback_column('mon_registro',array($this,'_numerosgente'));
+		$output = $crud->render();
+
+		$data['js_files'] = $output->js_files;
+		$data['css_files'] = $output->css_files;
+		$data['htmlquepintamatrix'] = $output->output;
 		$data['menu'] = $this->menu->general_menu();
 		$data['seccionpagina'] = 'seccionmatrixresultado';
-		$data['userintran'] = $dataquery;
 		$data['fechainimatrix'] = $fechainimatrix;
 		$data['fechafinmatrix'] = $fechafinmatrix;
 		$data['cod_entidad'] = $cod_entidad;
@@ -237,6 +243,12 @@ class matrixcontroler extends CI_Controller {
 		$this->load->view('header.php',$data);
 		$this->load->view('matrixvista.php',$data);
 		$this->load->view('footer.php',$data);
+	}
+
+	public function _numerosgente($value, $row)
+	{
+		$formateado = number_format($row->mon_registro, 2, ',', '.');
+		return $formateado;
 	}
 
 	public function enviarcorreo()

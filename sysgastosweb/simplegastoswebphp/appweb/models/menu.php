@@ -21,6 +21,7 @@ class Menu extends CI_Model
 
 		$vistas=anchor('mimatrixcontroller','Matrix');
 		$vistaglobal=array();
+		$vistaglobal['matrixcontroler']=anchor('matrixcontroler','Totalizadores');
 		$vistaglobal['cargargastover']=anchor('mimatrixcontroller/mimatrixfiltrar','Vista Reporte');
 		// enlaces de cargas para administrativo edita, ver etc con permisologia
 		$cargasadm=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');
