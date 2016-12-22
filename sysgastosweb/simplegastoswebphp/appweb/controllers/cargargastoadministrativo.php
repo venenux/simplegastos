@@ -224,6 +224,7 @@ class cargargastoadministrativo extends CI_Controller {
 			$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'RECHAZADO' => 'RECHAZADO', 'ERROR' => 'ERROR'));
 			$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','factura_tipo','des_estado');
 		}
+		$crud->callback_column('mon_registro',array($this,'_numerosgente'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->callback_before_insert(array($this,'generarcodigo'));
 		//$crud->callback_after_insert(array($this,'_ver_after_insert'));
@@ -251,6 +252,12 @@ class cargargastoadministrativo extends CI_Controller {
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastoadministrativo.php',$output);
 		$this->load->view('footer.php',$data);
+	}
+
+	public function _numerosgente($value, $row)
+	{
+		$formateado = number_format($row->mon_registro, 2, ',', '.');
+		return $formateado;
 	}
 
 	function _editarfechagasto($value, $primary_key)

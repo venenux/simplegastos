@@ -751,6 +751,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		}
 		$crud->set_field_upload('factura_bin',$directoriofacturas);
 		//$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admusuariosentidad"));
+		$crud->callback_column('mon_registro',array($this,'_numerosgente'));
 		$output = $crud->render();
 
 		// TERMINAR EL PROCESO (solo paso 1) **************************************************** /
@@ -782,6 +783,12 @@ class cargargastosucursalesadm extends CI_Controller {
 			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
 			$this->db->query($sqldatostablasfiltrados);
 		}
+	}
+
+	public function _numerosgente($value, $row)
+	{
+		$formateado = number_format($row->mon_registro, 2, ',', '.');
+		return $formateado;
 	}
 
 	function _cargargastosucursaleditandocodigo($primary_key , $row)
