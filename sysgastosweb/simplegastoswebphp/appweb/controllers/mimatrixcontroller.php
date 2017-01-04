@@ -212,13 +212,13 @@ class mimatrixcontroller extends CI_Controller {
 	      if($usuariocodgernow == 998)
 	      {$queryentidades = "
 	        select
-		     ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
+		     ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo, des_entidad 
 		   from
 		    entidad
 		    where  ifnull(cod_entidad,'') <> '' " ;
 	       }
 		   // pero filtrar las entidades activas nada mas
-			$queryentidades = $queryentidades." and status= 'ACTIVO' order by abr_zona desc";	 
+			$queryentidades = $queryentidades." and ( status <> 'INACTIVO') order by abr_zona desc";	 
          // buscar las tiendas en un rango ordenadas por zona
 		 
 		$indicet=0;

@@ -104,7 +104,7 @@ class matrixcontroler extends CI_Controller {
 		 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
 		 ifnull(des_entidad,'sin_descripcion') as des_entidad
 		from entidad
-		  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
+		  where ifnull(cod_entidad, '') <> '' and cod_entidad <> '' and status <> 'INACTIVO'
 		";
 		$resultadosentidad = $DBGASTO->query($sqlentidad);
 		$arregloentidades = array(''=>'');
@@ -192,20 +192,20 @@ class matrixcontroler extends CI_Controller {
 						LEFT JOIN entidad b on a.cod_entidad=b.cod_entidad /* todas las entiddes deben registrar gasto*/
 						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
 					where 
-						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . "
+						a.cod_registro <> '' and b.status <> 'INACTIVO' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . "
 				     UNION
 					SELECT 
-						a.cod_entidad, 'Entidad', 
+						a.cod_entidad, 'A l dia', 
 						a.cod_categoria, 'TOTAL',
 						IFNULL(SUM(IFNULL(a.mon_registro,0)),0) as mon_registro,
 						SUBSTRING(a.fecha_concepto,1,8) as fecha_concepto, a.fecha_registro,
 						a.fecha_concepto as fecha_gasto
-						, '".date("YmdHis").".totalizador' as sessionficha
+						, '".date("YmdHis").".999.al.total' as sessionficha
 					FROM registro_gastos a 
 						LEFT JOIN entidad b on a.cod_entidad=b.cod_entidad /* todas las entiddes deben registrar gasto*/
 						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
 					where 
-						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . " 
+						a.cod_registro <> '' and b.status <> 'INACTIVO' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . " 
 			) AS tablatotaltemp
 			ORDER BY sessionficha DESC			
 			";
@@ -226,7 +226,7 @@ class matrixcontroler extends CI_Controller {
 			 ->display_as('fecha_concepto','Fecha<br>Gasto')
 			 ->display_as('fecha_registro','Fecha<br>Ingresado')
 			 ->display_as('sessionficha','Registro<br>Autor');
-		$crud->columns('des_entidad','des_categoria','mon_registro','fecha_concepto','fecha_registro','sessionficha','fecha_gasto');
+		$crud->columns('des_entidad','des_categoria','mon_registro','fecha_gasto','sessionficha');
 		$crud->unset_operations();
 		$crud->callback_column('mon_registro',array($this,'_numerosgente'));
 		$output = $crud->render();
@@ -240,6 +240,7 @@ class matrixcontroler extends CI_Controller {
 		$data['fechafinmatrix'] = $fechafinmatrix;
 		$data['cod_entidad'] = $cod_entidad;
 		$data['cod_categoria'] = $cod_categoria;
+		$this->db->query("DROP TABLE IF EXISTS ".$tablatempototales); // ejecuto el query
 		$this->load->view('header.php',$data);
 		$this->load->view('matrixvista.php',$data);
 		$this->load->view('footer.php',$data);
