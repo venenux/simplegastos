@@ -647,7 +647,7 @@ class cargargastosucursalesadm extends CI_Controller {
 				$sqltablagastousr = "
 					CREATE TABLE IF NOT EXISTS `".$tablaregistros."` SELECT registro_gastos.* FROM (`registro_gastos`)
 					WHERE ( cod_registro <> '' or cod_entidad = '".$usuariocodgernow."') ";
-					if ( $this->nivel != 'administrador' and ($fec_conceptoini != '' or $fec_conceptofin != '') ) 	$sqltablagastousr .= "AND CONVERT(SUBSTRING(fecha_concepto,1,6),UNSIGNED) >= CONVERT('".(date('Ymd', strtotime('now - 1 month')))."',UNSIGNED)";
+					if ( $this->nivel != 'administrador' and ($fec_conceptoini != '' or $fec_conceptofin != '') ) 	$sqltablagastousr .= "AND CONVERT(SUBSTRING(fecha_concepto,1,6),UNSIGNED) >= CONVERT('".(date('Ym', strtotime('now - 1 month')))."',UNSIGNED)";
 					if ( $this->nivel == 'contabilidad' ) 	$sqltablagastousr .= " and factura_tipo = 'CONTRIBUYENTE'";
 					if ( $this->nivel == 'sucursal' ) 	$sqltablagastousr .= " and cod_entidad = '".$usuariocodgernow."'";
 					if ( $this->nivel == 'especial' ) 	$sqltablagastousr .= " and ( tipo_concepto <> 'ADMINISTRATIVO' or tipo_concepto NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
