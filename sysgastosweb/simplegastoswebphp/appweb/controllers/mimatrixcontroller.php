@@ -282,6 +282,8 @@ class mimatrixcontroller extends CI_Controller {
 				  registro_gastos.cod_categoria='".$indicecategoria."'
 				and
 				  registro_gastos.fecha_concepto like '".$fechafiltramatrix."%'
+				and
+				  registro_gastos.estado <> 'RECHAZADO'
 				 ";
 
                 //aqui se calcula el gasto categoria por tienda

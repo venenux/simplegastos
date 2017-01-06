@@ -193,6 +193,7 @@ class matrixcontroler extends CI_Controller {
 						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
 					where 
 						a.cod_registro <> '' and b.status <> 'INACTIVO' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . "
+						and a.estado <> 'RECHAZADO'
 				     UNION
 					SELECT 
 						a.cod_entidad, 'A l dia', 
