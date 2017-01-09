@@ -53,7 +53,7 @@ EOD;
 		));
 	}
 
-	public function gervisualizardata($fecha_mes = null)
+	public function gervisualizarventagasto($fecha_mes = null)
 	{
 		if ( $fecha_mes == null )
 			$fecha_mes = $this->input->get_post('fecha_mes');
@@ -75,14 +75,15 @@ EOD;
 		}
 		$crud->where('adm_indicador_eficiencia_ventagasto.cod_entidad >= ','399');
 		$crud->where('adm_indicador_eficiencia_ventagasto.cod_entidad <= ','997');
-		$crud->columns('cod_entidad','mon_gastototal','mon_ventatotal','reservado','fecha_mes' /*, 'sessionficha', 'sessionflag'*/);
+		$crud->columns('cod_entidad','mon_gastototal','mon_ventatotal','fecha_mes', 'sessionficha' /*, 'sessionflag'*/);
 		$crud->display_as('cod_entidad','Entidad');
 		$crud->display_as('mon_gastototal','Gasto');
 		$crud->display_as('mon_ventatotal','Venta');
 		$crud->display_as('fecha_mes','Mes');
-		$crud->display_as('sessionficha','Ingresado');
+		$crud->display_as('sessionficha','Eficiencia');
 		$crud->display_as('sessionflag','Actualizado'); // si usa add_fiels y unset_add no inserta
-		$crud->display_as('reservado','Porcentaje');
+		$crud->display_as('cod_indicador', 'Diferenciador');
+		$crud->set_primary_key('cod_indicador');
 		$crud->set_subject('Eficiencia venta/gasto');	// columns y fields no pueden ir juntos bug crud
 		$crud->field_type('cod_entidad', 'readonly');
 		$crud->field_type('des_entidad', 'readonly');
@@ -90,14 +91,15 @@ EOD;
 		$crud->field_type('fecha_mes', 'readonly');
 		$crud->field_type('sessionficha', 'readonly');
 		$crud->field_type('sessionflag', 'readonly');
-		//$crud->field_type('reservado', 'readonly');
+		$crud->field_type('cod_indicador', 'readonly');
 		$crud->unset_add();
 		$crud->unset_delete();
-		$crud->callback_column('reservado',array($this,'_callback_porcentage'));
+		$crud->callback_column('sessionficha',array($this,'_callback_porcentage'));
 		$crud->callback_column('mon_gastototal',array($this,'_callback_formatonumero'));
 		$crud->callback_column('mon_ventatotal',array($this,'_callback_formatonumero'));
-		$crud->callback_edit_field('reservado', function () {	return '<input type="text" maxlength="50" value="'.date("YmdHis").'" name="porcentaje" readonly="true">';	});
+		$crud->callback_edit_field('sessionficha', function () {	return '<input type="text" maxlength="50" value="'.date("YmdHis").'" name="sessionficha" readonly="true">';	});
 		$crud->required_fields('mon_ventatotal');
+		$currentState = $crud->getState();
 		$output = $crud->render();
 		$data['controller'] = 'adm_indicador_eficiencia_ventagasto';
 		$data['mensage'] = $this->mensage;
@@ -109,11 +111,26 @@ EOD;
 	}	
 	public function _callback_porcentage($value, $row)
 	{
-		if ( $row->mon_ventatotal > 0 )
-		$porcentage = ($row->mon_gastototal * 100)/	$row->mon_ventatotal;
+		$venta = (string) $row->mon_ventatotal;
+		$gasto = (string) $row->mon_gastototal;
+		// se ha trabajado con 2 decimales, por ende averiguar si esta a los dos ultimos digitos coma o punto
+		if ( strrpos($venta, '.') === false )
+		{	$deldecimal = ',';$delmiles = '.';	}
 		else
-		$porcentage = 100;
-		return '' . substr($porcentage,0,4) . '%';
+		{	$deldecimal = '.';$delmiles = ',';	}
+		// ahora uso el estandar, decimales con punto y sin separador miles
+		$otro =  strrpos($venta, ',');
+		$venta = str_replace($deldecimal, ":", $venta);
+		$venta = str_replace($delmiles, "", $venta);
+		$gasto = str_replace($deldecimal, ":", $gasto);
+		$gasto = str_replace($delmiles, "", $gasto);
+		$venta = str_replace(":", ".", $venta);
+		$gasto = str_replace(":", ".", $gasto);
+		if ( $row->mon_ventatotal > 0 )
+			$porcentage = bcmul( (string)$gasto, "100", 2) / $venta;
+		else
+			$porcentage = 100;
+		return '' . substr($porcentage,0,4) . ' % ' . $otro;
 	}
 	public function _callback_formatonumero($value, $row)
 	{
