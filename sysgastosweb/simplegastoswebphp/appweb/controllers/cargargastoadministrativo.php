@@ -183,7 +183,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->set_relation('cod_subcategoria','subcategoria','{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
 		$crud->add_action('Auditar', '', '','ui-icon-plus',array($this,'_cargargastosucursalauditar'));
 		$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','des_estado');
-		$directoriofacturas = 'archivoscargas/' . date("Y");
+		$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )

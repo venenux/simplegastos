@@ -263,7 +263,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$fecha_registro = date('Ymd');
 		$cod_registro = 'GAS' . $fecha_registro . date('His');
 		// ******* CARGA DEL ARCHIVO ****************** */
-		$directoriofacturas = 'archivoscargas/' . date("Y");
+		$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
@@ -496,7 +496,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		// ******* GENERACION de la carga id codigo de registro
 		$cod_registro = $this->input->get_post('cod_registro');
 		// ******* CARGA DEL ARCHIVO ****************** */
-		$directoriofacturas = 'archivoscargas/' . date("Y");
+		$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
@@ -741,7 +741,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		}
 		else if ( $this->nivel == 'sucursal')
 			$crud->add_action('Editar', '', '','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
-		$directoriofacturas = 'archivoscargas/' . date("Y");
+		$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
