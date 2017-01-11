@@ -118,7 +118,7 @@ EOD;
 		{	$deldecimal = ',';$delmiles = '.';	}
 		else
 		{	$deldecimal = '.';$delmiles = ',';	}
-		// ahora uso el estandar, decimales con punto y sin separador miles
+		// TODO: URGENTE ahora uso el estandar, decimales con punto y sin separador miles
 		$otro =  strrpos($venta, ',', -1);
 		$venta = str_replace($deldecimal, ":", $venta);
 		$venta = str_replace($delmiles, "", $venta);
