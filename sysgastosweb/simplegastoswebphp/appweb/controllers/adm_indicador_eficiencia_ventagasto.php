@@ -33,9 +33,12 @@ EOD;
 	{
 		$data['controller'] = 'adm_indicador_eficiencia_ventagasto';
 		$data['mensage'] = $this->mensage;
-		$data['js_files'] = $output->js_files;
-		$data['css_files'] = $output->css_files;
-		$data['output'] = $output->output;
+		if( $output != null )
+		{
+			$data['js_files'] = $output->js_files;
+			$data['css_files'] = $output->css_files;
+			$data['output'] = $output->output;
+		}
 		$data['menu'] = null;
 		$this->load->view('header.php',$data);
 		$this->load->view('adm_indicadores_verdata.php',$data);
@@ -58,8 +61,7 @@ EOD;
 		if ( $fecha_mes == null )
 			$fecha_mes = $this->input->get_post('fecha_mes');
 			if ( $fecha_mes == '' )
-				$fecha_mes = date('Ymd', strtotime('now - 1 month'));
-			
+				$fecha_mes = date('Ymd', strtotime('now - 1 month'));			
 		$fecha_mes = substr($fecha_mes, 0, 6); // aseguro que solo sea anio y mes, no importa dia, es de 01 a 31
 		$this->config->load('grocery_crud');
 		$this->config->set_item('grocery_crud_dialog_forms',false);
@@ -101,13 +103,11 @@ EOD;
 		$crud->required_fields('mon_ventatotal');
 		$currentState = $crud->getState();
 		$output = $crud->render();
-		$data['controller'] = 'adm_indicador_eficiencia_ventagasto';
-		$data['mensage'] = $this->mensage;
-		$data['output'] = $output;
-		$data['menu'] = null;
-		$this->load->view('header.php',$data);
-		$this->load->view('adm_indicadores_verdata.php',$output);
-		$this->load->view('footer.php',$data);
+		$this->_esputereport((object)array(
+				'js_files' => $output->js_files,
+				'css_files' => $output->css_files,
+				'output'	=> $output->output
+		));
 	}	
 	public function _callback_porcentage($value, $row)
 	{
@@ -119,7 +119,7 @@ EOD;
 		else
 		{	$deldecimal = '.';$delmiles = ',';	}
 		// ahora uso el estandar, decimales con punto y sin separador miles
-		$otro =  strrpos($venta, ',');
+		$otro =  strrpos($venta, ',', -1);
 		$venta = str_replace($deldecimal, ":", $venta);
 		$venta = str_replace($delmiles, "", $venta);
 		$gasto = str_replace($deldecimal, ":", $gasto);
@@ -139,7 +139,10 @@ EOD;
 
 	public function geractualizardata($fecha_mes = null)
 	{
-		$fecha_mes = $this->input->get_post('fecha_mes');
+		if ( $fecha_mes == null )
+			$fecha_mes = $this->input->get_post('fecha_mes');
+			if ( $fecha_mes == '' )
+				$fecha_mes = date('Ymd', strtotime('now - 1 month'));			
 		$fecha_mes = substr($fecha_mes, 0, 6); // aseguro que solo sea anio y mes, no importa dia, es de 01 a 31
 		$sqlverificar = "SELECT count(cod_entidad) as cuanto FROM adm_indicador_eficiencia_ventagasto WHERE fecha_mes = '".$fecha_mes."'";
 		$existen = -1;
@@ -149,11 +152,19 @@ EOD;
 			foreach( $objetousuario as $rowuser )
 			{
 				$existen = $rowuser->cuanto;
+				$error = 0;
 				break;
 			}
 		else
+		{
 			$error = 1;
-		$this->mensage = $this->db->_error_message();
+			$this->mensage = $this->db->_error_message();
+			$this->_esputereport((object)array(
+				'js_files' => $js_files,
+				'css_files' => $css_files,
+				'output'	=> $this->mensage
+			));
+		}
 
 		$this->db->trans_start();
 		if( $existen > 0 )
@@ -161,30 +172,33 @@ EOD;
 			$sqlactualizardata = "SET SQL_SAFE_UPDATES=0;DELETE FROM adm_indicador_eficiencia_ventagasto WHERE fecha_mes = '".$fecha_mes."';SET SQL_SAFE_UPDATES=1;";
 			$this->db->query($sqlactualizardata);
 		}
-		$sqlactualizardata = "
-			INSERT INTO adm_indicador_eficiencia_ventagasto
-				cod_entidad, 
-				mon_gastototal, 
-				mon_ventatotal, 
-				fecha_mes,
-				reservado
-			SELECT 
-				a.cod_entidad as cod_entidad, 
-				IFNULL(SUM(IFNULL(a.mon_registro, 0)), 0) as mon_gastototal,
-				0 as mon_ventatotal,
-				SUBSTRING(a.fecha_concepto, 1, 6) as fecha_mes,
-				'".date('YmdHis')."'
-			FROM
-				registro_gastos a
-			LEFT JOIN entidad b ON a.cod_entidad = b.cod_entidad
-			where
-				a.cod_registro <> ''
-					and b.status <> 'INACTIVO'
-					and CONVERT( a.fecha_concepto , UNSIGNED) >= CONVERT( '".$fecha_mes."' , UNSIGNED)
-					and CONVERT( a.fecha_concepto , UNSIGNED) <= CONVERT( '".$fecha_mes."' , UNSIGNED)
-			group by a.cod_entidad
-			order by a.cod_entidad
-		";
+		else
+		{
+			$sqlactualizardata = "
+				INSERT INTO adm_indicador_eficiencia_ventagasto
+					cod_entidad, 
+					mon_gastototal, 
+					mon_ventatotal, 
+					fecha_mes,
+					reservado
+				SELECT 
+					a.cod_entidad as cod_entidad, 
+					IFNULL(SUM(IFNULL(a.mon_registro, 0)), 0) as mon_gastototal,
+					0 as mon_ventatotal,
+					SUBSTRING(a.fecha_concepto, 1, 6) as fecha_mes,
+					'".date('YmdHis')."'
+				FROM
+					registro_gastos a
+				LEFT JOIN entidad b ON a.cod_entidad = b.cod_entidad
+				where
+					a.cod_registro <> ''
+						and b.status <> 'INACTIVO'
+						and CONVERT( a.fecha_concepto , UNSIGNED) >= CONVERT( '".$fecha_mes."' , UNSIGNED)
+						and CONVERT( a.fecha_concepto , UNSIGNED) <= CONVERT( '".$fecha_mes."' , UNSIGNED)
+				group by a.cod_entidad
+				order by a.cod_entidad
+			";
+		}
 		$this->db->query($sqlactualizardata);
 		$this->db->trans_complete();
 		if ($this->db->trans_status() === FALSE)
