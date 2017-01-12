@@ -59,12 +59,12 @@ class Menu extends CI_Model
 			$header['0'] = $nodes->m_header_nodes($inicio, $inicionlogin);
 			if ( ! $usuariocodgernow == "" )
 			{
-				if( $usuariocodgernow != 998)
+				if( $usuariocodgernow == 111)
+					$header['4geer'] = $nodes->m_header_nodes($menugerencia,$menugerencianodos);
+				else if( $usuariocodgernow != 998)
 				{
 					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
 				}
-				else if( $usuariocodgernow == 111)
-					$header['4geer'] = $nodes->m_header_nodes($menugerencia,$menugerencianodos);
 				else /* ($usuariocodgernow = 998 and $usuariocodgernow != '' ) */
 				{
 					$header['4esp'] = $nodes->m_header_nodes($cargasadm,$cargargastoadministrativo);

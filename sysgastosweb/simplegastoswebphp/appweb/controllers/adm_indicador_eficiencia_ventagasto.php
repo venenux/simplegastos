@@ -73,7 +73,8 @@ class Adm_indicador_eficiencia_ventagasto extends CI_Controller {
 	{
 		//$this->_verificarsesion();
 		$this->accionformulario = 'gervisualizarventagasto';
-		$this->_esputereport((object)array(
+		$data['accionformulario'] = $this->accionformulario;
+		$this->_esputereport($data, (object)array(
 				'js_files' => array(''),
 				'css_files' => array(''),
 				'output'	=> '',
