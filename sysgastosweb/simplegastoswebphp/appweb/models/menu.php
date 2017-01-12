@@ -10,17 +10,20 @@ class Menu extends CI_Model
 	}
 
 	/** modelo de menu gastos, implementa libreria menu de PICCORO Lenz McKAY */
-	function general_menu($params='inparametro')
+	function general_menu($sessionobject = null)
 	{
 		$menu = new MenuLib;
 		$nodes = new MenuNodes;
 
 		$admins=anchor('admusuariosentidad','Gestion');
-		$admgeneral['admusuarios']=anchor('admusuarios','Usuarios');
+		$admgeneral['admusuarios']=anchor('admusuarios','Entidades');
 		$admgeneral['admsubcategorias']=anchor('admsubcategorias','Categorias');
 
+		// enlaces de gerencia
+		$menugerencia=anchor('adm_indicador_eficiencia_ventagasto','Gerencia');
+		$menugerencianodos['adm_indicador_eficiencia_ventagasto']=anchor('adm_indicador_eficiencia_ventagasto/gervisualizarventagasto/','Gasto vs Venta');
+
 		$vistas=anchor('mimatrixcontroller','Matrix');
-		$vistaglobal=array();
 		$vistaglobal['matrixcontroler']=anchor('matrixcontroler','Totalizadores');
 		$vistaglobal['cargargastover']=anchor('mimatrixcontroller/mimatrixfiltrar','Vista Reporte');
 		// enlaces de cargas para administrativo edita, ver etc con permisologia
@@ -60,6 +63,8 @@ class Menu extends CI_Model
 				{
 					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
 				}
+				else if( $usuariocodgernow == 111)
+					$header['4geer'] = $nodes->m_header_nodes($menugerencia,$menugerencianodos);
 				else /* ($usuariocodgernow = 998 and $usuariocodgernow != '' ) */
 				{
 					$header['4esp'] = $nodes->m_header_nodes($cargasadm,$cargargastoadministrativo);

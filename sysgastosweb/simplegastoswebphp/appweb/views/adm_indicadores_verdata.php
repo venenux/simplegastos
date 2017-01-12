@@ -1,9 +1,5 @@
 <?php
-	$this->load->helper('html');
-		foreach($css_files as $file)
-		{	echo '<link type="text/css" rel="stylesheet" href="'.$file.'" />';	}
-		foreach($js_files as $file)
-		{	echo '<script src="'.$file.'"></script>';	}
+
 
 	/*inicializo variables de botones html en vacio pues agrego todas generados o no generados */
 /*	$tablabotonesusr = ''; $tablabotonsenti = ''; $tablabotonscatego = ''; $tablabotonssubcat = '';
@@ -57,7 +53,29 @@
 	$botonesgestion = $this->table->generate();
 
 	echo $botonesgestion;
-*/	if( isset($mensage)) echo $mensage;
-	echo $output;
+*/
+	$this->load->helper('html');
+		foreach($css_files as $file)
+		{	echo '<link type="text/css" rel="stylesheet" href="'.$file.'" />';	}
+		foreach($js_files as $file)
+		{	echo '<script src="'.$file.'"></script>';	}
+
+	if( isset($mensage)) 		echo $mensage;
+	if( !isset($fecha_mes) )	$fecha_mes=date('Ymd', strtotime('now - 1 month'));
+	if( !isset($accionformulario))	$accionformulario = 'gervisualizarventagasto';
+
+	$idfecha_mes='fecha_mes';$inputfecha_mes = array('name'=>$idfecha_mes,'id'=>$idfecha_mes, 'onclick'=>'javascript:NewCssCal(\''.$idfecha_mes.'\',\'yyyyMMdd\' )','readonly'=>'readonly','value'=>set_value($fecha_mes, $$idfecha_mes));
+
+		$this->table->clear();
+		$this->table->add_row(
+			form_open($controlername.'/'.$accionformulario) .
+			form_label('Fecha Mes (cualquier dia):') .
+			form_input($inputfecha_mes) .
+			form_submit(array('id' => 'gerenviardata', 'value' => 'Visualizar')) .
+			form_close()
+		);
+	echo $this->table->generate(). PHP_EOL;
+	echo br(). PHP_EOL;
+	echo $output. PHP_EOL;
 //	echo $botonesgestion;
 

@@ -2,9 +2,10 @@
 
 class Adm_indicador_eficiencia_ventagasto extends CI_Controller {
 
-	private $mensage = <<<'EOD'
-Indicadores de Gestion: eficiencia de ventas vs gasto.
-EOD;
+	private $mensage = 'Indicadores de Gestion: eficiencia de ventas vs gasto.';
+	private $controlername = 'adm_indicador_eficiencia_ventagasto';
+	private $accionformulario  = null;
+	private $menurender = '';
 
 	public function __construct()
 	{
@@ -27,19 +28,42 @@ EOD;
 	{
 		if( $this->session->userdata('logueado') != TRUE)
 			redirect('manejousuarios/desverificarintranet');
+
+		$usuariocodgernow = $this->session->userdata('cod_entidad');
+		if( is_array($usuariocodgernow) )
+		{
+			if (! in_array("111", $usuariocodgernow) or ! in_array("998", $usuariocodgernow) )
+				$this->nivel = false;
+			else
+				$this->nivel = true;
+		}
+		else
+		{
+			if( $usuariocodgernow == '998' or $usuariocodgernow == '111' )
+				$this->nivel = false;
+			else
+				$this->nivel = true;
+		}
+		if ( $this-nivel )
+		{
+			$this->menurender = $this->menu->general_menu();
+		}
 	}
 
-	public function _esputereport($output = null)
+	public function _esputereport($data, $output = null)
 	{
 		$data['controller'] = 'adm_indicador_eficiencia_ventagasto';
-		$data['mensage'] = $this->mensage;
+		$data['mensage'] = $this->mensage;  // cualquier mensage de error debe ser enviado aqui
 		if( $output != null )
 		{
 			$data['js_files'] = $output->js_files;
 			$data['css_files'] = $output->css_files;
-			$data['output'] = $output->output;
+			$data['output'] = $output->output;  // toda salida html debe ir aqui, la vista pintara esto
+			$data['fecha_mes'] = $output->fecha_mes;
 		}
-		$data['menu'] = null;
+		$data['accionformulario'] = $this->accionformulario;
+		$data['menu'] = $this->menu->general_menu();  // definir un menu segun perfil
+		$data['controlername'] = $this->controlername;
 		$this->load->view('header.php',$data);
 		$this->load->view('adm_indicadores_verdata.php',$data);
 		$this->load->view('footer.php',$data);
@@ -48,20 +72,29 @@ EOD;
 	function index()
 	{
 		//$this->_verificarsesion();
-
+		$this->accionformulario = 'gervisualizarventagasto';
 		$this->_esputereport((object)array(
-				'js_files' => null,
-				'css_files' => null,
-				'output'	=> null
+				'js_files' => array(''),
+				'css_files' => array(''),
+				'output'	=> '',
+				'fecha_mes' => date('Ym')
 		));
+	}
+
+	public function gerpediraccionventagasto()
+	{
+		$this->accionformulario = 'gervisualizarventagasto';
 	}
 
 	public function gervisualizarventagasto($fecha_mes = null)
 	{
-		if ( $fecha_mes == null )
+		$this->accionformulario = 'gervisualizarventagasto';
+		if ( $fecha_mes == null or ! is_numeric($fecha_mes) )
+		{
 			$fecha_mes = $this->input->get_post('fecha_mes');
-			if ( $fecha_mes == '' )
-				$fecha_mes = date('Ymd', strtotime('now - 1 month'));			
+			if ( $fecha_mes == '')
+				$fecha_mes = date('Ymd', strtotime('now - 1 month'));
+		}
 		$fecha_mes = substr($fecha_mes, 0, 6); // aseguro que solo sea anio y mes, no importa dia, es de 01 a 31
 		$this->config->load('grocery_crud');
 		$this->config->set_item('grocery_crud_dialog_forms',false);
@@ -99,42 +132,43 @@ EOD;
 		$crud->callback_column('sessionficha',array($this,'_callback_porcentage'));
 		$crud->callback_column('mon_gastototal',array($this,'_callback_formatonumero'));
 		$crud->callback_column('mon_ventatotal',array($this,'_callback_formatonumero'));
-		$crud->callback_edit_field('sessionficha', function () {	return '<input type="text" maxlength="50" value="'.date("YmdHis").'" name="sessionficha" readonly="true">';	});
+		$crud->callback_edit_field('sessionficha', function () {	return '<input type="text" maxlength="50" value="'.date("YmdHis").'" name="sessionficha" readonly="true">'.br().PHP_EOL;	});
 		$crud->required_fields('mon_ventatotal');
 		$currentState = $crud->getState();
+		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__."/".$fecha_mes."")),site_url(strtolower(__CLASS__."/".__FUNCTION__)."/".$fecha_mes."/list/?fecha_mes=".$fecha_mes.""));
 		$output = $crud->render();
-		$this->_esputereport((object)array(
+		$data['mensage'] = $this->mensage;
+		$this->_esputereport($data, (object)array(
 				'js_files' => $output->js_files,
 				'css_files' => $output->css_files,
-				'output'	=> $output->output
+				'output'	=> $output->output,
+				'fecha_mes' => $fecha_mes
 		));
-	}	
+	}
+	public function _callback_formatonumero($value, $row)
+	{
+		return number_format($value, 2, ',', '.');
+	}
 	public function _callback_porcentage($value, $row)
 	{
 		$venta = (string) $row->mon_ventatotal;
 		$gasto = (string) $row->mon_gastototal;
 		// se ha trabajado con 2 decimales, por ende averiguar si esta a los dos ultimos digitos coma o punto
-		if ( strrpos($venta, '.') === false )
+		$otro =  strpos($venta, '.',(strlen($venta)-3));
+		if ( $otro === false )	// sep decimal siempre esta dos antes del ultimo
 		{	$deldecimal = ',';$delmiles = '.';	}
-		else
+		else 					// si no hay coma 2 digitos antes es un punto
 		{	$deldecimal = '.';$delmiles = ',';	}
-		// TODO: URGENTE ahora uso el estandar, decimales con punto y sin separador miles
-		$otro =  strrpos($venta, ',', -1);
+		// ahora uso el estandar, decimales con punto y sin separador miles
 		$venta = str_replace($deldecimal, ":", $venta);
 		$venta = str_replace($delmiles, "", $venta);
 		$gasto = str_replace($deldecimal, ":", $gasto);
 		$gasto = str_replace($delmiles, "", $gasto);
 		$venta = str_replace(":", ".", $venta);
 		$gasto = str_replace(":", ".", $gasto);
-		if ( $row->mon_ventatotal > 0 )
-			$porcentage = bcmul( (string)$gasto, "100", 2) / $venta;
-		else
-			$porcentage = 100;
-		return '' . substr($porcentage,0,4) . ' % ' . $otro;
-	}
-	public function _callback_formatonumero($value, $row)
-	{
-		return number_format($value, 2, ',', '.');
+		if ( $row->mon_ventatotal <=  0 ) $porcentage = 100;
+		else	$porcentage = bcmul( (string)$gasto, "100", 2) / $venta;
+		return substr($porcentage,0,4) . ' % ';
 	}
 
 	public function geractualizardata($fecha_mes = null)
@@ -142,7 +176,7 @@ EOD;
 		if ( $fecha_mes == null )
 			$fecha_mes = $this->input->get_post('fecha_mes');
 			if ( $fecha_mes == '' )
-				$fecha_mes = date('Ymd', strtotime('now - 1 month'));			
+				$fecha_mes = date('Ymd', strtotime('now - 1 month'));
 		$fecha_mes = substr($fecha_mes, 0, 6); // aseguro que solo sea anio y mes, no importa dia, es de 01 a 31
 		$sqlverificar = "SELECT count(cod_entidad) as cuanto FROM adm_indicador_eficiencia_ventagasto WHERE fecha_mes = '".$fecha_mes."'";
 		$existen = -1;
@@ -176,13 +210,13 @@ EOD;
 		{
 			$sqlactualizardata = "
 				INSERT INTO adm_indicador_eficiencia_ventagasto
-					cod_entidad, 
-					mon_gastototal, 
-					mon_ventatotal, 
+					cod_entidad,
+					mon_gastototal,
+					mon_ventatotal,
 					fecha_mes,
 					reservado
-				SELECT 
-					a.cod_entidad as cod_entidad, 
+				SELECT
+					a.cod_entidad as cod_entidad,
 					IFNULL(SUM(IFNULL(a.mon_registro, 0)), 0) as mon_gastototal,
 					0 as mon_ventatotal,
 					SUBSTRING(a.fecha_concepto, 1, 6) as fecha_mes,
@@ -205,13 +239,13 @@ EOD;
 			$this->mensage = "Error, data perdida o no actualizada: " . $this->db->_error_message();
 		else
 			$this->mensage = "Datos actualizados de gastos totales, correctamente, consulte para revisarlos";
-		
+
 		$this->_esputereport((object)array(
 				'js_files' => $js_files,
 				'css_files' => $css_files,
 				'output'	=> $this->mensage
 		));
-		
+
 	}
 
 	public function admsoloverlosfondos()
