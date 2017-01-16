@@ -14,6 +14,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 		$metaline6 = array('name' => 'pragma', 'content' => 'no-cache', 'type' => 'equiv');
 
 		$linkdefcss = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcss.'defaultstyle.css?'.time());
+		$linkappcss = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcss.'bootstrap.css?'.time());
 		$linkde2css = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcss.'catalogo_defaultstyle.css');
 		$linktabcss = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcss.'catalogo_tabbertstyle.css');
 

@@ -78,7 +78,7 @@ class MenuNodes
 		$menu .= '<ul class="menunodes menubackground">';
 		foreach($param as $prm)
 		{
-			$menu .= '<li class=" btn b10">' . $prm . '</li>';
+			$menu .= '<li class="mtag">' . $prm . '</li>';
 		}
 		$menu .= '</ul>';
 		$menu .= '</td>';

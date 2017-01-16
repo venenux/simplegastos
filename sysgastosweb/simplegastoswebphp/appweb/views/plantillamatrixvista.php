@@ -26,7 +26,7 @@
 			$this->table->add_row('Categoria - Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL);
 			$this->table->add_row('Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL );
 		echo $this->table->generate();
-		echo form_submit('vermatrix', 'Ver la matrix', 'class="btn btn-primary btn-large b10"');
+		echo form_submit('vermatrix', 'Ver la matrix', 'class="btn-primary"');
 		echo form_close() . PHP_EOL;
 		echo form_fieldset_close() . PHP_EOL;
 		echo br().PHP_EOL;

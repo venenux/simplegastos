@@ -12,9 +12,9 @@
 		$tablabotonesusr = '';
 		$this->table->clear();
 		$this->table->add_row(
-			anchor('admusuarios/admusuariosavanzado/add',form_button('admusuarios/admusuariosavanzado/index/add', 'Agregar Usuario', 'class="btn btn-primary btn-large b10" '))
+			anchor('admusuarios/admusuariosavanzado/add',form_button('admusuarios/admusuariosavanzado/index/add', 'Agregar Usuario', 'class="btn-primary btn" '))
 			,
-			anchor('admusuarios/admusuariosavanzado/list',form_button('admusuarios/admusuariosavanzado/list', 'Ver/Edit Usuarios', 'class="btn btn-primary btn-large b10" '))
+			anchor('admusuarios/admusuariosavanzado/list',form_button('admusuarios/admusuariosavanzado/list', 'Ver/Edit Usuarios', 'class="btn-primary btn" '))
 		);
 		$tablabotonesusr .= $this->table->generate() . PHP_EOL;
 	}
@@ -23,9 +23,9 @@
 		$tablabotonsenti = '';
 		$this->table->clear();
 		$this->table->add_row(
-			anchor('admentidades/admsucursalesyusuarios/add',form_button('admentidades/admsucursalesyusuarios/add', 'Agregar Codger', 'class="btn btn-primary btn-large b10" '))
+			anchor('admentidades/admsucursalesyusuarios/add',form_button('admentidades/admsucursalesyusuarios/add', 'Agregar Codger', 'class="btn-primary btn" '))
 			,
-			anchor('admentidades/admsucursalesyusuarios/list',form_button('admentidades/admsucursalesyusuarios/list', 'Ver/Edit Codgers', 'class="btn btn-primary btn-large b10" '))
+			anchor('admentidades/admsucursalesyusuarios/list',form_button('admentidades/admsucursalesyusuarios/list', 'Ver/Edit Codgers', 'class="btn-primary btn" '))
 		);
 		$tablabotonsenti .= $this->table->generate() . PHP_EOL;
 	}
@@ -34,9 +34,9 @@
 		$tablabotonscatego = '';
 		$this->table->clear();
 		$this->table->add_row(
-			anchor('admcategorias/admcategorias/add',form_button('admcategorias/admcategorias/add', 'Agregar Categoria', 'class="btn btn-primary btn-large b10" '))
+			anchor('admcategorias/admcategorias/add',form_button('admcategorias/admcategorias/add', 'Agregar Categoria', 'class="btn-primary btn" '))
 			,
-			anchor('admcategorias/admcategorias/list',form_button('admcategorias/admcategorias/list', 'Ver/Edit Categorias', 'class="btn btn-primary btn-large b10" '))
+			anchor('admcategorias/admcategorias/list',form_button('admcategorias/admcategorias/list', 'Ver/Edit Categorias', 'class="btn-primary btn" '))
 		);
 		$tablabotonscatego .= $this->table->generate() . PHP_EOL;
 	}
@@ -45,9 +45,9 @@
 		$tablabotonssubcat = '';
 		$this->table->clear();
 		$this->table->add_row(
-			anchor('admsubcategorias/admsubcategorias/add',form_button('admsubcategorias/admsubcategorias/add', 'Agregar Subcategoria', 'class="btn btn-primary btn-large b10" '))
+			anchor('admsubcategorias/admsubcategorias/add',form_button('admsubcategorias/admsubcategorias/add', 'Agregar Subcategoria', 'class="btn-primary btn" '))
 			,
-			anchor('admsubcategorias/admsubcategorias/list',form_button('admsubcategorias/admsubcategorias/list', 'Editar Subcategorias', 'class="btn btn-primary btn-large b10" '))
+			anchor('admsubcategorias/admsubcategorias/list',form_button('admsubcategorias/admsubcategorias/list', 'Editar Subcategorias', 'class="btn-primary btn" '))
 		);
 		$tablabotonssubcat .= $this->table->generate(). PHP_EOL;
 	}

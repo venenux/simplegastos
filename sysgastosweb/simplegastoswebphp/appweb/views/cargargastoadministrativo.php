@@ -3,10 +3,10 @@
 	$this->load->helper('html');
 
 	// pintar botones de gestion para carga manual ya que las acciones de agregar y ver son customizadas
-	$botongestion0 = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn btn-primary b10" '));
-	$botongestion1 = '';//anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastosucursalesadm/gastomanualcargaruno', 'Cargar como tienda', 'class="btn btn-primary b10" '));
-	$botongestion2 = anchor('cargargastoadministrativo/index',form_button('cargargastoadministrativo/index', 'Filtrar directo', 'class="btn btn-primary b10" '));
-	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastosucursalesadm/gastomanualfiltrarlos', 'Filtrar RAPIDO', 'class="btn btn-primary b10" '));
+	$botongestion0 = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn-primary btn b10" '));
+	$botongestion1 = '';//anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastosucursalesadm/gastomanualcargaruno', 'Cargar como tienda', 'class="btn-primary btn" '));
+	$botongestion2 = anchor('cargargastoadministrativo/index',form_button('cargargastoadministrativo/index', 'Filtrar directo', 'class="btn-primary btn" '));
+	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastosucursalesadm/gastomanualfiltrarlos', 'Filtrar RAPIDO', 'class="btn-primary btn b10" '));
 	$this->table->clear();
 	$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' );
 	$this->table->set_template($tmplnewtable);
@@ -51,7 +51,7 @@
 			$this->table->add_row('Por Concepto :', form_input('des_registrolike','').br().PHP_EOL);
 		echo $this->table->generate();
 		echo form_hidden('accionejecutada',$accionejecutada).br().PHP_EOL;
-		echo form_submit('gastofiltrarya', 'Ver reporte gasto', 'class="btn btn-primary btn-large b10"');
+		echo form_submit('gastofiltrarya', 'Ver reporte gasto', 'class="btn-primary btn"');
 		echo form_close() . PHP_EOL;
 		echo form_fieldset_close() . PHP_EOL;
 		echo br().PHP_EOL;

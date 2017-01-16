@@ -45,9 +45,9 @@
 
 	// pintar botones de gestion para carga manual ya que las acciones de agregar y ver son customizadas
 	if( !isset($botongestion0) ) $botongestion0 = '';
-	$botongestion1 = anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastomanual/gastomanualcargaruno/add', 'Registrar Gasto', 'class="btn btn-primary b10" '));
-	$botongestion2 = anchor('cargargastosucursalesadm/gastosucursalesrevisarlos',form_button('cargargastomanual/gastomanualrevisarlos/list', 'Revisar Ultimos', 'class="btn btn-primary b10" '));
-	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastomanual/gastomanualfiltrarlos/veruno', 'Filtrar Gasto', 'class="btn btn-primary b10" '));
+	$botongestion1 = anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastomanual/gastomanualcargaruno/add', 'Registrar Gasto', 'class="btn-primary btn" '));
+	$botongestion2 = anchor('cargargastosucursalesadm/gastosucursalesrevisarlos',form_button('cargargastomanual/gastomanualrevisarlos/list', 'Revisar Ultimos', 'class="btn-primary btn" '));
+	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastomanual/gastomanualfiltrarlos/veruno', 'Filtrar Gasto', 'class="btn-primary btn" '));
 	$this->table->clear();
 	$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' );
 	$this->table->set_template($tmplnewtable);
@@ -82,7 +82,7 @@
 			$this->table->add_row('Por Concepto similar a:', form_input('des_registrolike','').br().PHP_EOL);
 		echo $this->table->generate();
 		echo form_hidden('accionejecutada',$accionejecutada).br().PHP_EOL;
-		echo form_submit('gastofiltrarya', 'Ver reporte gasto', 'class="btn btn-primary btn-large b10"');
+		echo form_submit('gastofiltrarya', 'Ver reporte gasto', 'class="btn-primary btn"');
 		echo form_close() . PHP_EOL;
 		echo form_fieldset_close() . PHP_EOL;
 	}
@@ -127,7 +127,7 @@
 			$this->table->add_row('Factura escaneada? :', form_upload(array('name'  => 'factura_bin', 'id'=>'factura_bin')).br().PHP_EOL );
 		echo $this->table->generate().br().PHP_EOL;
 		echo form_hidden('estado', 'PENDIENTE'); // la carga de una sucursal es normal, la realizada por departamentos es administrativa
-		echo form_submit('cargargastosenviar', 'Registrar gasto', 'class="btn btn-primary btn-large b10"');
+		echo form_submit('cargargastosenviar', 'Registrar gasto', 'class="btn-primary btn"');
 		echo form_close() . PHP_EOL;
 		echo form_fieldset_close() . PHP_EOL;
 		echo br().PHP_EOL;
@@ -161,7 +161,7 @@
 		echo form_hidden('factura_bin', $factura_bin); // no se puede resubir archivos, entonces comparo si cambio el nombre y tomo el subido nuevo, sino esta variable es el nombre viejo inalterado
 		echo form_hidden('cod_registro', $cod_registro); // la carga de una sucursal es normal, la realizada por departamentos es administrativa
 		echo form_hidden('estado', 'PENDIENTE'); // la carga de una sucursal es normal, la realizada por departamentos es administrativa
-		echo form_submit('cargargastosenviar', 'Modificar este gasto', 'class="btn btn-primary btn-large b10"');
+		echo form_submit('cargargastosenviar', 'Modificar este gasto', 'class="btn-primary btn"');
 		echo form_close() . PHP_EOL;
 		echo form_fieldset_close() . PHP_EOL;
 		echo br().PHP_EOL;

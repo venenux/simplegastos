@@ -28,7 +28,7 @@
 			$this->table->add_row('Categoria', form_dropdown('cod_categoria', $list_categoria).br().PHP_EOL);
 			$this->table->add_row('Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).br().PHP_EOL );
 		echo $this->table->generate();
-		echo form_submit('vermatrix', 'Ver totales', 'class="btn btn-primary btn-large b10"');
+		echo form_submit('vermatrix', 'Ver totales', 'class="btn-primary btn b10"');
 		echo form_close() . PHP_EOL;
 		echo form_fieldset_close() . PHP_EOL;
 		echo br().PHP_EOL;
@@ -46,7 +46,7 @@
 	if ($seccionpagina == 'seccionmatrixresultado')
 	{
 
-		echo form_fieldset('Matrix de reporte de gatos',array('class'=>'container_blue containerin ')) . PHP_EOL;
+		echo form_fieldset('Matrix de reporte de gatos') . PHP_EOL;
 		echo br().PHP_EOL;
 		echo 'Filtros : '.$cod_entidad.' ('.$cod_categoria.'), Fecha gasto: '.$fechainimatrix.' al '.$fechafinmatrix.'<br>'.PHP_EOL;
 		echo br().PHP_EOL;

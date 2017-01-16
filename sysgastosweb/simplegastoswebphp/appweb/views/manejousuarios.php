@@ -5,7 +5,7 @@
 	if( !isset($accionpagina) ) $accionpagina = 'deslogueado';
 	if( !isset($can_errores) ) $can_errores = '0';
 	// detectar que mostrar segun lo enviado desde el controlador
-	echo form_fieldset('todo evento o accion se envia a su correo',array('class'=>'containerin ')) . PHP_EOL;
+	echo form_fieldset('todo evento o accion se envia a su correo') . PHP_EOL;
 	if ($accionpagina == 'logueado')
 	{
 		echo $presentar.PHP_EOL;
@@ -28,7 +28,7 @@
 		echo form_open('manejousuarios/verificarintranet', $htmlformaattributos) . PHP_EOL;
 		echo 'Usuario:'.form_input('nombre','').PHP_EOL;
 		echo 'Clave :'.form_password('contrasena','').PHP_EOL;
-		echo form_submit('login', 'Iniciar sesion', 'class="btn btn-primary btn-large b10"');
+		echo form_submit('login', 'Iniciar sesion', 'class="btn-primary btn"');
 		echo form_close() . PHP_EOL;
 	}
 	echo form_fieldset_close() . PHP_EOL;
