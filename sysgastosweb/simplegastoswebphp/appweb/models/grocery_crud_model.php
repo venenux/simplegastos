@@ -50,7 +50,7 @@ class Grocery_crud_model  extends CI_Model  {
     	if($this->table_name === null)
     		return false;
 
-    	$select = "{$this->table_name}.*";
+    	$select = "{$this->table_name}.*"; // PICCORO removed the commillas due ambigous fileds allowed
 
     	//set_relation special queries
     	if(!empty($this->relation))
