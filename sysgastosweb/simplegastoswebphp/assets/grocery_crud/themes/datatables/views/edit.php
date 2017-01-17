@@ -50,14 +50,17 @@
 			<div id='report-success' class='report-div success'></div>
 		</div>
 		<div class='buttons-box'>
-	<?php 	if(!$this->unset_back_to_list) { ?>
+			<div class='form-button-box'>
+				<input  id="form-button-save" type='submit' value='<?php echo $this->l('form_update_changes'); ?>' class='ui-input-button' />
+			</div>
+			<?php 	if(!$this->unset_back_to_list) { ?>
 			<div class='form-button-box'>
 				<input type='button' value='<?php echo $this->l('form_update_and_go_back'); ?>' class='ui-input-button' id="save-and-go-back-button"/>
 			</div>
 			<div class='form-button-box'>
 				<input type='button' value='<?php echo $this->l('form_cancel'); ?>' class='ui-input-button' id="cancel-button" />
 			</div>
-	<?php }?>
+			<?php }?>
 			<div class='form-button-box loading-box'>
 				<div class='small-loading' id='FormLoading'><?php echo $this->l('form_update_loading'); ?></div>
 			</div>
