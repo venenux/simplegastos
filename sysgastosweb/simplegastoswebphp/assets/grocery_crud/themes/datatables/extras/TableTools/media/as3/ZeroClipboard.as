@@ -122,11 +122,11 @@ package {
 			
 			if ( action == "save" ) {
 				/* Save as a file */
-				/*if ( charSet == 'UTF16LE' ) {*/
+				if ( charSet == 'UTF16LE' ) {
 					fileRef.save( strToUTF16LE(clipText), fileName );
-				/*} else {
+				} else {
 					fileRef.save( strToUTF8(clipText), fileName );
-				}*/
+				}
 			} else if ( action == "pdf" ) {
 					fileRef.save( "This instance of ZeroClipboard is not configured for PDF export. "+
 						"Please use the PDF export version.", fileName+".txt" );
