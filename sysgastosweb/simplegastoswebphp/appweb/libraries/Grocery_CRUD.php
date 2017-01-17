@@ -565,7 +565,7 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
 		$this->basic_model = $ci->$real_model_name;
 	}
 
-	/* // *********** original GC below the changes by PICCORO
+	// *********** original GC below the changes by PICCORO
 	protected function set_ajax_list_queries($state_info = null)
 	{
 		if(!empty($state_info->per_page))
@@ -667,8 +667,8 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
 				}
 			}
 		}
-	}*/
-
+	}
+/*
 	protected function set_ajax_list_queries($state_info = null)
 	{
 		if(!empty($state_info->per_page))
@@ -811,7 +811,7 @@ class grocery_CRUD_Model_Driver extends grocery_CRUD_Field_Types
 			}
 		}
 	}
-
+*/
 	protected function table_exists($table_name = null)
 	{
 		if($this->basic_model->db_table_exists($table_name))
