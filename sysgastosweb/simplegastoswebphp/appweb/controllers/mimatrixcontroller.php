@@ -212,7 +212,7 @@ class mimatrixcontroller extends CI_Controller {
 	      if($usuariocodgernow == 998)
 	      {$queryentidades = "
 	        select
-		     ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo, des_entidad 
+		     CONCAT( '(', abr_entidad, ') \n<br>', substring(ifnull(des_entidad,'S/A'), 1, 28) ) as siglas,cod_entidad as codigo, des_entidad 
 		   from
 		    entidad
 		    where  ifnull(cod_entidad,'') <> '' " ;
@@ -236,7 +236,7 @@ class mimatrixcontroller extends CI_Controller {
 		
 		$querycabeceras ="
 		SELECT
-		   cod_categoria as codex, substring(des_categoria, 1, 4)  as categoria
+		   cod_categoria as codex, substring(des_categoria, 1, 11)  as categoria
 		FROM
 		   categoria
 		";
@@ -293,10 +293,12 @@ class mimatrixcontroller extends CI_Controller {
 				  $lasuma=$this->db->query($querysuma1);
                   foreach ($lasuma->result() as $row)
 		          { $total=$row->suma;break;}
-			      $fila[$icat]=(float)$total;
+			      $fila[$icat]=number_format($total,2,',','.');
 
 			      // calculo de la suma de una categoria en todas las tiendas
-                  $filafinal[$finalindex]=$filafinal[$finalindex] + (float)$total;
+                  $totalestafilafinal = (float)$filafinal[$finalindex] + (float)$total;
+                  $filafinal[$finalindex]= $totalestafilafinal;
+                  
                   $finalindex= $finalindex+1;
                   			      }
 			     $icat = $icat +1;
@@ -314,19 +316,24 @@ class mimatrixcontroller extends CI_Controller {
 
 			      $totaltienda=$this->db->query($querygastotiendasfullcat);
 			      foreach ($totaltienda->result() as $row)
-		          { $totalfullcat=$row->sumatienda;break;}
+		          { 
+		        	$totalfullcat2=$row->sumatienda;
+		        	$totalfullcat=number_format((float)$totalfullcat2,2,',','.');
+		        	break;
+		        }
                     //acumular el total cada categoria
-			        $fila[$icat]=(float)$totalfullcat;
+			        $fila[$icat]=$totalfullcat;
 			     
 
 			      }
 			 }
 			   $this->table->add_row($fila);
-			   $elgraantootal=(float)$elgraantootal+(float)$totalfullcat;
+			   $elgraantootal=(float)$elgraantootal+(float)$totalfullcat2;
 
 		//   uff tanto  trabajo
 	  }
-		$filafinal[$finalindex+1]= (float)$elgraantootal;
+		$filafinal[$finalindex+1]= number_format($elgraantootal,2,',','.');
+		$data['filatotal']=$filafinal;
 		$this->table->add_row($filafinal);
 		$data['htmlquepintamatrix'] = $this->table->generate(); // html generado lo envia a la matrix
 		/* ***** fin pintar una tabla recorriendo el query **************** */
