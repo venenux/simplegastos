@@ -21,8 +21,12 @@ class mimatrixcontroller extends CI_Controller {
 		$this->output->enable_profiler(TRUE);
 	}
 
+	/* este es un verificador del objeto sesion, 
+	 * se invoca en cada funcion-seccion para certificar el usuario es valido y presente
+	 * y asi una llamada directa desde internet no se relize */
 	public function _verificarsesion()
 	{
+		// si el semaforo logeado no esta presente se sale por seguridad, solo usuarios validos
 		if( $this->session->userdata('logueado') != TRUE)
 			redirect('manejousuarios/desverificarintranet');
 	}
@@ -34,136 +38,59 @@ class mimatrixcontroller extends CI_Controller {
 	 */
 	public function index()
 	{
-		$this->secciontablamatrix();
+		// si no se especifica mostrar seccion que pide que datos se filtran en la matrix
+		$this->mimatrixfiltrar();
 	}
 
+	/* esta funciona inicializa datos para un formulario de filtro en la vista
+	 * y asi poder mostrar una matrix de solo unas fechas y no de todo lo que existe que es mucho
+	 * le indica que mes inicial y que campos tiene el formulario */
 	public function mimatrixfiltrar()
 	{
-		$userdata = $this->session->all_userdata();
-		$this->_verificarsesion();
-		$usercorreo = $userdata['correo'];
-		$userintranet = $userdata['intranet'];
-		$sessionflag = $this->session->userdata('username').date("YmdHis");
-       	if( $this->session->userdata('logueado') == FALSE)
-        {
-            redirect('manejousuarios/desverificarintranet');
-        }
-       	
-       	$usuariocodgernow = $this->session->userdata('cod_entidad');
-        if( $usuariocodgernow == null)
-        {
-            redirect('manejousuarios/desverificarintranet');
-        }
-        
-		/* cargar y listaar las CATEGORIAS que se usaran para registros */
-			$sqlcategoria = "
-			select
-			 ifnull(cod_categoria,'99999999999999') as cod_categoria,      -- YYYYMMDDhhmmss
-			 ifnull(des_categoria,'sin_descripcion') as des_categoria,
-			 ifnull(fecha_categoria, 'INVALIDO') as fecha_categoria,
-			 ifnull(sessionflag,'') as sessionflag
-			from categoria
-			  where ifnull(cod_categoria, '') <> '' and cod_categoria <> ''
-			";
-			if($usuariocodgernow >399 and $usuariocodgernow < 998)
-				$sqlcategoria .= " and cod_categoria NOT LIKE 'CAT2016000012%'";
-			$resultadoscategoria = $this->db->query($sqlcategoria);
-			$arreglocategoriaes = array(''=>'');
-			foreach ($resultadoscategoria->result() as $row)
-			{
-				$arreglocategoriaes[''.$row->cod_categoria] = '' . $row->des_categoria . '-' . $row->fecha_categoria;
-			}
-			$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
-			unset($arreglocategoriaes['']);
-		/* cargar y listaar las SUBCATEGORIAS que se usaran para registros */
-			$sqlsubcategoria = "
-			SELECT
-			ca.cod_categoria,
-			ca.des_categoria,
-			sb.cod_subcategoria,
-			sb.des_subcategoria,
-			ca.fecha_categoria,
-			sb.fecha_subcategoria,
-			sb.sessionflag
-			FROM categoria as ca
-			join subcategoria as sb
-			on sb.cod_categoria = ca.cod_categoria
-			";
-			if($usuariocodgernow >399 and $usuariocodgernow < 998)
-				$sqlsubcategoria .= " and sb.cod_categoria NOT LIKE 'CAT2016000012%'";
-			$resultadossubcategoria = $this->db->query($sqlsubcategoria);
-			$arreglosubcategoriaes = array(''=>'');
-			foreach ($resultadossubcategoria->result() as $row)
-			{
-				$arreglosubcategoriaes[''.$row->cod_subcategoria] = $row->des_categoria . ' - ' . $row->des_subcategoria;
-			}
-			$data['list_subcategoria'] = $arreglosubcategoriaes; // agrega este arreglo una lista para el combo box
-			unset($arreglosubcategoriaes['']);
-		/* cargar y listaar las UBIUCACIONES que se usaran para registros */
-			$sqlentidad = "
-			select
-			 abr_entidad, abr_zona, des_entidad,
-			 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
-			 ifnull(des_entidad,'sin_descripcion') as des_entidad
-			from entidad
-			  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
-			";
-			if($usuariocodgernow >399 and $usuariocodgernow < 998)
-				$data['pepe'] = $sqlentidad .= " and cod_entidad = '".$usuariocodgernow."'";
-			$resultadosentidad = $this->db->query($sqlentidad);
-			$arregloentidades = array(''=>'');
-			foreach ($resultadosentidad->result() as $row)
-			{
-				$arregloentidades[''.$row->cod_entidad] = $row->cod_entidad . ' - ' . $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
-			}
-			$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
-			unset($arregloentidades['']);
-
-		$data['usercorreo'] = $usercorreo;
-		$data['userintranet'] = $userintranet;
-		$data['menu'] = $this->menu->general_menu();
-		$data['seccionpagina'] = 'seccionfiltrarmatrix';
-		$data['userintran'] = $userintranet;
+		$userdata = $this->session->all_userdata();		// tomo los datos del usuario actual si existe
+		$this->_verificarsesion();						// verifico este un usuario realizando la llamada
+		$usuariocodgernow = $this->session->userdata('cod_entidad');	// aun si es valido debe tener permisos
+        if( $usuariocodgernow == null or trim($usuariocodgernow,'') == '')
+            redirect('manejousuarios/desverificarintranet'); 	// si el usuario no tiene alguna asociacion de entidad se le deniega
+        $data['menu'] = $this->menu->general_menu();
+		$data['seccionpagina'] = 'seccionfiltrarmatrix';		// se indica muestre formulario para filtrar que datos se mostraran
 		$this->load->view('header.php',$data);
 		$this->load->view('mivistamatrix.php',$data);
 		$this->load->view('footer.php',$data);
 
 	}
 
+	/*
+	 * esta seccion se muestra segun una fecha la contruccion de la matrix
+	 * con una fecha itera en las tiendas y totaliza todos los gastos de la fecha
+	 * si no recibe fecha entonces asume la unica fecha actual menos un mes (el mes anterior)
+	 */
 	public function secciontablamatrix( $aniomes = NULL)
 	{
 		/* ***** ini manejo de sesion ******************* */
-		if ($aniomes== NULL)
-		{
-			$aniomes=date("Ym");
-		}
-		$userdata = $this->session->all_userdata();
-		$this->_verificarsesion();
+		$userdata = $this->session->all_userdata();		// tomo los datos del usuario actual si existe
+		$this->_verificarsesion();						// verifico este un usuario realizando la llamada
+		$usuariocodgernow = $this->session->userdata('cod_entidad');	// aun si es valido debe tener permisos
+        if( $usuariocodgernow == null or trim($usuariocodgernow,'') == '')
+            redirect('manejousuarios/desverificarintranet'); 	// si el usuario no tiene alguna asociacion de entidad se le deniega
 		$usercorreo = $userdata['correo'];
 		$userintranet = $userdata['intranet'];
-		$sessionflag = $this->session->userdata('username').date("YmdHis");
-		$data['usercorreo'] = $usercorreo;
-		$data['userintranet'] = $userintranet;
-		$data['menu'] = $this->menu->general_menu();
- 
-		/* ***** ini OBTENER DATOS DE FORMULARIO (con esto no me meto todavia) ***************************** */
-		$cod_entidad = $this->input->get_post('cod_entidad');
-		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
-		$fechafiltramatrix = $this->input->get_post('fechafiltramatrix');
+		/* ***** fin manejo de sesion ******************* */
+
+		/* ***** ini OBTENER DATOS DE FORMULARIO **************************** */
+		$aniomes='';			// inicializo una marca de fecha de referencia
+		$fechafiltramatrix = $this->input->get_post('fechafiltramatrix'); // tomo la fecha del formulario de filtro
 		if ($fechafiltramatrix== '')
 		{
-			if($aniomes=='')
-			{	
+			if($aniomes=='')					// si no se envio inicializo
 				$fechafiltramatrix=date('Ym');
-			}
 			else
-			{
-				$fechafiltramatrix=$aniomes;
-			}
+				$fechafiltramatrix=$aniomes;	// asigno apra despues tomar solo mes
 		}
-		$aniomes=substr($fechafiltramatrix, 0, 6); //¿recorte de un recorte? si!
-		$fechafiltramatrix=$aniomes;
+		$aniomes=substr($fechafiltramatrix, 0, 6); //aqui tomo solo el mes (por eso el formato anio/mes/dia pegado)
+		$fechafiltramatrix=$aniomes;				// coloco ambas variables iguales y ya tengo que mes
 		/* ***** fin OBTENER DATOS DE FORMULARIO ***************************** */
+		
 		// averiguar si elusuario es administrativo o usuario de tienda
         	if( $this->session->userdata('logueado') == FALSE)
         {
@@ -266,10 +193,10 @@ class mimatrixcontroller extends CI_Controller {
 		$this->table->set_heading($categorias);
 		foreach($tiendas as $indicetienda => $tiend)
 		{
-			$icat=0;
-            $finalindex=1;
-			$fila =array($tiend);
-			foreach ($categorias as $indicecategoria=> $descripcioncat)
+			$icat=0;			// en primera fila las categorias
+            $finalindex=1; 		// inicio en 1 porque el 0 ya tiene la esquina 0,0
+			$fila =array($tiend);		// cada fila es una tienda
+			foreach ($categorias as $indicecategoria=> $descripcioncat)	// por cada tienda llenara una categoria  de totales
 			{
 				$querysuma1="
 				Select
@@ -287,69 +214,75 @@ class mimatrixcontroller extends CI_Controller {
 				 ";
 
                 //aqui se calcula el gasto categoria por tienda
-                 if ($icat<$maxcat-1){
+                if ($icat<$maxcat-1)
+                {
 
-				  if ($icat>0){
-				  $lasuma=$this->db->query($querysuma1);
-                  foreach ($lasuma->result() as $row)
-		          { $total=$row->suma;break;}
-			      $fila[$icat]=number_format($total,2,',','.');
+					if ($icat>0)
+					{
+						$lasuma=$this->db->query($querysuma1);
+						foreach ($lasuma->result() as $row)
+						{ 
+							$total=$row->suma;break;
+						}
+						// se coloca en la posicion de la categoria pero ya formateado el total de esta tienda de esta categoria
+						$fila[$icat]=number_format($total,2,',','.');
 
-			      // calculo de la suma de una categoria en todas las tiendas
-                  $totalestafilafinal = (float)$filafinal[$finalindex] + (float)$total;
-                  $filafinal[$finalindex]= $totalestafilafinal;
-                  
-                  $finalindex= $finalindex+1;
-                  			      }
-			     $icat = $icat +1;
-			     }else
-			     {
-			      // aqui se calcula el total en una categoria en una tienda
-
-                     $querygastotiendasfullcat="
-			      Select
-			        ifnull(cast(sum(mon_registro)  as decimal(30,2)),0) as sumatienda
-			      from registro_gastos where
-			        registro_gastos.cod_entidad = '".$indicetienda."'
-			      	and
-				  registro_gastos.fecha_concepto like '".$fechafiltramatrix."%'      ";
-
-			      $totaltienda=$this->db->query($querygastotiendasfullcat);
-			      foreach ($totaltienda->result() as $row)
-		          { 
-		        	$totalfullcat2=$row->sumatienda;
-		        	$totalfullcat=number_format((float)$totalfullcat2,2,',','.');
-		        	break;
-		        }
-                    //acumular el total cada categoria
-			        $fila[$icat]=$totalfullcat;
-			     
-
-			      }
-			 }
-			   $this->table->add_row($fila);
-			   $elgraantootal=(float)$elgraantootal+(float)$totalfullcat2;
-
-		//   uff tanto  trabajo
-	  }
+						// calculo de la suma de una categoria en todas las tiendas
+						$totalestafilafinal = (float)$filafinal[$finalindex] + (float)$total;
+						$filafinal[$finalindex]= $totalestafilafinal;
+						  
+						$finalindex= $finalindex+1;	// siguiente tienda
+					}
+					$icat = $icat +1;		// ya listo sigueinte categoria para todas las tiendas
+			    }
+			    else
+			    {
+					// caso contrario es la fila final despues de todas las tiendas totales
+					// aqui se calcula el total todas categoria en una tienda, es decir total gastado de una tienda
+					$querygastotiendasfullcat="
+					 Select
+						ifnull(cast(sum(mon_registro)  as decimal(30,2)),0) as sumatienda
+					  from registro_gastos where
+						registro_gastos.cod_entidad = '".$indicetienda."'
+						and
+					  registro_gastos.fecha_concepto like '".$fechafiltramatrix."%'      ";
+					// se itera para tener el resultado en php
+					$totaltienda=$this->db->query($querygastotiendasfullcat);
+					foreach ($totaltienda->result() as $row)
+					{ 
+						$totalfullcat2=$row->sumatienda;
+						$totalfullcat=number_format((float)$totalfullcat2,2,',','.');
+						break;
+					}
+					//acumular el total cada categoria
+					$fila[$icat]=$totalfullcat;
+			    }
+			}
+			// ya se construyo la fila completa, se agrega a la tabla en construccion
+			$this->table->add_row($fila);
+			// el ultimo cuadro n,n de la tabla es el total gastado en el mes
+			$elgraantootal=(float)$elgraantootal+(float)$totalfullcat2;
+			// uff tanto  trabajo  ---> nojoda y quedo chimbo hay que hacerlo de nuevo tyron, esto resulta en 3mil queryS!!!!! <<
+		}
+		// se agrega el ultimo cuadro n,n a la tabla, adicionandolo a la fila final de totales por categorias
 		$filafinal[$finalindex+1]= number_format($elgraantootal,2,',','.');
-		$data['filatotal']=$filafinal;
+		// se manda renderizar la tabla
 		$this->table->add_row($filafinal);
+		/* **** fin de calculo matrix *************** */
+		
+		/* *** ini enviar lo calculado y mostrar vista datos al usuario ********************/
 		$data['htmlquepintamatrix'] = $this->table->generate(); // html generado lo envia a la matrix
-		/* ***** fin pintar una tabla recorriendo el query **************** */
-		$data['Menú'] = $this->menu->general_menu();
-		$data['Categorias Cargadas'] = $categorias;
-		$data['Tiendas Cargadas:'] = $tiendas;
+		$data['usercorreo'] = $usercorreo;
+		$data['userintranet'] = $userintranet;
+		$data['menu'] = $this->menu->general_menu();
 		$data['Fecha:']=$fechafiltramatrix;
 		$data['seccionpagina'] = 'secciontablamatrix';
 		$data['userintran'] = $userintranet;
-		$data['codger (nivel acceso):']= $usuariocodgernow;
 		$data['fechafiltramatrix'] = $fechafiltramatrix;
-		$data['cod_entidad'] = $cod_entidad;
-		$data['cod_subcategoria'] = $cod_subcategoria;
 		$this->load->view('header.php',$data);
 		$this->load->view('mivistamatrix.php',$data);
 		$this->load->view('footer.php',$data);
+		/* *** fin enviar lo calculado y mostrar vista datos al usuario ********************/
 	}
 
 	/*{

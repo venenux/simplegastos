@@ -1,33 +1,17 @@
 	<h1>Matriz de Gastos Tiendas X Categorías</h1>
 	<?php
 	
-	$typcs='text/css';
-	$pathcssgc = base_url() .'assets/grocery_crud/themes/datatables/css/datatables.css';
-	$linkdefcssgc = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcssgc);
-	echo link_tag($linkdefcssgc);
-	$pathcssgc = base_url() .'assets/grocery_crud/themes/datatables/css/demo_table_jui.css';
-	$linkdefcssgc = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcssgc);
-	echo link_tag($linkdefcssgc);
-	$pathcssgc = base_url() .'assets/grocery_crud/themes/datatables/css/jquery.dataTables.css';
-	$linkdefcssgc = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcssgc);
-	echo link_tag($linkdefcssgc);
-
-
 	/* ********* ini valores predeterminados ******************** */
 	$htmlformaattributos = array('name'=>'formulariomatrix','class'=>'formularios','onSubmit'=>'return validageneric(this);');
-	if( !isset($fechafiltramatrix) )
+	
+	if( !isset($fechafiltramatrix) )	// valor inicial para escoger la fecha deseada de la matris (cualquier dia)
 	$fechafiltramatrix=date('Ymd');$idfechamatrix='fechafiltramatrix';$inputfechaattr = array('name'=>$idfechamatrix,'id'=>$idfechamatrix, 'onclick'=>'javascript:NewCssCal(\''.$idfechamatrix.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechamatrix, $$idfechamatrix));
-	if( !isset($seccionpagina) )
+	
+	if( !isset($seccionpagina) )		// si no dice por defecto muestra el formulario, seccion dice a que parte muestra de la vista
 	$seccionpagina = 'seccionformulario';
-	if( !isset($list_entidad) )
-	$list_entidad = array('cod_entidad' => '');
-	if( !isset($list_categoria) )
-	$list_categoria = array('cod_categoria' => '');
-	if( !isset($list_subcategoria) )
-	$list_subcategoria = array('cod_subcategoria' => '');
 	/* ********* fin valores predeterminados ******************** */
-// CONVERT(fecha_registro,UNSIGNED) >= ".$fec_registroini."
-	/* ********* ini seccion de pagina formulario ******************** */
+
+	/* ********* ini seccion del formulario filtrara ******************** */
 	if ($seccionpagina == 'seccionfiltrarmatrix')
 	{
 		echo form_fieldset('Ingrese datos solo si desea filtrar la matrix',array('class'=>'container_blue containerin')) . PHP_EOL;
@@ -42,7 +26,7 @@
 		echo form_fieldset_close() . PHP_EOL;
 		echo br().PHP_EOL;
 	}
-	/* ********* fin seccion de pagina formulario ******************** */
+	/* ********* fin seccion de formulario que filtrara ******************** */
 
 	/* ********* ini seccion de pagina pinta matrix ******************** */
 	else if ($seccionpagina == 'secciontablamatrix')
@@ -50,9 +34,9 @@
 		$this->table->clear();
 		$tablestyle = array( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table display groceryCrudTable dataTable ui default ">' );
 		$this->table->add_row(
-			'<center>'.anchor('mimatrixcontroller/secciontablamatrix/'.(date("Ym")-1),form_button('admcategorias/admcategorias/add', '<< Mes Anterior', 'class="btn btn-primary btn-large b10" ')).'</center>'
+			'<center>'.anchor('mimatrixcontroller/secciontablamatrix/'.(date("Ym")-1),form_button('admcategorias/admcategorias/add', '<< Mes '.(date("Ym")-1), 'class="btn btn-primary btn-large b10" ')).'</center>'
 			,
-			'<center>'.anchor('mimatrixcontroller/secciontablamatrix/'.(date("Ym")+1),form_button('admcategorias/admcategorias/list', 'Mes Siguiente >>', 'class="btn btn-primary btn-large b10" ')).'</center>'
+			'<center>'.anchor('mimatrixcontroller/secciontablamatrix/'.(date("Ym")+1),form_button('admcategorias/admcategorias/list', 'Mes '.(date("Ym")).'>>', 'class="btn btn-primary btn-large b10" ')).'</center>'
 		);
 		$tablabotonmes = $this->table->generate();
 
@@ -60,12 +44,10 @@
 		echo 'Usuario actual : '.$userintranet.' ('.$usercorreo.'), Fecha gasto: '.$fechafiltramatrix.'<br>'.PHP_EOL;
 		// mostrar la tabla botones
 		echo $tablabotonmes;
-		// mostrar la tabla tiendas x categorias
+		// mostrar la tabla tiendas x categorias, esto es construido en el controlador y enviado preformateado ya html
 		echo $htmlquepintamatrix . PHP_EOL;
+		// si la tabla es larga vuelvo mostrar los botones
 		echo $tablabotonmes;
-		
-		
-	
 	}
 	/* ********* fin seccion de pagina formulario ******************** */
    
