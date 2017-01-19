@@ -227,6 +227,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->callback_column('mon_registro',array($this,'_numerosgente'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->callback_before_insert(array($this,'generarcodigo'));
+		$crud->callback_after_delete(array($this,'echapajaborrando'));
 		//$crud->callback_after_insert(array($this,'_ver_after_insert'));
 		//$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
 		//$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
@@ -270,9 +271,22 @@ class cargargastoadministrativo extends CI_Controller {
 	/* llamar preupdate antes actualizar adiciona quien esta realizando la actualizacion */
 	function echapajacuando($post_array, $primary_key)
 	{
-		$post_array['sessionflag'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
-		// TODO: insert para tabla log
+		$operacion = $this->session->userdata('username').' actualizando el gasto ' . $primary_key . ' de concepto ' . $post_array['des_concepto'];
+		$sessionflag = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
+		$post_array['sessionflag'] = $sessionflag;
+		$this->db->insert('log',array('cod_log' => date('YmdHis'), 'operacion' => $operacion, 'sessionficha' => $sessionflag));
+		log_message('info', $operacion . ' en  ' . $sessionflag );
 		return $post_array;
+	}
+
+	/* si se borra echa paja cuando */
+	function echapajaborrando($primary_key)
+	{
+		$operacion = $this->session->userdata('username').' borrando el gasto ' . $primary_key;
+		$sessionficha = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
+		$this->db->insert('log',array('cod_log' => date('YmdHis'), 'operacion' => $operacion, 'sessionficha' => $sessionficha));
+		log_message('info', $operacion . ' en  ' . $sessionficha);
+		return ;
 	}
 
 	/* antes de cada insercion se autogenera el codigo de nuevo, y a que hora lo hace, por si tardo mucho rellenando los datos se genera con hora exacta */
@@ -282,7 +296,10 @@ class cargargastoadministrativo extends CI_Controller {
 		$post_array['cod_registro'] = 'GAS'.date("YmdHis");
 		$post_array['fecha_registro'] = $fec_registro;
 		$post_array['sessionficha'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
-		// TODO: insert para tabla log
+		$operacion = $this->session->userdata('username').' borrando el gasto ' . $primary_key;
+		$sessionficha = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
+		$this->db->insert('log',array('cod_log' => date('YmdHis'), 'operacion' => $operacion, 'sessionficha' => $sessionficha));
+		log_message('info', $operacion . ' en  ' . $sessionficha);
 		return $post_array;
 	}
 
