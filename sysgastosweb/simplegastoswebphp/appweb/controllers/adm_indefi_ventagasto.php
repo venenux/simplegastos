@@ -1,9 +1,9 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Adm_indicador_eficiencia_ventagasto extends CI_Controller {
+class Adm_indefi_ventagasto extends CI_Controller {
 
 	private $mensage = 'Indicadores de Gestion: eficiencia de ventas vs gasto.';
-	private $controlername = 'adm_indicador_eficiencia_ventagasto';
+	private $controlername = 'adm_indefi_ventagasto';
 	private $accionformulario  = null;
 	private $menurender = '';
 
@@ -52,7 +52,7 @@ class Adm_indicador_eficiencia_ventagasto extends CI_Controller {
 
 	public function _esputereport($data, $output = null)
 	{
-		$data['controller'] = 'adm_indicador_eficiencia_ventagasto';
+		$data['controller'] = $this->controlername;
 		$data['mensage'] = $this->mensage;  // cualquier mensage de error debe ser enviado aqui
 		if( $output != null )
 		{
@@ -102,15 +102,15 @@ class Adm_indicador_eficiencia_ventagasto extends CI_Controller {
 		$this->config->set_item('grocery_crud_default_per_page',100);
 		$crud = new grocery_CRUD();
 		$crud->set_theme('flexigrid'); // flexigrid tiene bugs en varias cosas
-		$crud->set_table('adm_indicador_eficiencia_ventagasto');
+		$crud->set_table('adm_indefi_ventagasto');
 		$crud->set_relation('cod_entidad','entidad','{des_entidad} - {cod_entidad}');
 		if ( $fecha_mes != '')
 		{
 			$crud->where('CONVERT(fecha_mes,UNSIGNED) >= ',$fecha_mes);
 			$crud->where('CONVERT(fecha_mes,UNSIGNED) <= ',$fecha_mes);
 		}
-		$crud->where('adm_indicador_eficiencia_ventagasto.cod_entidad >= ','399');
-		$crud->where('adm_indicador_eficiencia_ventagasto.cod_entidad <= ','997');
+		$crud->where('adm_indefi_ventagasto.cod_entidad >= ','399');
+		$crud->where('adm_indefi_ventagasto.cod_entidad <= ','997');
 		$crud->columns('cod_entidad','mon_gastototal','mon_ventatotal','fecha_mes', 'sessionficha' /*, 'sessionflag'*/);
 		$crud->display_as('cod_entidad','Entidad');
 		$crud->display_as('mon_gastototal','Gasto');
@@ -172,13 +172,22 @@ class Adm_indicador_eficiencia_ventagasto extends CI_Controller {
 		return substr($porcentage,0,4) . ' % ';
 	}
 
-	public function geractualizardata($fecha_mes = null)
+	public function geractualizardata($fecha_mes = null, $modo_act = null)
 	{
+		// *********** ini obtener datos minimos ******************
+		if ( $modo_act == null )
+			$modo_act = $this->input_get_post('modo_act');
+			if ( $modo_act == '' )
+				$modo_act = 'GASTOS'; // GASTOS, VENTAS, AMBOS
 		if ( $fecha_mes == null )
 			$fecha_mes = $this->input->get_post('fecha_mes');
 			if ( $fecha_mes == '' )
 				$fecha_mes = date('Ymd', strtotime('now - 1 month'));
 		$fecha_mes = substr($fecha_mes, 0, 6); // aseguro que solo sea anio y mes, no importa dia, es de 01 a 31
+		// *********** fin obtener datos minimos ******************
+
+
+		// *********** ini verificar si datos vacios ******************
 		$sqlverificar = "SELECT count(cod_entidad) as cuanto FROM adm_indicador_eficiencia_ventagasto WHERE fecha_mes = '".$fecha_mes."'";
 		$existen = -1;
 		$this->db->query($sqlusuario);
@@ -193,29 +202,50 @@ class Adm_indicador_eficiencia_ventagasto extends CI_Controller {
 		else
 		{
 			$error = 1;
-			$this->mensage = $this->db->_error_message();
-			$this->_esputereport((object)array(
-				'js_files' => $js_files,
-				'css_files' => $css_files,
-				'output'	=> $this->mensage
-			));
+			$this->mensage = $this->db->_error_message() . ' No se pudo ubicar datos, error no manejado';
+			$this->_esputereport(
+				(object)array( 'js_files' => '', 'css_files' => '', 'output'	=> $this->mensage)
+			);
 		}
+		// *********** fin verificar si datos vacios ******************
 
+		// *********** inicio generacion de datos segun existencia de estos *************
 		$this->db->trans_start();
-		if( $existen > 0 )
+		if( $existen < 1)
 		{
-			$sqlactualizardata = "SET SQL_SAFE_UPDATES=0;DELETE FROM adm_indicador_eficiencia_ventagasto WHERE fecha_mes = '".$fecha_mes."';SET SQL_SAFE_UPDATES=1;";
-			$this->db->query($sqlactualizardata);
-		}
-		else
-		{
+			if(  $modo_act == 'GASTOS' )
 			$sqlactualizardata = "
-				INSERT INTO adm_indicador_eficiencia_ventagasto
+				INSERT INTO adm_indefi_ventagasto
 					cod_entidad,
 					mon_gastototal,
-					mon_ventatotal,
+					mon_ventatotal, /* aqui va un query de ventas, por ahora no se puede */
 					fecha_mes,
-					reservado
+					reservado /* esta es columna fake para el calculo */
+				SELECT
+					a.cod_entidad as cod_entidad,
+					IFNULL(SUM(IFNULL(a.mon_registro, 0)), 0) as mon_gastototal,
+					0 as mon_ventatotal,
+					SUBSTRING(a.fecha_concepto, 1, 6) as fecha_mes,
+					'".date('YmdHis')."'
+				FROM
+					registro_gastos a
+				LEFT JOIN entidad b ON a.cod_entidad = b.cod_entidad
+				where
+					a.cod_registro <> ''
+						and b.status <> 'INACTIVO'
+						and CONVERT( a.fecha_concepto , UNSIGNED) >= CONVERT( '".$fecha_mes."' , UNSIGNED)
+						and CONVERT( a.fecha_concepto , UNSIGNED) <= CONVERT( '".$fecha_mes."' , UNSIGNED)
+				group by a.cod_entidad
+				order by a.cod_entidad
+			";
+			else if ( $modo_act == 'VENTAS' )
+			$sqlactualizardata = "
+				INSERT INTO adm_indefi_ventagasto
+					cod_entidad,
+					mon_gastototal,
+					mon_ventatotal, /* aqui va un query de ventas, por ahora no se puede */
+					fecha_mes,
+					reservado /* esta es columna fake para el calculo */
 				SELECT
 					a.cod_entidad as cod_entidad,
 					IFNULL(SUM(IFNULL(a.mon_registro, 0)), 0) as mon_gastototal,
@@ -234,6 +264,12 @@ class Adm_indicador_eficiencia_ventagasto extends CI_Controller {
 				order by a.cod_entidad
 			";
 		}
+		else
+		{
+			$sqlactualizardata = "SET SQL_SAFE_UPDATES=0;DELETE FROM adm_indicador_eficiencia_ventagasto WHERE fecha_mes = '".$fecha_mes."';SET SQL_SAFE_UPDATES=1;";
+			$this->db->query($sqlactualizardata);
+		}
+
 		$this->db->query($sqlactualizardata);
 		$this->db->trans_complete();
 		if ($this->db->trans_status() === FALSE)
