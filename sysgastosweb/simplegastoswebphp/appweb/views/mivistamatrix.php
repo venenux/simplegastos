@@ -31,23 +31,8 @@
 	/* ********* ini seccion de pagina pinta matrix ******************** */
 	else if ($seccionpagina == 'secciontablamatrix')
 	{
-		$this->table->clear();
-		$tablestyle = array( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table display groceryCrudTable dataTable ui default ">' );
-		$this->table->add_row(
-			'<center>'.anchor('mimatrixcontroller/secciontablamatrix/'.(date("Ym")-1),form_button('admcategorias/admcategorias/add', '<< Mes '.(date("Ym")-1), 'class="btn btn-primary btn-large b10" ')).'</center>'
-			,
-			'<center>'.anchor('mimatrixcontroller/secciontablamatrix/'.(date("Ym")+1),form_button('admcategorias/admcategorias/list', 'Mes '.(date("Ym")).'>>', 'class="btn btn-primary btn-large b10" ')).'</center>'
-		);
-		$tablabotonmes = $this->table->generate();
-
-		//info usuarios
-		echo 'Usuario actual : '.$userintranet.' ('.$usercorreo.'), Fecha gasto: '.$fechafiltramatrix.'<br>'.PHP_EOL;
-		// mostrar la tabla botones
-		echo $tablabotonmes;
 		// mostrar la tabla tiendas x categorias, esto es construido en el controlador y enviado preformateado ya html
 		echo $htmlquepintamatrix . PHP_EOL;
-		// si la tabla es larga vuelvo mostrar los botones
-		echo $tablabotonmes;
 	}
 	/* ********* fin seccion de pagina formulario ******************** */
    

@@ -164,193 +164,123 @@ group by cod_categoria
 			if($aniomes=='')					// si no se envio inicializo
 				$fechafiltramatrix=date('Ym');
 			else
-				$fechafiltramatrix=$aniomes;	// asigno apra despues tomar solo mes
+				$fechafiltramatrix=$aniomes;	// asigno para despues tomar solo mes
 		}
 		$aniomes=substr($fechafiltramatrix, 0, 6); //aqui tomo solo el mes (por eso el formato anio/mes/dia pegado)
 		$fechafiltramatrix=$aniomes;				// coloco ambas variables iguales y ya tengo que mes
 		/* ***** fin OBTENER DATOS DE FORMULARIO ***************************** */
 		
 		// averiguar si elusuario es administrativo o usuario de tienda
-        	if( $this->session->userdata('logueado') == FALSE)
-        {
+		if( $this->session->userdata('logueado') == FALSE)
+          {
             redirect('manejousuarios/desverificarintranet');
-        }
+          }
         $usuariocodgernow = $this->session->userdata('cod_entidad');
         if( $usuariocodgernow == null)
-        {
+          {
             redirect('manejousuarios/desverificarintranet');
-        }
+          }
 
-		/* ******** inicio de los querys ************* */
+		/* ******************************************* */
+		/* ******** inicio calulo matrix ************* */
+		/* ******************************************* */
 		$this->load->helper(array('form', 'url','inflector'));
-         
-         /*************** preparar el query para las sucursales */
-         
-         
-         
-         /*determinar nivel de usuario para mostrar
-           las tiendas (sucursales) en la matrix           */
-          if ($usuariocodgernow > 990 and $usuariocodgernow < 998 )
-		  { $queryentidades=  $queryentidades ="
-		    select
-		     ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
-		   from
-		    entidad
-		    where (cod_entidad > '399' and cod_entidad < '990') " ;
-		   }
-	      if ($usuariocodgernow > 399 and $usuariocodgernow < 990  )
-		  { $queryentidades =  " 
-		    select
-		     ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
-		   from
-		    entidad
-		    where cod_entidad = '".$usuariocodgernow."'" ;
-		   }
-	      if ($usuariocodgernow < 399 )
-		  { $queryentidades=  $queryentidades ="
-		    select
-		     ifnull(abr_entidad,'S/A') as siglas,cod_entidad as codigo
-		   from
-		    entidad
-		    where  ifnull(cod_entidad,'') <> '' " ;
-		   }
-	      
-	      if($usuariocodgernow == 998)
-	      {$queryentidades = "
-	        select
-		     CONCAT( '(', abr_entidad, ') \n<br>', substring(ifnull(des_entidad,'S/A'), 1, 28) ) as siglas,cod_entidad as codigo, des_entidad 
-		   from
-		    entidad
-		    where  ifnull(cod_entidad,'') <> '' " ;
-	       }
-		   // pero filtrar las entidades activas nada mas
-			$queryentidades = $queryentidades." and ( status <> 'INACTIVO') order by abr_zona desc";	 
-         // buscar las tiendas en un rango ordenadas por zona
-		 
-		$indicet=0;
-		$lastiendas= $this->db->query($queryentidades);
-		$tiendas= array();
-		foreach ($lastiendas->result() as $row)
-		{
-			$tiendas[$row->codigo]=$row->siglas;
-		}
-		$xtiendas= (string)count($tiendas);// ya se cuantas tiendas
-
-
-		/* crear el query sql para cargar las cabeceras, tomando en cuenta
-		 el nivel usuario (codger) para listar  */
-		
-		$querycabeceras ="
-		SELECT
-		   cod_categoria as codex, substring(des_categoria, 1, 11)  as categoria
-		FROM
-		   categoria
+		$fecha_mesmatrix = $fechafiltramatrix;
+        $querymatrixfiltros=
+		"
 		";
-		
-		
-		$micabeceras = $this->db->query($querycabeceras);
-        $finalindex=1;
-        $filafinal=array(0=>'Totales ('.$xtiendas.'):');
-		$categorias= array('0'=>'Tiendas ('.$xtiendas.'): ');
-
-		foreach ($micabeceras->result() as $row)
-		{
-			$categorias[$row->codex]=$row->categoria;
-            //aprovecho este ciclo para cargar con cero los totales
-            $filafinal[$finalindex]= (float)0.00;
-		    $finalindex= $finalindex+1;
-		}
-		$categorias[count($categorias)]='TOTAL:';
-
-		 // generar fila por fila la tabla
-		$maxcat=count($categorias) ;
-		$elgraantootal =0;
+		$querytodolostotales="
+			select 
+				*
+			from
+				(
+					select 
+							`a`.`cod_entidad` AS `cod_entidad`,
+							`b`.`des_entidad` AS `des_entidad`,
+							`b`.`tipo_entidad` AS `tip_entidad`,
+							`a`.`cod_categoria` AS `cod_categoria`,
+							`c`.`des_categoria` AS `des_categoria`,
+							ifnull(`c`.`tipo_categoria`, 'NORMAL') AS `tipo_categoria`,
+							sum(ifnull(`a`.`mon_registro`, 0)) AS `mon_registro`,
+							substr(`a`.`fecha_concepto`, 1, 6) AS `fecha_concepto`,
+							`a`.`fecha_registro` AS `fecha_registro`
+						from
+							`registro_gastos` as `a`
+						left join 
+							`entidad` as `b` ON `a`.`cod_entidad` = `b`.`cod_entidad`
+						left join 
+							`categoria` as `c` ON `a`.`cod_categoria` = `c`.`cod_categoria`
+						where ifnull(`a`.`cod_registro`,'') <> '' 
+							/*".$querymatrixfiltros."	/* // TODO justo aqui se debe colcoar los filtros de fecha, esto traeta todo si no se hace */
+							and substr(`a`.`fecha_concepto`, 1, 6) = '".$fecha_mesmatrix."' 
+						group by `a`.`cod_entidad` , `a`.`cod_categoria` 
+						
+					union 
+						select 
+							`s`.`cod_entidad` AS `cod_entidad`,
+							`s`.`des_entidad` AS `des_entidad`,
+							`s`.`tipo_entidad` AS `tipo_entidad`,
+							`d`.`cod_categoria` AS `cod_categoria`,
+							`d`.`des_categoria` AS `des_categoria`,
+							ifnull(`d`.`tipo_categoria`, 'NORMAL') AS `tipo_categoria`,
+							0 AS `mon_registro`,
+							'".$fecha_mesmatrix."' AS `fecha_concepto`,
+							'".$fecha_mesmatrix."' AS `fecha_registro`
+						from
+							`categoria` as `d`
+						join 
+							`entidad` as `s`
+								/* // TODO: los filtro tambien aqui OJO */
+						group by `s`.`cod_entidad` , `d`.`cod_categoria`
+				)
+				as `inter`
+			group by `cod_entidad` , `cod_categoria`
+			order by `cod_entidad` , `cod_categoria`
+		";
+		// inicializa la tabla html donde se van adosando los montos que iteramos en cada tienda
 		$tablestyle = array( 'table_open'  => '<table border="1" cellpadding="0" cellspacing="0" class="table display groceryCrudTable dataTable ui default ">' );
 		$this->table->set_caption(NULL);
 		$this->table->clear();
 		$this->table->set_template($tablestyle);
-		$this->table->set_heading($categorias);
-		foreach($tiendas as $indicetienda => $tiend)
+		// ejecutamos la consulta, devolvera n veces la tienda cuantas categorias aya, X tienda * y categorias = total filas
+		$dbobjetomatrixbruto = $this->db->query($querytodolostotales);
+		// por ende hay que "saltar en cada cambio de entidad" pues es cuando se repiten las categorias
+		$matrixenbruto = $dbobjetomatrixbruto->result_array();
+		// inicializo iteradores, exepto 
+		$cuantascategoria = $iteratienda = 0;
+		$catantes = $catahora = '';
+		foreach($matrixenbruto as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
 		{
-			$icat=0;			// en primera fila las categorias
-            $finalindex=1; 		// inicio en 1 porque el 0 ya tiene la esquina 0,0
-			$fila =array($tiend);		// cada fila es una tienda
-			foreach ($categorias as $indicecategoria=> $descripcioncat)	// por cada tienda llenara una categoria  de totales
-			{
-				$querysuma1="
-				Select
-				  ifnull(cast(sum(mon_registro) as decimal(30,2)),0) as suma
-				from
-				  registro_gastos
-				where
-			      registro_gastos.cod_entidad =  '".$indicetienda."'
-				and
-				  registro_gastos.cod_categoria='".$indicecategoria."'
-				and
-				  registro_gastos.fecha_concepto like '".$fechafiltramatrix."%'
-				and
-				  registro_gastos.estado <> 'RECHAZADO'
-				 ";
-
-                //aqui se calcula el gasto categoria por tienda
-                if ($icat<$maxcat-1)
-                {
-
-					if ($icat>0)
-					{
-						$lasuma=$this->db->query($querysuma1);
-						foreach ($lasuma->result() as $row)
-						{ 
-							$total=$row->suma;break;
-						}
-						// se coloca en la posicion de la categoria pero ya formateado el total de esta tienda de esta categoria
-						$fila[$icat]=number_format($total,2,',','.');
-
-						// calculo de la suma de una categoria en todas las tiendas
-						$totalestafilafinal = (float)$filafinal[$finalindex] + (float)$total;
-						$filafinal[$finalindex]= $totalestafilafinal;
-						  
-						$finalindex= $finalindex+1;	// siguiente tienda
-					}
-					$icat = $icat +1;		// ya listo sigueinte categoria para todas las tiendas
-			    }
-			    else
-			    {
-					// caso contrario es la fila final despues de todas las tiendas totales
-					// aqui se calcula el total todas categoria en una tienda, es decir total gastado de una tienda
-					$querygastotiendasfullcat="
-					 Select
-						ifnull(cast(sum(mon_registro)  as decimal(30,2)),0) as sumatienda
-					  from registro_gastos where
-						registro_gastos.cod_entidad = '".$indicetienda."'
-						and
-					  registro_gastos.fecha_concepto like '".$fechafiltramatrix."%'      ";
-					// se itera para tener el resultado en php
-					$totaltienda=$this->db->query($querygastotiendasfullcat);
-					foreach ($totaltienda->result() as $row)
-					{ 
-						$totalfullcat2=$row->sumatienda;
-						$totalfullcat=number_format((float)$totalfullcat2,2,',','.');
-						break;
-					}
-					//acumular el total cada categoria
-					$fila[$icat]=$totalfullcat;
-			    }
-			}
-			// ya se construyo la fila completa, se agrega a la tabla en construccion
-			$this->table->add_row($fila);
-			// el ultimo cuadro n,n de la tabla es el total gastado en el mes
-			$elgraantootal=(float)$elgraantootal+(float)$totalfullcat2;
-			// uff tanto  trabajo  ---> nojoda y quedo chimbo hay que hacerlo de nuevo tyron, esto resulta en 3mil queryS!!!!! <<
+			$tieahora = $tieantes =$fila['cod_entidad']; //obtener a lo mero macho inicializa tienda
+			// inicializo la columna 1 de la matrix, con la tienda repetida n veces la categoria, la saco una sola vez
+			$arrayfilatiendatotales['entidad']=$fila['des_entidad'] . ' (' . $fila['cod_entidad'] . ')';// el nombre de la entidad en primera columna de una fila
+			break; // inicializado no itero mas, la proxima es sobre el resto que son montos
 		}
-		// se agrega el ultimo cuadro n,n a la tabla, adicionandolo a la fila final de totales por categorias
-		$filafinal[$finalindex+1]= number_format($elgraantootal,2,',','.');
-		// se manda renderizar la tabla
-		$this->table->add_row($filafinal);
-		/* **** fin de calculo matrix *************** */
+		foreach($matrixenbruto as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
+		{
+			if($tieantes != $tieahora)
+			{
+				// itero en las primeras $cat filas los montos sera de cada categoria
+				break; //en vez de salir, guardar algo y actualizar $iteantes
+			}
+			else
+			{
+				// si aun estoy en la misma tienda itero pero en cada elemento de la fila (columna)
+				$tieantes = $tieahora;
+				$arrayfilatiendatotales[$fila['des_categoria']]=$fila['mon_registro'];// el nombre de la entidad
+			}
+			$tieahora = $fila['cod_entidad'];
+			$iteratienda = $iteratienda + 1;
+		}
+		$this->table->add_row($arrayfilatiendatotales);
+		$data['aad']=$arrayfilatiendatotales;
+		/* ******************************************* */
+		/* ******** final calulo matrix ************* */
+		/* ******************************************* */
+		 
 		
 		/* *** ini enviar lo calculado y mostrar vista datos al usuario ********************/
-		$data['htmlquepintamatrix'] = $this->table->generate(); // html generado lo envia a la matrix
+		$data['htmlquepintamatrix'] =  br() . $this->table->generate(); // $this->table->generate(); // html generado lo envia a la matrix
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
 		$data['menu'] = $this->menu->general_menu();
@@ -364,78 +294,6 @@ group by cod_categoria
 		/* *** fin enviar lo calculado y mostrar vista datos al usuario ********************/
 	}
 
-	/*{
-		// PROCESO POSTERIOR generacion de txt y envio por correo
-		$sql = "SELECT right('000000000'+DBA.td_orden_despacho.cod_interno,10) as cp, null as v2, DBA.td_orden_despacho.cantidad as ca, null as v3, '' as v4, ";//DBA.td_orden_despacho.precio_venta ";
-		$sql .= " isnull(convert(integer, (DBA.td_orden_despacho.cantidad/(SELECT top 1 unid_empaque FROM DBA.ta_proveedor_producto where cod_proveedor<>'000000000000' and cod_interno=right('000000000'+DBA.td_orden_despacho.cod_interno,10)))),0) as bu ";
-		$sql .= "  FROM DBA.tm_orden_despacho join DBA.td_orden_despacho on DBA.tm_orden_despacho.cod_order=DBA.td_orden_despacho.cod_order WHERE dba.tm_orden_despacho.cod_order='".$filenamen."'";
-		$this->load->dbutil();
-		$querypaltxt = $this->query($sql);
-		// ejemplo desde el sql generamos un adjunto
-		$correocontenido = $thisutil->csv_from_result($querypaltxt, "\t", "\n", '', FALSE);
-		$this->load->helper('file');
-		$filenameneweordendespachoadjuntar = $cargaconfig['upload_path'] . '/ordendespachogenerada' . $this->numeroordendespacho . '.txt';
-		if ( ! write_file($filenameneweordendespachoadjuntar, $correocontenido))
-		{arreglos bidimensionales en php
-			 echo 'Unable to write the file';
-		}
-		// en la db buscamos el correo del usuario y vemos a cuantos se enviaran
-		$sql = "select top 1 correo from dba.tm_codmsc_correo where codmsc='".$intranet."'";
-		$sqlcorreoorigen = $this->query($sql);
-		$obtuvecorreo = 0;
-		foreach ($sqlcorreoorigen->result() as $correorow)
-		{
-			$correoorigenaenviarle = $correorow->correo;
-			$obtuvecorreo++;
-		}
-		if ($obtuvecorreo < 1)
-			$correoorigenaenviarle = 'ordenesdespachos@intranet1.net.ve, lenz_gerardo@intranet1.net.ve';
-		// ahora procedemos apreparar el envio de correo
-		$this->load->library('email');
-		$configm1['protocol'] = 'smtp'; 		// esta configuracion requiere mejoras
-		$configm1['smtp_host'] = 'ssl://intranet1.net.ve'; // porque en la libreia, no conecta bien ssl
-		$configm1['smtp_port'] = '465';
-		$configm1['smtp_timeout'] = '8';
-		$configm1['smtp_user'] = 'usuarioqueenviacorreo';
-		$configm1['smtp_pass'] = 'superclave';
-		$configm1['charset'] = 'utf-8';
-		$configm1['starttls'] = TRUE;
-		$configm1['smtp_crypto'] = 'tls';
-		$configm1['newline'] = "\n";
-		$configm1['mailtype'] = 'text'; // or html
-		$configm1['validation'] = FALSE; // bool whether to validate email or not
-		$this->email->initialize($configm1);
-		$this->email->from('ordenesdespachos@intranet1.net.ve', 'ordenesdespachos');
-		$this->email->cc($correousuariosesion);
-		$this->email->to($correoorigenaenviarle); // enviar a los destinos de galpones
-		$this->email->subject('Orden Despacho '. $this->numeroordendespacho .' Origen:'.$intranet.' Destino:'.$fechafiltramatrix);
-		//$messageenviar = str_replace("\n", "\r\n", $correocontenido);
-		$this->email->message('Orden de despacho adjunta.'.PHP_EOL.PHP_EOL.$correocontenido );
-		$this->email->attach($filenameneweordendespachoadjuntar);
-		$this->email->send();
-/*
-		$configm2['protocol'] = 'mail';// en sysdevel y sysnet envia pero syscenter no
-		$configm2['wordwrap'] = FALSE;
-		$configm2['starttls'] = TRUE; // requiere sendmail o localmail use courierd START_TLS_REQUIRED=1 sendmail no envia
-		$configm2['smtp_crypto'] = 'tls';
-//		$configm2['mailtype'] = 'html';
-		$this->load->library('email');
-		$this->email->initialize($configm2);
-		$this->email->from('ordenesdespachos@intranet1.net.ve', 'ordenesdespachos');
-//		if ($obtuvecorreo < 1)
-		    $this->email->cc($correousuariosesion);
-		$this->email->reply_to('ordenesdespachos@intranet1.net.ve', 'ordenesdespachos');
-		$this->email->to($correoorigenaenviarle ); // enviar a los destinos de galpones
-		//if ($obtuvecorreo < 1)
-			$this->email->subject('Registro de gasto '. $this->numeroordendespacho .' Responsable:'.$intranet.' Fecha registro:'.$fechafiltramatrix);
-		//else
-		//	$this->email->subject('Orden prueba '. $this->numeroordendespacho .' Origen:'.$intranet.' Destino:'.$fechafiltramatrix);
-		$this->email->message('Orden de despacho adjunta.'.PHP_EOL.PHP_EOL.'**************************************'.PHP_EOL.PHP_EOL.$resultadocargatablatxtmsg.$data['htmltablageneradodetalle'].'***************************************'.PHP_EOL.PHP_EOL.'Orden para el galpon cargar oasis:'.PHP_EOL.PHP_EOL.$correocontenido );
-		$this->email->attach($filenameneweordendespachoadjuntar);
-		$this->email->send();
 
-		//echo $this->email->print_debugger();
-
-	}*/
 
 }
