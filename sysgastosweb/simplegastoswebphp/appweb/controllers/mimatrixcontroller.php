@@ -268,12 +268,12 @@ group by cod_categoria
 				$arrayfilatiendatotales['entidad']=$fila['des_entidad'] . ' (' . $fila['cod_entidad'] . ')';// el nombre de la entidad en primera columna de una fila
 			    $this->table->add_row($arrayfilatiendatotales);
 			}
-			else
-			{
+			
+			
 				// si aun estoy en la misma tienda itero pero en cada elemento de la fila (columna)
 			
 				$arrayfilatiendatotales[$fila['des_categoria']]=$fila['mon_registro'];// el nombre de la entidad
-			}
+			
 			$tieahora = $fila['cod_entidad'];
 			$iteratienda = $iteratienda + 1;//esto no tiene sentido ahora
 			if ( $fila['cod_entidad'] == '945' )
