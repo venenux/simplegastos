@@ -260,20 +260,27 @@ group by cod_categoria
 		{
 			if($tieantes != $tieahora)
 			{
-				// itero en las primeras $cat filas los montos sera de cada categoria
-				break; //en vez de salir, guardar algo y actualizar $iteantes
+				// hay una interupción significa que los montos deben ser agregados 
+				//break; //en vez de salir, agregar la fila y actualizar $iteantes
+				
+				$tieahora = $tieantes =$fila['cod_entidad']; //obtener a lo mero macho inicializa tienda
+				// inicializo la columna 1 de la matrix, con la tienda repetida n veces la categoria, la saco una sola vez
+				$arrayfilatiendatotales['entidad']=$fila['des_entidad'] . ' (' . $fila['cod_entidad'] . ')';// el nombre de la entidad en primera columna de una fila
+			    $this->table->add_row($arrayfilatiendatotales);
 			}
 			else
 			{
 				// si aun estoy en la misma tienda itero pero en cada elemento de la fila (columna)
-				$tieantes = $tieahora;
+			
 				$arrayfilatiendatotales[$fila['des_categoria']]=$fila['mon_registro'];// el nombre de la entidad
 			}
 			$tieahora = $fila['cod_entidad'];
-			$iteratienda = $iteratienda + 1;
+			$iteratienda = $iteratienda + 1;//esto no tiene sentido ahora
+			if ( $fila['cod_entidad'] == '945' )
+				$data['aad']=$arrayfilatiendatotales;
 		}
-		$this->table->add_row($arrayfilatiendatotales);
-		$data['aad']=$arrayfilatiendatotales;
+		//$this->table->add_row($arrayfilatiendatotales);
+		
 		/* ******************************************* */
 		/* ******** final calulo matrix ************* */
 		/* ******************************************* */
