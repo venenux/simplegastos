@@ -246,32 +246,58 @@ group by cod_categoria
 		$dbobjetomatrixbruto = $this->db->query($querytodolostotales);
 		// por ende hay que "saltar en cada cambio de entidad" pues es cuando se repiten las categorias
 		$matrixenbruto = $dbobjetomatrixbruto->result_array();
-		// inicializo iteradores, exepto 
+		// crear el array en cero que contendra los totales de cada tienda por categoria 
 		$arrayfilatiendatotales= array();
 		// inicializo la columna 1 de la matrix, con la tienda repetida n veces la categoria, la saco una sola vez
 		foreach($matrixenbruto as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
 		{
 			$tieahora = $tieantes =$fila['cod_entidad']; //obtener a lo mero macho inicializa tienda
 			$arrayfilatiendatotales['entidad']=$fila['des_entidad'] . ' (' . $fila['cod_entidad'] . ')';// el nombre de la entidad en primera columna de una fila
-			break; // inicializado no itero mas, la proxima es sobre el resto que son montos
+			$sqlcad= "'".$fila['des_entidad'] . " (" . $fila['cod_entidad'] . ")'";
+			break; // inicializado no iterar mas, la proxima es sobre el resto que son montos
 		}
+		//crear la tabla temporal para guardar los montos y se puedan ver en el grocery crud
+		$selectsql="
+                  SELECT 'Entidad'";
+		//ciclo para concatenar las categorias en la tabla temporal
+		foreach($matrixenbruto as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
+		{  $tieahora = $fila['cod_entidad'];
+		  if($tieantes != $tieahora)	// inicializar la columna 1 de la matrix, y si cambio la entidad es una nueva fila
+			{$tieahora = $fila['cod_entidad'];
+				$selectsql=$selectsql." UNION SELECT " .$sqlcad;
+				break;//terminar el ciclo
+			 }
+	      else
+	      {	$selectsql=$selectsql.",'".$fila['des_categoria']."'";//ir concatenando las categorias
+			  
+		   }
+	    }		
+		
+		
+		// ************* *********** *************   ciclo para cargar los montos  ************* *********** ************* 
 		foreach($matrixenbruto as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
 		{    
 			$tieahora = $fila['cod_entidad'];// asignación del código, es imperativo y lógico hacerlo al inicio del ciclo...
-			if($tieantes != $tieahora)	// inicializo la columna 1 de la matrix, y si cambio la entidad es una nueva fila
+			if($tieantes != $tieahora)	// inicializar la columna 1 de la matrix, y si cambio la entidad es una nueva fila
 			{
+				$selectsql=$selectsql." UNION SELECT "; //seguir generando el select
 				$this->table->add_row($arrayfilatiendatotales);// hay una interupción:  los montos deben ser agregados 
 				$tieantes =$fila['cod_entidad']; //cambio de entidad, repite n categorias agregar la fila y actualizar $iteantes
 				$arrayfilatiendatotales['entidad']=$fila['des_entidad'] . ' (' . $fila['cod_entidad'] . ')';// el nombre de la entidad en primera columna de una fila
+			    $selectsql=$selectsql. "'".$fila['des_entidad'] . " (" . $fila['cod_entidad'] . ")'"; //seguir generando el select  
+			
 			}
-			 // si aun estoy en la misma tienda acceder a cada elemento de la fila (columna)
+			 // si aun es la misma tienda acceder a cada elemento de la fila (columna)
 			$arrayfilatiendatotales[$fila['des_categoria']]=$fila['mon_registro'];// el nombre de la entidad
-			if ( $fila['cod_entidad'] == '940' )
-			{
+		     //seguir concatenando
+		     $selectsql=$selectsql.",'".$fila['mon_registro']."'";
+			if ( $fila['cod_entidad'] == '1002' )
+			{ 
 				$data['aad']=$arrayfilatiendatotales;
 				//break;
 			}
-		}
+		}// foreach
+		echo $selectsql;
 		/* ******************************************* */
 		/* ******** final calulo matrix ************* */
 		/* ******************************************* */
