@@ -245,63 +245,87 @@ group by cod_categoria
 		// ejecutamos la consulta, devolvera n veces la tienda cuantas categorias aya, X tienda * y categorias = total filas
 		$db_obj_enti_con_cate = $this->db->query($sqltotales_enti_con_cate);
 		$db_res_enti_con_cate = $db_obj_enti_con_cate->result_array();			// por ende hay que "saltar en cada cambio de entidad" pues es cuando se repiten las categorias
-		// crear el array en cero que contendra los totales de cada tienda por categoria
-		$arrayfilatiendatotales= array();
-		$arrayfilatitulos=array();
 		// ****** 1) inicializando los ciclos y detectando la primera fila a ver repetida n veces
 		$sqltotales_enti_cruza_cate=" SELECT ";			// crear select para usar grocery CRUD y datatables html5
-		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
+		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tienda repetida "tantas categorias"
 		{
-			$tieahora = $tieantes = $fila['cod_entidad']; //obtener a lo mero macho inicializa tienda
-			$arrayfilatiendatotales['entidad']=$fila['des_entidad'] . ' (' . $fila['cod_entidad'] . ')';// el nombre de la entidad en primera columna de una fila
+			$tieantes = $fila['cod_entidad']; //obtener a lo mero macho inicializa tienda; 
 			$sqltotales_cruza_fila_uno= "'".trim($fila['des_entidad']) . " (" . $fila['cod_entidad'] . ")'";
-			$arrayfilatitulos['entidad']='ENTIDAD';
 			$sqltotales_enti_cruza_cate= $sqltotales_enti_cruza_cate ." 'ENTIDAD' ";
 			break; // inicializado no iterar mas, la proxima es sobre el resto que son montos
 		}
-		// ****** 2) detectando titulos/categorias de los primeros N filas columna 1 igual
-		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
+	  	$codinicial=$tieantes;	//se guarda el valor inicial del código para evitar problemas
+		$categorias=array();//un arreglo para cargar las categorias
+		// ****** 2) detectando titulos/categorias de los primeros N filas columna 1 igual y cargar las categorias
+		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tienda repetida "tantas categorias"
 		{
 			$tieahora = $fila['cod_entidad'];
 			if($tieantes != $tieahora)	// inicializar la columna 1 de la matrix, y si cambio la entidad es una nueva fila
 			{
 				$tieahora = $fila['cod_entidad'];
-				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate."
-				 UNION SELECT " .$sqltotales_cruza_fila_uno;
+				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'TOTAL ENTIDAD' UNION SELECT " .$sqltotales_cruza_fila_uno;
 				break;//terminar el ciclo
 			}
 			else
 			{
 				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".trim($fila['des_categoria'])."'";//ir concatenando las categorias
-				$arrayfilatitulos[trim($fila['des_categoria'])] = trim($fila['des_categoria']);
+			    $categorias[$fila['des_categoria']]=0;//guardar cada categoria como indice, inicializar en cero para calcular cada total de cada categoria
 			}
 	    }
-	    $this->table->set_heading($arrayfilatitulos);
 		// ****** 2)   ciclo para cargar los montos  ************* *********** *************
-		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
+		$totaltienda=0;//acumulador para el calcular el total de las tiendas
+		$tieantes=$codinicial;//reasignar el código inicial
+		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tienda repetida "tantas categorias"
 		{
 			$tieahora = $fila['cod_entidad'];// asignación del código, es imperativo y lógico hacerlo al inicio del ciclo...
 			if($tieantes != $tieahora)	// inicializar la columna 1 de la matrix, y si cambio la entidad es una nueva fila
-			{
+			{   
+				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$totaltienda."'";//sumar el monto
+		    	$totaltienda=0;//reiniciar a cero para no seguir acumulando
 				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate."
 				\n UNION SELECT "; //seguir generando el select
-				$this->table->add_row($arrayfilatiendatotales);// hay una interupción:  los montos deben ser agregados
 				$tieantes =$fila['cod_entidad']; //cambio de entidad, repite n categorias agregar la fila y actualizar $iteantes
-				$arrayfilatiendatotales['entidad']=$fila['des_entidad'] . ' (' . $fila['cod_entidad'] . ')';// el nombre de la entidad en primera columna de una fila
-			    $sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate. "'".$fila['des_entidad'] . " (" . $fila['cod_entidad'] . ")'"; //seguir generando el select
+				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate. "'".$fila['des_entidad'] . " (" . $fila['cod_entidad'] . ")'"; //seguir generando el select
+	
+			}
+			$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$fila['mon_registro']."'";
+			$totaltienda=$totaltienda+$fila['mon_registro'];
+           
+          /***** calcular los totales de cada categoria, sin queries ni nada, exprimiendo el query ya hecho...¿pa' que más'? */
+         
+			$categorias[$fila['des_categoria']]=$categorias[$fila['des_categoria']]+$fila['mon_registro'];  //... asi de sencillito ;-) nada de código superultrarequeterecontramegacalifragilisticoespialidosisimo similar a ciertos queries raros... 
+			
+					
+					/* _______________________
+					  < ¡muuuuuuuuy dificil!  >
+					   ------------------------
+									\   ^__^
+									 \  (0o)\_______
+										(__)\       )\/\
+										 d 	||----w |
+											||     ||
+				 
 
+					*/ 
+		} 
+		$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$totaltienda."'";// 0j0: agregar el último total, en el ciclo no lo agrega.
+		
+		/****** 3) agregar los totales de cada categoria (del arreglo) a  la sentencia sql  que generará la tabla temporal */
+		
+		$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate."
+				\n UNION SELECT  'A LOS TOTALES:'"; //seguir generando el select, ahora con la fila final con los totales de cada categoria*/
+	    //recorrer el arreglo de totales:
+	    $grantotal=0;//esta variable se explica sola, ni modo.
+	    foreach($categorias as $categoria =>$key)
+		{  $sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$categorias[$categoria]."'";
+		
+			 $grantotal=$grantotal+$categorias[$categoria];
+			 
 			}
-			 // si aun es la misma tienda acceder a cada elemento de la fila (columna)
-			$arrayfilatiendatotales[ $fila['des_categoria'] ]=$fila['mon_registro'];// el nombre de la entidad
-		     //seguir concatenando
-		     $sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$fila['mon_registro']."'";
-			if ( $fila['cod_entidad'] == '1002' )
-			{
-				$data['aad']=$arrayfilatiendatotales;
-				//break;
-			}
-		}
-		$data['asql'] = $sqltotales_enti_cruza_cate;
+		$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$grantotal."'";// 0j0: agregar grantotal, en el ciclo no lo agrega.
+		$data['baaaka']=$categorias;
+
+		$data['asql'] = $sqltotales_enti_cruza_cate;//para visualizar usando  profiler que provee Codeigniter TM
 		/* ******************************************* */
 		/* ******** final calulo matrix ************* */
 		/* ******************************************* */
@@ -347,7 +371,7 @@ group by cod_categoria
 		$data['css_files'] = $output->css_files;
 		$data['output'] = $output->output;
 		/* *** ini enviar lo calculado y mostrar vista datos al usuario ********************/
-		$data['htmlquepintamatrix'] =  br() . $this->table->generate(); // $this->table->generate(); // html generado lo envia a la matrix
+		$data['htmlquepintamatrix'] =  br() ; // $this->table->generate(); // html generado lo envia a la matrix
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
 		$data['menu'] = $this->menu->general_menu();
