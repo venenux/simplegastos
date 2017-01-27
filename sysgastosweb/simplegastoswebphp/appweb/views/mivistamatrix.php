@@ -1,12 +1,12 @@
 	<h1>Matriz de Gastos Tiendas X Categorías</h1>
 	<?php
-	
+
 	/* ********* ini valores predeterminados ******************** */
 	$htmlformaattributos = array('name'=>'formulariomatrix','class'=>'formularios','onSubmit'=>'return validageneric(this);');
-	
+
 	if( !isset($fechafiltramatrix) )	// valor inicial para escoger la fecha deseada de la matris (cualquier dia)
 	$fechafiltramatrix=date('Ymd');$idfechamatrix='fechafiltramatrix';$inputfechaattr = array('name'=>$idfechamatrix,'id'=>$idfechamatrix, 'onclick'=>'javascript:NewCssCal(\''.$idfechamatrix.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfechamatrix, $$idfechamatrix));
-	
+
 	if( !isset($seccionpagina) )		// si no dice por defecto muestra el formulario, seccion dice a que parte muestra de la vista
 	$seccionpagina = 'seccionformulario';
 	/* ********* fin valores predeterminados ******************** */
@@ -32,8 +32,15 @@
 	else if ($seccionpagina == 'secciontablamatrix')
 	{
 		// mostrar la tabla tiendas x categorias, esto es construido en el controlador y enviado preformateado ya html
-		echo $htmlquepintamatrix . PHP_EOL;
+		echo "Fecha : " . $fechafiltramatrix . br() . PHP_EOL;
+				foreach($css_files as $file)
+		{	echo '<link type="text/css" rel="stylesheet" href="'.$file.'" />';	}
+		foreach($js_files as $file)
+		{	echo '<script src="'.$file.'"></script>';	}
+		echo br(). PHP_EOL;
+		echo $output. PHP_EOL;
+		//echo $htmlquepintamatrix . PHP_EOL;
 	}
 	/* ********* fin seccion de pagina formulario ******************** */
-   
+
 	?>

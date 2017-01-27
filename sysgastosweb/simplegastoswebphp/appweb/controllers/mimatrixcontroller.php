@@ -9,7 +9,7 @@ class mimatrixcontroller extends CI_Controller {
 /*
 
 LEER :
-* 
+*
 * http://10.10.34.20/proyectos/proyectos/projects/sysgastos/wiki/Sysgastoswebf1-db-matrix-y-totalizadores
 * http://intranet1.net.ve/proyectos/proyectos/projects/sysgastos/wiki/Sysgastoswebf1-db-matrix-y-totalizadores
 
@@ -19,7 +19,7 @@ LEER :
 
 
 ------- 1 inicio query 1 -------------
-    select 
+    select
         `cod_entidad` AS `cod_entidad`,
         `des_entidad` AS `des_entidad`,
         `cod_categoria` AS `cod_categoria`,
@@ -30,7 +30,7 @@ LEER :
         `fecha_registro` AS `fecha_registro`
     from
 (
-select 
+select
         `a`.`cod_entidad` AS `cod_entidad`,
         `b`.`des_entidad` AS `des_entidad`,
         `a`.`cod_categoria` AS `cod_categoria`,
@@ -44,8 +44,8 @@ select
         left join `entidad` `b` ON ((`a`.`cod_entidad` = `b`.`cod_entidad`)))
         left join `categoria` `c` ON ((`a`.`cod_categoria` = `c`.`cod_categoria`)))
 		-- justo aqui se debe colcoar los filtros de fecha, esto traeta todo si no se hace
-	group by `a`.`cod_entidad` , `a`.`cod_categoria` 
-    union select 
+	group by `a`.`cod_entidad` , `a`.`cod_categoria`
+    union select
         `entidad`.`cod_entidad` AS `cod_entidad`,
         `entidad`.`des_entidad` AS `des_entidad`,
         `categoria`.`cod_categoria` AS `cod_categoria`,
@@ -71,7 +71,7 @@ select
 
 select
 des_categoria, cod_categoria, sum(mon_registro)
- from 
+ from
 (
 -- aqui consulta query 1 incluido el fuiltro, via php es facil usar la variable ya asignada
 ) as pepe
@@ -100,7 +100,7 @@ group by cod_categoria
 		$this->output->enable_profiler(TRUE);
 	}
 
-	/* este es un verificador del objeto sesion, 
+	/* este es un verificador del objeto sesion,
 	 * se invoca en cada funcion-seccion para certificar el usuario es valido y presente
 	 * y asi una llamada directa desde internet no se relize */
 	public function _verificarsesion()
@@ -169,7 +169,7 @@ group by cod_categoria
 		$aniomes=substr($fechafiltramatrix, 0, 6); //aqui tomo solo el mes (por eso el formato anio/mes/dia pegado)
 		$fechafiltramatrix=$aniomes;				// coloco ambas variables iguales y ya tengo que mes
 		/* ***** fin OBTENER DATOS DE FORMULARIO ***************************** */
-		
+
 		// averiguar si elusuario es administrativo o usuario de tienda
 		if( $this->session->userdata('logueado') == FALSE)
           {
@@ -186,15 +186,15 @@ group by cod_categoria
 		/* ******************************************* */
 		$this->load->helper(array('form', 'url','inflector'));
 		$fecha_mesmatrix = $fechafiltramatrix;
-        $querymatrixfiltros=
+        $sqlfiltro_enti_con_cate=
 		"
 		";
-		$querytodolostotales="
-			select 
+		$sqltotales_enti_con_cate="
+			select
 				*
 			from
 				(
-					select 
+					select
 							`a`.`cod_entidad` AS `cod_entidad`,
 							`b`.`des_entidad` AS `des_entidad`,
 							`b`.`tipo_entidad` AS `tip_entidad`,
@@ -206,17 +206,17 @@ group by cod_categoria
 							`a`.`fecha_registro` AS `fecha_registro`
 						from
 							`registro_gastos` as `a`
-						left join 
+						left join
 							`entidad` as `b` ON `a`.`cod_entidad` = `b`.`cod_entidad`
-						left join 
+						left join
 							`categoria` as `c` ON `a`.`cod_categoria` = `c`.`cod_categoria`
-						where ifnull(`a`.`cod_registro`,'') <> '' 
-							/*".$querymatrixfiltros."	/* // TODO justo aqui se debe colcoar los filtros de fecha, esto traeta todo si no se hace */
-							and substr(`a`.`fecha_concepto`, 1, 6) = '".$fecha_mesmatrix."' 
-						group by `a`.`cod_entidad` , `a`.`cod_categoria` 
-						
-					union 
-						select 
+						where ifnull(`a`.`cod_registro`,'') <> ''
+							/*".$sqlfiltro_enti_con_cate."	/* // TODO justo aqui se debe colcoar los filtros de fecha, esto traeta todo si no se hace */
+							and substr(`a`.`fecha_concepto`, 1, 6) = '".$fecha_mesmatrix."'
+						group by `a`.`cod_entidad` , `a`.`cod_categoria`
+
+					union
+						select
 							`s`.`cod_entidad` AS `cod_entidad`,
 							`s`.`des_entidad` AS `des_entidad`,
 							`s`.`tipo_entidad` AS `tipo_entidad`,
@@ -228,7 +228,7 @@ group by cod_categoria
 							'".$fecha_mesmatrix."' AS `fecha_registro`
 						from
 							`categoria` as `d`
-						join 
+						join
 							`entidad` as `s`
 								/* // TODO: los filtro tambien aqui OJO */
 						group by `s`.`cod_entidad` , `d`.`cod_categoria`
@@ -243,74 +243,115 @@ group by cod_categoria
 		$this->table->clear();
 		$this->table->set_template($tablestyle);
 		// ejecutamos la consulta, devolvera n veces la tienda cuantas categorias aya, X tienda * y categorias = total filas
-		$dbobjetomatrixbruto = $this->db->query($querytodolostotales);
-		// por ende hay que "saltar en cada cambio de entidad" pues es cuando se repiten las categorias
-		$matrixenbruto = $dbobjetomatrixbruto->result_array();
-		// crear el array en cero que contendra los totales de cada tienda por categoria 
+		$db_obj_enti_con_cate = $this->db->query($sqltotales_enti_con_cate);
+		$db_res_enti_con_cate = $db_obj_enti_con_cate->result_array();			// por ende hay que "saltar en cada cambio de entidad" pues es cuando se repiten las categorias
+		// crear el array en cero que contendra los totales de cada tienda por categoria
 		$arrayfilatiendatotales= array();
-		// inicializo la columna 1 de la matrix, con la tienda repetida n veces la categoria, la saco una sola vez
-		foreach($matrixenbruto as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
+		$arrayfilatitulos=array();
+		// ****** 1) inicializando los ciclos y detectando la primera fila a ver repetida n veces
+		$sqltotales_enti_cruza_cate=" SELECT ";			// crear select para usar grocery CRUD y datatables html5
+		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
 		{
-			$tieahora = $tieantes =$fila['cod_entidad']; //obtener a lo mero macho inicializa tienda
+			$tieahora = $tieantes = $fila['cod_entidad']; //obtener a lo mero macho inicializa tienda
 			$arrayfilatiendatotales['entidad']=$fila['des_entidad'] . ' (' . $fila['cod_entidad'] . ')';// el nombre de la entidad en primera columna de una fila
-			$sqlcad= "'".$fila['des_entidad'] . " (" . $fila['cod_entidad'] . ")'";
+			$sqltotales_cruza_fila_uno= "'".trim($fila['des_entidad']) . " (" . $fila['cod_entidad'] . ")'";
+			$arrayfilatitulos['entidad']='ENTIDAD';
+			$sqltotales_enti_cruza_cate= $sqltotales_enti_cruza_cate ." 'ENTIDAD' ";
 			break; // inicializado no iterar mas, la proxima es sobre el resto que son montos
 		}
-		//crear la tabla temporal para guardar los montos y se puedan ver en el grocery crud
-		$selectsql="
-                  SELECT 'Entidad'";
-		//ciclo para concatenar las categorias en la tabla temporal
-		foreach($matrixenbruto as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
-		{  $tieahora = $fila['cod_entidad'];
-		  if($tieantes != $tieahora)	// inicializar la columna 1 de la matrix, y si cambio la entidad es una nueva fila
-			{$tieahora = $fila['cod_entidad'];
-				$selectsql=$selectsql." UNION SELECT " .$sqlcad;
+		// ****** 2) detectando titulos/categorias de los primeros N filas columna 1 igual
+		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
+		{
+			$tieahora = $fila['cod_entidad'];
+			if($tieantes != $tieahora)	// inicializar la columna 1 de la matrix, y si cambio la entidad es una nueva fila
+			{
+				$tieahora = $fila['cod_entidad'];
+				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate."
+				 UNION SELECT " .$sqltotales_cruza_fila_uno;
 				break;//terminar el ciclo
-			 }
-	      else
-	      {	$selectsql=$selectsql.",'".$fila['des_categoria']."'";//ir concatenando las categorias
-			  
-		   }
-	    }		
-		
-		
-		// ************* *********** *************   ciclo para cargar los montos  ************* *********** ************* 
-		foreach($matrixenbruto as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
-		{    
+			}
+			else
+			{
+				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".trim($fila['des_categoria'])."'";//ir concatenando las categorias
+				$arrayfilatitulos[trim($fila['des_categoria'])] = trim($fila['des_categoria']);
+			}
+	    }
+	    $this->table->set_heading($arrayfilatitulos);
+		// ****** 2)   ciclo para cargar los montos  ************* *********** *************
+		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tieda repetida "tantas categorias"
+		{
 			$tieahora = $fila['cod_entidad'];// asignación del código, es imperativo y lógico hacerlo al inicio del ciclo...
 			if($tieantes != $tieahora)	// inicializar la columna 1 de la matrix, y si cambio la entidad es una nueva fila
 			{
-				$selectsql=$selectsql." UNION SELECT "; //seguir generando el select
-				$this->table->add_row($arrayfilatiendatotales);// hay una interupción:  los montos deben ser agregados 
+				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate."
+				\n UNION SELECT "; //seguir generando el select
+				$this->table->add_row($arrayfilatiendatotales);// hay una interupción:  los montos deben ser agregados
 				$tieantes =$fila['cod_entidad']; //cambio de entidad, repite n categorias agregar la fila y actualizar $iteantes
 				$arrayfilatiendatotales['entidad']=$fila['des_entidad'] . ' (' . $fila['cod_entidad'] . ')';// el nombre de la entidad en primera columna de una fila
-			    $selectsql=$selectsql. "'".$fila['des_entidad'] . " (" . $fila['cod_entidad'] . ")'"; //seguir generando el select  
-			
+			    $sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate. "'".$fila['des_entidad'] . " (" . $fila['cod_entidad'] . ")'"; //seguir generando el select
+
 			}
 			 // si aun es la misma tienda acceder a cada elemento de la fila (columna)
-			$arrayfilatiendatotales[$fila['des_categoria']]=$fila['mon_registro'];// el nombre de la entidad
+			$arrayfilatiendatotales[ $fila['des_categoria'] ]=$fila['mon_registro'];// el nombre de la entidad
 		     //seguir concatenando
-		     $selectsql=$selectsql.",'".$fila['mon_registro']."'";
+		     $sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$fila['mon_registro']."'";
 			if ( $fila['cod_entidad'] == '1002' )
-			{ 
+			{
 				$data['aad']=$arrayfilatiendatotales;
 				//break;
 			}
-		}// foreach
-		echo $selectsql;
+		}
+		$data['asql'] = $sqltotales_enti_cruza_cate;
 		/* ******************************************* */
 		/* ******** final calulo matrix ************* */
 		/* ******************************************* */
-		 
-		
+
+		$sqltotales_enti_cruza_cate_table = "gas_matrix_totales_entidad_categoria_" . $userintranet;
+		$sqltotales_enti_cruza_cate_final =
+		"
+		CREATE TABLE ".$sqltotales_enti_cruza_cate_table."
+			AS
+			" . $sqltotales_enti_cruza_cate . "
+		ORDER BY ENTIDAD
+		";
+		$sqltotales_enti_cruza_cate_final_nohea =
+		"
+		DELETE FROM ".$sqltotales_enti_cruza_cate_table." WHERE `ENTIDAD`='ENTIDAD';
+		";
+		$sqltotales_enti_cruza_cate_final_del =
+		"
+		DROP TABLE IF EXISTS ".$sqltotales_enti_cruza_cate_table.";
+		";
+		// ejecuto en lote todos loquerys, asi aseguro no mostrar algo malo
+		$this->db->query($sqltotales_enti_cruza_cate_final_del);
+		$this->db->trans_strict(TRUE); // todo o nada
+		$this->db->trans_begin();	// en una tabla temporal solo registros ultimos y por perfil
+		$this->db->query($sqltotales_enti_cruza_cate_final);
+		$this->db->trans_commit();
+		$this->db->query($sqltotales_enti_cruza_cate_final_nohea);
+		// ************** ini pintar bonito los datos de una tabla temporal matrix cruzada
+		$this->load->helper(array('inflector','url'));
+		$this->load->library('grocery_CRUD');		// uso la libreria que pinga bonito una tabla
+		$this->config->load('grocery_crud');		// cargo la config para cuantos en pagina
+		$this->config->set_item('grocery_crud_default_per_page',100);	// 100 registros por pagina al mismo tiempo
+		$crud = new grocery_CRUD();			// creo el objeto crud a mostrar en html
+		$crud->set_theme('flexigrid'); 		// flexigrid tiene bugs pero exporta solo openoffice
+		$crud->set_table($sqltotales_enti_cruza_cate_table);	// la tabal es temporal pero del usuario
+		$crud->set_primary_key('ENTIDAD');	// la tabla es temporal, forzar PK
+		$crud->unset_add();			// no se adiconan registros, es reportar
+		$crud->unset_edit();		// se desabilita cualquer ediccion
+		$crud->unset_delete();		// aqui nada se pierde, no borrar
+		$output = $crud->render();		// pinta el html con tabletools
+		$this->db->query($sqltotales_enti_cruza_cate_final_del);// limpiar db de tablas temporales de CRUD solo vista matrix
+		$data['js_files'] = $output->js_files;
+		$data['css_files'] = $output->css_files;
+		$data['output'] = $output->output;
 		/* *** ini enviar lo calculado y mostrar vista datos al usuario ********************/
 		$data['htmlquepintamatrix'] =  br() . $this->table->generate(); // $this->table->generate(); // html generado lo envia a la matrix
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
 		$data['menu'] = $this->menu->general_menu();
-		$data['Fecha:']=$fechafiltramatrix;
 		$data['seccionpagina'] = 'secciontablamatrix';
-		$data['userintran'] = $userintranet;
 		$data['fechafiltramatrix'] = $fechafiltramatrix;
 		$this->load->view('header.php',$data);
 		$this->load->view('mivistamatrix.php',$data);
