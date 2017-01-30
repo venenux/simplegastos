@@ -64,10 +64,10 @@ include(__DIR__ . '/common_javascript_vars.php');
                             </div>
                             <div class="form-group">
                                 <div class="col-sm-offset-3 col-sm-7">
-                                    <button class="btn btn-default btn-success b10" type="submit" id="form-button-save">
+                                    <!-- <button class="btn btn-default btn-success b10" type="submit" id="form-button-save">
                                         <i class="fa fa-check"></i>
                                         <?php echo $this->l('form_update_changes'); ?>
-                                    </button>
+                                    </button> -->
                                     <?php 	if(!$this->unset_back_to_list) { ?>
                                         <button class="btn btn-info b10" type="button" id="save-and-go-back-button">
                                             <i class="fa fa-rotate-left"></i>

@@ -49,9 +49,9 @@
 			<div id='report-success' class='report-div success'></div>
 		</div>
 		<div class='buttons-box'>
-			<div class='form-button-box'>
+<!--			<div class='form-button-box'>
 				<input id="form-button-save" type='submit' value='<?php echo $this->l('form_save'); ?>' class='ui-input-button'/>
-			</div>
+			</div> -->
 <?php 	if(!$this->unset_back_to_list) { ?>
 			<div class='form-button-box'>
 				<input type='button' value='<?php echo $this->l('form_save_and_go_back'); ?>' class='ui-input-button' id="save-and-go-back-button"/>
