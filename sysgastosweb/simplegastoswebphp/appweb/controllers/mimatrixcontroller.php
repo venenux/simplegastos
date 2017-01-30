@@ -249,13 +249,13 @@ group by cod_categoria
 		$sqltotales_enti_cruza_cate=" SELECT ";			// crear select para usar grocery CRUD y datatables html5
 		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tienda repetida "tantas categorias"
 		{
-			$tieantes = $fila['cod_entidad']; //obtener a lo mero macho inicializa tienda; 
+			$tieantes = $fila['cod_entidad']; //obtener a lo mero macho inicializa tienda;
 			$sqltotales_cruza_fila_uno= "'".trim($fila['des_entidad']) . " (" . $fila['cod_entidad'] . ")'";
 			$sqltotales_enti_cruza_cate= $sqltotales_enti_cruza_cate ." 'ENTIDAD' ";
 			break; // inicializado no iterar mas, la proxima es sobre el resto que son montos
 		}
 	  	$codinicial=$tieantes;	//se guarda el valor inicial del código para evitar problemas
-		$categorias=array();//un arreglo para cargar las categorias
+		$total_categ_de_tiends=array();//un arreglo para cargar los totales de una categorias en todas las tiendas
 		// ****** 2) detectando titulos/categorias de los primeros N filas columna 1 igual y cargar las categorias
 		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tienda repetida "tantas categorias"
 		{
@@ -264,112 +264,85 @@ group by cod_categoria
 			{
 				$tieahora = $fila['cod_entidad'];
 				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'TOTAL ENTIDAD' UNION SELECT " .$sqltotales_cruza_fila_uno;
-				break;//terminar el ciclo
+				break;//terminar el ciclo cuando sea otra tienda para volver iterar sus categorias entre "rows" (filas) de el resultado del query array
 			}
-			else
+			else 	// se va iterar entre cada rown de la misma tienda hasta que cambie, estas son las categorias como un indice de cada monto
 			{
 				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".trim($fila['des_categoria'])."'";//ir concatenando las categorias
-			    $categorias[$fila['des_categoria']]=0;//guardar cada categoria como indice, inicializar en cero para calcular cada total de cada categoria
+			    $total_categ_de_tiends[$fila['des_categoria']]=0;//guardar cada categoria como indice de totales de categorias, y valor en cero
 			}
 	    }
-		// ****** 2)   ciclo para cargar los montos  ************* *********** *************
-		$totaltienda=0;//acumulador para el calcular el total de las tiendas
+		// ****** 3)   ciclo para cargar los montos  ************* *********** *************
+		$total_tienda_tod_categ=0;//acumulador para el calcular el total de las tiendas
 		$tieantes=$codinicial;//reasignar el código inicial
 		foreach($db_res_enti_con_cate as $tienda=>$fila)	// cada n filas es una tienda repetida "tantas categorias"
 		{
 			$tieahora = $fila['cod_entidad'];// asignación del código, es imperativo y lógico hacerlo al inicio del ciclo...
 			if($tieantes != $tieahora)	// inicializar la columna 1 de la matrix, y si cambio la entidad es una nueva fila
-			{   
-				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$totaltienda."'";//sumar el monto
-		    	$totaltienda=0;//reiniciar a cero para no seguir acumulando
-				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate."
-				\n UNION SELECT "; //seguir generando el select
+			{
+				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".number_format($total_tienda_tod_categ, 2, ',', '.')."'";//sumar el monto
+		    	$total_tienda_tod_categ=0;//reiniciar a cero para no seguir acumulando
+				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate." UNION SELECT "; //seguir generando el select
 				$tieantes =$fila['cod_entidad']; //cambio de entidad, repite n categorias agregar la fila y actualizar $iteantes
 				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate. "'".$fila['des_entidad'] . " (" . $fila['cod_entidad'] . ")'"; //seguir generando el select
-	
 			}
-			$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$fila['mon_registro']."'";
-			$totaltienda=$totaltienda+$fila['mon_registro'];
-           
-          /***** calcular los totales de cada categoria, sin queries ni nada, exprimiendo el query ya hecho...¿pa' que más'? */
-         
-			$categorias[$fila['des_categoria']]=$categorias[$fila['des_categoria']]+$fila['mon_registro'];  //... asi de sencillito ;-) nada de código superultrarequeterecontramegacalifragilisticoespialidosisimo similar a ciertos queries raros... 
-			
-					
-					/* _______________________
-					  < ¡muuuuuuuuy dificil!  >
-					   ------------------------
-									\   ^__^
-									 \  (0o)\_______
-										(__)\       )\/\
-										 d 	||----w |
-											||     ||
-				 
-
-					*/ 
-		} 
-		$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$totaltienda."'";// 0j0: agregar el último total, en el ciclo no lo agrega.
-		
-		/****** 3) agregar los totales de cada categoria (del arreglo) a  la sentencia sql  que generará la tabla temporal */
-		
-		$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate."
-				\n UNION SELECT  'A LOS TOTALES:'"; //seguir generando el select, ahora con la fila final con los totales de cada categoria*/
-	    //recorrer el arreglo de totales:
-	    $grantotal=0;//esta variable se explica sola, ni modo.
-	    foreach($categorias as $categoria =>$key)
-		{  $sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$categorias[$categoria]."'";
-		
-			 $grantotal=$grantotal+$categorias[$categoria];
-			 
-			}
-		$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".$grantotal."'";// 0j0: agregar grantotal, en el ciclo no lo agrega.
-		$data['baaaka']=$categorias;
-
-		$data['asql'] = $sqltotales_enti_cruza_cate;//para visualizar usando  profiler que provee Codeigniter TM
+			$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'".number_format($fila['mon_registro'], 2, ',', '.')."'";
+			$total_tienda_tod_categ=$total_tienda_tod_categ+$fila['mon_registro'];
+			/***** calcular los totales de cada categoria, sin queries ni nada, exprimiendo el query ya hecho...¿pa' que más'? */
+			$total_categ_de_tiends[$fila['des_categoria']]=$total_categ_de_tiends[$fila['des_categoria']]+$fila['mon_registro'];  //... asi de sencillito ;-) nada de código superultrarequeterecontramegacalifragilisticoespialidosisimo similar a ciertos queries raros...
+		}
+		$sqltotales_enti_cruza_cate = $sqltotales_enti_cruza_cate.",'".number_format($total_tienda_tod_categ, 2, ',', '.')."'";// al final de cada recorrido de categorias de una tienda, se agrega el total de cada tienda para todas las categorias ( total una tienda en todas las categorias)
+		$sqltotales_enti_cruza_cate = $sqltotales_enti_cruza_cate." UNION SELECT  'A LOS TOTALES:'"; //seguir generando el select, ahora con la fila final con los totales de cada categoria de la tiendas (total de una categoria para todas las tiendas)
+		$totalmatrix=0;	// recorrer arrelgo para totales , inicializo cero y voy sumando
+		foreach( $total_categ_de_tiends as $indicecolum =>$lascateg)	// recorrer el indice de totales de categorias para el select de totales
+		{
+			$sqltotales_enti_cruza_cate = $sqltotales_enti_cruza_cate.",'".number_format($total_categ_de_tiends[$indicecolum], 2, ',', '.')."'";
+			$totalmatrix = $totalmatrix + $total_categ_de_tiends[$indicecolum]; // uso el recorrido para total de todo (total todas las tiendas de todas las categorias)
+		}
+		$sqltotales_enti_cruza_cate = $sqltotales_enti_cruza_cate.",'".number_format($totalmatrix, 2, ',', '.')."'";	// se adicional el ultimo esquina n,n total de todas cat de todas tiend todo sumado en la esquina inferior
 		/* ******************************************* */
 		/* ******** final calulo matrix ************* */
 		/* ******************************************* */
 
+		/* ************ iniciio de grocery crud usamos una tabla por usuario y crud desde esta *********/
 		$sqltotales_enti_cruza_cate_table = "gas_matrix_totales_entidad_categoria_" . $userintranet;
 		$sqltotales_enti_cruza_cate_final =
 		"
-		CREATE TABLE ".$sqltotales_enti_cruza_cate_table."
-			AS
-			" . $sqltotales_enti_cruza_cate . "
-		ORDER BY ENTIDAD
+		CREATE TABLE ".$sqltotales_enti_cruza_cate_table." AS " . $sqltotales_enti_cruza_cate . "  ORDER BY ENTIDAD  /* en el calculo se llamo entida la primera columna */
 		";
 		$sqltotales_enti_cruza_cate_final_nohea =
 		"
-		DELETE FROM ".$sqltotales_enti_cruza_cate_table." WHERE `ENTIDAD`='ENTIDAD';
+		DELETE FROM ".$sqltotales_enti_cruza_cate_table." WHERE `ENTIDAD`='ENTIDAD'; /* borrar el primer registro, que sirve para definir nombre de columnas */
 		";
 		$sqltotales_enti_cruza_cate_final_del =
 		"
-		DROP TABLE IF EXISTS ".$sqltotales_enti_cruza_cate_table.";
+		DROP TABLE IF EXISTS ".$sqltotales_enti_cruza_cate_table."; /* si existe alguna tabla mejor crear una nueva, eliminamos previas, pues son temporales */
 		";
-		// ejecuto en lote todos loquerys, asi aseguro no mostrar algo malo
-		$this->db->query($sqltotales_enti_cruza_cate_final_del);
-		$this->db->trans_strict(TRUE); // todo o nada
-		$this->db->trans_begin();	// en una tabla temporal solo registros ultimos y por perfil
-		$this->db->query($sqltotales_enti_cruza_cate_final);
+		$this->db->query($sqltotales_enti_cruza_cate_final_del); // limpiamos cualquer rastro anterior no completado
+		$this->db->trans_strict(TRUE); // asegurar una tabla por usuario con la data filtrada
+		$this->db->trans_begin();	// en una tabla por usuario (temporal) solo registros ultimos y por perfil
+		$this->db->query($sqltotales_enti_cruza_cate_final); // creamos la tabla por usuario con datos exclusivos por usuarios
 		$this->db->trans_commit();
-		$this->db->query($sqltotales_enti_cruza_cate_final_nohea);
-		// ************** ini pintar bonito los datos de una tabla temporal matrix cruzada
-		$this->load->helper(array('inflector','url'));
+		$this->db->query($sqltotales_enti_cruza_cate_final_nohea); // eliminar el query union que sirve para que se definan los nombres de columnas (select from query en vez de table)
+		$this->load->helper(array('inflector','url'));	// inicar el pintar bonito los datos de una tabla temporal matrix cruzada
 		$this->load->library('grocery_CRUD');		// uso la libreria que pinga bonito una tabla
 		$this->config->load('grocery_crud');		// cargo la config para cuantos en pagina
-		$this->config->set_item('grocery_crud_default_per_page',100);	// 100 registros por pagina al mismo tiempo
+		$this->config->set_item('grocery_crud_default_per_page',10);	// 100 registros por pagina al mismo tiempo
 		$crud = new grocery_CRUD();			// creo el objeto crud a mostrar en html
-		$crud->set_theme('flexigrid'); 		// flexigrid tiene bugs pero exporta solo openoffice
+		$crud->set_theme('bootstrap'); 		// flexigrid tiene bugs pero exporta solo openoffice
 		$crud->set_table($sqltotales_enti_cruza_cate_table);	// la tabal es temporal pero del usuario
 		$crud->set_primary_key('ENTIDAD');	// la tabla es temporal, forzar PK
 		$crud->unset_add();			// no se adiconan registros, es reportar
 		$crud->unset_edit();		// se desabilita cualquer ediccion
 		$crud->unset_delete();		// aqui nada se pierde, no borrar
+		$crud->unset_operations();	// se creara despues un boton que llame el total en dicha tienda
 		$output = $crud->render();		// pinta el html con tabletools
-		$this->db->query($sqltotales_enti_cruza_cate_final_del);// limpiar db de tablas temporales de CRUD solo vista matrix
+		$this->db->query($sqltotales_enti_cruza_cate_final_del); // limpiar db de la tabla usada temporalmente para el grocerycrud
 		$data['js_files'] = $output->js_files;
 		$data['css_files'] = $output->css_files;
 		$data['output'] = $output->output;
+		/* ************ fin de grocery crud usamos una tabla por usuario y crud desde esta *********/
+
 		/* *** ini enviar lo calculado y mostrar vista datos al usuario ********************/
 		$data['htmlquepintamatrix'] =  br() ; // $this->table->generate(); // html generado lo envia a la matrix
 		$data['usercorreo'] = $usercorreo;

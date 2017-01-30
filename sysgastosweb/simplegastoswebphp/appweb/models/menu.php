@@ -20,8 +20,8 @@ class Menu extends CI_Model
 		$admgeneral['admsubcategorias']=anchor('admsubcategorias','Categorias');
 
 		// enlaces de gerencia
-		$menugerencia=anchor('adm_indicador_eficiencia_ventagasto','Gerencia');
-		$menugerencianodos['adm_indicador_eficiencia_ventagasto']=anchor('adm_indicador_eficiencia_ventagasto/gervisualizarventagasto/','Gasto vs Venta');
+		$menugerencia=anchor('adm_indefi_ventagasto','Gerencia');
+		$menugerencianodos['adm_indefi_ventagasto']=anchor('adm_indefi_ventagasto/gervisualizarventagasto/','Gasto vs Venta');
 
 		$vistas=anchor('mimatrixcontroller','Matrix');
 		$vistaglobal['matrixcontroler']=anchor('matrixcontroler','Totalizadores');
