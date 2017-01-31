@@ -218,7 +218,7 @@ class matrixcontroler extends CI_Controller {
 		$this->load->library('grocery_CRUD');
 		$crud = new grocery_CRUD();
 		$crud->set_table($tablatempototales);
-		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
+		$crud->set_theme('bootstrap'); // flexigrid tiene bugs en varias cosas
 		$crud->set_primary_key('sessionficha');
 		$crud->display_as('des_entidad','Entidad')
 			 ->display_as('des_categoria','Centro<br>Coste')
@@ -228,7 +228,10 @@ class matrixcontroler extends CI_Controller {
 			 ->display_as('fecha_registro','Fecha<br>Ingresado')
 			 ->display_as('sessionficha','Registro<br>Autor');
 		$crud->columns('des_entidad','des_categoria','mon_registro','fecha_gasto','sessionficha');
-		$crud->unset_operations();
+		$crud->unset_add();
+		$crud->unset_read();
+		$crud->unset_edit();
+		$crud->unset_delete();
 		$crud->callback_column('mon_registro',array($this,'_numerosgente'));
 		$output = $crud->render();
 

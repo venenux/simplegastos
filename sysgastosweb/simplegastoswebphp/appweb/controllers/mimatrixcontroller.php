@@ -188,6 +188,7 @@ group by cod_categoria
 		$fecha_mesmatrix = $fechafiltramatrix;
         $sqlfiltro_enti_con_cate=
 		"
+		 and a.estado <> 'RECHAZADO'
 		";
 		$sqltotales_enti_con_cate="
 			select
@@ -211,7 +212,7 @@ group by cod_categoria
 						left join
 							`categoria` as `c` ON `a`.`cod_categoria` = `c`.`cod_categoria`
 						where ifnull(`a`.`cod_registro`,'') <> ''
-							/*".$sqlfiltro_enti_con_cate."	/* // TODO justo aqui se debe colcoar los filtros de fecha, esto traeta todo si no se hace */
+							".$sqlfiltro_enti_con_cate."	/* // TODO justo aqui se debe colcoar los filtros de fecha, esto traeta todo si no se hace */
 							and substr(`a`.`fecha_concepto`, 1, 6) = '".$fecha_mesmatrix."'
 						group by `a`.`cod_entidad` , `a`.`cod_categoria`
 
@@ -333,9 +334,9 @@ group by cod_categoria
 		$crud->set_table($sqltotales_enti_cruza_cate_table);	// la tabal es temporal pero del usuario
 		$crud->set_primary_key('ENTIDAD');	// la tabla es temporal, forzar PK
 		$crud->unset_add();			// no se adiconan registros, es reportar
+		$crud->unset_read();	// se creara despues un boton que llame el total en dicha tienda
 		$crud->unset_edit();		// se desabilita cualquer ediccion
 		$crud->unset_delete();		// aqui nada se pierde, no borrar
-		$crud->unset_operations();	// se creara despues un boton que llame el total en dicha tienda
 		$output = $crud->render();		// pinta el html con tabletools
 		$this->db->query($sqltotales_enti_cruza_cate_final_del); // limpiar db de la tabla usada temporalmente para el grocerycrud
 		$data['js_files'] = $output->js_files;
