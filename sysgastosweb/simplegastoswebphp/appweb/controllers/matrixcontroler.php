@@ -104,7 +104,7 @@ class matrixcontroler extends CI_Controller {
 		 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
 		 ifnull(des_entidad,'sin_descripcion') as des_entidad
 		from entidad
-		  where ifnull(cod_entidad, '') <> '' and cod_entidad <> '' and status <> 'INACTIVO'
+		  where ifnull(cod_entidad, '') <> '' and cod_entidad <> '' 
 		";
 		$resultadosentidad = $DBGASTO->query($sqlentidad);
 		$arregloentidades = array(''=>'');
@@ -192,7 +192,7 @@ class matrixcontroler extends CI_Controller {
 						LEFT JOIN entidad b on a.cod_entidad=b.cod_entidad /* todas las entiddes deben registrar gasto*/
 						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
 					where 
-						a.cod_registro <> '' and b.status <> 'INACTIVO' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . "
+						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . "
 						and a.estado <> 'RECHAZADO'
 				     UNION
 					SELECT 
@@ -206,7 +206,7 @@ class matrixcontroler extends CI_Controller {
 						LEFT JOIN entidad b on a.cod_entidad=b.cod_entidad /* todas las entiddes deben registrar gasto*/
 						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
 					where 
-						a.cod_registro <> '' and b.status <> 'INACTIVO' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . " 
+						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . " 
 			) AS tablatotaltemp
 			ORDER BY sessionficha DESC			
 			";
