@@ -330,7 +330,7 @@ group by cod_categoria
 		$this->config->load('grocery_crud');		// cargo la config para cuantos en pagina
 		$this->config->set_item('grocery_crud_default_per_page',10);	// 100 registros por pagina al mismo tiempo
 		$crud = new grocery_CRUD();			// creo el objeto crud a mostrar en html
-		$crud->set_theme('bootstrap'); 		// flexigrid tiene bugs pero exporta solo openoffice
+		$crud->set_theme('flexigrid'); 		// flexigrid tiene bugs pero exporta solo openoffice
 		$crud->set_table($sqltotales_enti_cruza_cate_table);	// la tabal es temporal pero del usuario
 		$crud->set_primary_key('ENTIDAD');	// la tabla es temporal, forzar PK
 		$crud->unset_add();			// no se adiconan registros, es reportar

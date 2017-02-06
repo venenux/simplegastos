@@ -60,7 +60,10 @@ class Menu extends CI_Model
 			if ( ! $usuariocodgernow == "" )
 			{
 				if( $usuariocodgernow == 111)
+				{
 					$header['4geer'] = $nodes->m_header_nodes($menugerencia,$menugerencianodos);
+					$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
+				}
 				else if( $usuariocodgernow != 998)
 				{
 					$header['4tie'] = $nodes->m_header_nodes($cargastie,$cargargastoentidadestienda);
