@@ -78,6 +78,24 @@ $(document).ready(function() {
 		}
 	} );
 
+	$(".groceryCrudTable thead input").keyup( function () {
+
+		chosen_table = datatables_get_chosen_table($(this).closest('.groceryCrudTable'));
+
+		chosen_table.fnFilter( this.value, chosen_table.find("thead input").index(this) );
+
+		if(use_storage)
+		{
+			var search_values_array = [];
+
+			chosen_table.find("thead tr th").each(function(index,value){
+				search_values_array[index] = $(this).children(':first').val();
+			});
+
+			localStorage.setItem( 'datatables_search_'+ unique_hash ,'["' + search_values_array.join('","') + '"]');
+		}
+	} );
+
 	var search_values = localStorage.getItem('datatables_search_'+ unique_hash);
 
 	if( search_values !== null)

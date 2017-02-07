@@ -1,4 +1,30 @@
 <table cellpadding="0" cellspacing="0" border="0" class="display groceryCrudTable" id="<?php echo uniqid(); ?>">
+	<tfoot>
+		<tr>
+			<?php foreach($columns as $column){?>
+				<th><input type="text" name="<?php echo $column->field_name; ?>" placeholder="<?php echo $this->l('list_search').' '.$column->display_as; ?>" class="search_<?php echo $column->field_name; ?>" /></th>
+			<?php }?>
+			<?php if(!$unset_delete || !$unset_edit || !$unset_read || !empty($actions)){?>
+				<th>
+					<button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only floatR refresh-data" role="button" data-url="<?php echo $ajax_list_url; ?>">
+						<span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span><span class="ui-button-text">&nbsp;</span>
+					</button>
+					<a href="javascript:void(0)" role="button" class="clear-filtering ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary floatR">
+						<span class="ui-button-icon-primary ui-icon ui-icon-arrowrefresh-1-e"></span>
+						<span class="ui-button-text"><?php echo $this->l('list_clear_filtering');?></span>
+					</a>
+				</th>
+			<?php }?>
+		</tr>
+		<tr>
+			<?php foreach($columns as $column){?>
+				<th><?php echo $column->display_as; ?></th>
+			<?php }?>
+			<?php if(!$unset_delete || !$unset_edit || !$unset_read || !empty($actions)){?>
+			<th class='actions'><?php echo $this->l('list_actions'); ?></th>
+			<?php }?>
+		</tr>
+	</tfoot>
 	<thead>
 		<tr>
 			<?php foreach($columns as $column){?>
@@ -6,6 +32,22 @@
 			<?php }?>
 			<?php if(!$unset_delete || !$unset_edit || !$unset_read || !empty($actions)){?>
 			<th class='actions'><?php echo $this->l('list_actions'); ?></th>
+			<?php }?>
+		</tr>
+		<tr>
+			<?php foreach($columns as $column){?>
+				<th><input type="text" name="<?php echo $column->field_name; ?>" placeholder="<?php echo $this->l('list_search').' '.$column->display_as; ?>" class="search_<?php echo $column->field_name; ?>" /></th>
+			<?php }?>
+			<?php if(!$unset_delete || !$unset_edit || !$unset_read || !empty($actions)){?>
+				<th>
+					<button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only floatR refresh-data" role="button" data-url="<?php echo $ajax_list_url; ?>">
+						<span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span><span class="ui-button-text">&nbsp;</span>
+					</button>
+					<a href="javascript:void(0)" role="button" class="clear-filtering ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary floatR">
+						<span class="ui-button-icon-primary ui-icon ui-icon-arrowrefresh-1-e"></span>
+						<span class="ui-button-text"><?php echo $this->l('list_clear_filtering');?></span>
+					</a>
+				</th>
 			<?php }?>
 		</tr>
 	</thead>
@@ -53,22 +95,4 @@
 		</tr>
 		<?php }?>
 	</tbody>
-	<tfoot>
-		<tr>
-			<?php foreach($columns as $column){?>
-				<th><input type="text" name="<?php echo $column->field_name; ?>" placeholder="<?php echo $this->l('list_search').' '.$column->display_as; ?>" class="search_<?php echo $column->field_name; ?>" /></th>
-			<?php }?>
-			<?php if(!$unset_delete || !$unset_edit || !$unset_read || !empty($actions)){?>
-				<th>
-					<button class="ui-button ui-widget ui-state-default ui-corner-all ui-button-icon-only floatR refresh-data" role="button" data-url="<?php echo $ajax_list_url; ?>">
-						<span class="ui-button-icon-primary ui-icon ui-icon-refresh"></span><span class="ui-button-text">&nbsp;</span>
-					</button>
-					<a href="javascript:void(0)" role="button" class="clear-filtering ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary floatR">
-						<span class="ui-button-icon-primary ui-icon ui-icon-arrowrefresh-1-e"></span>
-						<span class="ui-button-text"><?php echo $this->l('list_clear_filtering');?></span>
-					</a>
-				</th>
-			<?php }?>
-		</tr>
-	</tfoot>
 </table>
