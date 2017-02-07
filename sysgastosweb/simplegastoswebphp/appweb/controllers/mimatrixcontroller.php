@@ -144,7 +144,7 @@ group by cod_categoria
 	 * con una fecha itera en las tiendas y totaliza todos los gastos de la fecha
 	 * si no recibe fecha entonces asume la unica fecha actual menos un mes (el mes anterior)
 	 */
-	public function secciontablamatrix( $aniomes = NULL)
+	public function secciontablamatrix( $fechainimatrix = '', $fechafinmatrix = '')
 	{
 		/* ***** ini manejo de sesion ******************* */
 		$userdata = $this->session->all_userdata();		// tomo los datos del usuario actual si existe
@@ -158,34 +158,36 @@ group by cod_categoria
 
 		/* ***** ini OBTENER DATOS DE FORMULARIO **************************** */
 		$aniomes='';			// inicializo una marca de fecha de referencia
-		$fechafiltramatrix = $this->input->get_post('fechafiltramatrix'); // tomo la fecha del formulario de filtro
-		if ($fechafiltramatrix== '')
+		$fechainimatrix = $this->input->get_post('fechainimatrix'); // tomo la fecha del formulario de filtro
+		$fechafinmatrix = $this->input->get_post('fechafinmatrix'); // tomo la fecha del formulario de filtro
+		if ($fechainimatrix== '')
 		{
 			if($aniomes=='')					// si no se envio inicializo
-				$fechafiltramatrix=date('Ym');
+				$fechainimatrix=date('Ymd');
 			else
-				$fechafiltramatrix=$aniomes;	// asigno para despues tomar solo mes
+				$fechainimatrix=$aniomes;	// asigno para despues tomar solo mes
 		}
-		$aniomes=substr($fechafiltramatrix, 0, 6); //aqui tomo solo el mes (por eso el formato anio/mes/dia pegado)
-		$fechafiltramatrix=$aniomes;				// coloco ambas variables iguales y ya tengo que mes
+		if ($fechafinmatrix== '')
+		{
+			if($aniomes=='')					// si no se envio inicializo
+				$fechainimatrix=date('Ymd');
+			else
+				$fechainimatrix=$aniomes;	// asigno para despues tomar solo mes
+		}
 		/* ***** fin OBTENER DATOS DE FORMULARIO ***************************** */
 
+        $usuariocodgernow = $this->session->userdata('cod_entidad');
 		// averiguar si elusuario es administrativo o usuario de tienda
 		if( $this->session->userdata('logueado') == FALSE)
-          {
             redirect('manejousuarios/desverificarintranet');
-          }
-        $usuariocodgernow = $this->session->userdata('cod_entidad');
         if( $usuariocodgernow == null)
-          {
             redirect('manejousuarios/desverificarintranet');
-          }
 
 		/* ******************************************* */
 		/* ******** inicio calulo matrix ************* */
 		/* ******************************************* */
 		$this->load->helper(array('form', 'url','inflector'));
-		$fecha_mesmatrix = $fechafiltramatrix;
+		$fecha_mesmatrix = $fechainimatrix;
         $sqlfiltro_enti_con_cate=
 		"
 		 and a.estado <> 'RECHAZADO'
@@ -350,7 +352,7 @@ group by cod_categoria
 		$data['userintranet'] = $userintranet;
 		$data['menu'] = $this->menu->general_menu();
 		$data['seccionpagina'] = 'secciontablamatrix';
-		$data['fechafiltramatrix'] = $fechafiltramatrix;
+		$data['fechainimatrix'] = $fechainimatrix;
 		$this->load->view('header.php',$data);
 		$this->load->view('mivistamatrix.php',$data);
 		$this->load->view('footer.php',$data);
