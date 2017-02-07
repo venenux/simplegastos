@@ -28,15 +28,7 @@
 	<thead>
 		<tr>
 			<?php foreach($columns as $column){?>
-				<th><?php echo $column->display_as; ?></th>
-			<?php }?>
-			<?php if(!$unset_delete || !$unset_edit || !$unset_read || !empty($actions)){?>
-			<th class='actions'><?php echo $this->l('list_actions'); ?></th>
-			<?php }?>
-		</tr>
-		<tr>
-			<?php foreach($columns as $column){?>
-				<th><input type="text" name="<?php echo $column->field_name; ?>" placeholder="<?php echo $this->l('list_search').' '.$column->display_as; ?>" class="search_<?php echo $column->field_name; ?>" /></th>
+				<th><input type="text" size="7" name="<?php echo $column->field_name; ?>" placeholder="<?php echo $this->l('list_search').' '.$column->display_as; ?>" class="thead search_<?php echo $column->field_name; ?>" /></th>
 			<?php }?>
 			<?php if(!$unset_delete || !$unset_edit || !$unset_read || !empty($actions)){?>
 				<th>
@@ -48,6 +40,14 @@
 						<span class="ui-button-text"><?php echo $this->l('list_clear_filtering');?></span>
 					</a>
 				</th>
+			<?php }?>
+		</tr>
+		<tr>
+			<?php foreach($columns as $column){?>
+				<th><?php echo $column->display_as; ?></th>
+			<?php }?>
+			<?php if(!$unset_delete || !$unset_edit || !$unset_read || !empty($actions)){?>
+			<th class='actions'><?php echo $this->l('list_actions'); ?></th>
 			<?php }?>
 		</tr>
 	</thead>
