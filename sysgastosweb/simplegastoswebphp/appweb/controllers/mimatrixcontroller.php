@@ -144,7 +144,7 @@ group by cod_categoria
 	 * con una fecha itera en las tiendas y totaliza todos los gastos de la fecha
 	 * si no recibe fecha entonces asume la unica fecha actual menos un mes (el mes anterior)
 	 */
-	public function secciontablamatrix( $fechainimatrix = '', $fechafinmatrix = '')
+	public function secciontablamatrix( $fechainiparam = '', $fechafinparam = '')
 	{
 		/* ***** ini manejo de sesion ******************* */
 		$userdata = $this->session->all_userdata();		// tomo los datos del usuario actual si existe
@@ -157,22 +157,21 @@ group by cod_categoria
 		/* ***** fin manejo de sesion ******************* */
 
 		/* ***** ini OBTENER DATOS DE FORMULARIO **************************** */
-		$aniomes='';			// inicializo una marca de fecha de referencia
 		$fechainimatrix = $this->input->get_post('fechainimatrix'); // tomo la fecha del formulario de filtro
 		$fechafinmatrix = $this->input->get_post('fechafinmatrix'); // tomo la fecha del formulario de filtro
 		if ($fechainimatrix== '')
 		{
-			if($aniomes=='')					// si no se envio inicializo
+			if($fechainiparam=='')					// si no se envio inicializo
 				$fechainimatrix=date('Ymd');
 			else
-				$fechainimatrix=$aniomes;	// asigno para despues tomar solo mes
+				$fechainimatrix=$fechainiparam;	// asigno para despues tomar solo mes
 		}
 		if ($fechafinmatrix== '')
 		{
-			if($aniomes=='')					// si no se envio inicializo
-				$fechainimatrix=date('Ymd');
+			if($fechafinparam=='')					// si no se envio inicializo
+				$fechafinmatrix=date('Ymd');
 			else
-				$fechainimatrix=$aniomes;	// asigno para despues tomar solo mes
+				$fechafinmatrix=$fechafinparam;	// asigno para despues tomar solo mes
 		}
 		/* ***** fin OBTENER DATOS DE FORMULARIO ***************************** */
 
@@ -182,12 +181,22 @@ group by cod_categoria
             redirect('manejousuarios/desverificarintranet');
         if( $usuariocodgernow == null)
             redirect('manejousuarios/desverificarintranet');
+        $cod_entidad = $cod_categoria = '' /* por ahora no se usa, se usara en futuro */
 
 		/* ******************************************* */
-		/* ******** inicio calulo matrix ************* */
+		/* ******** inicio calculo matrix ************* */
 		/* ******************************************* */
 		$this->load->helper(array('form', 'url','inflector'));
-		$fecha_mesmatrix = $fechainimatrix;
+		$filtro1 = $filtro2 = $filtro3 = $filtro4 = '';
+		if ( trim(str_replace(' ', '', $cod_entidad)) != '')
+			$filtro1 = " and	a.cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
+		if ( trim(str_replace(' ', '', $fechainimatrix)) != '')
+			$filtro2 = " and CONVERT(a.fecha_concepto,UNSIGNED) >= CONVERT('".$this->db->escape_str($fechainimatrix)."',UNSIGNED)  ";
+		if ( trim(str_replace(' ', '', $fechafinmatrix)) != '')
+			$filtro3 = " and CONVERT(a.fecha_concepto,UNSIGNED) <= CONVERT('".$this->db->escape_str($fechafinmatrix)."',UNSIGNED)  ";
+		if ( trim(str_replace(' ', '', $cod_categoria)) != '')
+			$filtro4 = " and a.cod_categoria = '".$this->db->escape_str($cod_categoria)."' ";
+		
         $sqlfiltro_enti_con_cate=
 		"
 		 and a.estado <> 'RECHAZADO'
@@ -215,7 +224,8 @@ group by cod_categoria
 							`categoria` as `c` ON `a`.`cod_categoria` = `c`.`cod_categoria`
 						where ifnull(`a`.`cod_registro`,'') <> ''
 							".$sqlfiltro_enti_con_cate."	/* // TODO justo aqui se debe colcoar los filtros de fecha, esto traeta todo si no se hace */
-							and substr(`a`.`fecha_concepto`, 1, 6) = '".$fecha_mesmatrix."'
+							".$filtro2."
+							".$filtro3."
 						group by `a`.`cod_entidad` , `a`.`cod_categoria`
 
 					union
@@ -227,8 +237,8 @@ group by cod_categoria
 							`d`.`des_categoria` AS `des_categoria`,
 							ifnull(`d`.`tipo_categoria`, 'NORMAL') AS `tipo_categoria`,
 							0 AS `mon_registro`,
-							'".$fecha_mesmatrix."' AS `fecha_concepto`,
-							'".$fecha_mesmatrix."' AS `fecha_registro`
+							'".$fechainiparam."' AS `fecha_concepto`,
+							'".$fechafinparam."' AS `fecha_registro`
 						from
 							`categoria` as `d`
 						join
@@ -353,6 +363,7 @@ group by cod_categoria
 		$data['menu'] = $this->menu->general_menu();
 		$data['seccionpagina'] = 'secciontablamatrix';
 		$data['fechainimatrix'] = $fechainimatrix;
+		$data['fechafinmatrix'] = $fechafinmatrix;
 		$this->load->view('header.php',$data);
 		$this->load->view('mivistamatrix.php',$data);
 		$this->load->view('footer.php',$data);

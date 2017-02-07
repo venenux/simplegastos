@@ -35,7 +35,7 @@
 	else if ($seccionpagina == 'secciontablamatrix')
 	{
 		// mostrar la tabla tiendas x categorias, esto es construido en el controlador y enviado preformateado ya html
-		echo "Fecha : " . $fechainimatrix . br() . PHP_EOL;
+		echo "Periodo mostrado es entre : " . $fechainimatrix . " y el " . $fechafinmatrix . br() . PHP_EOL;
 				foreach($css_files as $file)
 		{	echo '<link type="text/css" rel="stylesheet" href="'.$file.'" />';	}
 		foreach($js_files as $file)
