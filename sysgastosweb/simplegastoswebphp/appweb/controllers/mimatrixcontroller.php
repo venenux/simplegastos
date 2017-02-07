@@ -181,7 +181,7 @@ group by cod_categoria
             redirect('manejousuarios/desverificarintranet');
         if( $usuariocodgernow == null)
             redirect('manejousuarios/desverificarintranet');
-        $cod_entidad = $cod_categoria = '' /* por ahora no se usa, se usara en futuro */
+        $cod_entidad = $cod_categoria = ''; /* por ahora no se usa, se usara en futuro */
 
 		/* ******************************************* */
 		/* ******** inicio calculo matrix ************* */

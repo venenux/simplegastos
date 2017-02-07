@@ -237,12 +237,11 @@ th {
 }
 
 form{
-    padding: 0px 50px 20px;
+    padding: 0px 10px 10px;
     /*background: linear-gradient(#fff,#ABDBFF);*/
     border: 1px solid #ccc;
-    box-shadow: 0 0 5px;
     font-family: 'Marcellus', serif;
-    margin-top: 5px;
+    margin-top: 1px;
 }
 /*! Source: https://github.com/h5bp/html5-boilerplate/blob/master/src/css/main.css */
 @media print {
