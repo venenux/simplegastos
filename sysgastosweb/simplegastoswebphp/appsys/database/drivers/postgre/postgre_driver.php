@@ -528,10 +528,12 @@ class CI_DB_postgre_driver extends CI_DB {
 	{
 		if ( ! is_array($tables))
 		{
-			$tables = array($tables);
+			return strstr($tables, ',') ? '('.$tables.')' : $tables; // PICCORO retorna una tbla solo si no es array
+    	}
+		else
+		{
+			return count($tables) > 1 ? '('.implode(', ', $tables).')' : end($tables);
 		}
-
-		return implode(', ', $tables);
 	}
 
 	// --------------------------------------------------------------------
