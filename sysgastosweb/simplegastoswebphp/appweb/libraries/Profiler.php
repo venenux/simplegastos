@@ -70,6 +70,13 @@ class CI_Profiler extends CI_Loader {
 			unset($config['query_toggle_count']);
 		}
 
+		// Make sure the Console is loaded.
+		if (!class_exists('Console'))
+		{
+			$this->CI->load->library('Console');
+		}
+
+		$this->set_sections($config);
 		// default all sections to display
 		foreach ($this->_available_sections as $section)
 		{
@@ -78,14 +85,6 @@ class CI_Profiler extends CI_Loader {
 				$this->_compile_{$section} = TRUE;
 			}
 		}
-
-		// Make sure the Console is loaded.
-		if (!class_exists('Console'))
-		{
-			$this->CI->load->library('Console');
-		}
-
-		$this->set_sections($config);
 
 		// Strange hack to get access to the current
 		// vars in the CI_Loader class.
@@ -165,7 +164,7 @@ class CI_Profiler extends CI_Loader {
 	 */
 	protected function _compile_queries()
 	{
-		$dbs = array();
+		$dbs = array(); // TODO soporte de varias db en profiler javascript y profiler normal
 		$output = array();
 
 		// Let's determine which databases are currently connected to
@@ -175,8 +174,6 @@ class CI_Profiler extends CI_Loader {
 			{
 				$dbs[] = $CI_object;
 			}
-			else
-				var_dump($CI_object);
 		}
 
 		if (count($dbs) == 0)
@@ -353,6 +350,10 @@ class CI_Profiler extends CI_Loader {
 		$output = array();
 
 		if (count($_POST) == 0 AND $_FILES == 0)
+		{
+			$output = $this->CI->lang->line('profiler_no_post');
+		}
+		else if (count($_POST) == 0)
 		{
 			$output = $this->CI->lang->line('profiler_no_post');
 		}
@@ -559,7 +560,7 @@ class CI_Profiler extends CI_Loader {
 				{
 					if (is_numeric($key))
 					{
-						$output[$key] = "'$val'";
+						$output[$key] = print_r($val,true);
 					}
 
 					if (is_array($val) || is_object($val))
@@ -594,7 +595,7 @@ class CI_Profiler extends CI_Loader {
 		{
 			if (is_numeric($key))
 			{
-				$output[$key] = "'$val'";
+				$output[$key] = print_r($val,true);
 			}
 
 			if (is_array($val) || is_object($val))
