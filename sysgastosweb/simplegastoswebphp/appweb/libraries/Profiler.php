@@ -175,6 +175,8 @@ class CI_Profiler extends CI_Loader {
 			{
 				$dbs[] = $CI_object;
 			}
+			else
+				var_dump($CI_object);
 		}
 
 		if (count($dbs) == 0)
@@ -350,7 +352,7 @@ class CI_Profiler extends CI_Loader {
 	{
 		$output = array();
 
-		if (count($_POST) == 0)
+		if (count($_POST) == 0 AND $_FILES == 0)
 		{
 			$output = $this->CI->lang->line('profiler_no_post');
 		}
@@ -372,6 +374,26 @@ class CI_Profiler extends CI_Loader {
 					$output['&#36;_POST['. $key .']'] = htmlspecialchars(stripslashes($val));
 				}
 			}
+			
+			
+			foreach ($_FILES as $key => $val)
+			{
+				if ( ! is_numeric($key))
+				{
+					$key = "'".$key."'";
+				}
+
+				if (is_array($val) OR is_object($val))
+				{
+					$output['&#36;_POST[FILE'. $key .']'] =  '<pre>'.htmlspecialchars(stripslashes(print_r($val, TRUE))).'</pre>';
+				}
+				else
+				
+				{
+					$output['&#36;_POST[FILE'. $key .']'] = htmlspecialchars(stripslashes($val));
+				}
+			}
+
 		}
 
 		return $output;
@@ -507,8 +529,8 @@ class CI_Profiler extends CI_Loader {
 				if ($log['type'] == 'log')
 				{
 					$this->CI->load->library('Vd');
-					$logs['console'][$key]['data'] = Vd::dump($log['data'], '', TRUE);
-//					$logs['console'][$key]['data'] = print_r($log['data'], true);
+//					$logs['console'][$key]['data'] = Vd::dump($log['data'], '', TRUE);
+					$logs['console'][$key]['data'] = print_r($log['data'], true);
 				}
 				elseif ($log['type'] == 'memory')
 				{
