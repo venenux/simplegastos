@@ -75,7 +75,7 @@ class CI_Config {
 
 			else
 			{
-				$base_url = 'http://localhost/';
+				$base_url = 'http://'.$_SERVER['HTTP_HOST'].'/'; // TODO esto hay que usar server_addr por seguridd fuerte inyeccion codigo
 			}
 
 			$this->set_item('base_url', $base_url);
