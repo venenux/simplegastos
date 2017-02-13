@@ -55,7 +55,7 @@
 	$botonesgestion = $this->table->generate();
 
 	// detectar que mostrar segun lo enviado desde el controlador
-	echo 'ESTADO OPERACION: <strong>'.$mens.'</strong>';
+		echo '<div style="color:red;background-color:red">ESTADO OPERACION: <strong style="background-color:red;color:white;">'.$mens.'</strong></div>';
 	if ($accionejecutada == 'gastosucursalesindex')
 	{
 		echo br() . PHP_EOL;
@@ -198,6 +198,6 @@
 
 		echo br().PHP_EOL;
 	}
-	echo 'ESTADO OPERACION:<strong>'.$mens.'</strong>';
+		echo '<div style="color:red;background-color:red">ESTADO OPERACION: <strong style="background-color:red;color:white;">'.$mens.'</strong></div>';
 	?>
 	</div>
