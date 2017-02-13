@@ -1129,7 +1129,7 @@ class CI_Form_validation {
 	// --------------------------------------------------------------------
 
 	/**
-	 * Alpha-numeric with underscores and dashes and spaces
+	 * Alpha-numeric with underscores and dashes and spaces also the messages
 	 *
 	 * @access	public
 	 * @param	string

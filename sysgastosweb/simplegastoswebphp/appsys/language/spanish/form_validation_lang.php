@@ -11,6 +11,7 @@ $lang['max_length']			= "El campo %s no debe exceder los %s caracteres de longit
 $lang['exact_length']		= "El campo %s debe tener exactamente %s carácteres.";
 $lang['alpha']				= "El campo %s sólo puede contener carácteres alfabéticos.";
 $lang['alpha_numeric']		= "El campo %s sólo puede contener carácteres alfanuméricos.";
+$lang['alpha_numeric_spaces']		= "El campo %s sólo puede contener carácteres alfanuméricos.";
 $lang['alpha_dash']			= "El campo %s sólo puede contener carácteres alfanuméricos, guiones bajos '_' o guiones '-'.";
 $lang['numeric']			= "El campo %s sólo puede contener números.";
 $lang['is_numeric']			= "El campo %s sólo puede contener carácteres numéricos.";
