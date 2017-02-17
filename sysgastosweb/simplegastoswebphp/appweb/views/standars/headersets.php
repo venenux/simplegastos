@@ -12,6 +12,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 		$metaline4 = array('name' => 'Cache-Control', 'content' => 'no-cache, no-store, must-revalidate, max-age=0, post-check=0, pre-check=0', 'type' => 'equiv');
 		$metaline5 = array('name' => 'Last-Modified', 'content' => gmdate("D, d M Y H:i:s") . ' GMT', 'type' => 'equiv');
 		$metaline6 = array('name' => 'pragma', 'content' => 'no-cache', 'type' => 'equiv');
+		$metalines = array('name' => 'Content-Security-Policy', 'content' => '');
 
 		$linkdefcss = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcss.'defaultstyle.css?'.time());
 		$linkappcss = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcss.'bootstrap.css?'.time());
@@ -23,5 +24,5 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 		$linktabberdetaljs = array('type'=>$typjs,'src' => $pathjsc.'tabber.js?'.time());
 		$linkdatepickerugl = array('type'=>$typjs,'src' => $pathjsc.'datetimepicker.js?'.time());
 
-		$meta = array( $metaline1, $metaline2, $metaline3, $metaline4, $metaline5, $metaline6 );
+		$meta = array( $metaline1, $metaline2, $metaline3, $metaline4, $metaline5, $metaline6, $metalines );
 ?>

@@ -84,9 +84,9 @@ class admentidades extends CI_Controller {
 		$crud->unset_add_fields('sessionflag','nam_usuario'); // TODO: bug no asocia usuario en crear
 		//$crud->unset_export(); // tabletools.js need ods eent csv extension
 		$currentState = $crud->getState();
-		$crud->set_rules('abr_entidad', 'Siglas', 'trim|alphanumeric');
-		$crud->set_rules('abr_zona', 'Zona', 'trim|alphanumeric');
-		$crud->set_rules('des_entidad', 'Nombre', 'trim|alphanumeric');
+		$crud->set_rules('abr_entidad', 'Siglas', 'trim|alpha_numeric');
+		$crud->set_rules('abr_zona', 'Zona', 'trim|alpha_dash');
+		$crud->set_rules('des_entidad', 'Nombre', 'trim|alpha_numeric_spaces');
 		if($currentState == 'add')
 		{
 			$crud->required_fields('cod_entidad','abr_entidad','abr_zona','des_entidad','tipo_entidad','status');
