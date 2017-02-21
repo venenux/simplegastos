@@ -15,6 +15,10 @@
 	/* ********* fin valores predeterminados ******************** */
 
 	/* ********* ini seccion del formulario filtrara ******************** */
+	$jspickathingjs='<script type="text/javascript" src="' . base_url() . APPPATH . 'scripts/'.'pickathing.js"></script>';
+		$jscategorialis = '<script>var selectjscategorialis = new Pickathing(\'list_categoria\', true);</script>';
+		$jssubcategorialis = '<script>var selectjssubcategorialis = new Pickathing(\'list_subcategoria\', true);</script>';
+		$jsentidadlis = '<script>var selectjsentidadlis = new Pickathing(\'list_entidad\', true);</script>';
 	if ($seccionpagina == 'seccionfiltrarmatrix')
 	{
 		//echo form_fieldset('Ingrese datos solo si desea filtrar la matrix',array('class'=>'container_blue containerin')) . PHP_EOL;

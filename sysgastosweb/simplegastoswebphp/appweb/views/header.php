@@ -8,6 +8,7 @@ $this->load->helper('html');
 		echo '<meta name="viewport" content="width=device-width, initial-scale=1.0">';
 		echo link_tag($linkdefcss);		// link css estilo aparienca defaultstyle.css para body, center y meta
 		echo link_tag($linkappcss);		// link css estilo apariencia boostrap para input, tags, botones y tablas
+		echo link_tag($linkcombocss); 	// link css para comobo boxes dinamicos
 		echo script_tag($linkbrownavdecsjs);
 		echo script_tag($linkvalidaformsjs);	// validadores genericos de campos, trata recorer un campo y verificar su valor segun la llamada
 		//echo script_tag($linktabberdetaljs);	// comportamiento de pestañas para que al dar click esconda y muestre como si fueran pestañas elementos de lista

@@ -258,6 +258,12 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_rif = $this->input->get_post('factura_rif');
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
+		if ( trim($mon_registro) == '' OR trim($des_concepto) == '')
+		{
+			$mens = 'El monto y el concepto o descripcion no deben estar vacios';
+			log_message('info', $mens.'.');
+			return $this->gastomanualcargaruno( $mens );
+		}
 
 		// ******* GENERACION de la carga id codigo de registro
 		$fecha_registro = date('Ymd');
