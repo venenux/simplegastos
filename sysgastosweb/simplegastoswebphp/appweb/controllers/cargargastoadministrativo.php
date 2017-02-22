@@ -227,7 +227,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->callback_column('mon_registro',array($this,'_numerosgente'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->callback_before_insert(array($this,'generarcodigo'));
-		$crud->callback_after_delete(array($this,'echapajaborrando'));
+		$crud->callback_before_delete(array($this,'echapajaborrando'));
 		//$crud->callback_after_insert(array($this,'_ver_after_insert'));
 		//$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
 		//$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
@@ -271,18 +271,25 @@ class cargargastoadministrativo extends CI_Controller {
 	/* llamar preupdate antes actualizar adiciona quien esta realizando la actualizacion */
 	function echapajacuando($post_array, $primary_key)
 	{
-		$operacion = $this->session->userdata('username').' actualizando el gasto ' . $primary_key . ' de concepto ' . $post_array['des_concepto'];
+		$operacion = $this->session->userdata('username').' cambio, datos viejos de ' . $primary_key . ': '.$post_array['des_concepto'].'-'.$post_array['cod_entidad'].'-'.$post_array['mon_registro'].'-'.$post_array['cod_categoria'].'-'.$post_array['cod_subcategoria'];
 		$sessionflag = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
 		$post_array['sessionflag'] = $sessionflag;
 		$this->db->insert('log',array('cod_log' => date('YmdHis'), 'operacion' => $operacion, 'sessionficha' => $sessionflag));
-		log_message('info', $operacion . ' en  ' . $sessionflag );
+		log_message('info', $operacion . ' por  ' . $sessionflag );
 		return $post_array;
 	}
 
 	/* si se borra echa paja cuando */
 	function echapajaborrando($primary_key)
 	{
-		$operacion = $this->session->userdata('username').' borrando el gasto ' . $primary_key;
+		$results = $this->db->query("SELECT * FROM registro_gastos WHERE cod_registro = '".$primary_key."'");
+		$stringlog =  '>>>';
+			foreach ($results->result() as $row)
+			{
+				$stringlog .= $row->cod_entidad.'-'.$row->cod_categoria.'-'.$row->cod_subcategoria.'-'.$row->mon_registro.''.'-'.$row->des_concepto.'-'.$row->sessionflag.'-'.$row->sessionficha.'';
+			}
+		$stringlog .= '<<<';
+		$operacion = $this->session->userdata('username').' borrando el gasto ' . $primary_key . ':'.$stringlog;
 		$sessionficha = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
 		$this->db->insert('log',array('cod_log' => date('YmdHis'), 'operacion' => $operacion, 'sessionficha' => $sessionficha));
 		log_message('info', $operacion . ' en  ' . $sessionficha);
