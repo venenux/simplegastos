@@ -256,6 +256,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_tipo = $this->input->get_post('factura_tipo');
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
+		$factura_bin = $this->input->get_post('factura_bin');
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 		if ( trim($mon_registro) == '' OR trim($des_concepto) == '')
@@ -294,7 +295,7 @@ class cargargastosucursalesadm extends CI_Controller {
         $filenamenewe =  $file_data['file_path'] . $filenamen;
 		if ( $factura_tipo == 'CONTRIBUYENTE' )
 		{
-			if ( $file_data['file_name'] == '' )
+			if ( $file_data['file_name'] == '' and $factura_bin == '' )
 			{
 				$this->gastomanualcargaruno($mens = '<br>CUADNO ES CONTRIBUYENTE Debe subir un archivo escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO');
 				log_message('info', $mens.'.');
