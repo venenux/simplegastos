@@ -278,8 +278,8 @@ class cargargastosucursalesadm extends CI_Controller {
 			chmod($directoriofacturas,0777);
 		}
 		$cargaconfig['upload_path'] = $directoriofacturas;
-		$cargaconfig['allowed_types'] = 'gif|jpg|png|jpeg';
-		$cargaconfig['max_size']  = 0;  //$cargaconfig['max_size']= '100'; // en kilobytes
+		$cargaconfig['allowed_types'] = 'gif|jpg|png|jpeg|pdf';
+		$cargaconfig['max_size']  = 3110*1024;  //$cargaconfig['max_size']= '100'; // en kilobytes
 		$cargaconfig['max_width'] = 0;
 		$cargaconfig['max_height'] = 0;
 		//$cargaconfig['remove_spaces'] = true;
@@ -359,6 +359,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		if ( $this->nivel == 'administrador')
 			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn-primary btn" '));
 		$data['menu'] = $this->menu->general_menu();
+		$data['mens']=$this->upload->display_errors();
 		$data['cod_registro'] = $cod_registro;
 		$data['accionejecutada'] = 'gastomanualfiltrardouno';
 		$data['upload_errors'] = $this->upload->display_errors('<p>', '</p>');
@@ -495,7 +496,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_tipo = $this->input->get_post('factura_tipo');
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
-		$factura_bin = $this->input->get_post('factura_bin');
+		$factura_bin = $this->input->get_post('factura_binX');
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 
@@ -511,8 +512,8 @@ class cargargastosucursalesadm extends CI_Controller {
 			chmod($directoriofacturas,0777);
 		}
 		$cargaconfig['upload_path'] = $directoriofacturas;
-		$cargaconfig['allowed_types'] = 'gif|jpg|png|jpeg';
-		$cargaconfig['max_size']  = 0;  //$cargaconfig['max_size']= '100'; // en kilobytes
+		$cargaconfig['allowed_types'] = 'gif|jpg|png|jpeg|pdf';
+		$cargaconfig['max_size']  = 3072*1024;  //$cargaconfig['max_size']= '100'; // en kilobytes
 		$cargaconfig['max_width'] = 0;
 		$cargaconfig['max_height'] = 0;
 		//$cargaconfig['remove_spaces'] = true;
@@ -525,11 +526,11 @@ class cargargastosucursalesadm extends CI_Controller {
 		$filenamen = $cod_registro .'1'. $file_data['file_ext'];
 		$filenameorig =  $file_data['file_path'] . $file_data['file_name'];
 		$filenamenewe =  $file_data['file_path'] . $filenamen;
-			if ( $this->input->get_post('factura_bin') != '' and $file_data['file_name'] == '' )
+			if ( $this->input->get_post('factura_binX') != '' and $file_data['file_name'] == '' )
 			{
 				$conadjunto = FALSE;
-				$factura_bin = $this->input->get_post('factura_bin');
-				$linkadjunto = $this->input->get_post('factura_bin');
+				$factura_bin = $this->input->get_post('factura_binX');
+				$linkadjunto = $this->input->get_post('factura_binX');
 			}
 			else
 			{
@@ -601,6 +602,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$data['htmltablacargasregistros'] = $this->table->generate();
 		$data['menu'] = $this->menu->general_menu();
 		$data['cod_registro'] = $cod_registro;
+		$data['mens']=$this->upload->display_errors();
 		$data['accionejecutada'] = 'gastomanualfiltrardouno';
 //		$data['upload_errors'] = $this->upload->display_errors('<p>', '</p>');
 		$this->load->helper(array('form', 'url','html'));
