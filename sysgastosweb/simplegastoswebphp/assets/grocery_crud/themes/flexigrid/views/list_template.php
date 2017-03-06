@@ -145,20 +145,18 @@ if($success_message !== null){?>
 				<td width="50%" style="border: none; padding: 0cm">
 					<?php if(!$unset_add || !$unset_export || !$unset_print){?>
 					<div class="tDiv">
-						<?php if(!$unset_add){?>
-						<div class="tDiv2">
+						<div class="tDiv3">
+							<?php if(!$unset_add){?>
 							<a href='<?php echo $add_url?>' title='<?php echo $this->l('list_add'); ?> <?php echo $subject?>' class='add-anchor add_button'>
 							<div class="fbutton">
 								<div>
-									<span class="add"><?php echo $this->l('list_add'); ?> <?php echo $subject?></span>
+									<span class="add"><?php echo $this->l('list_add'); ?></span>
 								</div>
 							</div>
 							</a>
 							<div class="btnseparator">
 							</div>
-						</div>
-						<?php }?>
-						<div class="tDiv3">
+							<?php }?>
 							<?php if(!$unset_export) { ?>
 							<a class="export-anchor" data-url="<?php echo $export_url; ?>" target="_blank">
 								<div class="fbutton">
