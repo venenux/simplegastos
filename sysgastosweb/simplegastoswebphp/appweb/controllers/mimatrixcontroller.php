@@ -339,8 +339,6 @@ group by cod_categoria
 		$this->db->query($sqltotales_enti_cruza_cate_final_nohea); // eliminar el query union que sirve para que se definan los nombres de columnas (select from query en vez de table)
 		$this->load->helper(array('inflector','url'));	// inicar el pintar bonito los datos de una tabla temporal matrix cruzada
 		$this->load->library('grocery_CRUD');		// uso la libreria que pinga bonito una tabla
-//		$this->config->load('grocery_crud');		// cargo la config para cuantos en pagina
-//		$this->config->set_item('grocery_crud_default_per_page',10);	// 100 registros por pagina al mismo tiempo
 		$crud = new grocery_CRUD();			// creo el objeto crud a mostrar en html
 		$crud->set_theme('datatables'); 		// flexigrid tiene bugs pero exporta solo openoffice
 		$crud->set_table($sqltotales_enti_cruza_cate_table);	// la tabal es temporal pero del usuario
@@ -349,6 +347,7 @@ group by cod_categoria
 		$crud->unset_read();	// se creara despues un boton que llame el total en dicha tienda
 		$crud->unset_edit();		// se desabilita cualquer ediccion
 		$crud->unset_delete();		// aqui nada se pierde, no borrar
+		$crud->add_action('AVISO Y AYUDA', '', '','ui-icon-plus',array($this,'_redirecciontotalizadores'));
 		$output = $crud->render();		// pinta el html con tabletools
 		$this->db->query($sqltotales_enti_cruza_cate_final_del); // limpiar db de la tabla usada temporalmente para el grocerycrud
 		$data['js_files'] = $output->js_files;
@@ -370,6 +369,10 @@ group by cod_categoria
 		/* *** fin enviar lo calculado y mostrar vista datos al usuario ********************/
 	}
 
-
-
+	public function _redirecciontotalizadores($primary_key, $row)
+	{
+		//$enlace = site_url('matrixcontroler/matrixtotalesfiltrado/?fechainimatrix='.'&cod_entidad='.$row->ENTIDAD);
+		//return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
+		return "javascript:alert('Si solo aparecen pocos registros, revise no tenga filtros, use el boton arriba resetear filtros<br>\na la derecha en la primera linea!!!');";
+	}
 }

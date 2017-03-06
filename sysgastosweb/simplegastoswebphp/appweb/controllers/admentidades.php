@@ -60,6 +60,7 @@ class admentidades extends CI_Controller {
 		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
 		$crud->set_table('entidad');
 		$crud->set_subject('Sucursal');
+		$crud->unset_export(); // tabletools.js need ods eent csv extension
 		$crud->set_relation_n_n('nam_usuario', 'entidad_usuario', 'usuarios', 'cod_entidad', 'intranet', 'nombre');
 		$crud->set_relation('cod_fondo','fondo','{mon_fondo} ({fecha_fondo})');
 		$crud->columns('abr_zona','abr_entidad','des_entidad','tipo_entidad','status','nam_usuario','cod_entidad','sello','rif_razonsocial','num_telefonofijo','num_celularenc1','cod_fondo','sessionflag');
@@ -82,7 +83,6 @@ class admentidades extends CI_Controller {
 			 ->display_as('sello','Sello')
 			 ->display_as('sessionflag','Modificado');
 		$crud->unset_add_fields('sessionflag','nam_usuario'); // TODO: bug no asocia usuario en crear
-		//$crud->unset_export(); // tabletools.js need ods eent csv extension
 		$currentState = $crud->getState();
 		$crud->set_rules('abr_entidad', 'Siglas', 'trim|alpha_numeric');
 		$crud->set_rules('abr_zona', 'Zona', 'trim|alpha_dash');

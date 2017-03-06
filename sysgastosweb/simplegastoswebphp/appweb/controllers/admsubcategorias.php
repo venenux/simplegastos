@@ -76,6 +76,7 @@ class admsubcategorias extends CI_Controller {
 		$crud->field_type('des_subcategoria', 'text');
 		$crud->unset_texteditor('des_subcategoria');
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}');
+		$crud->unset_export(); // tabletools.js need ods eent csv extension
 		$currentState = $crud->getState();
 		if($currentState == 'add')
 		{
