@@ -103,6 +103,7 @@ $(document).ready(function() {
 		$.each($.parseJSON(search_values),function(num,val){
 			if(val !== '')
 			{
+				$(".groceryCrudTable thead tr th:eq("+num+")").children(':first').val(val);
 				$(".groceryCrudTable tfoot tr th:eq("+num+")").children(':first').val(val);
 			}
 		});
@@ -115,6 +116,7 @@ $(document).ready(function() {
 		chosen_table = datatables_get_chosen_table($(this).closest('.groceryCrudTable'));
 
 		chosen_table.fnFilterClear();
+		$(this).closest('.groceryCrudTable').find("thead tr th input").val("");
 		$(this).closest('.groceryCrudTable').find("tfoot tr th input").val("");
 	});
 
