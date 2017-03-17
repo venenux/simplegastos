@@ -168,8 +168,11 @@ class Adm_indefi_ventagasto extends CI_Controller {
 		$venta = str_replace(":", ".", $venta);
 		$gasto = str_replace(":", ".", $gasto);
 		if ( $row->mon_ventatotal <=  0 ) $porcentage = 100;
-		else	$porcentage = bcmul( (string)$gasto, "100", 2) / $venta;
-		return substr($porcentage,0,4) . ' % ';
+		else	$porcentage = bcmul( (string)$gasto, "100", 5) / $venta; // bcmul( (string)$gasto, "100", 2) / $venta; corregido precicion a mas decimales
+		$valueef = $porcentage; // substr($porcentage,0,5)
+		$valueef = number_format($valueef, 2, ',', '.');
+		$valueef =  $valueef . ' % ';
+		return $valueef;
 	}
 
 	public function geractualizardata($fecha_mes = null, $modo_act = null)
