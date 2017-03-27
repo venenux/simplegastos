@@ -498,7 +498,7 @@ class CI_DB_sqlite_driver extends CI_DB {
 		if ( ! is_array($tables))
 		{
 			return strstr($tables, ',') ? '('.$tables.')' : $tables; // PICCORO retorna una tbla solo si no es array
-    	}
+    		}
 		else
 		{
 			return count($tables) > 1 ? '('.implode(', ', $tables).')' : end($tables);

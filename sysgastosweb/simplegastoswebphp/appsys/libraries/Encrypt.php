@@ -45,6 +45,13 @@ class CI_Encrypt {
 	{
 		$this->CI =& get_instance();
 		$this->_mcrypt_exists = ( ! function_exists('mcrypt_encrypt')) ? FALSE : TRUE;
+
+		if ($this->_mcrypt_exists === FALSE)
+		{
+			log_message('error', "Encrypt library missing, requires Mcrypt extension, so will use weak unsure xor");
+			//show_error('The Encrypt library requires the Mcrypt extension.');
+		}
+
 		log_message('debug', "Encrypt Class Initialized");
 	}
 

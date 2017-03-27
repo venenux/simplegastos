@@ -310,15 +310,11 @@ class CI_DB_mysql_driver extends CI_DB {
 	   		return $str;
 	   	}
 
-		if (function_exists('mysql_real_escape_string') AND is_object($this->conn_id))
+		if (function_exists('mysql_real_escape_string') AND is_resource($this->conn_id))
 		{
 			$str = mysql_real_escape_string($str, $this->conn_id);
 		}
-		/*elseif (function_exists('mysql_real_escape_string') )
-		{
-			$str = mysql_real_escape_string($str);
-		}
-		*/elseif (function_exists('mysql_escape_string'))
+		elseif (function_exists('mysql_escape_string'))
 		{
 			$str = mysql_escape_string($str);
 		}
@@ -533,7 +529,7 @@ class CI_DB_mysql_driver extends CI_DB {
 		if ( ! is_array($tables))
 		{
 			return strstr($tables, ',') ? '('.$tables.')' : $tables; // PICCORO retorna una tbla solo si no es array
-    	}
+    		}
 		else
 		{
 			return count($tables) > 1 ? '('.implode(', ', $tables).')' : end($tables);

@@ -296,7 +296,7 @@ class CI_DB_odbc_driver extends CI_DB {
 	 */
 	function affected_rows()
 	{
-		return @odbc_num_rows($this->conn_id);
+		return abs( @odbc_num_rows($this->conn_id));
 	}
 
 	// --------------------------------------------------------------------
@@ -396,7 +396,7 @@ class CI_DB_odbc_driver extends CI_DB {
 	 */
 	function _field_data($table)
 	{
-		return "SELECT TOP 1 FROM ".$table;
+		return "SELECT TOP 1 FROM ".$table; // TODO : determinar cuando es soportado TOP
 	}
 
 	// --------------------------------------------------------------------
@@ -484,7 +484,7 @@ class CI_DB_odbc_driver extends CI_DB {
 		if ( ! is_array($tables))
 		{
 			return strstr($tables, ',') ? '('.$tables.')' : $tables; // PICCORO retorna una tbla solo si no es array
-    	}
+    		}
 		else
 		{
 			return count($tables) > 1 ? '('.implode(', ', $tables).')' : end($tables);

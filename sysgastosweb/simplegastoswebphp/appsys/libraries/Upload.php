@@ -204,7 +204,7 @@ class CI_Upload {
 		$this->file_type = strtolower(trim(stripslashes($this->file_type), '"'));
 		$this->file_name = $this->_prep_filename($_FILES[$field]['name']);
 		$this->file_ext	 = $this->get_extension($this->file_name);
-		$this->client_name = $this->file_name;
+		$this->client_name = $_FILES[$field]['name'];
 
 		// Is the file type allowed to be uploaded?
 		if ( ! $this->is_allowed_filetype())
@@ -221,7 +221,7 @@ class CI_Upload {
 			// If no extension was provided in the file_name config item, use the uploaded one
 			if (strpos($this->_file_name_override, '.') === FALSE)
 			{
-				$this->file_name .= $this->file_ext;
+				$this->file_name .= $this->file_ext; // in function file extension its provided with dot
 			}
 
 			// An extension was provided, lets have it!
@@ -259,6 +259,7 @@ class CI_Upload {
 		}
 
 		// Sanitize the file name for security
+		$CI =& get_instance();
 		$this->file_name = $this->clean_file_name($this->file_name);
 
 		// Truncate the file name if it's too long
@@ -398,7 +399,7 @@ class CI_Upload {
 			$filename = md5(uniqid(mt_rand())).$this->file_ext;
 		}
 
-		if ( ! file_exists($path.$filename))
+		if ( ! file_exists($path.$filename)) // if ($this->overwrite === TRUE OR ! file_exists($path.$filename)) // permite que asigne nombre nuevo no importa si esta permitido
 		{
 			return $filename;
 		}
@@ -406,7 +407,7 @@ class CI_Upload {
 		$filename = str_replace($this->file_ext, '', $filename);
 
 		$new_filename = '';
-		for ($i = 1; $i < 100; $i++)
+		for ($i = 1; $i < 400; $i++)
 		{
 			if ( ! file_exists($path.$filename.$i.$this->file_ext))
 			{
@@ -978,7 +979,7 @@ class CI_Upload {
 	// --------------------------------------------------------------------
 
 	/**
-	 * Prep Filename
+	 * Prep Filename backported from ci 3, ci 2 does not property pre filename
 	 *
 	 * Prevents possible script execution from Apache's handling of files multiple extensions
 	 * http://httpd.apache.org/docs/1.3/mod/mod_mime.html#multipleext
@@ -998,7 +999,7 @@ class CI_Upload {
 		$filename = substr($filename, 0, $ext_pos);
 
 		$filename = str_replace('.', '_', $filename);
-		$filename .= '.'.$ext;
+		$filename .= $ext;
 
 		return $filename;
 	}
