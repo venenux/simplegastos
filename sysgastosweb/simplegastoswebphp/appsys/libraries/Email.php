@@ -2013,7 +2013,6 @@ class CI_Email {
 						'dms'	=>	'application/octet-stream',
 						'lha'	=>	'application/octet-stream',
 						'lzh'	=>	'application/octet-stream',
-						'exe'	=>	'application/octet-stream',
 						'class'	=>	'application/octet-stream',
 						'psd'	=>	'application/octet-stream',
 						'so'	=>	'application/octet-stream',
@@ -2090,7 +2089,7 @@ class CI_Email {
 						'avi'	=>	'video/x-msvideo',
 						'movie'	=>	'video/x-sgi-movie',
 						'odt'	=>	'application/msword',
-						'ods'	=>	'application/msword',
+						'ods'	=>	'application/excel',
 						'xl'	=>	'application/excel',
 						'eml'	=>	'message/rfc822'
 					);

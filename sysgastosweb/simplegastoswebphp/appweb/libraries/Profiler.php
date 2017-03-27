@@ -542,8 +542,6 @@ class CI_Profiler extends CI_Loader {
 			{
 				if ($log['type'] == 'log')
 				{
-					$this->CI->load->library('Vd');
-//					$logs['console'][$key]['data'] = Vd::dump($log['data'], '', TRUE);
 					$logs['console'][$key]['data'] = print_r($log['data'], true);
 				}
 				elseif ($log['type'] == 'memory')
@@ -578,7 +576,11 @@ class CI_Profiler extends CI_Loader {
 
 					if (is_array($val) || is_object($val))
 					{
+						if (is_object($val)) {
+						$output[$key] = json_encode($val);
+						} else {
 						$output[$key] = htmlspecialchars(stripslashes(print_r($val, true)));
+						}
 					}
 					else
 					{

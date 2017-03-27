@@ -447,9 +447,9 @@ class CI_DB_driver {
 	{
 		if ( ! $this->conn_id)
 		{
-			$this->initialize();  // hack piccoro para asegurqar DB seleccionada
+			$this->initialize();
 		}
-		$this->db_select();
+		$this->db_select(); // TODO: HACK solo sirve en postgre y mysql, odbc no lo soporta
 		return $this->_execute($sql);
 	}
 

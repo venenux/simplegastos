@@ -68,14 +68,23 @@ class CI_Config {
 		{
 			if (isset($_SERVER['SERVER_ADDR']))
 			{
-				$base_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off' ? 'https' : 'http';
-				$base_url .= '://'. $_SERVER['SERVER_ADDR'];
-				$base_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
+				$base_url = (empty($_SERVER['HTTPS']) OR strtolower($_SERVER['HTTPS']) === 'off') ? 'http' : 'https';
+				$base_url .= '://'.$_SERVER['SERVER_ADDR'];
+				$base_url .= substr($_SERVER['SCRIPT_NAME'], 0, strpos($_SERVER['SCRIPT_NAME'], basename($_SERVER['SCRIPT_FILENAME'])));
 			}
-
+			// server addr not reported correctly by webserver, so use http host with hole security:
 			else
 			{
-				$base_url = 'http://'.$_SERVER['HTTP_HOST'].'/'; // TODO esto hay que usar server_addr por seguridd fuerte inyeccion codigo
+				if (isset($_SERVER['HTTP_HOST']))
+				{
+					$base_url = isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off' ? 'https' : 'http';
+					$base_url .= '://'.$_SERVER['HTTP_HOST'].'/'; // TODO : log warning porque no definio base path
+					$base_url .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
+				}
+				else
+				{
+					$base_url = 'http://localhost/';
+				}
 			}
 
 			$this->set_item('base_url', $base_url);
