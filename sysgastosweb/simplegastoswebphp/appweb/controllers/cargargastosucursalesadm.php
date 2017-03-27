@@ -279,11 +279,11 @@ class cargargastosucursalesadm extends CI_Controller {
 			chmod($directoriofacturas,0777);
 		}
 		$cargaconfig['upload_path'] = $directoriofacturas;
-		$cargaconfig['allowed_types'] = 'gif|jpg|png|jpeg|pdf';
+		$cargaconfig['allowed_types'] = 'gif|jpg|png|jpeg|pdf|odt|ods|csv';
 		$cargaconfig['max_size']  = 3110*1024;  //$cargaconfig['max_size']= '100'; // en kilobytes
 		$cargaconfig['max_width'] = 0;
 		$cargaconfig['max_height'] = 0;
-		//$cargaconfig['remove_spaces'] = true;
+		$cargaconfig['remove_spaces'] = true;
 		$cargaconfig['encrypt_name'] = TRUE;
 		$this->load->library('upload', $cargaconfig);
 		$this->load->helper('inflector');
@@ -293,9 +293,9 @@ class cargargastosucursalesadm extends CI_Controller {
 		$filenamen = $cod_registro . $file_data['file_ext'];
         $filenameorig =  $file_data['file_path'] . $file_data['file_name'];
         $filenamenewe =  $file_data['file_path'] . $filenamen;
-		if ( $factura_tipo == 'CONTRIBUYENTE' )
+		if ( $file_data['file_name'] != '' OR $factura_bin != '' )
 		{
-			if ( $file_data['file_name'] == '' and $factura_bin == '' )
+			if ( $factura_tipo == 'CONTRIBUYENTE' )
 			{
 				$this->gastomanualcargaruno($mens = '<br>CUADNO ES CONTRIBUYENTE Debe subir un archivo escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO');
 				log_message('info', $mens.'.');

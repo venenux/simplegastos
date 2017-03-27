@@ -13,7 +13,7 @@
 ?>
 
 <style type="text/css">
-	#codeigniter-profiler { clear: both; background: #222; padding: 0 5px; font-family: Helvetica, sans-serif; font-size: 10px !important; line-height: 12px; position: absolute; width: auto; min-width: 74em; max-width: 90%; z-index: 1000; display: none; }
+	#codeigniter-profiler { clear: both; background: #222; padding: 0 5px; font-family: Helvetica, sans-serif; font-size: 10px !important; line-height: 12px; position: fixed; width: auto; min-width: 74em; max-width: 90%; z-index: 1000; display: none; }
 
 	#codeigniter-profiler.bottom-right { position: fixed; bottom:0; right: 0; -webkit-border-top-left-radius: 7px; -moz-border-radius-topleft: 7px; border-top-left-radius: 7px; -webkit-box-shadow: -1px -1px 10px #999; -moz-box-shadow: -1px -1px 10px #999; box-shadow: -1px -1px 10px #999; }
 	#codeigniter-profiler.bottom-left { position: fixed; bottom:0; left: 0; -webkit-border-top-right-radius: 7px; -moz-border-radius-topright: 7px; border-top-right-radius: 7px; -webkit-box-shadow: 1px -1px 10px #999; -moz-box-shadow: 1px -1px 10px #999; box-shadow: 1px -1px 10px #999; }
