@@ -15,6 +15,7 @@ class Manejousuarios extends CI_Controller
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
 		$this->load->model('menu');
+		$this->load->model('usuario');
 		$this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT',TRUE);
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0', TRUE);
 		$this->output->set_header('Pragma: no-cache', TRUE);
@@ -46,7 +47,7 @@ class Manejousuarios extends CI_Controller
 		}
 		$nombre = $this->input->post('nombre');
 		$contrasena = $this->input->post('contrasena');
-		//$this->load->model('manejousuarios');
+		$this->usuario->getentidadusuario($nombre, $contrasena);
 		$sqlusuario = "SELECT
 		  count(`usu`.`intranet`) as cuantos,
 		 `usu`.`ficha`,                             /* ficha en nomina, cedula en vnzl */
