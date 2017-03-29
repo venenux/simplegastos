@@ -86,6 +86,8 @@ class CI_Profiler extends CI_Loader {
 			}
 		}
 
+		$this->set_sections($config);
+
 		// Strange hack to get access to the current
 		// vars in the CI_Loader class.
 		$this->_ci_cached_vars = $this->CI->load->_ci_cached_vars;
@@ -366,30 +368,31 @@ class CI_Profiler extends CI_Loader {
 		{
 			$output = $this->CI->lang->line('profiler_no_post');
 		}
-		else if (count($_POST) == 0)
-		{
-			$output = $this->CI->lang->line('profiler_no_post');
-		}
 		else
 		{
-			foreach ($_POST as $key => $val)
+			if (count($_POST) > 0)
 			{
-				if ( ! is_numeric($key))
+				foreach ($_POST as $key => $val)
 				{
-					$key = "'".$key."'";
-				}
+					if ( ! is_numeric($key))
+					{
+						$key = "'".$key."'";
+					}
 
-				if (is_array($val))
-				{
-					$output['&#36;_POST['. $key .']'] = '<pre>'. htmlspecialchars(stripslashes(print_r($val, TRUE))) . '</pre>';
-				}
-				else
-				{
-					$output['&#36;_POST['. $key .']'] = htmlspecialchars(stripslashes($val));
+					if (is_array($val))
+					{
+						$output['&#36;_POST['. $key .']'] = '<pre>'. htmlspecialchars(stripslashes(print_r($val, TRUE))) . '</pre>';
+					}
+					else
+					{
+						$output['&#36;_POST['. $key .']'] = htmlspecialchars(stripslashes($val));
+					}
 				}
 			}
-			
-			
+			else
+				$output = $this->CI->lang->line('profiler_no_post but...');
+
+			if (count($_FILES) > 0)
 			foreach ($_FILES as $key => $val)
 			{
 				if ( ! is_numeric($key))
@@ -534,6 +537,10 @@ class CI_Profiler extends CI_Loader {
 
 	public function _compile_console()
 	{
+
+		// Make sure the Console is loaded.
+		$this->CI->load->library('Console');
+
 		$logs = Console::get_logs();
 
 		if ($logs['console'])
@@ -576,11 +583,10 @@ class CI_Profiler extends CI_Loader {
 
 					if (is_array($val) || is_object($val))
 					{
-						if (is_object($val)) {
-						$output[$key] = json_encode($val);
-						} else {
-						$output[$key] = htmlspecialchars(stripslashes(print_r($val, true)));
-						}
+						if (is_object($val))
+							$output[$key] = json_encode($val); // revise 
+						else
+							$output[$key] = htmlspecialchars(stripslashes(print_r($val, true)));
 					}
 					else
 					{
@@ -604,7 +610,7 @@ class CI_Profiler extends CI_Loader {
 	 */
 	public function _compile_view_data()
 	{
-		$output = '';
+		$output = array();
 
 		foreach ($this->_ci_cached_vars as $key => $val)
 		{

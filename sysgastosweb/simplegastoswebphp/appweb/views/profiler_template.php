@@ -214,21 +214,23 @@ window.onload = function() {
 		<?php if (isset($sections['eloquent'])) : ?>
 			<a href="#" id="ci-profiler-menu-eloquent" onclick="ci_profiler_bar.show('ci-profiler-eloquent', 'ci-profiler-menu-eloquent'); return false;">
 				<span><?php echo is_array($sections['eloquent']) ? (count($sections['eloquent']) - 1) : 0 ?> Eloquent</span>
-				Illuminate\Database
+				ILLUM\DB
 			</a>
 		<?php endif; ?>
 
 		<!-- Vars and Config -->
 		<?php if (isset($sections['http_headers']) || isset($sections['get']) || isset($sections['config']) || isset($sections['post']) || isset($sections['uri_string']) || isset($sections['controller_info'])) : ?>
 			<a href="#" id="ci-profiler-menu-vars" onclick="ci_profiler_bar.show('ci-profiler-vars', 'ci-profiler-menu-vars'); return false;">
-				<span>DATA</span> &amp; Config
+				<span><?php echo is_array($sections['controller_info']) ? (count($sections['controller_info']) - 1) : count($sections['config']) ?> Config</span>
+				DATA
 			</a>
 		<?php endif; ?>
 
 		<!-- Files -->
 		<?php if (isset($sections['files'])) : ?>
 			<a href="#" id="ci-profiler-menu-files" onclick="ci_profiler_bar.show('ci-profiler-files', 'ci-profiler-menu-files'); return false;">
-				<span><?php echo is_array($sections['files']) ? count($sections['files']) : 0 ?></span> Cargado
+				<span><?php echo is_array($sections['files']) ? count($sections['files']) : 0 ?> php</span> 
+				FILES
 			</a>
 		<?php endif; ?>
 

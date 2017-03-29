@@ -2,10 +2,13 @@ var Pickathing = function Pickathing(elementId, hasSearch, options) {
 	this.transTimeout;
 	this.transTimeoutDelay = 201;
 
+	this.searchFieldText = 'Search';
+
 	if (options) {
 		this.filterAnotherBy = options.filterAttr;
 		this.filterAnother = options.filter;
 		this.transTimeoutDelay = options.focusDelay + 1;
+		this.searchFieldText = options.searchLabel;
 	}
 
 	this.element = document.getElementById(elementId);
@@ -48,8 +51,6 @@ var Pickathing = function Pickathing(elementId, hasSearch, options) {
 };
 
 Pickathing.prototype.create = function create () {
-		var this$1 = this;
-
 	var self = this;
 
 	this.addSelectedField();
@@ -63,13 +64,19 @@ Pickathing.prototype.create = function create () {
 		self.addOption(self.options[i]);
 	}
 
+	this.checkFocusable();
+	this.checkSelected();
+};
+
+Pickathing.prototype.checkFocusable = function checkFocusable () {
+		var this$1 = this;
+
+	this.focusableOptions = [];
 	this.optionElements.map(function (el) {
 		if (!el.disabled && el.offsetParent != null) {
 			this$1.focusableOptions.push(el);
 		}
 	});
-
-	this.checkSelected();
 };
 
 Pickathing.prototype.addSelectedField = function addSelectedField () {
@@ -77,6 +84,7 @@ Pickathing.prototype.addSelectedField = function addSelectedField () {
 	this.selectedField.type = '';
 	this.selectedField.setAttribute('data-client-input', '');
 	this.selectedField.className = 'Pickathing-selectedField';
+	this.selectedField.setAttribute('tabindex', '0');
 	this.wrapper.appendChild(this.selectedField);
 };
 
@@ -95,7 +103,7 @@ Pickathing.prototype.addList = function addList () {
 Pickathing.prototype.addSearchField = function addSearchField () {
 	this.searchField = document.createElement('input');
 	this.searchField.type = 'text';
-	this.searchField.placeholder = 'Search...';
+	this.searchField.placeholder = this.searchFieldText;
 	this.searchField.className = 'Pickathing-searchField';
 	this.dropdown.appendChild(this.searchField);
 };
@@ -123,6 +131,7 @@ Pickathing.prototype.addOption = function addOption (option) {
 		});
 	}
 
+	element.setAttribute('tabindex', '-1');
 	this.list.appendChild(element);
 	this.optionElements.push(element);
 };
@@ -149,7 +158,6 @@ Pickathing.prototype.checkSelected = function checkSelected () {
 				return;
 			} else {
 				this$1.setMultiOption(this$1.optionElements[i]);
-				this$1.optionElements[i].disabled = true;
 			}
 		}
 	}
@@ -210,11 +218,15 @@ Pickathing.prototype.reset = function reset (fireOnChange) {
 			this.onChange();
 		}
 	}
+
+	this.checkFocusable();
 };
 
 Pickathing.prototype.deselectMultiOption = function deselectMultiOption (value) {
 	var element = this.wrapper.querySelectorAll('.Pickathing-option[data-option="' + value + '"]');
 	var flagToRemove = this.wrapper.querySelectorAll('.Pickathing-selectedFlag[data-option="' + value + '"]');
+	var originalOption = this.element.querySelectorAll('option[value="' + value + '"]')[0];
+	originalOption.selected = false;
 	flagToRemove[0].remove();
 	element[0].classList.remove('Pickathing-option--selected');
 	delete this.value[value];
@@ -232,6 +244,8 @@ Pickathing.prototype.filter = function filter (query, field) {
 			}
 		}
 	});
+
+	this.checkFocusable();
 };
 
 Pickathing.prototype.focusNextOption = function focusNextOption () {
@@ -292,6 +306,7 @@ Pickathing.prototype.bindEvents = function bindEvents () {
 		this.searchField.addEventListener('keyup', function (e) {
 			var query = new RegExp(self.searchField.value, 'gi');
 			self.filter(query, 'data-label');
+			this$1.checkFocusable();
 		});
 	}
 
@@ -341,6 +356,8 @@ Pickathing.prototype.bindEvents = function bindEvents () {
 							selectedFlag.setAttribute(data.name, data.value);
 						});
 					}
+					var originalOption = this$1.element.querySelectorAll('option[value="' + value + '"]')[0];
+					originalOption.selected = true;
 					this$1.value[value] = el;
 					this$1.selectedField.appendChild(selectedFlag);
 					el.classList.add('Pickathing-option--selected');
@@ -387,6 +404,7 @@ Pickathing.prototype.bindEvents = function bindEvents () {
 
 	this.wrapper.addEventListener('keyup', function (e) {
 		e.preventDefault();
+		e.stopPropagation();
 		if (e.which == 40) { // down arrow
 			this$1.focusNextOption();
 		} else if (e.which == 38) { // up arrow
@@ -394,6 +412,18 @@ Pickathing.prototype.bindEvents = function bindEvents () {
 			this$1.focusPreviousOption();
 		} else if (e.which == 27) {
 			this$1.toggleState();
+		}
+	})
+
+	this.wrapper.addEventListener('keypress', function (e) {
+		if (e.which == 40 || e.which == 38) {
+			e.preventDefault();
+		}
+	})
+
+	this.wrapper.addEventListener('keydown', function (e) {
+		if (e.which == 40 || e.which == 38) {
+			e.preventDefault();
 		}
 	})
 };

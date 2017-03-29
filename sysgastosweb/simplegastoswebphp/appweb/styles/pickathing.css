@@ -8,7 +8,7 @@
   .Pickathing-selectedField {
     height: 25px;
     border: 1px solid #ccc;
-    padding: 2px 40px 2px 8px;
+    padding: 2px 35px 2px 8px;
     position: relative;
     cursor: pointer;
     border-radius: 3px;
@@ -17,7 +17,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-block;
-    width: 100%;
+    width: 400px; /*tamano del campo input sustituto o el input donde sale search*/
     color: #0a0a0a;
     text-align: left;
     background-color: transparent; }
@@ -48,22 +48,22 @@
     float: left; }
   .Pickathing-dropdown {
     position: absolute;
-    top: 10px;/*posicion donde se despliega la lista*/
+    top: -2px;/*posicion donde se despliega la lista*/
     left: 0;
-    width: 100%;
+    width: 80%;
     border: 1px solid #0a0a0a;
-    border-radius: 3px;
-    padding: 8px;
+    border-radius: 2px;
+    padding: 7px;
     background-color: #ffffff;
-    z-index: 100;
+    z-index: 10;
     visibility: hidden;
     opacity: 0;
     transition: all ease .2s; }
   .Pickathing-searchField {
-    width: 100%;
+    width: 90%;
     border: 1px solid #ccc;
-    padding: 5px 8px;
-    margin-bottom: 8px; }
+    padding: 4px 6px;
+    margin-bottom: 6px; }
   .Pickathing-option {
     cursor: pointer;
     padding: 2px 8px;

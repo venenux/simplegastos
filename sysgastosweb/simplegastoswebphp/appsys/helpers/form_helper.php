@@ -287,7 +287,9 @@ if ( ! function_exists('form_multiselect'))
 			$extra .= ' multiple="multiple"';
 		}
 
-		return form_dropdown($name, $options, $selected, $extra);
+		$selectmulti = form_dropdown($name, $options, $selected, $extra);
+
+		return $selectmulti;
 	}
 }
 
@@ -326,7 +328,20 @@ if ( ! function_exists('form_dropdown'))
 
 		$multiple = (count($selected) > 1 && strpos($extra, 'multiple') === FALSE) ? ' multiple="multiple"' : '';
 
-		$form = '<select name="'.$name.'"'.$extra.$multiple.">\n";
+		$idselect = (strpos($extra, 'id') === FALSE) ? ' id="'.$name.'"' : '';
+
+		// should be render with a input search the select ?
+		$searchbox = (strpos($extra, 'nosearch') === FALSE) ? TRUE : FALSE;
+		// should be used the easy to use pickathing js to render a input search in select ?
+		$pickathing = (strpos($extra, 'pickathing') === FALSE) ? $searchbox : TRUE;
+		// its mandatory be only use selectr to render the select and input select ?
+		$selectr = (strpos($extra, 'selectr') === FALSE) ? $multiple : TRUE;
+		// lest clean extra no valid words:
+		$extra = str_ireplace('nosearch', '', $extra);
+		$extra = str_ireplace('pickathing', '', $extra);
+		$extra = str_ireplace('selectr', '', $extra);
+
+		$form = '<select name="'.$name.'" '.$extra.$multiple.$idselect.">\n";
 
 		foreach ($options as $key => $val)
 		{
@@ -347,13 +362,33 @@ if ( ! function_exists('form_dropdown'))
 			}
 			else
 			{
-				$sel = (in_array($key, $selected)) ? ' selected="selected"' : '';
+				if ( $searchbox AND $pickathing AND trim($key) == '' )
+					$sel = ''; // no preselected if the key are empty in pickathing search javascript bug
+				else
+					$sel = ( in_array($key, $selected) ) ? ' selected="selected"' : '';
 
-				$form .= '<option value="'.$key.'"'.$sel.'>'.(string) $val."</option>\n";
+				$form .= '<option value="'.$key.'" '.$sel.'>'.(string) $val.'</option>'.PHP_EOL;
 			}
 		}
 
 		$form .= '</select>';
+		
+		// dinamyc id generation and extract the id name for future usage scripts
+		if (strpos($idselect, $name) !== FALSE)
+			$idname = $name;
+		else
+		{
+			$indexstartcut = (stripos($extra,'id="') +4);
+			$indexendscut = (stripos($extra,'"', $indexstartcut));
+			$idname = substr($extra , $indexstartcut, ( $indexendscut - $indexstartcut) );
+		}
+
+		$namejs = (strpos($name, '[]') === FALSE) ? $name : substr($name, 0, -2);
+		// should be included the search feature and bootstrap reponsive?
+		if ( $searchbox && $pickathing && ! $selectr)
+			$form .= '<script src="'.base_url() . APPPATH . 'scripts/pickathing.js"></script><script>var select'.$namejs.' = new Pickathing(\''.$idname.'\', true);</script>'.PHP_EOL;
+		else if ( $searchbox && $selectmulti)
+			$form .= '<script src="'.base_url() . APPPATH . 'scripts/selectmulti.js"></script><script>var select'.$namejs.' = new Selectr(document.getElementById(\''.$idname.'\'));</script>'.PHP_EOL;
 
 		return $form;
 	}
