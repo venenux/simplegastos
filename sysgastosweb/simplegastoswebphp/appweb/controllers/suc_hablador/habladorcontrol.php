@@ -142,7 +142,7 @@ class habladorcontrol extends CI_Controller {
 			. anchor('suc_hablador/habladorcontrol/index',form_button('', 'Procesar de nuevo', 'class="btn-primary btn" '))
 			;
 		$data['botongestion0'] = $botonregresar;
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['mens']='IMPRIMA EN SU IMPRESORA SIN ALTERAR, DESDE EL NAVEGADOR DE INTERNET, pulse boton imprimir';
 		$data['accionejecutada'] = 'habladorpaso2impresion';
 		//$this->load->view('header.php',$data);
