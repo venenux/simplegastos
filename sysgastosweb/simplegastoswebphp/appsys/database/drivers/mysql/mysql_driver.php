@@ -310,11 +310,13 @@ class CI_DB_mysql_driver extends CI_DB {
 	   		return $str;
 	   	}
 
+		$versionphp = explode('.',phpversion() );
+
 		if (function_exists('mysql_real_escape_string') AND is_resource($this->conn_id))
 		{
 			$str = mysql_real_escape_string($str, $this->conn_id);
 		}
-		elseif (function_exists('mysql_escape_string'))
+		elseif (function_exists('mysql_escape_string') AND ($versionphp[0] < 5 || ($versionphp[0] == 4 && $versionphp[1] <= 3)) )
 		{
 			$str = mysql_escape_string($str);
 		}
