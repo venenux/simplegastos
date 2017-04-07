@@ -46,6 +46,7 @@ class Menu extends CI_Model
 		$intranet=anchor('http://intranet1.net.ve','Intranet');
 		$elcorreo=anchor('http://intranet1.net.ve/elcorreo','Correo');
 		$systemalog=anchor('admgastoslog','Logs');
+		$elhablador=anchor('suc_hablador/habladorcontrol','Hablador');
 
 
 		// el
@@ -74,6 +75,7 @@ class Menu extends CI_Model
 					$header['5'] = $nodes->m_header_nodes($vistas,$vistaglobal);
 					$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
 					$header['7'] = $nodes->m_header_nodes($systemalog,array());
+					$header['8'] = $nodes->m_header_nodes($elhablador,array());
 				}
 			}
 		}
