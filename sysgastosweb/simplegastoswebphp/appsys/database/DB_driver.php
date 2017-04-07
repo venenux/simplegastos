@@ -38,7 +38,7 @@ class CI_DB_driver {
 	var $dbprefix		= '';
 	var $char_set		= 'utf8';
 	var $dbcollat		= 'utf8_general_ci';
-	var $autoinit		= TRUE; // Whether to automatically initialize the DB
+	var $autoinit		= FALSE; // Whether to automatically initialize the DB
 	var $swap_pre		= '';
 	var $port			= '';
 	var $pconnect		= FALSE;
@@ -88,6 +88,7 @@ class CI_DB_driver {
 			}
 		}
 
+		$this->initialize();
 		log_message('debug', 'Database Driver Class Initialized');
 	}
 

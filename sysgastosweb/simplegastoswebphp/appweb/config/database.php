@@ -49,7 +49,7 @@ $active_group = 'gastossystema';
 $active_record = TRUE;
 
 // base de datos principal de la aplicacion, active record solo sirve aqui
-$db['gastossystema']['hostname'] = '10.10.34.20';
+$db['gastossystema']['hostname'] = 'localhost';
 $db['gastossystema']['username'] = 'gastossystema';
 $db['gastossystema']['password'] = 'gastossystema.1';
 $db['gastossystema']['database'] = 'gastossystema';
@@ -131,7 +131,7 @@ $db['default']['cachedir'] = '';
 $db['default']['char_set'] = 'utf8';
 $db['default']['dbcollat'] = 'utf8_general_ci';
 $db['default']['swap_pre'] = '';
-$db['default']['autoinit'] = TRUE;
+$db['default']['autoinit'] = FALSE;
 $db['default']['stricton'] = FALSE;
 
 
