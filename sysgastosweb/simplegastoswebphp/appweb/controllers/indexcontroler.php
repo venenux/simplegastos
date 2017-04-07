@@ -32,7 +32,7 @@ class Indexcontroler extends CI_Controller {
 	 */
 	public function index()
 	{
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		if( $this->session->userdata('logueado') == TRUE)
 		{
 		// TODO agregar en cada archivo esta linea if($this->session->userdata('logueado')) y verifica sesion

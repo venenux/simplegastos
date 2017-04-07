@@ -32,7 +32,7 @@ class admgastosregistros extends CI_Controller {
 		$data['nombre'] = $this->session->userdata('nombre');
 		$data['correo'] = $this->session->userdata('correo');
 		$data['logueado'] = $this->session->userdata('logueado');
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['output'] = $output; // TODO: output tiene mAs datos sacarlos y meterlos en $data hace funcionar todo normal
 		$this->load->view('header.php',$data);
 		$this->load->view('admvista.php',$output);

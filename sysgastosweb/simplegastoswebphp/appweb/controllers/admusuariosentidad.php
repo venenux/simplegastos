@@ -39,7 +39,7 @@ class admusuariosentidad extends CI_Controller {
 		$data['nombre'] = $this->session->userdata('nombre');
 		$data['correo'] = $this->session->userdata('correo');
 		$data['logueado'] = $this->session->userdata('logueado');
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['output'] = $output; // TODO: output tiene mAs datos sacarlos y meterlos en $data hace funcionar todo normal
 		$data['admvistaurlaccion'] = 'admusuariosentidad';
 		$data['advertenciaformato'] = "Aqui se listan los usuarios, los centros de costos mas abajo, y para editarlos debe usar los botones para activar la ediccion (solo nivel administrativo).";

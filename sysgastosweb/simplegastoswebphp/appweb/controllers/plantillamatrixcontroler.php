@@ -42,7 +42,7 @@ class plantillamatrixcontroler extends CI_Controller {
 		$sessionflag = $this->session->userdata('username').date("YmdHis");
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		/* ***** fin manejo de sesion ******************* */
 		
 		/* **** hay que cargar las bae de datos */
@@ -112,7 +112,7 @@ class plantillamatrixcontroler extends CI_Controller {
 		$sessionflag = $this->session->userdata('username').date("YmdHis");
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		/* ***** fin manejo de sesion ******************* */
 		
 		/* **** hay que cargar las bae de datos */
@@ -199,7 +199,7 @@ class plantillamatrixcontroler extends CI_Controller {
 		/* ***** fin pintar una tabla recorriendo el query **************** */
 		
 		
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['seccionpagina'] = 'secciontablamatrix';
 		$data['userintran'] = $userintran;
 		$data['fechafiltramatrix'] = $fechafiltramatrix;

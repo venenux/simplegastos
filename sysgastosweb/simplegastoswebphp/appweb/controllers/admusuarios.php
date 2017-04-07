@@ -39,7 +39,7 @@ class admusuarios extends CI_Controller {
 		$data['nombre'] = $this->session->userdata('nombre');
 		$data['correo'] = $this->session->userdata('correo');
 		$data['logueado'] = $this->session->userdata('logueado');
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['admvistaurlaccion'] = 'admusuariosentidad';
 		$data['advertenciaformato'] = "Los usuarios se crea o asigna clave es con actualizacion de clave de intranet, aqui ud los habilita entrar o no";
 		$data['js_files'] = $output->js_files;

@@ -131,7 +131,7 @@ group by cod_categoria
 		$usuariocodgernow = $this->session->userdata('cod_entidad');	// aun si es valido debe tener permisos
         if( $usuariocodgernow == null or trim($usuariocodgernow,'') == '')
             redirect('manejousuarios/desverificarintranet'); 	// si el usuario no tiene alguna asociacion de entidad se le deniega
-        $data['menu'] = $this->menu->general_menu();
+        $data['menu'] = $this->menu->menudesktop();
 		$data['seccionpagina'] = 'seccionfiltrarmatrix';		// se indica muestre formulario para filtrar que datos se mostraran
 		$this->load->view('header.php',$data);
 		$this->load->view('mivistamatrix.php',$data);
@@ -359,7 +359,7 @@ group by cod_categoria
 		$data['htmlquepintamatrix'] =  br() ; // $this->table->generate(); // html generado lo envia a la matrix
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['seccionpagina'] = 'secciontablamatrix';
 		$data['fechainimatrix'] = $fechainimatrix;
 		$data['fechafinmatrix'] = $fechafinmatrix;

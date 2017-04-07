@@ -37,7 +37,7 @@ class admsubcategorias extends CI_Controller {
 		$data['nombre'] = $this->session->userdata('nombre');
 		$data['correo'] = $this->session->userdata('correo');
 		$data['logueado'] = $this->session->userdata('logueado');
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['admvistaurlaccion'] = 'admcategoriasconceptos';
 		$data['advertenciaformato'] = "A DIFERENCIA DE LAS CATEGORIAS, <br>TODA SUBCATEGORIA ES MOSTRADA SI LA CATEGORIA A LA QUE PERTENECE NO ES ADMINISTRATIVA!";
 		$data['js_files'] = $output->js_files;

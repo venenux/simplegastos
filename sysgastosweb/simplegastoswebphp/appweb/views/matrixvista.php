@@ -18,19 +18,16 @@
 	/* ********* fin valores predeterminados ******************** */
 
 	/* ********* ini seccion de pagina formulario ******************** */
-	$jspickathingjs='<script type="text/javascript" src="' . base_url() . APPPATH . 'scripts/'.'pickathing.js"></script>';
-		$jscategorialis = '<script>var selectjscategorialis = new Pickathing(\'list_categoria\', true);</script>';
-		$jssubcategorialis = '<script>var selectjssubcategorialis = new Pickathing(\'list_subcategoria\', true);</script>';
-		$jsentidadlis = '<script>var selectjsentidadlis = new Pickathing(\'list_entidad\', true);</script>';
 	if ($seccionpagina == 'seccionmatrixpedirtotales')
 	{
 		$separadores = array(''=>'', '\t'=>'Tabulador (|)', ','=>'Coma (,)',';'=>'PuntoComa (;)');
 		echo form_fieldset('Ingrese datos solo si desea filtrar la matrix',array('class'=>'containerin')) . PHP_EOL;
 		echo form_open_multipart('matrixcontroler/matrixtotalesfiltrado/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
+		$this->table->set_datatables(FALSE);
 			$this->table->add_row('Rango:',form_input($inputfechaini). ' al '.form_input($inputfechafin).br().PHP_EOL );
-			$this->table->add_row('Categoria', form_dropdown('cod_categoria', $list_categoria,null,'id="list_categoria"').$jspickathingjs.$jscategorialis.PHP_EOL);
-			$this->table->add_row('Centro de Costo:', form_dropdown('cod_entidad', $list_entidad,null,'id="list_entidad"').$jspickathingjs.$jsentidadlis.PHP_EOL );
+			$this->table->add_row('Categoria', form_dropdown('cod_categoria', $list_categoria,null,'id="list_categoria"').PHP_EOL);
+			$this->table->add_row('Centro de Costo:', form_dropdown('cod_entidad', $list_entidad,null,'id="list_entidad"').PHP_EOL );
 		echo $this->table->generate();
 		echo form_submit('vermatrix', 'Ver totales', 'class="btn-primary btn b10"');
 		echo form_close() . PHP_EOL;

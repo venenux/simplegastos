@@ -110,7 +110,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$userintran = $userdata['intranet'];
 		$userpermacceso = $userdata['abr_entidad']; // TODO per,misos
 		$accionejecutada = $this->input->get_post('accionejecutada');
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['accionejecutada'] = 'cargardatosadministrativosfiltrar';
 			// OBTENER DATOS DE FORMULARIO ***************************** /
 		if ($accionejecutada = 'cargardatosadministrativosfiltrar')
@@ -248,7 +248,7 @@ class cargargastoadministrativo extends CI_Controller {
 		//else if ($currentState == 'edit')
 		$output->output.= $outputjoincatysubcat->get_js();
 		// TERMINAR EL PROCESO (solo paso 1) **************************************************** /
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['accionejecutada'] = 'cargardatosadminnistrativosfiltrados';
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastoadministrativo.php',$output);

@@ -46,7 +46,7 @@ class admgastoslog extends CI_Controller {
 		$sessionflag = $this->session->userdata('username').date("YmdHis");
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		/* ***** fin manejo de sesion ******************* */
 
 		$this->load->helper(array('inflector','url'));
@@ -69,7 +69,7 @@ class admgastoslog extends CI_Controller {
 		$crud->field_type('operacion','text');
 		$this->load->helper(array('form', 'url','inflector'));
 		$output = $crud->render();
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$this->load->view('header.php',$data);
 		$this->load->view('admgastoslog.php',$output);
 		$this->load->view('footer.php',$data);

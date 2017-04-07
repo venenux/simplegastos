@@ -46,7 +46,7 @@ class Adm_indefi_ventagasto extends CI_Controller {
 		}
 		if ( $this-nivel )
 		{
-			$this->menurender = $this->menu->general_menu();
+			$this->menurender = $this->menu->menudesktop();
 		}
 	}
 
@@ -62,7 +62,7 @@ class Adm_indefi_ventagasto extends CI_Controller {
 			$data['fecha_mes'] = $output->fecha_mes;
 		}
 		$data['accionformulario'] = $this->accionformulario;
-		$data['menu'] = $this->menu->general_menu();  // definir un menu segun perfil
+		$data['menu'] = $this->menu->menudesktop();  // definir un menu segun perfil
 		$data['controlername'] = $this->controlername;
 		$this->load->view('header.php',$data);
 		$this->load->view('adm_indicadores_verdata.php',$data);

@@ -37,7 +37,7 @@ class admcategorias extends CI_Controller {
 		$data['nombre'] = $this->session->userdata('nombre');
 		$data['correo'] = $this->session->userdata('correo');
 		$data['logueado'] = $this->session->userdata('logueado');
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['admvistaurlaccion'] = 'admcategoriasconceptos';
 		$data['advertenciaformato'] = "RECUERDE SI AGREGA UNA CATEGORIA ADMINISTRATIVA EL FORMATO ES CAT2016000012XXXX <br>los ultimos 4 'X' no deben repetirse de otra categoria, y.. <br>UNA CATEGORIA NO PUEDE ESTAR HUERFANA, debe tener al menos una subcategoria!";
 		$data['js_files'] = $output->js_files;

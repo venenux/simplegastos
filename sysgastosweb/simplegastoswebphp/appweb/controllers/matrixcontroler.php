@@ -63,7 +63,7 @@ class matrixcontroler extends CI_Controller {
 		$sessionflag = $this->session->userdata('username').date("YmdHis");
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		/* ***** fin manejo de sesion ******************* */
 		
 		/* **** hay que cargar las bae de datos */
@@ -238,7 +238,7 @@ class matrixcontroler extends CI_Controller {
 		$data['js_files'] = $output->js_files;
 		$data['css_files'] = $output->css_files;
 		$data['htmlquepintamatrix'] = $output->output;
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['seccionpagina'] = 'seccionmatrixresultado';
 		$data['fechainimatrix'] = $fechainimatrix;
 		$data['fechafinmatrix'] = $fechafinmatrix;

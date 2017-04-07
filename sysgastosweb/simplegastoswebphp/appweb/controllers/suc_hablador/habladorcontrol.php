@@ -63,7 +63,7 @@ class habladorcontrol extends CI_Controller {
 	{
 		$this->_verificarsesion();
 		$data['botongestion0'] = $this->botongestion0;
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['accionejecutada'] = 'habladorpaso1datos';	// para cargar parte especifica de la vista envio un parametro accion
 		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$data['mens'] = $mens;
@@ -77,7 +77,7 @@ class habladorcontrol extends CI_Controller {
 	{
 		$this->_verificarsesion();
 		
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['accionejecutada'] = 'gastomanualfiltrardouno';
 		
 		$usuariocodgernow = $this->session->userdata('cod_entidad');

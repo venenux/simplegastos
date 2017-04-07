@@ -31,7 +31,7 @@ class admentidades extends CI_Controller {
 	{
 		$this->_verificarsesion();
 		$data['logueado'] = $this->session->userdata('logueado');
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['advertenciaformato'] = "DEBE AUTORIZAR LOS USUARIOS, ASOCIELES UN CENTRO DE COSTO, la clave ellos la deben cambiar en la intranet.";
 		$data['admvistaurlaccion'] = 'admusuariosentidad';
 		$data['js_files'] = $output->js_files;

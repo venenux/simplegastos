@@ -1,7 +1,4 @@
-	<h1>Welcome/Bienvenido a VNX Codeigniter</h1>
 	<div id="body">
-		CUIDADO ESTA AUN EN DESARROLLO!!!!
-<?=form_open('generarordenconcarga/generacionautomatica/')?>
 	<?=form_fieldset('USE EL MENU GENERAR ORDEN DE ORDENES DESPACHO',array('class'=>'container_blue containerin '))?>
 
 		<div class="textfield">
@@ -12,11 +9,7 @@
 		</div>
 		<div class="buttons">
 		</div>
-
-
 	<?=form_fieldset_close()?>
-<?=form_close();?>
-
 	</div>
 	<p class="footer">Contenido lorem ipsum</p>
 	</div>
