@@ -174,7 +174,36 @@ if ( ! function_exists('form_input'))
 {
 	function form_input($data = '', $value = '', $extra = '')
 	{
-		$defaults = array('type' => 'text', 'name' => (( ! is_array($data)) ? $data : ''), 'value' => $value);
+
+		if ( ! is_array($data))
+		{
+			$nameinput = $data;
+			$data = array('name' => $data);
+		}
+		else
+		{
+			if ( ! array_key_exists('name', $data) )
+			{
+				$nameinṕut = 'input'.rand(100,999);
+				$data['name'] = $nameinput;
+			}
+			else
+			{
+				$nameinput = $data['name'];
+			}
+		}
+
+		$defaults = array('type' => 'text', 'name' => $nameinput, 'value' => $value);
+
+		if( is_array($extra) )
+		{
+			$extrax = '';
+			foreach( $extra as $keyx => $valx )
+			{
+				$extrax .= ' '.$keyx.'="'.$valx.'" ';
+			}
+			$extra = $extrax;
+		}
 
 		return "<input "._parse_form_attributes($data, $defaults).$extra." />";
 	}
@@ -224,10 +253,22 @@ if ( ! function_exists('form_upload'))
 {
 	function form_upload($data = '', $value = '', $extra = '')
 	{
+
 		if ( ! is_array($data))
 		{
 			$data = array('name' => $data);
 		}
+		else
+		{
+			$nameda = 'input'.rand(100,999);
+			if ( ! array_key_exists('name', $data) )
+				$data['name'] = $nameda;
+			else if ( $data['name'] == '' )
+				$data['name'] = $nameda;
+		}
+
+		if ( ! array_key_exists('id', $data) )
+			$data['id'] = $data['name'];
 
 		$data['type'] = 'file';
 		return form_input($data, $value, $extra);
@@ -480,9 +521,22 @@ if ( ! function_exists('form_submit'))
 {
 	function form_submit($data = '', $value = '', $extra = '')
 	{
-		$defaults = array('type' => 'submit', 'name' => (( ! is_array($data)) ? $data : ''), 'value' => $value);
 
-		return "<input "._parse_form_attributes($data, $defaults).$extra." />";
+		if ( ! is_array($data))
+		{
+			$data = array('name' => $data); // no care if submit no have name, but id must import
+		}
+
+		$nameda = 'input'.rand(100,999);
+		if ( ! array_key_exists('name', $data) )
+			$data['name'] = $nameda;
+
+		if ( ! array_key_exists('id', $data) )
+			$data['id'] = $data['name'];
+
+		$data['type'] = 'submit';
+
+		return form_input($data, $value, $extra);
 	}
 }
 
@@ -501,9 +555,21 @@ if ( ! function_exists('form_reset'))
 {
 	function form_reset($data = '', $value = '', $extra = '')
 	{
-		$defaults = array('type' => 'reset', 'name' => (( ! is_array($data)) ? $data : ''), 'value' => $value);
+		if ( ! is_array($data))
+		{
+			$data = array('name' => $data); // no care if submit no have name, but id must import
+		}
 
-		return "<input "._parse_form_attributes($data, $defaults).$extra." />";
+		$nameda = 'input'.rand(100,999);
+		if ( ! array_key_exists('name', $data) )
+			$data['name'] = $nameda;
+
+		if ( ! array_key_exists('id', $data) )
+			$data['id'] = $data['name'];
+
+		$data['type'] = 'reset';
+
+		return form_input($data, $value, $extra);
 	}
 }
 
