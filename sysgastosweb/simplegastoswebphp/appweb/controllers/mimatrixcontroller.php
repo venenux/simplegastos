@@ -347,7 +347,7 @@ group by cod_categoria
 		$crud->unset_read();	// se creara despues un boton que llame el total en dicha tienda
 		$crud->unset_edit();		// se desabilita cualquer ediccion
 		$crud->unset_delete();		// aqui nada se pierde, no borrar
-		$crud->add_action('AVISO Y AYUDA', '', '','ui-icon-plus',array($this,'_redirecciontotalizadores'));
+		// $crud->add_action('AVISO Y AYUDA', '', '','ui-icon-plus',array($this,'_redirecciontotalizadores')); // TODO: enlazar totalizadores aqui
 		$output = $crud->render();		// pinta el html con tabletools
 		$this->db->query($sqltotales_enti_cruza_cate_final_del); // limpiar db de la tabla usada temporalmente para el grocerycrud
 		$data['js_files'] = $output->js_files;

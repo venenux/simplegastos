@@ -79,14 +79,14 @@ class admcategorias extends CI_Controller {
 		if($currentState == 'add')
 		{
 			$crud->required_fields('des_categoria');
-			$crud->set_rules('des_categoria', 'Descripcion', 'trim|alphanumeric');
+			$crud->set_rules('des_categoria', 'Descripcion', 'trim|alpha_numeric');
 			$crud->callback_add_field('cod_categoria', function () {	return '<input type="text" maxlength="50" value="CAT'.date("YmdHis").'" name="cod_categoria" >';	});
 		}
 		else if ($currentState == 'edit')
 		{
 			$crud->required_fields('des_categoria');
 			//$crud->field_type('cod_categoria', 'readonly');
-			$crud->set_rules('des_categoria', 'Descripcion', 'trim|alphanumeric');
+			$crud->set_rules('des_categoria', 'Descripcion', 'trim|alpha_numeric');
 		}
 		$crud->callback_before_insert(array($this,'datospostinsertcat'));
 		$crud->callback_before_update(array($this,'echapajacuando'));

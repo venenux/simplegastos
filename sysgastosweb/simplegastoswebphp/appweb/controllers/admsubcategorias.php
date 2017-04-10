@@ -81,8 +81,8 @@ class admsubcategorias extends CI_Controller {
 		if($currentState == 'add')
 		{
 			$crud->required_fields('tipo_subcategoria','cod_categoria','des_subcategoria');
-			$crud->set_rules('cod_subcategoria', 'Codigo', 'trim|alphanumeric');
-			$crud->set_rules('des_subcategoria', 'Descripcion', 'trim|alphanumeric');
+			$crud->set_rules('cod_subcategoria', 'Codigo', 'trim|alpha_numeric');
+			$crud->set_rules('des_subcategoria', 'Descripcion', 'trim|alpha_numeric_spaces');
 			$crud->callback_add_field('cod_subcategoria', function () {	return '<input type="text" maxlength="50" value="SUB'.date("YmdHis").'" name="cod_subcategoria" readonly="true">';	});
 		}
 		else if ($currentState == 'edit')
@@ -90,7 +90,7 @@ class admsubcategorias extends CI_Controller {
 			$crud->required_fields('tipo_subcategoria','cod_categoria','des_subcategoria');
 			$crud->field_type('fecha_subcategoria', 'readonly');
 			$crud->field_type('cod_subcategoria', 'readonly');
-			$crud->set_rules('des_subcategoria', 'Descripcion', 'trim|alphanumeric');
+			$crud->set_rules('des_subcategoria', 'Descripcion', 'trim|alpha_numeric_spaces');
 		}
 		$crud->callback_before_insert(array($this,'datospostinsertsub'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
