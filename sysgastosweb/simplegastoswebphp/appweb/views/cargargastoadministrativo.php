@@ -54,6 +54,7 @@
 			$this->table->add_row('Monto similar a:', form_input('mon_registroigual','').br().PHP_EOL);
 			$this->table->add_row('Monto mayor o igual', form_input('mon_registromayor','').br().PHP_EOL);
 			$this->table->add_row('Por Concepto :', form_input('des_registrolike','').br().PHP_EOL);
+			$this->table->add_row('Por intranet que carga :', form_input('sessioncarga','').'No se garantiza funcione'.br().PHP_EOL);
 		echo $this->table->generate();
 		echo form_hidden('accionejecutada',$accionejecutada).br().PHP_EOL;
 		echo form_submit('gastofiltrarya', 'Ver reporte gasto', 'class="btn-primary btn"');

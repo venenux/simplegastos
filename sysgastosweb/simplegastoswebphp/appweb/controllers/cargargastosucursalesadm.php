@@ -283,7 +283,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$cargaconfig['max_size']  = 3110*1024;  //$cargaconfig['max_size']= '100'; // en kilobytes
 		$cargaconfig['max_width'] = 0;
 		$cargaconfig['max_height'] = 0;
-		$cargaconfig['remove_spaces'] = true;
+		//$cargaconfig['remove_spaces'] = true;
 		$cargaconfig['encrypt_name'] = TRUE;
 		$this->load->library('upload', $cargaconfig);
 		$this->load->helper('inflector');
@@ -291,19 +291,20 @@ class cargargastosucursalesadm extends CI_Controller {
 		$this->upload->do_upload('factura_bin');
 		$file_data = $this->upload->data();
 		$filenamen = $cod_registro . $file_data['file_ext'];
-        $filenameorig =  $file_data['file_path'] . $file_data['file_name'];
-        $filenamenewe =  $file_data['file_path'] . $filenamen;
-		if ( $file_data['file_name'] != '' OR $factura_bin != '' )
-		{
-			if ( $factura_tipo == 'CONTRIBUYENTE' )
+	        $filenameorig =  $file_data['file_path'] . $file_data['file_name'];
+    		$filenamenewe =  $file_data['file_path'] . $filenamen;
+		//if ( $factura_tipo == 'CONTRIBUYENTE' )
+		//{
+			if ( $file_data['file_name'] == '' and $factura_bin == '' )
 			{
-				$this->gastomanualcargaruno($mens = '<br>CUADNO ES CONTRIBUYENTE Debe subir un archivo escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO');
+			//	$this->gastomanualcargaruno($mens = '<br>CUADNO ES CONTRIBUYENTE Debe subir un archivo escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO');
+				$this->gastomanualcargaruno($mens = '<br><h4>POR RESOLUCION DE LA GERENCIA TODO GASTO DEBE TENER SU ADJUNTO</h4> escaneado que avale el gasto que ud esta registrando! Y SI TIENE ERRORES TIENE 15 DIAS PARA EDITARLO, sino DEBE REPORTARLO por ticket, leer instrucciones en la intranet! REPITA EL PROCESO');
 				log_message('info', $mens.'.');
 				return;
 			}
 			else
 				rename( $filenameorig, $filenamenewe); // TODO: rename
-		}
+		//}
 		if ( is_file($filenamenewe) ) // nombre del campo alla en el formulario
 		{
 			$conadjunto = TRUE;

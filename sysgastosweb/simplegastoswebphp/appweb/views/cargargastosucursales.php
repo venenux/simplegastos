@@ -80,6 +80,7 @@
 			$this->table->add_row('Monto exacto o cantidad igual a', form_input('mon_registroigual','').br().PHP_EOL);
 			$this->table->add_row('Monto mayor o igual a', form_input('mon_registromayor','').br().PHP_EOL);
 			$this->table->add_row('Por Concepto similar a:', form_input('des_registrolike','').br().PHP_EOL);
+			$this->table->add_row('Por intranet:', form_input('sessioncarga','').br().PHP_EOL);
 		echo $this->table->generate();
 		echo form_hidden('accionejecutada',$accionejecutada).br().PHP_EOL;
 		echo form_submit('gastofiltrarya', 'Ver reporte gasto', 'class="btn-primary btn"');
@@ -119,12 +120,12 @@
 			$this->table->add_row('Categoria y SubCategoria:', form_dropdown('cod_subcategoria', $list_subcategoria, $cod_subcategoria,'id="list_subcategoria"').PHP_EOL);
 			$this->table->add_row('De quien es el gasto:', form_dropdown('cod_entidad', $list_entidad, $usuariocodgernow, 'id="list_entidad"' ));
 			$this->table->add_row('Monto (punto para decimal, sin coma)', form_input('mon_registro', '0.00', $classinput).' OJO: sin separador de miles!'.br().PHP_EOL);
-	//		$this->table->add_row('Concepto o Detalle:', form_input('des_concepto', '', $classinput).br().PHP_EOL);
-	//		$this->table->add_row('Concepto tipo:', form_dropdown('tipo_concepto', $list_tipo_concepto , 'SUCURSAL', $classinput).br().PHP_EOL);
-	//		$this->table->add_row('Factura tipo:', form_dropdown('factura_tipo', $list_factura_tipo , 'CONTRIBUYENTE', $classinput));
-	//		$this->table->add_row('Factura Numero (contribuyente):', form_input('factura_num', '', $classinput).br().PHP_EOL);
-	//		$this->table->add_row('Factura RIF (contribuyente):', form_input('factura_rif', '', $classinput).br().PHP_EOL);
-	//		$this->table->add_row('Factura escaneada? :', form_upload(array('name'  => 'factura_bin', 'id'=>'factura_bin')).br().PHP_EOL );
+			$this->table->add_row('Concepto o Detalle:', form_input('des_concepto', '', $classinput).br().PHP_EOL);
+			$this->table->add_row('Concepto tipo:', form_dropdown('tipo_concepto', $list_tipo_concepto , 'SUCURSAL', $classinput).br().PHP_EOL);
+			$this->table->add_row('Factura tipo:', form_dropdown('factura_tipo', $list_factura_tipo , 'CONTRIBUYENTE', $classinput));
+			$this->table->add_row('Factura Numero (contribuyente):', form_input('factura_num', '', $classinput).br().PHP_EOL);
+			$this->table->add_row('Factura RIF (contribuyente):', form_input('factura_rif', '', $classinput).br().PHP_EOL);
+			$this->table->add_row('Factura escaneada? :', form_upload(array('name'  => 'factura_bin', 'id'=>'factura_bin')).br().PHP_EOL );
 		echo $this->table->generate().br().PHP_EOL;
 		echo form_hidden('estado', 'PENDIENTE'); // la carga de una sucursal es normal, la realizada por departamentos es administrativa
 		echo form_submit('cargargastosenviar', 'Registrar gasto', 'class="btn-primary btn"');

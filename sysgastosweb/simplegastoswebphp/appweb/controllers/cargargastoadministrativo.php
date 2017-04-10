@@ -125,6 +125,7 @@ class cargargastoadministrativo extends CI_Controller {
 			$cod_entidad = $this->input->get_post('cod_entidad');
 			$cod_categoria = $this->input->get_post('cod_categoria');
 			$cod_subcategoria = $this->input->get_post('cod_subcategoria');
+			$sessioncarga = $this->input->get_post('sessioncarga');
 		}
 		$this->load->helper(array('inflector','url'));
 		$data['seguir']=$this->uri->segment(1).$this->uri->segment(2).$this->uri->segment(3);
@@ -154,6 +155,8 @@ class cargargastoadministrativo extends CI_Controller {
 				$crud->like('mon_registro',$mon_registroigual, 'after');
 			if ( $mon_registromayor != '')
 				$crud->where('mon_registro >= ',$mon_registromayor);
+			if ( $sessioncarga != '' )
+				$crud->like('SUBSTRING(sessionficha, LOCATE(\'.\', sessionficha)+1 )',$sessioncarga );
 		//	$crud->where($tablaregistros.'.cod_categoria > ', '399');
 		//	$crud->where($tablaregistros.'.cod_categoria < ', '990');
 		$crud->set_subject('Gasto');
