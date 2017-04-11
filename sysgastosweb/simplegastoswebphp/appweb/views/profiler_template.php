@@ -1,6 +1,6 @@
 <?php
 	/*
-		el profiling y depuracion es ahora en una barra:
+		The location of the profiler bar. Valid locations are:
 
 			- bottom-left
 			- bottom-right
@@ -194,10 +194,10 @@ window.onload = function() {
 		<?php if (isset($sections['benchmarks'])) :?>
 			<a href="#" id="ci-profiler-menu-time" onclick="ci_profiler_bar.show('ci-profiler-benchmarks', 'ci-profiler-menu-time'); return false;">
 				<span><?php echo $this->benchmark->elapsed_time('total_execution_time_start', 'total_execution_time_end') ?> s</span>
-				CARGA
+				TIME
 			</a>
 			<a href="#" id="ci-profiler-menu-memory" onclick="ci_profiler_bar.show('ci-profiler-memory', 'ci-profiler-menu-memory'); return false;">
-				<span><?php echo (! function_exists('memory_get_usage')) ? '0' : round(memory_get_usage()/1024/1024, 2).' MB' ?></span>
+				<span><?php echo (! function_exists('memory_get_usage')) ? '0' : round(memory_get_usage()/1024/1024, 2).' Mb' ?></span>
 				RAM
 			</a>
 		<?php endif; ?>
@@ -205,7 +205,7 @@ window.onload = function() {
 		<!-- Queries -->
 		<?php if (isset($sections['queries'])) : ?>
 			<a href="#" id="ci-profiler-menu-queries" onclick="ci_profiler_bar.show('ci-profiler-queries', 'ci-profiler-menu-queries'); return false;">
-				<span><?php echo is_array($sections['queries']) ? (count($sections['queries']) - 1) : 0 ?> SQL</span>
+				<span><?php echo is_array($sections['queries']) ? (count($sections['queries']) - 1) : 0 ?> sql</span>
 				DBMS
 			</a>
 		<?php endif; ?>
@@ -221,8 +221,13 @@ window.onload = function() {
 		<!-- Vars and Config -->
 		<?php if (isset($sections['http_headers']) || isset($sections['get']) || isset($sections['config']) || isset($sections['post']) || isset($sections['uri_string']) || isset($sections['controller_info'])) : ?>
 			<a href="#" id="ci-profiler-menu-vars" onclick="ci_profiler_bar.show('ci-profiler-vars', 'ci-profiler-menu-vars'); return false;">
+<<<<<<< .mine
+				<span><?php echo is_array($sections['controller_info']) ? (count($sections['controller_info']) - 1) : count($sections['config']) ?> vars</span>
+				DATA
+=======
 				<span><?php echo is_array($sections['controller_info']) ? (count($sections['controller_info']) - 1) : count($sections['config']) ?> Config</span>
 				DATA
+>>>>>>> .r285
 			</a>
 		<?php endif; ?>
 
@@ -381,7 +386,7 @@ window.onload = function() {
 			<!-- View Data -->
 			<?php if (isset($sections['view_data'])) : ?>
 				<a href="#" onclick="ci_profiler_bar.toggle_data_table('view_data'); return false;">
-					<h2>Data php</h2>
+					<h2>DATA</h2>
 				</a>
 
 				<?php if (is_array($sections['view_data'])) : ?>
@@ -441,7 +446,7 @@ window.onload = function() {
 	<!-- Files -->
 	<?php if (isset($sections['files'])) :?>
 		<div id="ci-profiler-files" class="ci-profiler-box" style="display: none">
-			<h2>Loaded Files</h2>
+			<h2>LOAD-CARGA</h2>
 
 			<?php if (is_array($sections['files'])) : ?>
 

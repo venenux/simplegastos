@@ -166,7 +166,7 @@ class CI_Profiler extends CI_Loader {
 	 */
 	protected function _compile_queries()
 	{
-		$dbs = array(); // TODO soporte de varias db en profiler javascript y profiler normal
+		$dbs = array();
 		$output = array();
 
 		// Let's determine which databases are currently connected to
@@ -247,12 +247,13 @@ class CI_Profiler extends CI_Loader {
 	{
 		$output = array();
 
-		// hack arregla eloquent : not throw error for now
+		// hack to make eloquent not throw error for now
+		// but checks if file actually exists, or CI will throw an error
 		if (file_exists(APPPATH.'/models/Eloquent/Assets/Action.php')) {
 			$this->CI->load->model('Eloquent/Assets/Action');
 		}
 
-		if ( ! class_exists('Illuminate\Database\Capsule\Manager')) { // TODO ruta iluminate y separador OS linux only
+		if ( ! class_exists('Illuminate\Database\Capsule\Manager')) {
 			$output = 'Illuminate\Database has not been loaded.';
 		} else {
 			// Load the text helper so we can highlight the SQL
@@ -364,35 +365,36 @@ class CI_Profiler extends CI_Loader {
 	{
 		$output = array();
 
-		if (count($_POST) == 0 AND $_FILES == 0)
+		if (count($_POST) == 0)
+		{
+			$output = $this->CI->lang->line('profiler_no_post');
+		}
+		else if (count($_POST) == 0)
 		{
 			$output = $this->CI->lang->line('profiler_no_post');
 		}
 		else
 		{
-			if (count($_POST) > 0)
+			foreach ($_POST as $key => $val)
 			{
-				foreach ($_POST as $key => $val)
+				if ( ! is_numeric($key))
 				{
-					if ( ! is_numeric($key))
-					{
-						$key = "'".$key."'";
-					}
+					$key = "'".$key."'";
+				}
 
-					if (is_array($val))
-					{
-						$output['&#36;_POST['. $key .']'] = '<pre>'. htmlspecialchars(stripslashes(print_r($val, TRUE))) . '</pre>';
-					}
-					else
-					{
-						$output['&#36;_POST['. $key .']'] = htmlspecialchars(stripslashes($val));
-					}
+				if (is_array($val))
+				{
+					$output['&#36;_POST['. $key .']'] = '<pre>'. htmlspecialchars(stripslashes(print_r($val, TRUE))) . '</pre>';
+				}
+				else
+				{
+					$output['&#36;_POST['. $key .']'] = htmlspecialchars(stripslashes($val));
 				}
 			}
-			else
-				$output = $this->CI->lang->line('profiler_no_post but...');
-
-			if (count($_FILES) > 0)
+(??)			else
+(??)				$output = $this->CI->lang->line('profiler_no_post but...');
+(??)
+(??)			if (count($_FILES) > 0)
 			foreach ($_FILES as $key => $val)
 			{
 				if ( ! is_numeric($key))
@@ -537,10 +539,6 @@ class CI_Profiler extends CI_Loader {
 
 	public function _compile_console()
 	{
-
-		// Make sure the Console is loaded.
-		$this->CI->load->library('Console');
-
 		$logs = Console::get_logs();
 
 		if ($logs['console'])
@@ -549,6 +547,8 @@ class CI_Profiler extends CI_Loader {
 			{
 				if ($log['type'] == 'log')
 				{
+					$this->CI->load->library('Vd');
+//					$logs['console'][$key]['data'] = Vd::dump($log['data'], '', TRUE);
 					$logs['console'][$key]['data'] = print_r($log['data'], true);
 				}
 				elseif ($log['type'] == 'memory')
@@ -583,10 +583,7 @@ class CI_Profiler extends CI_Loader {
 
 					if (is_array($val) || is_object($val))
 					{
-						if (is_object($val))
-							$output[$key] = json_encode($val); // revise 
-						else
-							$output[$key] = htmlspecialchars(stripslashes(print_r($val, true)));
+						$output[$key] = htmlspecialchars(stripslashes(print_r($val, true)));
 					}
 					else
 					{
@@ -610,7 +607,7 @@ class CI_Profiler extends CI_Loader {
 	 */
 	public function _compile_view_data()
 	{
-		$output = array();
+		$output = '';
 
 		foreach ($this->_ci_cached_vars as $key => $val)
 		{
