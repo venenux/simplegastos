@@ -221,20 +221,15 @@ window.onload = function() {
 		<!-- Vars and Config -->
 		<?php if (isset($sections['http_headers']) || isset($sections['get']) || isset($sections['config']) || isset($sections['post']) || isset($sections['uri_string']) || isset($sections['controller_info'])) : ?>
 			<a href="#" id="ci-profiler-menu-vars" onclick="ci_profiler_bar.show('ci-profiler-vars', 'ci-profiler-menu-vars'); return false;">
-<<<<<<< .mine
 				<span><?php echo is_array($sections['controller_info']) ? (count($sections['controller_info']) - 1) : count($sections['config']) ?> vars</span>
 				DATA
-=======
-				<span><?php echo is_array($sections['controller_info']) ? (count($sections['controller_info']) - 1) : count($sections['config']) ?> Config</span>
-				DATA
->>>>>>> .r285
 			</a>
 		<?php endif; ?>
 
 		<!-- Files -->
 		<?php if (isset($sections['files'])) : ?>
 			<a href="#" id="ci-profiler-menu-files" onclick="ci_profiler_bar.show('ci-profiler-files', 'ci-profiler-menu-files'); return false;">
-				<span><?php echo is_array($sections['files']) ? count($sections['files']) : 0 ?> php</span> 
+				<span><?php echo is_array($sections['files']) ? count($sections['files']) : 0 ?> php</span>
 				FILES
 			</a>
 		<?php endif; ?>

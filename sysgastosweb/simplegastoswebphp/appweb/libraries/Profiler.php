@@ -369,50 +369,52 @@ class CI_Profiler extends CI_Loader {
 		{
 			$output = $this->CI->lang->line('profiler_no_post');
 		}
-		else if (count($_POST) == 0)
-		{
-			$output = $this->CI->lang->line('profiler_no_post');
-		}
 		else
 		{
-			foreach ($_POST as $key => $val)
+			if (count($_POST) > 0)
 			{
-				if ( ! is_numeric($key))
+				foreach ($_POST as $key => $val)
 				{
-					$key = "'".$key."'";
-				}
+					if ( ! is_numeric($key))
+					{
+						$key = "'".$key."'";
+					}
 
-				if (is_array($val))
-				{
-					$output['&#36;_POST['. $key .']'] = '<pre>'. htmlspecialchars(stripslashes(print_r($val, TRUE))) . '</pre>';
-				}
-				else
-				{
-					$output['&#36;_POST['. $key .']'] = htmlspecialchars(stripslashes($val));
+					if (is_array($val))
+					{
+						$output['&#36;_POST['. $key .']'] = '<pre>'. htmlspecialchars(stripslashes(print_r($val, TRUE))) . '</pre>';
+					}
+					else
+					{
+						$output['&#36;_POST['. $key .']'] = htmlspecialchars(stripslashes($val));
+					}
 				}
 			}
-(??)			else
-(??)				$output = $this->CI->lang->line('profiler_no_post but...');
-(??)
-(??)			if (count($_FILES) > 0)
-			foreach ($_FILES as $key => $val)
+			else
 			{
-				if ( ! is_numeric($key))
-				{
-					$key = "'".$key."'";
-				}
-
-				if (is_array($val) OR is_object($val))
-				{
-					$output['&#36;_POST[FILE'. $key .']'] =  '<pre>'.htmlspecialchars(stripslashes(print_r($val, TRUE))).'</pre>';
-				}
-				else
-				
-				{
-					$output['&#36;_POST[FILE'. $key .']'] = htmlspecialchars(stripslashes($val));
-				}
+				$output = $this->CI->lang->line('profiler_no_post but...');
 			}
 
+			if (count($_FILES) > 0)
+			{
+				foreach ($_FILES as $key => $val)
+				{
+					if ( ! is_numeric($key))
+					{
+						$key = "'".$key."'";
+					}
+
+					if (is_array($val) OR is_object($val))
+					{
+						$output['&#36;_POST[FILE'. $key .']'] =  '<pre>'.htmlspecialchars(stripslashes(print_r($val, TRUE))).'</pre>';
+					}
+					else
+
+					{
+						$output['&#36;_POST[FILE'. $key .']'] = htmlspecialchars(stripslashes($val));
+					}
+				}
+			}
 		}
 
 		return $output;
