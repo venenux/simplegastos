@@ -49,7 +49,7 @@ $active_group = 'gastossystema';
 $active_record = TRUE;
 
 // base de datos principal de la aplicacion, active record solo sirve aqui
-$db['gastossystema']['hostname'] = 'localhost';
+$db['gastossystema']['hostname'] = '10.10.34.20';
 $db['gastossystema']['username'] = 'gastossystema';
 $db['gastossystema']['password'] = 'gastossystema.1';
 $db['gastossystema']['database'] = 'gastossystema';
