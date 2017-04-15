@@ -663,10 +663,10 @@ class cargargastosucursalesadm extends CI_Controller {
 					if ( $this->nivel == 'especial' ) 	$sqltablagastousr .= " and ( tipo_concepto <> 'ADMINISTRATIVO' or tipo_concepto NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
 					if ( $this->nivel == 'ninguno' ) 	$sqltablagastousr .= " and tipo_concepto = '' ";
 					if ( $sessionfichav != '')	$sqltablagastousr .= " AND (sessionficha LIKE '".str_replace('.','_',$this->db->escape_str($sessionfichav))."' or sessionflag LIKE '".str_replace('.','_',$this->db->escape_str($sessionfichav))."') ";
-					if ( $fec_conceptoini != '')	$sqltablagastousr .= " AND CONVERT(fecha_concepto,UNSIGNED) >= ".$this->db->escape_str($fec_conceptoini)." ";
-					if ( $fec_conceptofin != '')	$sqltablagastousr .= " AND CONVERT(fecha_concepto,UNSIGNED) <= ".$this->db->escape_str($fec_conceptofin)." ";
-					if ( $fec_registroini != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) >= ".$this->db->escape_str($fec_registroini)." ";
-					if ( $fec_registrofin != '')	$sqltablagastousr .= " AND CONVERT(fecha_registro,UNSIGNED) <= ".$this->db->escape_str($fec_registrofin)." ";
+					if ( $fec_conceptoini != '')	$sqltablagastousr .= " AND CONVERT(substring(fecha_concepto,1,8),UNSIGNED) >= ".$this->db->escape_str($fec_conceptoini)." ";
+					if ( $fec_conceptofin != '')	$sqltablagastousr .= " AND CONVERT(substring(fecha_concepto,1,8),UNSIGNED) <= ".$this->db->escape_str($fec_conceptofin)." ";
+					if ( $fec_registroini != '')	$sqltablagastousr .= " AND CONVERT(substring(fecha_registro,1,8),UNSIGNED) >= ".$this->db->escape_str($fec_registroini)." ";
+					if ( $fec_registrofin != '')	$sqltablagastousr .= " AND CONVERT(substring(fecha_registro,1,8),UNSIGNED) <= ".$this->db->escape_str($fec_registrofin)." ";
 					if ( $des_registrolike != '')	$sqltablagastousr .= " AND registro_gastos.des_concepto LIKE '%".$this->db->escape_str($des_registrolike)."%' ";
 					if ( $mon_registroigual != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro = '".$this->db->escape_str($mon_registroigual)."' ";
 					if ( $mon_registromayor != '')	$sqltablagastousr .= " AND registro_gastos.mon_registro LIKE '".$this->db->escape_str($mon_registromayor)."%' ";
@@ -686,7 +686,7 @@ class cargargastosucursalesadm extends CI_Controller {
 							$sqltablagastousr .= "  AND cod_entidad <> '111' AND cod_entidad <> 113 and cod_entidad <> 1009 and cod_entidad <> 176 and cod_entidad <> 121 and cod_entidad <> 212 and cod_entidad <> 1109  ";
 					if ( $cod_categoria != '')		$sqltablagastousr .= " AND registro_gastos.cod_categoria = '".$this->db->escape_str($cod_categoria)."' ";
 					if ( $cod_subcategoria != '')	$sqltablagastousr .= " AND registro_gastos.cod_subcategoria = '".$this->db->escape_str($cod_subcategoria)."' ";
-					if ( in_array("list", $urlsegmentos) and $fec_registroini != '')	$sqltablagastousr .= "AND CONVERT(fecha_registro,UNSIGNED) >= ".$fec_registroini." ";
+					if ( in_array("list", $urlsegmentos) and $fec_registroini != '')	$sqltablagastousr .= "AND CONVERT(substring(fecha_registro,1,8),UNSIGNED) >= ".$fec_registroini." ";
 					$sqltablagastousr .= " ORDER BY fecha_concepto DESC, fecha_registro DESC ";
 			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
 			if ( $this->nivel != 'administrador')

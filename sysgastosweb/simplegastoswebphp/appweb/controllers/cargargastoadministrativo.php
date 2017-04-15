@@ -29,7 +29,7 @@ class cargargastoadministrativo extends CI_Controller {
 		{
 			redirect('manejousuarios/desverificarintranet');
 		}
-		$data['menu'] = $this->menu->general_menu();
+		$data['menu'] = $this->menu->menudesktop();
 
 		/* cargar y listaar las CATEGORIAS que se usaran para registros */
 			$sqlcategoria = "
@@ -144,13 +144,13 @@ class cargargastoadministrativo extends CI_Controller {
 			if ( $des_registrolike != '')
 				$crud->like('des_concepto',$des_registrolike);
 			if ( $fec_registroini != '')
-				$crud->where('CONVERT(fecha_registro,UNSIGNED) >= ',$fec_registroini);
+				$crud->where('CONVERT(substring(fecha_registro,1,8),UNSIGNED) >= ',$fec_registroini);
 			if ( $fec_registrofin != '')
-				$crud->where('CONVERT(fecha_registro,UNSIGNED) <= ',$fec_registrofin);
+				$crud->where('CONVERT(substring(fecha_registro,1,8),UNSIGNED) <= ',$fec_registrofin);
 			if ( $fec_conceptoini != '')
-				$crud->where('CONVERT(fecha_concepto,UNSIGNED) <= ',$fec_conceptoini);
+				$crud->where('CONVERT(substring(fecha_concepto,1,8),UNSIGNED) <= ',$fec_conceptoini);
 			if ( $fec_conceptofin != '')
-				$crud->where('CONVERT(fecha_concepto,UNSIGNED) <= ',$fec_conceptofin);
+				$crud->where('CONVERT(substring(fecha_concepto,1,8),UNSIGNED) <= ',$fec_conceptofin);
 			if ( $mon_registroigual != '')
 				$crud->like('mon_registro',$mon_registroigual, 'after');
 			if ( $mon_registromayor != '')
