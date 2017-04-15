@@ -18,15 +18,16 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=3
+current_page=8
 FILE_NAME_0=5226;PHP;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/appweb/controllers/manejousuarios.php;0;4
 FILE_NAME_1=0;PHP;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/appweb/controllers/admgastosregistros.php;0;4
 FILE_NAME_2=0;None;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/desarrollomisc/respuesta-yamilet.txt;0;4
 FILE_NAME_3=21142;Sh;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/desarrollomisc/adminusers-intranet.sh;0;4
 FILE_NAME_4=2126;PHP;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/appweb/views/plantillamatrixvista.php;0;4
-FILE_NAME_5=307;PHP;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/appweb/controllers/cargargastoex.php;0;4
-FILE_NAME_6=11272;PHP;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/appsys/database/DB_driver.php;0;4
-FILE_NAME_7=160;PHP;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/appweb/controllers/cargargastover.php;0;4
+FILE_NAME_5=11272;PHP;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/appsys/database/DB_driver.php;0;4
+FILE_NAME_6=2717;PHP;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/appweb/config/database.php;0;4
+FILE_NAME_7=4388;PHP;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/appweb/controllers/admgastoslog.php;0;4
+FILE_NAME_8=3070;PHP;0;16;1;1;0;/home/systemas/Devel/simplegastos/sysgastosweb/simplegastoswebphp/appweb/views/admgastoslog.php;0;4
 
 [VTE]
-last_dir=/home/systemas/Devel/megasoft/working
+last_dir=/home/systemas
