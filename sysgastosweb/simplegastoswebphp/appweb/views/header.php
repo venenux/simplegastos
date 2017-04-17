@@ -39,7 +39,7 @@ $this->load->helper('html');
 	<body onload = 'checkAvailable()' >
 		<div class="menu ">
 			<center>
-				<?=$menu.PHP_EOL?>
+				<?php echo $menu.PHP_EOL; ?>
 			</center>
 		</div>
 	<center>
