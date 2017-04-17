@@ -8,6 +8,9 @@ class admgastoslog extends CI_Controller {
 	function __construct()
 	{
 		parent::__construct();
+		$this->load->database('gastossystema');
+		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
+		$this->load->library('session');
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
 		$this->load->helper(array('form', 'url','html'));
@@ -22,7 +25,7 @@ class admgastoslog extends CI_Controller {
 
 	public function _verificarsesion()
 	{
-		if( $this->session->userdata('logueado') != TRUE)
+		if( $this->session->userdata('logueado') != '1')
 			redirect('manejousuarios/desverificarintranet');
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
 		if( is_array($usuariocodgernow) )
@@ -92,6 +95,7 @@ class admgastoslog extends CI_Controller {
 		$userintran = $this->session->userdata('intranet');
 		$fec_registroini = $this->input->get_post('fec_registroini');
 		$fec_registrofin = $this->input->get_post('fec_registrofin');
+		$operacion = $this->input->get_post('operacion');
 		$sessionfichav = $this->input->get_post('sessionficha');
 
 		// ******* ini nombres de tablas para filtrar los datos:
@@ -105,7 +109,8 @@ class admgastoslog extends CI_Controller {
 				if ( $this->nivel != 'administrador' ) 	$sqltablalogs .= "AND sessionficha LIKE '%".$userintran."%' ";
 				if ( trim($fec_registroini) != '')	$sqltablalogs .= " AND CONVERT(substring(cod_log,1,8),UNSIGNED) >= ".$this->db->escape_str($fec_registroini)." ";
 				if ( trim($fec_registrofin) != '')	$sqltablalogs .= " AND CONVERT(substring(cod_log,1,8),UNSIGNED) <= ".$this->db->escape_str($fec_registrofin)." ";
-				if ( $sessionfichav != '')	$sqltablagastousr .= " AND (sessionficha LIKE '".str_replace('.','_',$this->db->escape_str($sessionfichav))."' or sessionflag LIKE '".str_replace('.','_',$this->db->escape_str($sessionfichav))."') ";
+				if ( trim($operacion) != '')	$sqltablagastousr .= " AND (operacion LIKE '%".$this->db->escape_str($operacion)."%' ";
+				if ( trim($sessionfichav) != '')	$sqltablagastousr .= " AND (sessionficha LIKE '".str_replace('.','_',$this->db->escape_str($sessionfichav))."' or sessionflag LIKE '".str_replace('.','_',$this->db->escape_str($sessionfichav))."') ";
 		$sqltablalogs .= " ORDER BY cod_log DESC ";
 		$sqltablapre = "DROP TABLE IF EXISTS ".$tablalogsegura.";";
 		if ( $this->nivel != 'administrador')

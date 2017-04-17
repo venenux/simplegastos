@@ -52,7 +52,7 @@ class Indexcontroler extends CI_Controller {
 			$this->table->add_row('Centro de costo', $this->session->userdata('codger') . '(' . $this->session->userdata('cod_entidad').') - '.$this->session->userdata('des_entidad'), '');
 			$this->table->add_row('Ubicacion', $this->session->userdata('cod_entidad'). ' - ' . $this->session->userdata('des_entidad'),'');
 			$data['presentar']='<h3>Sistema modular ERP купить (version 0.1)</h3><br>'.$this->table->generate();
-			$data['menu'] = $this->menu->general_menu();
+			$data['menu'] = $this->menu->menudesktop();
 			$this->load->view('header.php',$data);
 			$this->load->view('manejousuarios', $data);
 			$this->load->view('footer.php',$data);

@@ -45,7 +45,8 @@
 				$htmlformaattributos = array('name'=>'formularioordendespachogenerar','class'=>'formularios','onSubmit'=>'return validageneric(this);');
 		echo form_open_multipart('admgastoslog/seccionlogver', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
-			$this->table->add_row('Del dia:',form_input($valoresinputfecha1ini).PHP_EOL.' al '.form_input($valoresinputfecha1fin).br().PHP_EOL);
+			$this->table->add_row('Criterio:',form_input('operacion','').PHP_EOL);
+			$this->table->add_row('Del dia:',form_input($valoresinputfecha1ini).PHP_EOL.' al '.form_input($valoresinputfecha1fin).PHP_EOL);
 			$this->table->add_row('Por intranet:', form_input('sessioncarga','').br().PHP_EOL);
 		echo $this->table->generate();
 		echo form_hidden('accionejecutado',$accionejecutado).br().PHP_EOL;

@@ -49,10 +49,10 @@ $active_group = 'gastossystema';
 $active_record = TRUE;
 
 // base de datos principal de la aplicacion, active record solo sirve aqui
-$db['gastossystema']['hostname'] = '10.10.34.20';
-$db['gastossystema']['username'] = 'gastossystema';
-$db['gastossystema']['password'] = 'gastossystema.1';
-$db['gastossystema']['database'] = 'gastossystema';
+$db['gastossystema']['hostname'] = '10.10.34.23';
+$db['gastossystema']['username'] = 'sysdbgasto';
+$db['gastossystema']['password'] = 'sysdbgasto.1';
+$db['gastossystema']['database'] = 'sysdbgasto';
 $db['gastossystema']['dbdriver'] = 'mysql';
 $db['gastossystema']['dbprefix'] = ''; // <<--- NO USAR PREFIJO, GROCERY CRUD NO ENCONTRARA LAS TABLAS
 $db['gastossystema']['pconnect'] = TRUE;
