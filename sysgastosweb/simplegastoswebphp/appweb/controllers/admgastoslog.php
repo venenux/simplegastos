@@ -109,8 +109,8 @@ class admgastoslog extends CI_Controller {
 				if ( $this->nivel != 'administrador' ) 	$sqltablalogs .= "AND sessionficha LIKE '%".$userintran."%' ";
 				if ( trim($fec_registroini) != '')	$sqltablalogs .= " AND CONVERT(substring(cod_log,1,8),UNSIGNED) >= ".$this->db->escape_str($fec_registroini)." ";
 				if ( trim($fec_registrofin) != '')	$sqltablalogs .= " AND CONVERT(substring(cod_log,1,8),UNSIGNED) <= ".$this->db->escape_str($fec_registrofin)." ";
-				if ( trim($operacion) != '')	$sqltablagastousr .= " AND (operacion LIKE '%".$this->db->escape_str($operacion)."%' ";
-				if ( trim($sessionfichav) != '')	$sqltablagastousr .= " AND (sessionficha LIKE '".str_replace('.','_',$this->db->escape_str($sessionfichav))."' or sessionflag LIKE '".str_replace('.','_',$this->db->escape_str($sessionfichav))."') ";
+				if ( trim($operacion) != '')	$sqltablalogs .= " AND operacion LIKE '%".$this->db->escape_str($operacion)."%' ";
+				if ( trim($sessionfichav) != '')	$sqltablalogs .= " AND (sessionficha LIKE '".str_replace('.','_',$this->db->escape_str($sessionfichav))."' or sessionflag LIKE '".str_replace('.','_',$this->db->escape_str($sessionfichav))."') ";
 		$sqltablalogs .= " ORDER BY cod_log DESC ";
 		$sqltablapre = "DROP TABLE IF EXISTS ".$tablalogsegura.";";
 		if ( $this->nivel != 'administrador')
