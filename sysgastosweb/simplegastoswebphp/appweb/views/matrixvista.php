@@ -25,9 +25,11 @@
 		echo form_open_multipart('matrixcontroler/matrixtotalesfiltrado/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
 		$this->table->set_datatables(FALSE);
-			$this->table->add_row('Rango:',form_input($inputfechaini). ' al '.form_input($inputfechafin).br().PHP_EOL );
+			$this->table->add_row('Rango:',form_input($inputfechaini). ' al '.form_input($inputfechafin).PHP_EOL );
 			$this->table->add_row('Categoria', form_dropdown('cod_categoria', $list_categoria,null,'id="list_categoria"').PHP_EOL);
 			$this->table->add_row('Centro de Costo:', form_dropdown('cod_entidad', $list_entidad,null,'id="list_entidad"').PHP_EOL );
+			$this->table->add_row('Intranet',  form_input('sessioncarga','').PHP_EOL);
+			$this->table->add_row('Descripcion similar',  form_input('des_concepto',''). ' Mostrar los detalles?:'.form_checkbox('ind_concepto', 'condetalle', FALSE) .PHP_EOL  );
 		echo $this->table->generate();
 		echo form_submit('vermatrix', 'Ver totales', 'class="btn-primary btn b10"');
 		echo form_close() . PHP_EOL;
@@ -49,7 +51,7 @@
 
 		echo form_fieldset('Matrix de reporte de gatos') . PHP_EOL;
 		echo br().PHP_EOL;
-		echo 'Filtros : '.$cod_entidad.' ('.$cod_categoria.'), Fecha gasto: '.$fechainimatrix.' al '.$fechafinmatrix.'<br>'.PHP_EOL;
+		echo 'Filtros : '.$des_concepto.' '.$sessioncarga.', '.$cod_entidad.' ('.$cod_categoria.'), Fecha gasto: '.$fechainimatrix.' al '.$fechafinmatrix.'<br>'.PHP_EOL;
 		echo br().PHP_EOL;
 		echo $htmlquepintamatrix;
 		echo form_fieldset_close() . PHP_EOL;

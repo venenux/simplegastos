@@ -149,6 +149,9 @@ class matrixcontroler extends CI_Controller {
 		
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_categoria = $this->input->get_post('cod_categoria');
+		$des_concepto = $this->input->get_post('des_concepto');
+		$ind_concepto = $this->input->get_post('ind_concepto');
+		$sessioncarga = $this->input->get_post('sessioncarga');
 		//if ( trim(str_replace(' ', '', $cod_entidad)) != '')
 		//$this->form_validation->set_rules('cod_entidad', 'Entidad o de quien es la suma', 'required');
 		//if ( trim(str_replace(' ', '', $cod_categoria)) != '')
@@ -162,7 +165,7 @@ class matrixcontroler extends CI_Controller {
 		log_message('info', 'Cargando totales, filtrar '. $cod_entidad . ' en ' . $cod_categoria . ' identificacion como '.$sessionflag1);
 
 		$this->load->database('gastossystema');
-		$filtro1 = $filtro2 = $filtro3 = $filtro4 = '';
+		$filtro1 = $filtro2 = $filtro3 = $filtro4 = $filtro5 = $filtro6 = '';
 		if ( trim(str_replace(' ', '', $cod_entidad)) != '')
 			$filtro1 = " and	a.cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
 		if ( trim(str_replace(' ', '', $fechainimatrix)) != '')
@@ -171,9 +174,22 @@ class matrixcontroler extends CI_Controller {
 			$filtro3 = " and CONVERT(a.fecha_concepto,UNSIGNED) <= CONVERT('".$this->db->escape_str($fechafinmatrix)."',UNSIGNED)  ";
 		if ( trim(str_replace(' ', '', $cod_categoria)) != '')
 			$filtro4 = " and a.cod_categoria = '".$this->db->escape_str($cod_categoria)."' ";
+		if ( trim(str_replace(' ', '', $des_concepto)) != '')
+			$filtro5 = " and a.des_concepto LIKE '%".$this->db->escape_str($des_concepto)."%' ";
+		if ( trim(str_replace(' ', '', $sessioncarga)) != '')
+			$filtro6 = " and a.sessionficha LIKE '%".$this->db->escape_str($sessioncarga)."%' ";
 		/* ***** fin OBTENER DATOS FORMULARIO ********** */
 
-		
+		if ( $ind_concepto == 'condetalle' )
+		{
+			$sqlcolum1 = "a.des_concepto,";
+			$sqlcolum2 = "'...varios detalles',";
+		}
+		else
+		{
+			$sqlcolum1 = $sqlcolum2 = "";
+			$filtro5 = "";
+		}
 		/* ******** inicio filtrar y resultado query cualquiera ejemplo ************* */
 		$this->load->helper(array('form', 'url','inflector'));
 		// creanos nuestro query sql que trae datos
@@ -184,6 +200,7 @@ class matrixcontroler extends CI_Controller {
 					SELECT 
 						a.cod_entidad, b.des_entidad, 
 						a.cod_categoria, c.des_categoria,
+						".$sqlcolum1."
 						ifnull(a.mon_registro,0) as mon_registro,
 						SUBSTRING(a.fecha_concepto,1,8) as fecha_concepto, a.fecha_registro,
 						a.fecha_concepto as fecha_gasto
@@ -192,12 +209,13 @@ class matrixcontroler extends CI_Controller {
 						LEFT JOIN entidad b on a.cod_entidad=b.cod_entidad /* todas las entiddes deben registrar gasto*/
 						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
 					where 
-						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . "
+						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . $filtro5 . $filtro6 . "
 						and a.estado <> 'RECHAZADO'
 				     UNION
 					SELECT 
 						a.cod_entidad, 'A l dia', 
 						a.cod_categoria, 'TOTAL',
+						".$sqlcolum2."
 						IFNULL(SUM(IFNULL(a.mon_registro,0)),0) as mon_registro,
 						SUBSTRING(a.fecha_concepto,1,8) as fecha_concepto, a.fecha_registro,
 						a.fecha_concepto as fecha_gasto
@@ -206,7 +224,7 @@ class matrixcontroler extends CI_Controller {
 						LEFT JOIN entidad b on a.cod_entidad=b.cod_entidad /* todas las entiddes deben registrar gasto*/
 						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
 					where 
-						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . " 
+						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . $filtro5 . $filtro6 . " 
 			) AS tablatotaltemp
 			ORDER BY sessionficha DESC			
 			";
@@ -222,12 +240,22 @@ class matrixcontroler extends CI_Controller {
 		$crud->set_primary_key('sessionficha');
 		$crud->display_as('des_entidad','Entidad')
 			 ->display_as('des_categoria','Centro<br>Coste')
+			 ->display_as('des_concepto','Detalle<br>Coste')
 			 ->display_as('mon_registro','Monto')
 			 ->display_as('fecha_gasto','Fecha<br>Estimada')
 			 ->display_as('fecha_concepto','Fecha<br>Gasto')
 			 ->display_as('fecha_registro','Fecha<br>Ingresado')
 			 ->display_as('sessionficha','Registro<br>Autor');
-		$crud->columns('des_entidad','des_categoria','mon_registro','fecha_gasto','sessionficha');
+		if ( $ind_concepto != 'condetalle' )
+		{
+			$crud->columns('des_entidad','des_categoria','mon_registro','fecha_gasto','sessionficha');
+			$crud->fields('des_entidad','des_categoria','mon_registro','fecha_gasto','sessionficha');
+		}
+		else
+		{
+			$crud->columns('des_entidad','des_categoria','mon_registro','fecha_gasto','des_concepto','sessionficha');
+			$crud->fields('des_entidad','des_categoria','mon_registro','fecha_gasto','des_concepto','sessionficha');
+		}
 		$crud->unset_add();
 		$crud->unset_read();
 		$crud->unset_edit();
@@ -244,6 +272,9 @@ class matrixcontroler extends CI_Controller {
 		$data['fechafinmatrix'] = $fechafinmatrix;
 		$data['cod_entidad'] = $cod_entidad;
 		$data['cod_categoria'] = $cod_categoria;
+		$data['des_concepto'] = $des_concepto;
+		$data['sessioncarga'] = ' cargado por ' . $sessioncarga;
+		$data['ind_concepto'] = $ind_concepto;
 		$this->db->query("DROP TABLE IF EXISTS ".$tablatempototales); // ejecuto el query
 		$this->load->view('header.php',$data);
 		$this->load->view('matrixvista.php',$data);
