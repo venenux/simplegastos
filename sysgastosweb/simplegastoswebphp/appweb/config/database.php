@@ -66,12 +66,12 @@ $db['gastossystema']['autoinit'] = FALSE;
 $db['gastossystema']['stricton'] = FALSE;
 
 // base de datos de oasis/sybase para datos de productos y ventas
-$db['oasis']['hostname'] = 'oasis0';//"dsn=oasis1;uid=dba;pwd=sql";
-$db['oasis']['username'] = 'ordendespacho';
-$db['oasis']['password'] = 'ordendespacho.1.com';
-$db['oasis']['database'] = 'oasis';
+$db['oasis']['hostname'] = 'oasis';//"dsn=oasis1;uid=dba;pwd=sql";
+$db['oasis']['username'] = 'dba';
+$db['oasis']['password'] = 'sql';
+$db['oasis']['database'] = 'OP_001037';
 $db['oasis']['dbdriver'] = 'odbc';
-$db['oasis']['dbprefix'] = 'dbo';
+$db['oasis']['dbprefix'] = '';
 $db['oasis']['pconnect'] = FALSE;
 $db['oasis']['db_debug'] = TRUE;
 $db['oasis']['cache_on'] = FALSE;

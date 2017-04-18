@@ -13,7 +13,7 @@
 		$usuariocodgernow = null;
 	else
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
-
+echo $usuariocodgernow;
 	// que parte del formulario y a donde ira a viajar el html
 	if( !isset($accionejecutada) )
 		$accionejecutada = 'habladorpaso1datos';
@@ -53,9 +53,11 @@
 		$this->table->clear();
 			$this->table->add_row('Fecha impresion:',form_input($fec_valoresinputini).PHP_EOL );
 			$this->table->add_row('Codigos de productos'.br().'separados por comas', form_textarea('cod_productos','').PHP_EOL);
+			$this->table->add_row('Entidad de coste:', form_dropdown('cod_entidad', $list_entidad,$usuariocodgernow,'id="list_entidad"').PHP_EOL );
 			$this->table->add_row('Tipo hablador<br>' , form_dropdown('list_tipo_hablador', $list_tipo_hablador, $tipo_hablador,'id="tipo_hablador"').PHP_EOL);
+			$this->table->add_row('Revisar existencia?:',form_checkbox('ind_existencia', '0', TRUE) .PHP_EOL);
 		echo $this->table->generate();
-		echo form_hidden('pre_productos',$usuariocodgernow).br().PHP_EOL;
+		echo form_hidden('cod_entidadusr',$usuariocodgernow).br().PHP_EOL;
 		echo form_hidden('accionejecutada',$accionejecutada).PHP_EOL;
 		echo form_submit('habladorprocesar', 'Procesar hablador', 'class="btn-primary btn"');
 		echo form_close() . PHP_EOL;

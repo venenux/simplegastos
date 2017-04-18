@@ -1,6 +1,23 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-/** controlador que imprime un hablador segun los formatos en hoja de calculo */
+/**
+ * habladorcontrol.php
+ * 
+ * Copyright 2017 PICCORO Lenz McKAY mckaygerhard@gmail.com
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * ODBC: https://vegnuli.wordpress.com/2016/12/14/venenux-odbc-y-sybase-nocicones-y-conectividad/#Trabajar-ODBC-con-SybaseSQL-freeDTS
+ * 
+ * apt-get install unixodbc tdsodbc libsybdb5 libct4
+ * odbcinst -i -d -f /usr/share/tdsodbc/odbcinst.ini 
+ * touch /etc/odbc.ini
+ * isql oasis0 dba sql
+ */
+
 class habladorcontrol extends CI_Controller {
 
 	private $botongestion0 = null;
@@ -11,8 +28,8 @@ class habladorcontrol extends CI_Controller {
 	function __construct()
 	{
 		parent::__construct();
-		$this->dbgasto = $this->load->database('gastossystema');
-		$this->dboasis = $this->load->database('oasis0');
+		$this->dbgasto = $this->load->database('gastossystema', TRUE);
+		$this->dboasis = $this->load->database('oasis', TRUE);
 		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
 		$this->load->library('session');
 		$this->load->helper(array('form', 'url','html'));
@@ -62,6 +79,15 @@ class habladorcontrol extends CI_Controller {
 	public function index($mens = '')
 	{
 		$this->_verificarsesion();
+		
+		$sqlentidad = " select abr_entidad, abr_zona, cod_entidad, des_entidad from entidad ";
+		$resultadosentidad = $this->dbgasto->query($sqlentidad);
+		$arregloentidades = array(''=>'');
+		foreach ($resultadosentidad->result() as $row)
+			$arregloentidades[$row->cod_entidad] = $row->abr_entidad .' - ' . $row->des_entidad;
+		$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
+		unset($arregloentidades['']);
+
 		$data['botongestion0'] = $this->botongestion0;
 		$data['menu'] = $this->menu->menudesktop();
 		$data['accionejecutada'] = 'habladorpaso1datos';	// para cargar parte especifica de la vista envio un parametro accion
@@ -84,11 +110,14 @@ class habladorcontrol extends CI_Controller {
 		$userintran = $this->session->userdata('intranet');
 
 		// ******* OBTENER DATOS DE FORMULARIO ***************************** /
-		$fec_impresion = $this->input->get_post('fec_impresion');
 		$iptiendapeticion = $this->input->ip_address();
+		$fec_impresion = $this->input->get_post('fec_impresion');
 		$cod_productos =  $this->input->get_post('cod_productos');
-		$pre_productos =  $this->input->get_post('pre_productos');
 		$tipo_hablador =  $this->input->get_post('list_tipo_hablador');
+		$cod_entidad =  $this->input->get_post('cod_entidad');
+		$cod_entidadusr =  $this->input->get_post('cod_entidadusr');
+		$ind_existencia =  $this->input->get_post('ind_existencia');
+		
 		$this->load->library('form_validation');
 		$this->form_validation->set_rules('cod_productos', 'los codigos son requeridos y deben ser separado por comas', 'required');
 		//$this->form_validation->set_rules('tipo_hablador', 'el formato de hablador de la lista', 'required');
@@ -98,13 +127,65 @@ class habladorcontrol extends CI_Controller {
 			log_message('info', $mens.'.');
 			return $this->index( $mens );
 		}
+		
+		// averiguar el sello de la entidad
+		$sqlentidad = " SELECT * FROM entidad where cod_entidad = ".$cod_entidad." ";
+		$resultadosentidad = $this->dbgasto->query($sqlentidad);
+		$resultadosentidadobj = $resultadosentidad->result();
+		$row = $resultadosentidadobj[0];
+		$cod_sello = $row->sello;
 
-		// ir a db y traer datos
-		$productosarray = array(
-			array('codigo'=>124, 'description'=>'primero','descuento'=>2,'precio'=>4.5,'total'=>9,'iva'=>12),
-			array('codigo'=>124, 'description'=>'segundo','descuento'=>2,'precio'=>4.5,'total'=>9,'iva'=>12)
-		);
+		// averiguar si requiere comprobar existencia:
+		if ( $ind_existencia == '')
+			$ind_existencia = 1;
 
+		// armar la consulta maximo 12 productos
+		$sqlprecioporexistencia = " SELECT ";
+		$arraycodigos = explode(',', $cod_productos); //split string into array seperated by ', '
+		$arraycuantos = 0;
+		foreach($arraycodigos as $codigos) //loop over values
+		{
+			if ( $arraycuantos > 12 )	// procesar max 12 products
+				break;
+			$arraycuantos = $arraycuantos + 1;
+			$codigoproducto =  $this->dboasis->escape_str(trim($codigos));
+			$sqlprecioporexistencia .= $arraycuantos." as orden, cod_interno as codigo, txt_descripcion_larga as descripcion, PrecioDescuento as total, ((((precioFull-PrecioDescuento)*100)/precioFull)) as descuento, precioFull as precio, 12 as iva  FROM st_hablador('".$cod_sello."','".$codigoproducto."','".$ind_existencia."') UNION SELECT ";
+		}
+		$sqlprecioporexistencia = rtrim($sqlprecioporexistencia, "UNION SELECT ");
+		
+		// consult those products (codes) parsed as query
+		$srtprecioporexistencia = $this->dboasis->query($sqlprecioporexistencia);
+		$srlpreciosproductosarray = $srtprecioporexistencia->result_array();
+		
+		foreach($srlpreciosproductosarray as $indiceproducto => $productoarray)
+		{
+			foreach($productoarray as $colnam => $rowval)
+			{
+				if($colnam == 'total')
+				{	
+					if($rowval == '0' OR $rowval < 1 )
+						$newproducto[$colnam] = $productoarray['precio'];
+				}
+				else if($colnam == 'descuento')
+				{	
+					if($rowval == '100' OR $rowval == 100 )
+						$newproducto[$colnam] = '0';
+				}
+				else
+					$newproducto[$colnam] = $rowval;
+			}
+			$dataproductosarray[] = $newproducto;
+		}
+
+		if ( count($dataproductosarray) < 1 )
+		{
+			$productosarray = array(array('codigo'=>0, 'descripcion'=>'No hay mas existencias','descuento'=>0,'precio'=>0,'total'=>0,'iva'=>12));
+		}
+		else
+		{
+			$productosarray = $dataproductosarray;
+		}
+		
 		// parseo mediante el reporteador php report embebido
 		$dirtemplates =  APPPATH . 'archivoscargas/suc_hablador_templates/'; // $dirtemplates = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($dirtemplates) )
@@ -115,9 +196,9 @@ class habladorcontrol extends CI_Controller {
 			chmod($dirtemplates,0777);
 		}
 		
-		$descuentoformato = array('number'=>array('sufix'=>'%','decimals'=>2));
+		$descuentoformato = array('number'=>array('sufix'=>'%','decimals'=>0));
 		$preciovenformato = array('number'=>array('prefix'=>'Bs ','decimals'=>2));
-		$ivaformato = array('number'=>array('sufix'=>'% ','decimals'=>2));
+		$ivaformato = array('number'=>array('sufix'=>'% ','decimals'=>0));
 		$formatocolumnas = array('descuento'=>$descuentoformato,'total'=>$preciovenformato,'iva'=>$ivaformato);
 		
 		$configreport = array('template'=>$tipo_hablador.'.xls','templateDir'=>$dirtemplates);
