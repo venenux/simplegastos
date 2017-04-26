@@ -142,6 +142,11 @@ class habladorcontrol extends CI_Controller {
 		// armar la consulta maximo 12 productos
 		$sqlprecioporexistencia = " SELECT ";
 		$arraycodigos = explode(',', $cod_productos); //split string into array seperated by ', '
+		// debe ser consulta armada con union, no se puede por limites de odbc
+		// si itero sobre un resultado de una consulta, por culpa de odbc no 
+		// no podra obtener un segundo resultado mientras itera sobre el primero
+		// esto porque la llamada es sobre un procedimiento almacenado
+		// la mejor manera es de una vez llamar todo usando uniones de select por cada codigo consultar
 		$arraycuantos = 0;
 		foreach($arraycodigos as $codigos) //loop over values
 		{
