@@ -18,6 +18,8 @@
  * isql oasis0 dba sql
  */
 
+
+/** controlador que imprime un hablador segun los formatos en hoja de calculo */
 class habladorcontrol extends CI_Controller {
 
 	private $botongestion0 = null;
@@ -37,12 +39,12 @@ class habladorcontrol extends CI_Controller {
 		$this->load->model('menu');
 		$this->load->library('PHPReport');
 		$this->output->enable_profiler(TRUE);
-		
-		$this->botongestion0 = '' 
+
+		$this->botongestion0 = ''
 			. anchor('suc_hablador/habladorcontrol/index',form_button('', 'Procesar codigos', 'class="btn-primary btn" '))
 			. anchor('suc_hablador/habladorcontrol/habladorpaso4cargarplantilla',form_button('', 'Nueva plantilla', 'class="btn-primary btn" '))
 			;
-		
+
 	}
 
 	/** verifica la sesion segun nuestra logica el flag logeado debe estar presente y tener el objeto session */
@@ -79,7 +81,12 @@ class habladorcontrol extends CI_Controller {
 	public function index($mens = '')
 	{
 		$this->_verificarsesion();
-		
+		$this->habladorpaso1datos($mens);
+	}
+
+	public function habladorpaso1datos($mens = '')
+	{
+		$this->_verificarsesion();
 		$sqlentidad = " select abr_entidad, abr_zona, cod_entidad, des_entidad from entidad ";
 		$resultadosentidad = $this->dbgasto->query($sqlentidad);
 		$arregloentidades = array(''=>'');
@@ -235,6 +242,11 @@ class habladorcontrol extends CI_Controller {
 		$this->load->view('suc_hablador/habladorvistaprocesar.php',$data);
 		//$this->load->view('footer.php',$data);
 		echo $rendered->render('html');
+	}
+
+	public function habladorpaso4cargarplantilla()
+	{
+		//AS
 	}
 
 	public function gastomanualeditaruno($mens = NULL, $codigo = 'ultimo')
