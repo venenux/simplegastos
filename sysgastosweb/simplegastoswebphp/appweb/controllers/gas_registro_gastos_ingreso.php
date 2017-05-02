@@ -9,12 +9,14 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 	function __construct()
 	{
 		parent::__construct();
-		$this->load->database('gastossystema');
-		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
-		$this->load->library('session');
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
 		$this->load->model('menu');
+		$this->sysdbgastos = $this->load->database('gastossystema', TRUE);
+		$this->sysdbadmins = $this->load->database('sysdbadmins', TRUE);
+		$this->load->database('gastossystema');
+		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
+		$this->load->library('session');
 		$this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT',TRUE);
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0', TRUE);
 		$this->output->set_header('Pragma: no-cache', TRUE);
@@ -43,7 +45,7 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 			from categoria
 			  where ifnull(cod_categoria, '') <> '' and cod_categoria <> ''
 			";
-			$resultadoscategoria = $this->db->query($sqlcategoria);
+			$resultadoscategoria = $this->sysdbgastos->query($sqlcategoria);
 			$arreglocategoriaes = array(''=>'');
 			foreach ($resultadoscategoria->result() as $row)
 			{
@@ -54,40 +56,34 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		/* cargar y listaar las juridicoS que se usaran para registros */
 			$sqljuridico = "
 			SELECT
-			ca.cod_categoria,
-			ca.des_categoria,
 			sb.cod_juridico,
-			sb.des_juridico,
-			ca.fecha_categoria,
-			sb.fecha_juridico,
+			sb.des_razonsocial,
 			sb.sessionflag
-			FROM categoria as ca
-			join juridico as sb
-			on sb.cod_categoria = ca.cod_categoria
+			FROM adm_juridico as sb
 			";
-			$resultadosjuridico = $this->db->query($sqljuridico);
+			$resultadosjuridico = $this->sysdbadmins->query($sqljuridico);
 			$arreglojuridicoes = array(''=>'');
 			foreach ($resultadosjuridico->result() as $row)
 			{
-				$arreglojuridicoes[''.$row->cod_juridico] = $row->des_categoria . ' - ' . $row->des_juridico;
+				$arreglojuridicoes[''.$row->cod_juridico] = $row->des_razonsocial . ' - ' . $row->cod_juridico;
 			}
 			$data['list_juridico'] = $arreglojuridicoes; // agrega este arreglo una lista para el combo box
 			unset($arreglojuridicoes['']);
 		/* cargar y listaar las UBIUCACIONES que se usaran para registros */
 			$sqlentidad = "
 			select
-			 abr_entidad, abr_zona, des_entidad,
+			 abr_entidad, abr_zona, cod_sello, cod_msc, 
 			 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
 			 ifnull(des_entidad,'sin_descripcion') as des_entidad
-			from entidad
+			from sysdbadmins.adm_entidad
 			  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
 			order by des_entidad
 			";
-			$resultadosentidad = $this->db->query($sqlentidad);
+			$resultadosentidad = $this->sysdbadmins->query($sqlentidad);
 			$arregloentidades = array(''=>'');
 			foreach ($resultadosentidad->result() as $row)
 			{
-				$arregloentidades[''.$row->cod_entidad] = $row->abr_entidad .' - ' . $row->cod_entidad . ' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
+				$arregloentidades[''.$row->cod_entidad] = $row->abr_entidad .' - ' . $row->cod_sello . ' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
 			}
 			$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
 			unset($arregloentidades['']);
@@ -132,6 +128,7 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		$this->load->helper(array('inflector','url'));
 		$data['seguir']=$this->uri->segment(1).$this->uri->segment(2).$this->uri->segment(3);
 		$tablaregistros = "gas_registro_gastos_ingreso";
+		$this->load->database('gastossystema');
 		$this->load->library('grocery_CRUD');
 		$crud = new grocery_CRUD();
 		$crud->set_table($tablaregistros);
@@ -185,10 +182,10 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		$crud->edit_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_juridico','mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionflag');
 		$crud->set_relation('cod_entidad','entidad','{des_entidad} - {cod_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
-		$crud->set_relation('cod_juridico','adm_juridico','{des_juridico}'); // ,'{des_juridico}<br> ({cod_juridico})'
+		$crud->set_relation('cod_juridico','adm_juridico','{des_razonsocial} - {cod_rif}'); // ,'{des_juridico}<br> ({cod_juridico})'
 		$crud->add_action('Auditar', '', '','ui-icon-plus',array($this,'_cargargastosucursalauditar'));
 		$crud->required_fields('cod_entidad','cod_categoria','cod_juridico','mon_registro','des_concepto','tipo_concepto','des_estado');
-		$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
+		$directoriofacturas = 'archivoscargas/gas_registro_gastos_ingreso/2017'; // $directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
@@ -211,6 +208,7 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		$crud->field_type('factura_tipo','dropdown',array('CONTRIBUYENTE' => 'CONTRIBUYENTE', 'ESPECIAL' => 'ESPECIAL'));
 		$crud->field_type('des_detalle','text');
 		$crud->field_type('des_estado','text');
+		$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'INVALIDO' => 'INVALIDO'));
 		$crud->unset_texteditor('des_detalle');
 		$crud->unset_texteditor('des_estado');
 		$currentState = $crud->getState();
@@ -218,7 +216,6 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		{
 			$crud->callback_add_field('cod_registro', function () {	return '<input type="text" maxlength="50" value="GAS'.date("YmdHis").'" name="cod_registro" readonly="true">';	});
 			$crud->callback_add_field('fecha_concepto', function () {	$fecha_concepto=date('Ymd');	$idfeccon='fecha_concepto';	$valoresinputfechacon = array('name'=>$idfeccon,'id'=>$idfeccon, 'onclick'=>'javascript:NewCssCal(\''.$idfeccon.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfeccon, $$idfeccon));	return form_input($valoresinputfechacon);	});
-			$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'RECHAZADO' => 'RECHAZADO'));
 			$crud->required_fields('cod_entidad','cod_categoria','cod_juridico','mon_registro','des_concepto','tipo_concepto','factura_tipo');
 		}
 		else if ($currentState == 'edit')
@@ -226,7 +223,6 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 			$crud->field_type('fecha_registro', 'readonly');
 			$crud->field_type('cod_registro', 'readonly'); // esto no se puede si ya se hizo algo antes
 			$crud->callback_edit_field('fecha_concepto',array($this,'_editarfechagasto'));
-			$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'RECHAZADO' => 'RECHAZADO', 'ERROR' => 'ERROR'));
 			$crud->required_fields('cod_entidad','cod_categoria','cod_juridico','mon_registro','des_concepto','tipo_concepto','factura_tipo','des_estado');
 		}
 		$crud->callback_column('mon_registro',array($this,'_numerosgente'));
@@ -237,7 +233,7 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		//$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
 		//$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
 
-		$this->load->library('gc_dependent_select');
+/*		$this->load->library('gc_dependent_select');
 		$configfielsjoin = array(
 			'cod_categoria' => array('table_name' => 'categoria','title' => 'des_categoria','relate' => null), // categoria es sin relacion
 			'cod_juridico' => array('table_name'=>'juridico','title'=>'des_juridico','id_field'=>'cod_juridico','relate' => 'cod_categoria','data-placeholder' => 'Seleccione primero categoria')
@@ -249,9 +245,9 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		);
 		$outputjoincatysubcat = new gc_dependent_select($crud, $configfielsjoin, $configtablejoin);
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/cargargastosucursalesadm/gastosucursalesrevisarlos/list/?sessionficha=".date("YmdH").'....'.$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username').""));
-		$output = $crud->render();
+*/		$output = $crud->render();
 		//else if ($currentState == 'edit')
-		$output->output.= $outputjoincatysubcat->get_js();
+//		$output->output.= $outputjoincatysubcat->get_js();
 		// TERMINAR EL PROCESO (solo paso 1) **************************************************** /
 		$data['menu'] = $this->menu->menudesktop();
 		$data['accionejecutada'] = 'cargardatosadminnistrativosfiltrados';
