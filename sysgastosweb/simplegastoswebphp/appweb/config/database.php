@@ -49,10 +49,10 @@ $active_group = 'gastossystema';
 $active_record = TRUE;
 
 // base de datos principal de la aplicacion, active record solo sirve aqui
-$db['gastossystema']['hostname'] = '10.10.34.23';
-$db['gastossystema']['username'] = 'sysdbgasto';
-$db['gastossystema']['password'] = 'sysdbgasto.1';
-$db['gastossystema']['database'] = 'sysdbgasto';
+$db['gastossystema']['hostname'] = '10.10.34.20';
+$db['gastossystema']['username'] = 'gastossystema';
+$db['gastossystema']['password'] = 'gastossystema.1';
+$db['gastossystema']['database'] = 'gastossystema';
 $db['gastossystema']['dbdriver'] = 'mysql';
 $db['gastossystema']['dbprefix'] = ''; // <<--- NO USAR PREFIJO, GROCERY CRUD NO ENCONTRARA LAS TABLAS
 $db['gastossystema']['pconnect'] = TRUE;
@@ -64,6 +64,25 @@ $db['gastossystema']['dbcollat'] = 'utf8_general_ci';
 $db['gastossystema']['swap_pre'] = '';
 $db['gastossystema']['autoinit'] = FALSE;
 $db['gastossystema']['stricton'] = FALSE;
+
+
+$db['sysdbadmins']['hostname'] = '10.10.34.23';
+$db['sysdbadmins']['username'] = 'sysdbuser';
+$db['sysdbadmins']['password'] = 'sysdbuser.1.com';
+$db['sysdbadmins']['database'] = 'sysdbadmins';
+$db['sysdbadmins']['dbdriver'] = 'mysql';
+$db['sysdbadmins']['dbprefix'] = ''; //blanks means use public , catalogo not use that due xtreme security
+$db['sysdbadmins']['pconnect'] = FALSE;
+$db['sysdbadmins']['db_debug'] = TRUE;
+$db['sysdbadmins']['cache_on'] = FALSE;
+$db['sysdbadmins']['cachedir'] = '';
+$db['sysdbadmins']['char_set'] = 'utf8';
+$db['sysdbadmins']['dbcollat'] = 'utf8_general_ci';
+$db['sysdbadmins']['swap_pre'] = '';
+$db['sysdbadmins']['autoinit'] = FALSE;
+$db['sysdbadmins']['stricton'] = FALSE;
+
+
 
 // base de datos de oasis/sybase para datos de productos y ventas
 $db['oasis']['hostname'] = 'oasis';//"dsn=oasis1;uid=dba;pwd=sql";
