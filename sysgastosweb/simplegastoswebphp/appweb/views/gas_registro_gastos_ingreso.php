@@ -3,10 +3,10 @@
 	$this->load->helper('html');
 
 	// pintar botones de gestion para carga manual ya que las acciones de agregar y ver son customizadas
-	$botongestion0 = anchor('gas_registro_gastos_ingreso/gastoregistros/add',form_button('gas_registro_gastos_ingreso/gastoregistros/add', 'Cargar directo', 'class="btn-primary btn b10" '));
-	$botongestion1 = '';//anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastosucursalesadm/gastomanualcargaruno', 'Cargar como tienda', 'class="btn-primary btn" '));
-	$botongestion2 = anchor('gas_registro_gastos_ingreso/index',form_button('gas_registro_gastos_ingreso/index', 'Filtrar directo', 'class="btn-primary btn" '));
-	$botongestion3 = '';//anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastosucursalesadm/gastomanualfiltrarlos', 'Filtrar RAPIDO', 'class="btn-primary btn b10" '));
+	$botongestion0 = anchor('gas_registro_gastos_ingreso/gastoregistros/add',form_button('gas_registro_gastos_ingreso/gastoregistros/add', 'Cargar Gasto Mayor', 'class="btn-primary btn" '));
+	$botongestion1 = anchor('cargargastoadministrativo/index',form_button('cargargastoadministrativo', 'Ir a Gasto internos', 'class="btn-primary btn" '));
+	$botongestion2 = anchor('gas_registro_gastos_ingreso/index',form_button('cargargastoadministrativo', 'Gastos internos (directo)', 'class="btn-primary btn" '));
+	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastosucursalesadm/gastomanualfiltrarlos', 'Gastos internos (RAPIDO)', 'class="btn-primary btn b10" '));
 	$this->table->clear();
 	$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' );
 	$this->table->set_template($tmplnewtable);
@@ -39,7 +39,7 @@
 	if ($accionejecutada == 'cargardatosadministrativosfiltrar')
 	{
 		$htmlformaattributos = array('name'=>'formularioordendespachogenerar','class'=>'formularios','onSubmit'=>'return validageneric(this);');
-		echo form_fieldset('Ingrese los datos por favor',array('class'=>'container_blue containerin')) . PHP_EOL;
+		echo form_fieldset('Gastos Mayores...',array('class'=>'container_blue containerin')) . PHP_EOL;
 		echo form_open_multipart('gas_registro_gastos_ingreso/gastoregistros/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
 			$this->table->add_row('Fue Ingresado el/entre:',form_input($valoresinputfecha1ini).PHP_EOL.' y '.form_input($valoresinputfecha1fin).br().PHP_EOL);
@@ -59,7 +59,7 @@
 	}
 	else if ($accionejecutada == 'cargardatosadminnistrativosfiltrados')
 	{
-		echo form_fieldset('Cargas y registros de gastos',array('class'=>'container_blue containerin ')) . PHP_EOL;
+		echo form_fieldset('Cargas y registros de gastos MAYORES',array('class'=>'container_blue containerin ')) . PHP_EOL;
 		if( isset($css_files) )
 			foreach($css_files as $file)
 			{	echo '<link type="text/css" rel="stylesheet" href="'.$file.'" />';	}

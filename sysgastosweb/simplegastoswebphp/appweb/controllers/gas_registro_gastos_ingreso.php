@@ -11,16 +11,17 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		parent::__construct();
 		$this->load->helper(array('form', 'url','html'));
 		$this->load->library('table');
+		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
+		$this->load->library('session'); // debe estar primero que el menu
 		$this->load->model('menu');
 		$this->sysdbgastos = $this->load->database('gastossystema', TRUE);
 		$this->sysdbadmins = $this->load->database('sysdbadmins', TRUE);
 		$this->load->database('gastossystema');
-		$this->load->library('encrypt'); // TODO buscar como setiear desde aqui key encrypt
-		$this->load->library('session');
 		$this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT',TRUE);
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0', TRUE);
 		$this->output->set_header('Pragma: no-cache', TRUE);
-		$this->output->set_header("Expires: Mon, 26 Jul 1997 05:00:00 GMT", TRUE);
+		$this->output->set_header("Expires: 0", TRUE);
+		$this->output->enable_profiler(TRUE);
 		$this->output->enable_profiler(TRUE);
 	}
 
@@ -29,9 +30,9 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 	 */
 	public function index()
 	{
-		if( $this->session->userdata('logueado') == FALSE)
+		if( $this->session->userdata('logueado') != '1')
 		{
-			redirect('manejousuarios/desverificarintranet');
+//			redirect('manejousuarios/desverificarintranet');
 		}
 		$data['menu'] = $this->menu->menudesktop();
 
@@ -53,22 +54,6 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 			}
 			$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
 			unset($arreglocategoriaes['']);
-		/* cargar y listaar las juridicoS que se usaran para registros */
-			$sqljuridico = "
-			SELECT
-			sb.cod_juridico,
-			sb.des_razonsocial,
-			sb.sessionflag
-			FROM adm_juridico as sb
-			";
-			$resultadosjuridico = $this->sysdbadmins->query($sqljuridico);
-			$arreglojuridicoes = array(''=>'');
-			foreach ($resultadosjuridico->result() as $row)
-			{
-				$arreglojuridicoes[''.$row->cod_juridico] = $row->des_razonsocial . ' - ' . $row->cod_juridico;
-			}
-			$data['list_juridico'] = $arreglojuridicoes; // agrega este arreglo una lista para el combo box
-			unset($arreglojuridicoes['']);
 		/* cargar y listaar las UBIUCACIONES que se usaran para registros */
 			$sqlentidad = "
 			select
@@ -98,11 +83,11 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 	public function gastoregistros()
 	{
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
-		if( $this->session->userdata('logueado') == FALSE)
+/*		if( $this->session->userdata('logueado') != 1)
 			redirect('manejousuarios/desverificarintranet');
 		if ($usuariocodgernow < 990 and $usuariocodgernow > 399 )
 			redirect('cargargastosucursales/gastosucursalesrevisarlos');
-		$userdata = $this->session->all_userdata();
+*/		$userdata = $this->session->all_userdata();
 		$usercorreo = $userdata['correo'];
 		$usersessid = $userdata['session_id'];
 		$userintran = $userdata['intranet'];
@@ -147,9 +132,9 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 			if ( $fec_registrofin != '')
 				$crud->where('CONVERT(substring(fecha_registro,1,8),UNSIGNED) <= ',$fec_registrofin);
 			if ( $fec_conceptoini != '')
-				$crud->where('CONVERT(substring(fecha_concepto,1,8),UNSIGNED) <= ',$fec_conceptoini);
+				$crud->where('CONVERT(substring(fecha_gastado,1,8),UNSIGNED) >= ',$fec_conceptoini);
 			if ( $fec_conceptofin != '')
-				$crud->where('CONVERT(substring(fecha_concepto,1,8),UNSIGNED) <= ',$fec_conceptofin);
+				$crud->where('CONVERT(substring(fecha_gastado,1,8),UNSIGNED) <= ',$fec_conceptofin);
 			if ( $mon_registroigual != '')
 				$crud->like('mon_registro',$mon_registroigual, 'after');
 			if ( $mon_registromayor != '')
@@ -169,7 +154,7 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 			 ->display_as('des_detalle','Detalles')
 			 ->display_as('des_estado','Justificacion')
 			 ->display_as('tipo_concepto','Tipo<br>Gasto')
-			 ->display_as('fecha_concepto','Fecha<br>Gastado')
+			 ->display_as('fecha_gastado','Fecha<br>Gastado')
 			 ->display_as('fecha_registro','Fecha<br>Ingresado')
 			 ->display_as('factura_tipo','Factura<br>Tipo')
 			 ->display_as('factura_num','Factura<br>Numero')
@@ -177,14 +162,13 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 			 ->display_as('factura_bin','Factura<br>Escaneada')
 			 ->display_as('sessionflag','Modificado')
 			 ->display_as('sessionficha','Creador');
-		$crud->columns('fecha_concepto','fecha_registro','cod_entidad','cod_categoria','cod_juridico','mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro','sessionficha','sessionflag');
-		$crud->add_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_juridico','mon_registro','des_concepto','estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha');
-		$crud->edit_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_juridico','mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionflag');
+		$crud->columns('fecha_gastado','fecha_registro','cod_entidad','cod_categoria',/*'cod_juridico',*/'mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro','sessionficha','sessionflag');
+		$crud->add_fields('fecha_registro','fecha_gastado','cod_entidad','cod_categoria',/*'cod_juridico',*/'mon_registro','des_concepto','estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha');
+		$crud->edit_fields('fecha_registro','fecha_gastado','cod_entidad','cod_categoria',/*'cod_juridico',*/'mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionflag');
 		$crud->set_relation('cod_entidad','entidad','{des_entidad} - {cod_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
-		$crud->set_relation('cod_juridico','adm_juridico','{des_razonsocial} - {cod_rif}'); // ,'{des_juridico}<br> ({cod_juridico})'
+		//$crud->set_relation('cod_juridico','adm_juridico','{des_razonsocial} - {cod_rif}'); // ,'{des_juridico}<br> ({cod_juridico})'
 		$crud->add_action('Auditar', '', '','ui-icon-plus',array($this,'_cargargastosucursalauditar'));
-		$crud->required_fields('cod_entidad','cod_categoria','cod_juridico','mon_registro','des_concepto','tipo_concepto','des_estado');
 		$directoriofacturas = 'archivoscargas/gas_registro_gastos_ingreso/2017'; // $directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
 		{
@@ -201,11 +185,12 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		$crud->set_rules('des_concepto', 'Concepto', 'trim|alphanumeric');
 		$crud->set_rules('mon_registro', 'Monto', 'trim|decimal');
 		$crud->set_rules('cod_entidad', 'Centro de Costo', 'trim|alphanumeric');
+		$crud->field_type('cod_juridico', 'invisible','100000000001');
 		$crud->field_type('sessionficha', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('sessionflag', 'invisible',''.date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username'));
 		$crud->field_type('fecha_registro', 'invisible',''.date("Ymd"));
-		$crud->field_type('tipo_concepto','dropdown',array('SUCURSAL' => 'SUCURSAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO'));
-		$crud->field_type('factura_tipo','dropdown',array('CONTRIBUYENTE' => 'CONTRIBUYENTE', 'ESPECIAL' => 'ESPECIAL'));
+		$crud->field_type('tipo_concepto','invisible','ADMINISTRATIVO');
+		$crud->field_type('factura_tipo','dropdown',array('CONTRIBUYENTE' => 'CONTRIBUYENTE', 'PRESUPUESTO' => 'PRESUPUESTO', 'NOTA' => 'NOTA'));
 		$crud->field_type('des_detalle','text');
 		$crud->field_type('des_estado','text');
 		$crud->field_type('estado','dropdown',array('APROBADO' => 'APROBADO', 'PENDIENTE' => 'PENDIENTE', 'INVALIDO' => 'INVALIDO'));
@@ -215,40 +200,21 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		if($currentState == 'add')
 		{
 			$crud->callback_add_field('cod_registro', function () {	return '<input type="text" maxlength="50" value="GAS'.date("YmdHis").'" name="cod_registro" readonly="true">';	});
-			$crud->callback_add_field('fecha_concepto', function () {	$fecha_concepto=date('Ymd');	$idfeccon='fecha_concepto';	$valoresinputfechacon = array('name'=>$idfeccon,'id'=>$idfeccon, 'onclick'=>'javascript:NewCssCal(\''.$idfeccon.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfeccon, $$idfeccon));	return form_input($valoresinputfechacon);	});
-			$crud->required_fields('cod_entidad','cod_categoria','cod_juridico','mon_registro','des_concepto','tipo_concepto','factura_tipo');
+			$crud->callback_add_field('fecha_gastado', function () {	$fecha_gastado=date('Ymd');	$idfeccon='fecha_gastado';	$valoresinputfechacon = array('name'=>$idfeccon,'id'=>$idfeccon, 'onclick'=>'javascript:NewCssCal(\''.$idfeccon.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfeccon, $$idfeccon));	return form_input($valoresinputfechacon);	});
+			$crud->required_fields('cod_entidad','cod_categoria','mon_registro','des_concepto','factura_tipo','factura_bin');
 		}
 		else if ($currentState == 'edit')
 		{
 			$crud->field_type('fecha_registro', 'readonly');
 			$crud->field_type('cod_registro', 'readonly'); // esto no se puede si ya se hizo algo antes
-			$crud->callback_edit_field('fecha_concepto',array($this,'_editarfechagasto'));
-			$crud->required_fields('cod_entidad','cod_categoria','cod_juridico','mon_registro','des_concepto','tipo_concepto','factura_tipo','des_estado');
+			$crud->callback_edit_field('fecha_gastado',array($this,'_editarfechagasto'));
+			$crud->required_fields('cod_entidad','cod_categoria','mon_registro','des_concepto','factura_tipo','des_estado','factura_bin');
 		}
 		$crud->callback_column('mon_registro',array($this,'_numerosgente'));
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->callback_before_insert(array($this,'generarcodigo'));
 		$crud->callback_before_delete(array($this,'echapajaborrando'));
-		//$crud->callback_after_insert(array($this,'_ver_after_insert'));
-		//$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
-		//$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
-
-/*		$this->load->library('gc_dependent_select');
-		$configfielsjoin = array(
-			'cod_categoria' => array('table_name' => 'categoria','title' => 'des_categoria','relate' => null), // categoria es sin relacion
-			'cod_juridico' => array('table_name'=>'juridico','title'=>'des_juridico','id_field'=>'cod_juridico','relate' => 'cod_categoria','data-placeholder' => 'Seleccione primero categoria')
-			);
-		$configtablejoin = array(
-			'main_table' => 'registro_gastos',
-			'main_table_primary' => 'cod_registro',
-			'url' => base_url() . 'index.php/' . strtolower(__CLASS__) . '/' . strtolower(__FUNCTION__) . '/'	//'ajax_loader' => base_url() . 'style/images/'. 'ajax-loader.gif'//'segment_name' =>'Your_segment_name' // It's an optional parameter. by default "get_items"
-		);
-		$outputjoincatysubcat = new gc_dependent_select($crud, $configfielsjoin, $configtablejoin);
-		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/cargargastosucursalesadm/gastosucursalesrevisarlos/list/?sessionficha=".date("YmdH").'....'.$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username').""));
-*/		$output = $crud->render();
-		//else if ($currentState == 'edit')
-//		$output->output.= $outputjoincatysubcat->get_js();
-		// TERMINAR EL PROCESO (solo paso 1) **************************************************** /
+		$output = $crud->render();
 		$data['menu'] = $this->menu->menudesktop();
 		$data['accionejecutada'] = 'cargardatosadminnistrativosfiltrados';
 		$this->load->view('header.php',$data);
@@ -264,8 +230,8 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 
 	function _editarfechagasto($value, $primary_key)
 	{
-		$fecha_concepto=$value;
-		$idfeccon='fecha_concepto';	$valoresinputfechacon = array('name'=>$idfeccon,'id'=>$idfeccon, 'onclick'=>'javascript:NewCssCal(\''.$idfeccon.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfeccon, $$idfeccon));
+		$fecha_gastado=$value;
+		$idfeccon='fecha_gastado';	$valoresinputfechacon = array('name'=>$idfeccon,'id'=>$idfeccon, 'onclick'=>'javascript:NewCssCal(\''.$idfeccon.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfeccon, $$idfeccon));
 		return form_input($valoresinputfechacon);
 	}
 
