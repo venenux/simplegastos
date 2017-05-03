@@ -6,13 +6,18 @@ class Menu extends CI_Model
 		parent::__construct();
 		$obj = & get_instance();
 		$this->load->library('session');
-		$obj->load->library('menulibdesktop');
+		$obj->load->library('menulib');
+	}
+
+	function menudesktop($sessionobject = null)
+	{
+		return $this->general_menu($sessionobject);
 	}
 
 	/** modelo de menu gastos, implementa libreria menu de PICCORO Lenz McKAY */
-	function menudesktop($sessionobject = null)
+	function general_menu($sessionobject = null)
 	{
-		$menu = new Menulibdesktop;
+		$menu = new MenuLib;
 		$nodes = new MenuNodes;
 
 		$admins=anchor('admusuariosentidad','Gestion');
@@ -27,15 +32,17 @@ class Menu extends CI_Model
 		$vistaglobal['matrixcontroler']=anchor('matrixcontroler','Totalizadores');
 		$vistaglobal['cargargastover']=anchor('mimatrixcontroller/mimatrixfiltrar','Vista Reporte');
 		// enlaces de cargas para administrativo edita, ver etc con permisologia
-		$cargasadm=anchor('cargargastoadministrativo/gastoregistros/todos','Cargas');
-		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Cargar directo');
-		//$cargargastoadministrativo['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar como tienda');
-		$cargargastoadministrativo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Filtrar directo');
-		$cargargastoadministrativo['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar RAPIDO');
+		$cargasadm=anchor('cargargastoadministrativo','Gastos');
+		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Administrar gastos');
+		$cargargastoadministrativo = array();
+		//$cargargastoadministrativo['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar mayor');
+		//$cargargastoadministrativo['cargargastoadministrativover']=anchor('cargargastoadministrativo/index','Filtrar directo');
+		//$cargargastoadministrativo['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar RAPIDO');
 		// enlaces de cargas para tiendas y perfiles no administrativos edita ver filtrado
-		$cargastie=anchor('cargargastosucursalesadm/gastosucursalesrevisarlos','Gasto');
-		$cargargastoentidadestienda['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar gasto');
-		$cargargastoentidadestienda['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar gasto');
+		$cargastie=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Gastos');
+		$cargargastoentidadestienda = array();
+		//$cargargastoentidadestienda['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar gasto');
+		//$cargargastoentidadestienda['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar gasto');
 
 		if(!$this->session->userdata('logueado'))
 			$labelindex = 'Ingreso';
@@ -46,7 +53,6 @@ class Menu extends CI_Model
 		$intranet=anchor('http://intranet1.net.ve','Intranet');
 		$elcorreo=anchor('http://intranet1.net.ve/elcorreo','Correo');
 		$systemalog=anchor('admgastoslog','Logs');
-		$elhablador=anchor('suc_hablador/habladorcontrol','Hablador');
 
 
 		// el
@@ -58,7 +64,7 @@ class Menu extends CI_Model
 
 			$inicionlogin['manejousuarios/manejousuarios']=anchor('manejousuarios/desverificarintranet','Salir');
 			$header['0'] = $nodes->m_header_nodes($inicio, $inicionlogin);
-			//if ( ! $usuariocodgernow == "" )
+			if ( ! $usuariocodgernow == "" )
 			{
 				if( $usuariocodgernow == 111)
 				{
@@ -76,7 +82,6 @@ class Menu extends CI_Model
 					$header['6'] = $nodes->m_header_nodes($admins,$admgeneral);
 					$header['7'] = $nodes->m_header_nodes($systemalog,array());
 				}
-				$header['8'] = $nodes->m_header_nodes($elhablador,array());
 			}
 		}
 		else

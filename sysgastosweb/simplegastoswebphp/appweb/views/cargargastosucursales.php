@@ -1,6 +1,6 @@
 	<?php
 
-	$classinput = array('class'=>' form-input-box containerin');
+	$classinput = array('class'=>' form-input-box btn containerin');
 	if( !isset($mens) )
 		$mens = '<strong>Gastos semanales</strong>';
 
@@ -45,15 +45,20 @@
 
 	// pintar botones de gestion para carga manual ya que las acciones de agregar y ver son customizadas
 	if( !isset($botongestion0) ) $botongestion0 = '';
-	$botongestion1 = anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastomanual/gastomanualcargaruno/add', 'Registrar Gasto', 'class="btn-primary btn" '));
+	$botongestion1 = anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastomanual/gastomanualcargaruno/add', 'Cargar Gasto interno', 'class="btn-primary btn" '));
 	$botongestion2 = anchor('cargargastosucursalesadm/gastosucursalesrevisarlos',form_button('cargargastomanual/gastomanualrevisarlos/list', 'Revisar Ultimos', 'class="btn-primary btn" '));
-	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastomanual/gastomanualfiltrarlos/veruno', 'Filtrar Gasto', 'class="btn-primary btn" '));
+	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastomanual/gastomanualfiltrarlos/veruno', 'Filtrar Gasto (RAPIDO)', 'class="btn-primary btn" '));
 	$this->table->clear();
 	$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' );
 	$this->table->set_template($tmplnewtable);
 	$this->table->add_row($botongestion0,$botongestion1,$botongestion2,$botongestion3);
 	$botonesgestion = $this->table->generate();
 
+	$jspickathingjs='<script type="text/javascript" src="' . base_url() . APPPATH . 'scripts/'.'pickathing.js"></script>';
+		$jscategorialis = '<script>var selectjscategorialis = new Pickathing(\'list_categoria\', true);</script>';
+		$jssubcategorialis = '<script>var selectjssubcategorialis = new Pickathing(\'list_subcategoria\', true);</script>';
+		$jsentidadlis = '<script>var selectjsentidadlis = new Pickathing(\'list_entidad\', true);</script>';
+	
 	// detectar que mostrar segun lo enviado desde el controlador
 		echo '<div style="color:red;background-color:red">ESTADO OPERACION: <strong style="background-color:red;color:white;">'.$mens.'</strong></div>';
 	if ($accionejecutada == 'gastosucursalesindex')
@@ -75,8 +80,8 @@
 		$this->table->clear();
 			$this->table->add_row('Registrado en el sistema el/entre:',form_input($valoresinputfecha1ini).PHP_EOL.' y '.form_input($valoresinputfecha1fin).br().PHP_EOL);
 			$this->table->add_row('Fecha de factura o egreso el/entre:',form_input($valoresinputfecha2ini).PHP_EOL.' y '.form_input($valoresinputfecha2fin).br().PHP_EOL);
-			$this->table->add_row('Por Categoria/Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria,null,'id="list_subcategoria"').br().PHP_EOL);
-			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad, $usercodger,'id="list_entidad"').'(automatico)'.br().PHP_EOL );
+			$this->table->add_row('Por Categoria/Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria,null,'id="list_subcategoria"').br().$jspickathingjs.$jssubcategorialis.PHP_EOL);
+			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad, $usercodger,'id="list_entidad"').'(automatico)'.br().$jspickathingjs.$jsentidadlis.PHP_EOL );
 			$this->table->add_row('Monto exacto o cantidad igual a', form_input('mon_registroigual','').br().PHP_EOL);
 			$this->table->add_row('Monto mayor o igual a', form_input('mon_registromayor','').br().PHP_EOL);
 			$this->table->add_row('Por Concepto similar a:', form_input('des_registrolike','').br().PHP_EOL);
@@ -117,8 +122,8 @@
 		$this->table->clear();
 		$this->table->set_template(array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">','cell_start' => '<td class="form-field-box odd">', ) );
 			$this->table->add_row('Fecha del gasto (10 dias maximo):',form_input($valoresinputfecha).'(no mas de 10 dias atras)'.br().PHP_EOL, $classinput);
-			$this->table->add_row('Categoria y SubCategoria:', form_dropdown('cod_subcategoria', $list_subcategoria, $cod_subcategoria,'id="list_subcategoria"').PHP_EOL);
-			$this->table->add_row('De quien es el gasto:', form_dropdown('cod_entidad', $list_entidad, $usuariocodgernow, 'id="list_entidad"' ));
+			$this->table->add_row('Categoria y SubCategoria:', form_dropdown('cod_subcategoria', $list_subcategoria, $cod_subcategoria,'id="list_subcategoria"').br().$jspickathingjs.$jssubcategorialis.PHP_EOL);
+			$this->table->add_row('De quien es el gasto:', form_dropdown('cod_entidad', $list_entidad, $usuariocodgernow, 'id="list_entidad"' ).$jspickathingjs.$jsentidadlis);
 			$this->table->add_row('Monto (punto para decimal, sin coma)', form_input('mon_registro', '0.00', $classinput).' OJO: sin separador de miles!'.br().PHP_EOL);
 			$this->table->add_row('Concepto o Detalle:', form_input('des_concepto', '', $classinput).br().PHP_EOL);
 			$this->table->add_row('Concepto tipo:', form_dropdown('tipo_concepto', $list_tipo_concepto , 'SUCURSAL', $classinput).br().PHP_EOL);

@@ -25,11 +25,11 @@ class cargargastoadministrativo extends CI_Controller {
 	 */
 	public function index()
 	{
-		if( $this->session->userdata('logueado') == FALSE)
-		{
-			redirect('manejousuarios/desverificarintranet');
-		}
-		$data['menu'] = $this->menu->menudesktop();
+//		if( $this->session->userdata('logueado') != 1)
+//		{
+//			redirect('manejousuarios/desverificarintranet');
+//		}
+		$data['menu'] = $this->menu->general_menu();
 
 		/* cargar y listaar las CATEGORIAS que se usaran para registros */
 			$sqlcategoria = "
@@ -110,7 +110,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$userintran = $userdata['intranet'];
 		$userpermacceso = $userdata['abr_entidad']; // TODO per,misos
 		$accionejecutada = $this->input->get_post('accionejecutada');
-		$data['menu'] = $this->menu->menudesktop();
+		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'cargardatosadministrativosfiltrar';
 			// OBTENER DATOS DE FORMULARIO ***************************** /
 		if ($accionejecutada = 'cargardatosadministrativosfiltrar')
@@ -144,13 +144,13 @@ class cargargastoadministrativo extends CI_Controller {
 			if ( $des_registrolike != '')
 				$crud->like('des_concepto',$des_registrolike);
 			if ( $fec_registroini != '')
-				$crud->where('CONVERT(substring(fecha_registro,1,8),UNSIGNED) >= ',$fec_registroini);
+				$crud->where('CONVERT(fecha_registro,UNSIGNED) >= ',$fec_registroini);
 			if ( $fec_registrofin != '')
-				$crud->where('CONVERT(substring(fecha_registro,1,8),UNSIGNED) <= ',$fec_registrofin);
+				$crud->where('CONVERT(fecha_registro,UNSIGNED) <= ',$fec_registrofin);
 			if ( $fec_conceptoini != '')
-				$crud->where('CONVERT(substring(fecha_concepto,1,8),UNSIGNED) <= ',$fec_conceptoini);
+				$crud->where('CONVERT(fecha_concepto,UNSIGNED) >= ',$fec_conceptoini);
 			if ( $fec_conceptofin != '')
-				$crud->where('CONVERT(substring(fecha_concepto,1,8),UNSIGNED) <= ',$fec_conceptofin);
+				$crud->where('CONVERT(fecha_concepto,UNSIGNED) <= ',$fec_conceptofin);
 			if ( $mon_registroigual != '')
 				$crud->like('mon_registro',$mon_registroigual, 'after');
 			if ( $mon_registromayor != '')
@@ -251,7 +251,7 @@ class cargargastoadministrativo extends CI_Controller {
 		//else if ($currentState == 'edit')
 		$output->output.= $outputjoincatysubcat->get_js();
 		// TERMINAR EL PROCESO (solo paso 1) **************************************************** /
-		$data['menu'] = $this->menu->menudesktop();
+		$data['menu'] = $this->menu->general_menu();
 		$data['accionejecutada'] = 'cargardatosadminnistrativosfiltrados';
 		$this->load->view('header.php',$data);
 		$this->load->view('cargargastoadministrativo.php',$output);
