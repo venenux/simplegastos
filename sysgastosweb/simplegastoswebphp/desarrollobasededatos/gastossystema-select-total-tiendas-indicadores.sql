@@ -13,7 +13,7 @@ SELECT
     where
         a.cod_registro <> ''
             and b.status <> 'INACTIVO'
-            and CONVERT( a.fecha_concepto , UNSIGNED) >= CONVERT( '20170300' , UNSIGNED)
-            and CONVERT( a.fecha_concepto , UNSIGNED) <= CONVERT( '20170390' , UNSIGNED)
+            and CONVERT( a.fecha_concepto , UNSIGNED) >= CONVERT( '20170400' , UNSIGNED)
+            and CONVERT( a.fecha_concepto , UNSIGNED) <= CONVERT( '20170490' , UNSIGNED)
     group by cod_entidad
     order by b.des_entidad
