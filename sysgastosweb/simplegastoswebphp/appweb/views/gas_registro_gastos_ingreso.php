@@ -32,7 +32,6 @@
 	if( !isset($accionejecutada) ) $accionejecutada = 'cargardatosadministrativosfiltrar';
 	if( !isset($list_entidad) ) $list_entidad = array('cod_entidad' => 'nombregalpon','cod_entidad2' => 'nombregalpon2');
 	if( !isset($list_categoria) ) $list_categoria = array('cod_categoria' => 'Varios','cod_categoria2' => 'Gastos diversos');
-	if( !isset($list_subcategoria) ) $list_subcategoria = array('cod_categoria' => 'Varios','cod_categoria2' => 'Gastos diversos');
 
 	// detectar que mostrar segun lo enviado desde el controlador
 	echo $tablabotonsgasto;
@@ -44,8 +43,8 @@
 		$this->table->clear();
 			$this->table->add_row('Fue Ingresado el/entre:',form_input($valoresinputfecha1ini).PHP_EOL.' y '.form_input($valoresinputfecha1fin).br().PHP_EOL);
 			$this->table->add_row('Fecha factura el/entre:',form_input($valoresinputfecha2ini).PHP_EOL.' y '.form_input($valoresinputfecha2fin).br().PHP_EOL);
-			$this->table->add_row('Por Categoria:', form_dropdown('cod_subcategoria', $list_subcategoria,null,'id="list_subcategoria"').PHP_EOL);
-			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad,null,'id="list_entidad"').PHP_EOL );
+			$this->table->add_row('Por Categoria:', form_dropdown('cod_ategoria', $list_categoria).PHP_EOL);
+			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).PHP_EOL );
 			$this->table->add_row('Monto similar a:', form_input('mon_registroigual','').br().PHP_EOL);
 			$this->table->add_row('Monto mayor o igual', form_input('mon_registromayor','').br().PHP_EOL);
 			$this->table->add_row('Por Concepto :', form_input('des_registrolike','').br().PHP_EOL);

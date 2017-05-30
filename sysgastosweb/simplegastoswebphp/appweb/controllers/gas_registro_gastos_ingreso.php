@@ -50,7 +50,7 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 			$arreglocategoriaes = array(''=>'');
 			foreach ($resultadoscategoria->result() as $row)
 			{
-				$arreglocategoriaes[''.$row->cod_categoria] = '' . $row->des_categoria . '-' . $row->fecha_categoria;
+				$arreglocategoriaes[''.$row->cod_categoria] = '' . $row->des_categoria;
 			}
 			$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
 			unset($arreglocategoriaes['']);
@@ -83,9 +83,9 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 	public function gastoregistros()
 	{
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
-/*		if( $this->session->userdata('logueado') != 1)
+		if( $this->session->userdata('logueado') != 1)
 			redirect('manejousuarios/desverificarintranet');
-		if ($usuariocodgernow < 990 and $usuariocodgernow > 399 )
+/*		if ($usuariocodgernow < 990 and $usuariocodgernow > 399 )
 			redirect('cargargastosucursales/gastosucursalesrevisarlos');
 */		$userdata = $this->session->all_userdata();
 		$usercorreo = $userdata['correo'];
@@ -151,7 +151,7 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 			 ->display_as('cod_juridico','juridico')
 			 ->display_as('mon_registro','Monto')
 			 ->display_as('des_concepto','Concepto')
-			 ->display_as('des_detalle','Detalles')
+			 ->display_as('des_detalle','Razon<br>Para aprobar')
 			 ->display_as('des_estado','Justificacion')
 			 ->display_as('tipo_concepto','Tipo<br>Gasto')
 			 ->display_as('fecha_gastado','Fecha<br>Gastado')
@@ -164,11 +164,11 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 			 ->display_as('sessionficha','Creador');
 		$crud->columns('fecha_gastado','fecha_registro','cod_entidad','cod_categoria',/*'cod_juridico',*/'mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro','sessionficha','sessionflag');
 		$crud->add_fields('fecha_registro','fecha_gastado','cod_entidad','cod_categoria',/*'cod_juridico',*/'mon_registro','des_concepto','estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha');
-		$crud->edit_fields('fecha_registro','fecha_gastado','cod_entidad','cod_categoria',/*'cod_juridico',*/'mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionflag');
+		$crud->edit_fields('fecha_registro','fecha_gastado','cod_entidad','cod_categoria',/*'cod_juridico',*/'mon_registro','des_concepto','estado','des_detalle','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionflag');
 		$crud->set_relation('cod_entidad','entidad','{des_entidad} - {cod_entidad}'); //,'{des_entidad}<br> ({cod_entidad})'
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		//$crud->set_relation('cod_juridico','adm_juridico','{des_razonsocial} - {cod_rif}'); // ,'{des_juridico}<br> ({cod_juridico})'
-		$crud->add_action('Auditar', '', '','ui-icon-plus',array($this,'_cargargastosucursalauditar'));
+		//$crud->add_action('Auditar', '', '','ui-icon-plus',array($this,'_cargargastosucursalauditar'));
 		$directoriofacturas = 'archivoscargas/gas_registro_gastos_ingreso/2017'; // $directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
 		{
@@ -231,16 +231,23 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 	function _editarfechagasto($value, $primary_key)
 	{
 		$fecha_gastado=$value;
-		$idfeccon='fecha_gastado';	$valoresinputfechacon = array('name'=>$idfeccon,'id'=>$idfeccon, 'onclick'=>'javascript:NewCssCal(\''.$idfeccon.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfeccon, $$idfeccon));
+		$idfeccon='fecha_gastado';
+		$valoresinputfechacon = array('name'=>$idfeccon,'id'=>$idfeccon, 'onclick'=>'javascript:NewCssCal(\''.$idfeccon.'\',\'yyyyMMdd\',\'arrow\')','readonly'=>'readonly','value'=>set_value($idfeccon, $$idfeccon));
 		return form_input($valoresinputfechacon);
 	}
 
 	/* llamar preupdate antes actualizar adiciona quien esta realizando la actualizacion */
 	function echapajacuando($post_array, $primary_key)
 	{
-		$operacion = $this->session->userdata('username').' cambio, datos viejos de ' . $primary_key . ': '.$post_array['des_concepto'].'-'.$post_array['cod_entidad'].'-'.$post_array['mon_registro'].'-'.$post_array['cod_categoria'].'-'.$post_array['cod_juridico'];
+		$justi = $post_array['des_detalle'];
+		$razon = $post_array['des_estado'];
+		$ver = str_replace(' ', '', $justi);
+		if ( $ver = '' )
+		    $justi = 'Aprobando sin justificar por mi: '.$this->session->userdata('username');
 		$sessionflag = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
 		$post_array['sessionflag'] = $sessionflag;
+		$operacion = $this->session->userdata('username').' cambio, datos viejos de ' . $primary_key . ': '.$post_array['des_concepto'].'-'.$post_array['cod_entidad'].'-'.$post_array['mon_registro'].'-'.$post_array['cod_categoria'].'-'.$post_array['cod_juridico'];
+
 		$this->db->insert('log',array('cod_log' => date('YmdHis'), 'operacion' => $operacion, 'sessionficha' => $sessionflag));
 		log_message('info', $operacion . ' por  ' . $sessionflag );
 		return $post_array;
@@ -267,11 +274,12 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 	function generarcodigo($post_array)
 	{
 		$fec_registro=date('Ymd');
-		$post_array['cod_registro'] = 'GAS'.date("YmdHis");
-		$post_array['fecha_registro'] = $fec_registro;
-		$post_array['sessionficha'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
-		$operacion = $this->session->userdata('username').' borrando el gasto ' . $primary_key;
+		$cod_registronuevo = 'GAS'.date("YmdHis");
+		$operacion = $this->session->userdata('username').' creando gasto nuevo ' . $cod_registronuevo;
 		$sessionficha = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
+		$post_array['cod_registro'] = $cod_registronuevo;
+		$post_array['fecha_registro'] = $fec_registro;
+		$post_array['sessionficha'] = $sessionficha;
 		$this->db->insert('log',array('cod_log' => date('YmdHis'), 'operacion' => $operacion, 'sessionficha' => $sessionficha));
 		log_message('info', $operacion . ' en  ' . $sessionficha);
 		return $post_array;
@@ -279,15 +287,12 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 
 	function _ver_after_insert($post_array,$primary_key)
 	{
+		$sessionficha = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
+		$operacion = $this->session->userdata('username').' gasto nuevo creado exitoso ' . $post_array['cod_registro'];
 		$enlace = site_url('gas_registro_gastos_ingreso/gastoregistros/read/'.$post_array['cod_registro']).'?cod_registro='.$post_array['cod_registro'];
-		log_message('info', $this->session->userdata('username').' insertado el gasto ' . $post_array['cod_registro']);
+		$this->db->insert('log',array('cod_log' => date('YmdHis'), 'operacion' => $operacion, 'sessionficha' => $sessionficha));
+		log_message('info', $operacion);
 		//redirect($enlace);
-		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
-	}
-
-	function _cargargastosucursalauditar($primary_key, $row)
-	{
-		$enlace = site_url('cargargastosucursalesadm/auditar/'.$row->cod_registro).'?cod_registro='.$row->cod_registro;
 		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
 	}
 
