@@ -33,7 +33,7 @@
  * @var string
  *
  */
-	define('CI_VERSION', '2.2.7.1');
+	define('CI_VERSION', '2.2.7');
 
 /**
  * CodeIgniter Branch (Core = TRUE, Reactor = FALSE)
@@ -74,6 +74,20 @@
 	if ( ! is_php('5.3'))
 	{
 		@set_magic_quotes_runtime(0); // Kill magic quotes
+	}
+
+/*
+ * ------------------------------------------------------
+ *  Detected the timezone, due only debian's does not have the warning message (php >> 5.4+)
+ * ------------------------------------------------------
+ */
+	// PHP 5.4+ on others rather thant debian will complain without this
+	if (version_compare(PHP_VERSION, '5.3.11') >= 0)
+	{
+		if (ini_get('date.timezone') == '')
+		{
+			date_default_timezone_set('GMT');
+		}
 	}
 
 /*

@@ -1297,9 +1297,9 @@ class CI_DB_driver {
 			// Does the first segment of the exploded item match
 			// one of the aliases previously identified?  If so,
 			// we have nothing more to do other than escape the item
-			if (in_array($parts[0], $this->ar_aliased_tables))
+			if ( ! empty($this->qb_aliased_tables) && in_array($parts[0], $this->ar_aliased_tables) )
 			{
-				if ($protect_identifiers === TRUE)
+				if ($protect_identifiers === TRUE) // if qb_aliased_tables empty workaround the CI bug (#2284), backported form CI 3.0.1
 				{
 					foreach ($parts as $key => $val)
 					{

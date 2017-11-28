@@ -105,7 +105,7 @@ class CI_DB_odbc_driver extends CI_DB {
 	 */
 	function db_select()
 	{
-		// Not needed for ODBC
+		// TODO : not needed for ODBC ???
 		return TRUE;
 	}
 
