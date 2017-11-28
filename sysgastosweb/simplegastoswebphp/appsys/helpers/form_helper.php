@@ -44,10 +44,8 @@ if ( ! function_exists('form_open'))
 	{
 		$CI =& get_instance();
 
-		if ($attributes == '')
-		{
-			$attributes = 'method="post"';
-		}
+		// If no action is provided then set to the current url
+		$action OR $action = $CI->config->site_url($CI->uri->uri_string());
 
 		// If an action is not a full URL then turn it into one
 		if ($action && strpos($action, '://') === FALSE)
@@ -55,14 +53,24 @@ if ( ! function_exists('form_open'))
 			$action = $CI->config->site_url($action);
 		}
 
-		// If no action is provided then set to the current url
-		$action OR $action = $CI->config->site_url($CI->uri->uri_string());
+		$attributes = _attributes_to_string($attributes);
 
-		$form = '<form action="'.$action.'"';
+		if ($attributes == '')
+		{
+			$attributes = ' method="post"';
+		}
 
-		$form .= _attributes_to_string($attributes, TRUE);
+		if (stripos($attributes, 'method=') === FALSE)
+		{
+			$attributes .= ' method="post"';
+		}
 
-		$form .= '>';
+		if (stripos($attributes, 'accept-charset=') === FALSE)
+		{
+			$attributes .= ' accept-charset="'.strtolower(config_item('charset')).'"';
+		}
+
+		$form = '<form action="'.$action.'" '.$attributes.'>';
 
 		// Add CSRF field if enabled, but leave it out for GET requests and requests to external websites	
 		if ($CI->config->item('csrf_protection') === TRUE AND ! (strpos($action, $CI->config->base_url()) === FALSE OR strpos($form, 'method="get"')))	
@@ -365,6 +373,7 @@ if ( ! function_exists('form_dropdown'))
 			}
 		}
 
+		$extra = _attributes_to_string($extra);
 		if ($extra != '') $extra = ' '.$extra;
 
 		$multiple = (count($selected) > 1 && strpos($extra, 'multiple') === FALSE) ? ' multiple="multiple"' : '';
