@@ -11,7 +11,7 @@ $this->load->helper('html');
 		echo link_tag($linkcombocss); 	// link css para comobo boxes dinamicos
 		echo script_tag($linkbrownavdecsjs);
 		echo script_tag($linkvalidaformsjs);	// validadores genericos de campos, trata recorer un campo y verificar su valor segun la llamada
-		//echo script_tag($linktabberdetaljs);	// comportamiento de pestañas para que al dar click esconda y muestre como si fueran pestañas elementos de lista
+		echo script_tag($linkappcssjs);	// comportamiento de pestañas para que al dar click esconda y muestre como si fueran pestañas elementos de lista
 		echo script_tag($linkdatepickerugl);	// comportamiento de selector de fechas sin usar jquery, 1005 compatible con cualqueir navegador
 	/*	
 	 * esta seccion comentada son los css y js de el grocery crud, la logica es que :

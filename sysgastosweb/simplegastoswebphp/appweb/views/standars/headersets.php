@@ -20,6 +20,7 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 		$linktabcss = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcss.'catalogo_tabbertstyle.css');
 		$linkcombocss = array('type'=>$typcs,'rel'=>'stylesheet','href' => $pathcss.'pickathing.css?'.time());
 
+		$linkappcssjs = array('type'=>$typjs,'src' => $pathjsc.'cibootstrap.js?'.time());
 		$linkbrownavdecsjs = array('type'=>$typjs,'src' => $pathjsc.'brownavdec.js?'.time());
 		$linkvalidaformsjs = array('type'=>$typjs,'src' => $pathjsc.'valida.js?'.time());
 		$linktabberdetaljs = array('type'=>$typjs,'src' => $pathjsc.'tabber.js?'.time());
