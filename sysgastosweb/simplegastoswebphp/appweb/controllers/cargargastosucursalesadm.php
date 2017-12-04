@@ -278,6 +278,16 @@ class cargargastosucursalesadm extends CI_Controller {
 						where factura_num = '". $this->db->escape_str($factura_num) . "' and factura_rif = '". $this->db->escape_str($factura_rif) ."'";
 			}
 			$data['myquery'] =  $query;
+			$myresult=$this->db->query($query);
+			$result=$myresult->row_array();
+			$cuantos=(int)$result['cuentarepetidos'];
+			if ($cuantos>0) 
+			{
+				//factura  YA existe en la bd 
+				$mens = 'El Número de factura contribuyente proporcionado ya ha sido registrado.';
+				log_message('info', $mens.'.');
+				return $this->gastomanualcargaruno( $mens );
+			}
 		}
 		// ******* GENERACION de la carga id codigo de registro
 		$fecha_registro = date('Ymd');
