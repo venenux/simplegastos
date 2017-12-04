@@ -102,13 +102,18 @@ class Manejousuarios extends CI_Controller
 					'des_entidad' => $rowuser->des_entidad,
 					'correo' => $rowuser->username . '@intranet1.net.ve'
 				);
+				if ($usuario_data['username'] != '')
+				{
+					$usuario_data['logueado'] = 1;
+					$data['accionpagina']='logueado';
+				}
 				break;
 			}
 			if ( isset($usuario_data['username']) )
 			{
 				if ($usuario_data['username'] != '')
 				{
-					$usuario_data['logueado'] = TRUE;
+					$usuario_data['logueado'] = 1;
 					$data['accionpagina']='logueado';
 				}
 				else
@@ -119,7 +124,7 @@ class Manejousuarios extends CI_Controller
 				$this->session->set_userdata($usuario_data);
 			}
 		}
-		if( $this->session->userdata('logueado') == TRUE && $this->session->userdata('logueado') != '')
+		if( $this->session->userdata('logueado') > 0 )
 		{
 			// TODO agregar en cada archivo esta linea if($this->session->userdata('logueado')) y verifica sesion
 			$data['intranet'] = $this->session->userdata('intranet');
@@ -151,7 +156,7 @@ class Manejousuarios extends CI_Controller
 	public function desverificarintranet()
 	{
 		// limpiar tablas si existen de las vistas de reportes hacking
-		if( $this->session->userdata('logueado') == TRUE && $this->session->userdata('logueado') != '')
+		if( $this->session->userdata('logueado') > 0)
 		{
 			$userintran = $this->session->userdata('intranet');
 			$sqllimpiatableviewbyentidadporusuario = "DROP TABLE IF EXISTS registro_gastos_".$userintran." ;";
@@ -159,7 +164,7 @@ class Manejousuarios extends CI_Controller
 			$this->db->query($sqllimpiatableviewbyentidadporusuario);
 		}
 		// destruir la session e invalidarla
-		$usuario_data = array('logueado' => FALSE);
+		$usuario_data = array('logueado' => 0);
 		$this->session->set_userdata($usuario_data);
 		$this->session->sess_destroy();
 		$this->index();

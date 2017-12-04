@@ -25,10 +25,10 @@ class cargargastoadministrativo extends CI_Controller {
 	 */
 	public function index()
 	{
-//		if( $this->session->userdata('logueado') != 1)
-//		{
-//			redirect('manejousuarios/desverificarintranet');
-//		}
+		if( $this->session->userdata('logueado') < 1)
+		{
+			redirect('manejousuarios/desverificarintranet');
+		}
 		$data['menu'] = $this->menu->general_menu();
 
 		/* cargar y listaar las CATEGORIAS que se usaran para registros */
@@ -100,7 +100,7 @@ class cargargastoadministrativo extends CI_Controller {
 	public function gastoregistros()
 	{
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
-		if( $this->session->userdata('logueado') == FALSE)
+		if( $this->session->userdata('logueado') < 1)
 			redirect('manejousuarios/desverificarintranet');
 		if ($usuariocodgernow < 990 and $usuariocodgernow > 399 )
 			redirect('cargargastosucursales/gastosucursalesrevisarlos');

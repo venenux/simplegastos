@@ -44,7 +44,7 @@ class Menu extends CI_Model
 		//$cargargastoentidadestienda['cargargastosucursalesuno']=anchor('cargargastosucursalesadm/gastomanualcargaruno','Cargar gasto');
 		//$cargargastoentidadestienda['gastosucursalesrevisarlos']=anchor('cargargastosucursalesadm/gastomanualfiltrarlos','Filtrar gasto');
 
-		if(!$this->session->userdata('logueado'))
+		if( $this->session->userdata('logueado') < 1)
 			$labelindex = 'Ingreso';
 		else
 			$labelindex = 'Sesion';

@@ -30,9 +30,9 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 	 */
 	public function index()
 	{
-		if( $this->session->userdata('logueado') != '1')
+		if( $this->session->userdata('logueado') < 1)
 		{
-//			redirect('manejousuarios/desverificarintranet');
+			redirect('manejousuarios/desverificarintranet');
 		}
 		$data['menu'] = $this->menu->menudesktop();
 
@@ -83,11 +83,11 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 	public function gastoregistros()
 	{
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
-		if( $this->session->userdata('logueado') != 1)
+		if( $this->session->userdata('logueado') < 1)
 			redirect('manejousuarios/desverificarintranet');
-/*		if ($usuariocodgernow < 990 and $usuariocodgernow > 399 )
+		if ($usuariocodgernow < 990 and $usuariocodgernow > 399 )
 			redirect('cargargastosucursales/gastosucursalesrevisarlos');
-*/		$userdata = $this->session->all_userdata();
+		$userdata = $this->session->all_userdata();
 		$usercorreo = $userdata['correo'];
 		$usersessid = $userdata['session_id'];
 		$userintran = $userdata['intranet'];
