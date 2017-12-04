@@ -25,8 +25,10 @@ class cargargastosucursalesadm extends CI_Controller {
 	/** verifica la sesion segun nuestra logica el flag logeado debe estar presente y tener el objeto session */
 	public function _verificarsesion()
 	{
-		if( $this->session->userdata('logueado') != TRUE)
-			redirect('manejousuarios/desverificarintranet');
+		if( $this->session->userdata('logueado') < 1)
+		{
+				redirect('manejousuarios/desverificarintranet');
+		}
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
 		if( is_array($usuariocodgernow) )
 		{
@@ -38,7 +40,7 @@ class cargargastosucursalesadm extends CI_Controller {
 				$this->nivel = 'especial';
 		}
 		else
-		{
+		{ 
 			if( $usuariocodgernow == '998' or $usuariocodgernow == '1000' )
 				$this->nivel = 'administrador';
 			else if( ( $usuariocodgernow > 399 and $usuariocodgernow < 998) or $usuariocodgernow == '196' or $usuariocodgernow == '252' or $usuariocodgernow == '200' )
@@ -48,6 +50,7 @@ class cargargastosucursalesadm extends CI_Controller {
 			else
 				$this->nivel = 'especial';
 		}
+		
 	}
 
 	/**
@@ -265,7 +268,17 @@ class cargargastosucursalesadm extends CI_Controller {
 			log_message('info', $mens.'.');
 			return $this->gastomanualcargaruno( $mens );
 		}
-
+		// * Verificar que el numero de la factura dado no se encuentra en BBDD y evitar repetidos
+		if ($factura_tipo=='CONTRIBUYENTE')
+		{
+			if ( trim($factura_num)<>'')
+			{
+				$query="select count(*) as cuentarepetidos 
+						from  registro_gastos 
+						where factura_num = '". $this->db->escape_str($factura_num) . "' and factura_rif = '". $this->db->escape_str($factura_rif) ."'";
+			}
+			$data['myquery'] =  $query;
+		}
 		// ******* GENERACION de la carga id codigo de registro
 		$fecha_registro = date('Ymd');
 		$cod_registro = 'GAS' . $fecha_registro . date('His');
@@ -274,7 +287,9 @@ class cargargastosucursalesadm extends CI_Controller {
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
-			{	unlink($directoriofacturas);	}
+			{
+				unlink($directoriofacturas);
+			}
 			mkdir($directoriofacturas, 0777, true);
 			chmod($directoriofacturas,0777);
 		}
@@ -291,14 +306,13 @@ class cargargastosucursalesadm extends CI_Controller {
 		$this->upload->do_upload('factura_bin');
 		$file_data = $this->upload->data();
 		$filenamen = $cod_registro . $file_data['file_ext'];
-	        $filenameorig =  $file_data['file_path'] . $file_data['file_name'];
-    		$filenamenewe =  $file_data['file_path'] . $filenamen;
+		$filenameorig =  $file_data['file_path'] . $file_data['file_name'];
+		$filenamenewe =  $file_data['file_path'] . $filenamen;
 		//if ( $factura_tipo == 'CONTRIBUYENTE' )
 		//{
 			if ( $file_data['file_name'] == '' and $factura_bin == '' )
 			{
-			//	$this->gastomanualcargaruno($mens = '<br>CUADNO ES CONTRIBUYENTE Debe subir un archivo escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO');
-				$this->gastomanualcargaruno($mens = '<br><h4>POR RESOLUCION DE LA GERENCIA TODO GASTO DEBE TENER SU ADJUNTO</h4> escaneado que avale el gasto que ud esta registrando! Y SI TIENE ERRORES TIENE 15 DIAS PARA EDITARLO, sino DEBE REPORTARLO por ticket, leer instrucciones en la intranet! REPITA EL PROCESO');
+				$this->gastomanualcargaruno($mens = '<h4>POR RESOLUCION DE LA GERENCIA TODO GASTO DEBE TENER SU ADJUNTO</h4> escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO');
 				log_message('info', $mens.'.');
 				return;
 			}
