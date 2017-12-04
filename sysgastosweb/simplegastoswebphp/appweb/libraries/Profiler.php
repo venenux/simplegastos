@@ -382,7 +382,7 @@ class CI_Profiler extends CI_Loader {
 
 					if (is_array($val))
 					{
-						$output['&#36;_POST['. $key .']'] = '<pre>'. htmlspecialchars(stripslashes(print_r($val, TRUE))) . '</pre>';
+						$output['&#36;_POST['. $key .']'] = htmlspecialchars(stripslashes(print_r($val, TRUE))) ;
 					}
 					else
 					{
@@ -406,7 +406,7 @@ class CI_Profiler extends CI_Loader {
 
 					if (is_array($val) OR is_object($val))
 					{
-						$output['&#36;_POST[FILE'. $key .']'] =  '<pre>'.htmlspecialchars(stripslashes(print_r($val, TRUE))).'</pre>';
+						$output['&#36;_POST[FILE'. $key .']'] = htmlspecialchars(stripslashes(print_r($val, TRUE)));
 					}
 					else
 
