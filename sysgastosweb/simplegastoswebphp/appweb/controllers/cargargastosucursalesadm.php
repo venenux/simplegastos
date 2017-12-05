@@ -293,7 +293,10 @@ class cargargastosucursalesadm extends CI_Controller {
 		$fecha_registro = date('Ymd');
 		$cod_registro = 'GAS' . $fecha_registro . date('His');
 		// ******* CARGA DEL ARCHIVO ****************** */
-		$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
+		//$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
+		$leyear=substr($fecha_registro,0,4);//solo interesa año
+		$directoriofacturas = 'archivoscargas/GAS'.$leyear; // $directoriofacturas = 'archivoscargas/' . date("Y");
+		$data['dir_fact']=$directoriofacturas ;
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
@@ -528,7 +531,10 @@ class cargargastosucursalesadm extends CI_Controller {
 		// ******* GENERACION de la carga id codigo de registro
 		$cod_registro = $this->input->get_post('cod_registro');
 		// ******* CARGA DEL ARCHIVO ****************** */
-		$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
+		$longdate=date('Ymd');//la fecha larga
+		$leyear=substr($longdate,0,4);//solo interesa año
+		$directoriofacturas = 'archivoscargas/GAS'.$leyear; // $directoriofacturas = 'archivoscargas/' . date("Y");
+		$data['dir_fact']=$directoriofacturas ;
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
