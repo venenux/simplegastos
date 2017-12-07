@@ -784,7 +784,10 @@ class cargargastosucursalesadm extends CI_Controller {
 		}
 		else if ( $this->nivel == 'sucursal')
 			$crud->add_action('Editar', '', '','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
-		$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
+		$longdate=date('Ymd');//la fecha larga
+		$leyear=substr($longdate,0,4);//solo interesa año
+		$directoriofacturas = 'archivoscargas/GAS'.$leyear;
+		//$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )

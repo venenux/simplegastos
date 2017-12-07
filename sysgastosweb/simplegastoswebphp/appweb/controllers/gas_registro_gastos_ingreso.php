@@ -169,7 +169,9 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		//$crud->set_relation('cod_juridico','adm_juridico','{des_razonsocial} - {cod_rif}'); // ,'{des_juridico}<br> ({cod_juridico})'
 		//$crud->add_action('Auditar', '', '','ui-icon-plus',array($this,'_cargargastosucursalauditar'));
-		$directoriofacturas = 'archivoscargas/gas_registro_gastos_ingreso/2017'; // $directoriofacturas = 'archivoscargas/' . date("Y");
+		$longdate=date('Ymd');//la fecha larga
+		$leyear=substr($longdate,0,4);//solo interesa año
+		$directoriofacturas = 'archivoscargas/gas_registro_gastos_ingreso/'.$leyear;//$directoriofacturas = 'archivoscargas/gas_registro_gastos_ingreso/2017'; // $directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
