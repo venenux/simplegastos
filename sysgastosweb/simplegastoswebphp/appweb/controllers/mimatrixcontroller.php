@@ -133,6 +133,21 @@ group by cod_categoria
             redirect('manejousuarios/desverificarintranet'); 	// si el usuario no tiene alguna asociacion de entidad se le deniega
         $data['menu'] = $this->menu->menudesktop();
 		$data['seccionpagina'] = 'seccionfiltrarmatrix';		// se indica muestre formulario para filtrar que datos se mostraran
+
+		// ########## ini cargar y listaar las CATEGORIAS que se usaran para registros
+		$sqlcategoria = " select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
+		 from categoria where ifnull(cod_categoria, '') <> '' and cod_categoria <> '' ";
+		if ( $this->nivel == 'ninguno' )
+			$sqlcategoria .= " and cod_categoria = ''";
+		if ( $this->nivel != 'administrador' )
+			$sqlcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
+		$sqlcategoria .= " ORDER BY des_categoria DESC ";
+		$resultadoscategoria = $this->db->query($sqlcategoria);
+		$arreglocategoriaes = array(''=>'');
+		foreach ($resultadoscategoria->result() as $row)
+			$arreglocategoriaes[''.$row->cod_categoria] = '' . $row->des_categoria;
+		$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
+
 		$this->load->view('header.php',$data);
 		$this->load->view('mivistamatrix.php',$data);
 		$this->load->view('footer.php',$data);
@@ -368,11 +383,11 @@ group by cod_categoria
 		$this->load->view('footer.php',$data);
 		/* *** fin enviar lo calculado y mostrar vista datos al usuario ********************/
 	}
-
 	public function _redirecciontotalizadores($primary_key, $row)
 	{
 		//$enlace = site_url('matrixcontroler/matrixtotalesfiltrado/?fechainimatrix='.'&cod_entidad='.$row->ENTIDAD);
 		//return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
 		return "javascript:alert('Si solo aparecen pocos registros, revise no tenga filtros, use el boton arriba resetear filtros<br>\na la derecha en la primera linea!!!');";
 	}
+    
 }

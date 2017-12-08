@@ -21,14 +21,18 @@
 		$jsentidadlis = '<script>var selectjsentidadlis = new Pickathing(\'list_entidad\', true);</script>';
 	if ($seccionpagina == 'seccionfiltrarmatrix')
 	{
+	
 		//echo form_fieldset('Ingrese datos solo si desea filtrar la matrix',array('class'=>'container_blue containerin')) . PHP_EOL;
 		echo form_open_multipart('/mimatrixcontroller/secciontablamatrix/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
 			$this->table->add_row('Periodo entre',form_input($inputfechainiattr),' y hasta ',form_input($inputfechafinattr), form_submit('vermatrix', 'Ver la matrix (click)', 'class="btn btn-primary btn-large b10"'), '', '' ) ;
-			/*$this->table->add_row('Categoria - Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria).br().PHP_EOL,'','');
-			$this->table->add_row('Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL ,'','');*/
+			$this->table->add_row('Categoria - Concepto:', form_multiselect('cod_subcategoria', $list_categoria).br().PHP_EOL,'','');
+			$this->table->add_row('Centro de Costo:', form_dropdown('cod_entidad', $list_entidad).'(automatico)'.br().PHP_EOL ,'','');
 		echo $this->table->generate();
+		//generar el dropdown con las categorias
 		echo form_close() . PHP_EOL;
+		
+		
 		//echo form_fieldset_close() . PHP_EOL;
 		//echo br().PHP_EOL;
 	}
