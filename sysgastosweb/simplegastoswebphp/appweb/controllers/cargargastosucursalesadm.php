@@ -259,7 +259,8 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_tipo = $this->input->get_post('factura_tipo');
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
-		$factura_bin = $this->input->get_post('factura_bin');
+		$factura_bin = $_FILES['factura_bin']['name']; // nombre del archivo adjuntar
+		$factura_binX = 'no usado en crear nuevo'; // usado por estandar con codigo editar
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 		if ( trim($mon_registro) == '' OR trim($des_concepto) == '')
@@ -293,20 +294,19 @@ class cargargastosucursalesadm extends CI_Controller {
 		$fecha_registro = date('Ymd');
 		$cod_registro = 'GAS' . $fecha_registro . date('His');
 		// ******* CARGA DEL ARCHIVO ****************** */
-		//$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
-		$leyear=substr($fecha_registro,0,4);//solo interesa año
-		$directoriofacturas = 'archivoscargas/GAS'.$leyear; // $directoriofacturas = 'archivoscargas/' . date("Y");
-		$data['dir_fact']=$directoriofacturas ;
-		if ( ! is_dir($directoriofacturas) )
+		$dircargasub = substr($cod_registro,0,7) . '/'; // sub durectorio en el que se realiza la carga, este es dinamico segun fecha de carga
+		$dircargabase = 'archivoscargas/'; // ruta base de donde desde db se concatena, para ofrecer dinamismo (fecha de gastado no es la misma que la de cargado)
+		$dircargafull = $dircargabase . $dircargasub; // ruta completa se usa en ci_upload
+		if ( ! is_dir($dircargafull) )
 		{
-			if ( is_file($directoriofacturas) )
+			if ( is_file($dircargafull) )
 			{
-				unlink($directoriofacturas);
+				unlink($dircargafull);
 			}
-			mkdir($directoriofacturas, 0777, true);
-			chmod($directoriofacturas,0777);
+			mkdir($dircargafull, 0775, true);
+			chmod($dircargafull,0775);
 		}
-		$cargaconfig['upload_path'] = $directoriofacturas;
+		$cargaconfig['upload_path'] = $dircargafull; // para ver, se usa dircargabase, en db se guarda parte de la ruta..
 		$cargaconfig['allowed_types'] = 'gif|jpg|png|jpeg|pdf';
 		$cargaconfig['max_size']  = 3072*1024;  //$cargaconfig['max_size']= '100'; // en kilobytes
 		$cargaconfig['max_width'] = 0;
@@ -316,35 +316,42 @@ class cargargastosucursalesadm extends CI_Controller {
 		$this->load->library('upload', $cargaconfig);
 		$this->load->helper('inflector');
 		$this->upload->initialize($cargaconfig);
-		$this->upload->do_upload('factura_bin');
+		$isuploaded = $this->upload->do_upload('factura_bin');
 		$file_data = $this->upload->data();
 		$filenamen = $cod_registro . $file_data['file_ext'];
 		$filenameorig =  $file_data['file_path'] . $file_data['file_name'];
 		$filenamenewe =  $file_data['file_path'] . $filenamen;
 		//if ( $factura_tipo == 'CONTRIBUYENTE' )
 		//{
-			if ( $file_data['file_name'] == '' and $factura_bin == '' )
+			$mens = '<h4>POR RESOLUCION DE LA GERENCIA TODO GASTO DEBE TENER SU ADJUNTO</h4> escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO';
+			if ( trim($factura_bin) == '' )
 			{
-				$this->gastomanualcargaruno($mens = '<h4>POR RESOLUCION DE LA GERENCIA TODO GASTO DEBE TENER SU ADJUNTO</h4> escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO');
-				log_message('info', $mens.'.');
-				return;
+				return $this->gastomanualcargaruno($mens);
 			}
 			else
-				rename( $filenameorig, $filenamenewe); // TODO: rename
+			{
+				if ( $isuploaded )
+					rename( $filenameorig, $filenamenewe); // TODO: rename
+				else
+					return $this->gastomanualcargaruno($mens);
+			}
+				
 		//}
-		if ( is_file($filenamenewe) ) // nombre del campo alla en el formulario
+		if ( is_file($filenamenewe) )
 		{
 			$conadjunto = TRUE;
 			$factura_data = $file_data;
-			$factura_bin = $filenamen;
-			$linkadjunto = anchor_popup( '../' . $directoriofacturas .'/'. $factura_bin, $factura_bin,array('width'=>'800','height'=>'600','resizable'=>'yes'));
+			$factura_bin = $dircargasub . $filenamen; // en db se guarda parte de la ruta, ya que es dinamico segun fecha carga
+			$linkadjunto = anchor_popup( '../' . $dircargabase . $factura_bin, $factura_bin,array('width'=>'800','height'=>'600','resizable'=>'yes'));
 		}
 		else
 		{
 			$conadjunto = FALSE;
 			$factura_bin = '';
 			$linkadjunto = '';
+			return $this->gastomanualcargaruno($mens);
 		}
+		log_message('info', $mens.'.');
 		$file_data = $this->upload->data();
 		$data['file_data'] = $file_data;
 		$data['factura_bin'] = $factura_bin;
@@ -371,6 +378,8 @@ class cargargastosucursalesadm extends CI_Controller {
 			)";
 		$this->db->query($sqlregistrargasto);
         // TERMINAR EL PROCESO (solo paso 1) **************************************************** /
+		if ( $this->nivel == 'administrador')
+			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar gerencia', 'class="btn-primary btn" '));
 		$this->table->clear();
 		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="0" class="table containerblue tablelist">' );
 		$this->table->set_caption(null);
@@ -388,10 +397,9 @@ class cargargastosucursalesadm extends CI_Controller {
 		if ( $this->nivel == 'administrador')
 			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn-primary btn" '));
 		$data['menu'] = $this->menu->general_menu();
-		$data['mens']=$this->upload->display_errors();
+		$data['mens'] = 'ADVERTENCIA!!!:'. $this->upload->display_errors() . 'parece que el proceso se completo <h3>REVISAR SI LOS DATOS ESTAN BUENOS</h3>';
 		$data['cod_registro'] = $cod_registro;
 		$data['accionejecutada'] = 'gastomanualfiltrardouno';
-		$data['upload_errors'] = $this->upload->display_errors('<p>', '</p>');
 		$this->load->helper(array('form', 'url','html'));
 		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$this->load->view('header.php',$data);
@@ -525,24 +533,25 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_tipo = $this->input->get_post('factura_tipo');
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
+		$factura_bin = $this->input->get_post('factura_bin'); // nombre file anterior, segun html no se permite set_value
+		$factura_binX = $_FILES['factura_binX']['name']; // si subio alguno, nombre del archivo sustituir o nuevo
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 
 		// ******* GENERACION de la carga id codigo de registro
 		$cod_registro = $this->input->get_post('cod_registro');
 		// ******* CARGA DEL ARCHIVO ****************** */
-		$longdate=date('Ymd');//la fecha larga
-		$leyear=substr($longdate,0,4);//solo interesa año
-		$directoriofacturas = 'archivoscargas/GAS'.$leyear; // $directoriofacturas = 'archivoscargas/' . date("Y");
-		$data['dir_fact']=$directoriofacturas ;
-		if ( ! is_dir($directoriofacturas) )
+		$dircargasub = substr($cod_registro,0,7) . '/'; // sub durectorio en el que se realiza la carga, este es dinamico segun fecha de carga
+		$dircargabase = 'archivoscargas/'; // ruta base de donde desde db se concatena, para ofrecer dinamismo (fecha de gastado no es la misma que la de cargado)
+		$dircargafull = $dircargabase . $dircargasub; // ruta completa se usa en ci_upload
+		if ( ! is_dir($dircargafull) )
 		{
-			if ( is_file($directoriofacturas) )
-			{	unlink($directoriofacturas);	}
-			mkdir($directoriofacturas, 0777, true);
-			chmod($directoriofacturas,0777);
+			if ( is_file($dircargafull) )
+			{	unlink($dircargafull);	}
+			mkdir($dircargafull, 0775, true);
+			chmod($dircargafull,0775);
 		}
-		$cargaconfig['upload_path'] = $directoriofacturas;
+		$cargaconfig['upload_path'] = $dircargafull;
 		$cargaconfig['allowed_types'] = 'gif|jpg|png|jpeg|pdf';
 		$cargaconfig['max_size']  = 3172*1024;  //$cargaconfig['max_size']= '100'; // en kilobytes
 		$cargaconfig['max_width'] = 0;
@@ -552,48 +561,46 @@ class cargargastosucursalesadm extends CI_Controller {
 		$this->load->library('upload', $cargaconfig);
 		$this->load->helper('inflector');
 		$this->upload->initialize($cargaconfig);
-		$this->upload->do_upload('factura_binX');
+		$isuploaded = $this->upload->do_upload('factura_binX');
 		$file_data = $this->upload->data();
-		$filenamen = $cod_registro .'1'. $file_data['file_ext'];
+		$filenamen = $cod_registro .'n'. $file_data['file_ext'];
 		$filenameorig =  $file_data['file_path'] . $file_data['file_name'];
 		$filenamenewe =  $file_data['file_path'] . $filenamen;
-			if ( $this->input->get_post('factura_binX') != '' and $file_data['file_name'] == '' )
+		//if ( $factura_tipo == 'CONTRIBUYENTE' )
+		//{
+			$mens = '<h4>POR RESOLUCION DE LA GERENCIA TODO GASTO DEBE TENER SU ADJUNTO</h4> escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO';
+			if ( trim($factura_bin) == '' )
 			{
-				$conadjunto = FALSE;
-				$factura_bin = $this->input->get_post('factura_bin');
-				$linkadjunto = $this->input->get_post('factura_bin');
+				return $this->gastomanualeditaruno($mens, $cod_registro);
 			}
-			else
+			else if ( trim($factura_binX) != '')
 			{
-				if ( $file_data['file_name'] == '' )
-				{
-					//if ( $factura_tipo == 'CONTRIBUYENTE' )
-					{
-						//$this->gastomanualeditaruno($mens = '<br>CUANDO ES CONTRIBUYENTE Debe subir un archivo escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO', $cod_registro);
-				$this->gastomanualeditaruno($mens = '<br><h4>POR RESOLUCION DE LA GERENCIA TODO GASTO DEBE TENER SU ADJUNTO</h4> escaneado que avale el gasto que ud esta registrando! Y SI TIENE ERRORES TIENE 15 DIAS PARA EDITARLO, sino DEBE REPORTARLO por ticket, leer instrucciones en la intranet! REPITA EL PROCESO', $cod_registro);
-						log_message('info', $mens.'.');
-						return;
-					}
-				}
-				else
+				$mens = '<h3>ADVERTENCIA!!!!</h3>, ' . $this->upload->display_errors() . 'Ocurrio un error, el archivo no se pudo cargar reporte esto por ticket enviando un correo a la intranet soporte@intranet1.net.ve! REPITA EL PROCESO';
+				if( $isuploaded )
 					rename( $filenameorig, $filenamenewe ); // TODO: rename
-				if ( is_file($filenamenewe) ) // nombre del campo alla en el formulario
-				{
-					$conadjunto = TRUE;
-					$factura_data = $file_data;
-					$factura_bin = $filenamen;
-					$linkadjunto = anchor_popup( '../'.$directoriofacturas.'/'. $factura_bin,$factura_bin,array('width'=>'800','height'=>'600','resizable'=>'yes'));
-				}
 				else
-				{
-					$conadjunto = FALSE;
-					$factura_bin = '';
-					$linkadjunto = '';
-				}
+					return $this->gastomanualeditaruno($mens, $cod_registro);
 			}
+		//{
+		if ( is_file($filenamenewe) ) // nombre del campo alla en el formulario
+		{
+			$conadjunto = TRUE;
+			$factura_data = $file_data;
+			$factura_bin = $dircargasub . $filenamen; // en db se guarda parte de la ruta, ya que es dinamico segun fecha carga
+			$linkadjunto = anchor_popup( '../' . $dircargabase . $factura_bin, $factura_bin,array('width'=>'800','height'=>'600','resizable'=>'yes'));
+		}
+		else
+		{
+			$conadjunto = FALSE;
+			$factura_bin = $this->input->get_post('factura_bin'); // subdir ya viene de db con subdir
+			$linkadjunto = anchor_popup( '../' . $dircargabase . $factura_bin, $factura_bin,array('width'=>'800','height'=>'600','resizable'=>'yes'));
+			$mens = '<h3>ADVERTENCIA!!!!</h3>, REVISE SI LOS DATOS SE CARGARON CORRECTOS, vea bien el resultado.';
+		}
+		log_message('info', $mens.'.');
 		$file_data = $this->upload->data();
 		$data['file_data'] = $file_data;
 		$data['factura_bin'] = $factura_bin;
+		$data['factura_binX'] = $factura_binX;
 		$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
 		// ******* procesar el registro sin el adjunto
 		$sqlregistrargasto = "
@@ -617,7 +624,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$this->db->query($sqlregistrargasto);
         // TERMINAR EL PROCESO (solo paso 1) **************************************************** /
 		if ( $this->nivel == 'administrador')
-			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn-primary btn" '));
+			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar gerencia', 'class="btn-primary btn" '));
 		$this->table->clear();
 		$tmplnewtable = array ( 'table_open'  => '<table border="1" cellpadding="1" cellspacing="0" class="table containerblue tablelist">' );
 		$this->table->set_caption(null);
@@ -633,10 +640,9 @@ class cargargastosucursalesadm extends CI_Controller {
 			$linkadjunto);
 		$data['htmltablacargasregistros'] = $this->table->generate();
 		$data['menu'] = $this->menu->general_menu();
-		$data['mens']=$this->upload->display_errors();
+		$data['mens'] = 'ADVERTENCIA!!!: parece que el proceso se completo <h3>REVISAR SI LOS DATOS ESTAN BUENOS</h3>';
 		$data['cod_registro'] = $cod_registro;
 		$data['accionejecutada'] = 'gastomanualfiltrardouno';
-//		$data['upload_errors'] = $this->upload->display_errors('<p>', '</p>');
 		$this->load->helper(array('form', 'url','html'));
 		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$this->load->view('header.php',$data);
@@ -786,16 +792,15 @@ class cargargastosucursalesadm extends CI_Controller {
 			$crud->add_action('Editar', '', '','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
 		$longdate=date('Ymd');//la fecha larga
 		$leyear=substr($longdate,0,4);//solo interesa año
-		$directoriofacturas = 'archivoscargas/GAS'.$leyear;
-		//$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
-		if ( ! is_dir($directoriofacturas) )
+		$dircargafull = 'archivoscargas/'; // el resto de la ruta esta ya en db en cada imagen
+		if ( ! is_dir($dircargafull) )
 		{
-			if ( is_file($directoriofacturas) )
-			{	unlink($directoriofacturas);	}
-			mkdir($directoriofacturas, 0777, true);
-			chmod($directoriofacturas,0777);
+			if ( is_file($dircargafull) )
+			{	unlink($dircargafull);	}
+			mkdir($dircargafull, 0777, true);
+			chmod($dircargafull,0777);
 		}
-		$crud->set_field_upload('factura_bin',$directoriofacturas);
+		$crud->set_field_upload('factura_bin',$dircargafull);
 		//$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/admusuariosentidad"));
 		$crud->callback_column('mon_registro',array($this,'_numerosgente'));
 		$output = $crud->render();
