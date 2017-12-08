@@ -50,7 +50,6 @@ class cargargastosucursalesadm extends CI_Controller {
 			else
 				$this->nivel = 'especial';
 		}
-		
 	}
 
 	/**
@@ -76,7 +75,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$data['nivel'] = $this->session->userdata('cod_entidad');
 		$data['usercodger'] = $usuariocodgernow;
 
-		// ########## ini cargar y listaar las CATEGORIAS que se usaran para registros
+		// ########## ini cargar y listar las CATEGORIAS que se usaran para registros
 		$sqlcategoria = " select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
 		 from categoria where ifnull(cod_categoria, '') <> '' and cod_categoria <> '' ";
 		if ( $this->nivel == 'ninguno' )
@@ -90,7 +89,7 @@ class cargargastosucursalesadm extends CI_Controller {
 			$arreglocategoriaes[''.$row->cod_categoria] = '' . $row->des_categoria;
 		$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
 
-		// ########## ini cargar y listaar las SUBCATEGORIAS que se usaran para registros
+		// ########## ini cargar y listar las SUBCATEGORIAS que se usaran para registros
 		$sqlsubcategoria = "
 		SELECT ifnull(ca.cod_categoria,'99999') as cod_categoria,
 		ca.des_categoria,  sb.cod_subcategoria,  sb.des_subcategoria
@@ -106,16 +105,16 @@ class cargargastosucursalesadm extends CI_Controller {
 			$arreglosubcategoriaes[''.$row->cod_subcategoria] = $row->des_categoria . ' - ' . $row->des_subcategoria;
 		$data['list_subcategoria'] = $arreglosubcategoriaes; // agrega este arreglo una lista para el combo box
 
-		// ########## ini cargar y listaar EL TIPO DE GASTO que se usaran para registros
+		// ########## ini cargar y listar EL TIPO DE GASTO que se usaran para registros
 		$list_factura_tipo = array(''=>'', 'EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE');
 		$data['list_factura_tipo'] = $list_factura_tipo;
 
-		// ########## ini cargar y listaar EL TIPO DE GASTO que se usaran para registros
+		// ########## ini cargar y listar EL TIPO DE GASTO que se usaran para registros
 		if ( $this->nivel != 'sucursal' )	$list_tipo_concepto = array(''=>'', 'SUCURSAL' => 'SUCURSAL', 'ADMINISTRATIVO' => 'ADMINISTRATIVO');
 		else					$list_tipo_concepto = array(''=>'', 'SUCURSAL' => 'SUCURSAL');
 		$data['list_tipo_concepto'] = $list_tipo_concepto;
 
-		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
+		// ########## ini cargar y listar las UBICACIONES/ENTIDADES que se usaran para registros
 		$sqlentidad = " select abr_entidad, abr_zona, des_entidad, ifnull(cod_entidad,'99999999999999') as cod_entidad
 		from entidad where ifnull(cod_entidad, '') <> '' and ( cod_entidad <> '' or cod_entidad = '".$usuariocodgernow."')";
 		if ( $this->nivel == 'ninguno' )
@@ -130,7 +129,7 @@ class cargargastosucursalesadm extends CI_Controller {
 			$arregloentidades[$row->cod_entidad] = $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
 		$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box
 
-		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
+		// ########## ini cargar y listar las UBICACIONES/ENTIDADES que se usaran para registros
 		if ( $this->nivel == 'administrador')
 			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar Gasto rapido', 'class="btn-primary btn" '));
 		$data['menu'] = $this->menu->general_menu();
@@ -219,8 +218,6 @@ class cargargastosucursalesadm extends CI_Controller {
 	public function gastomanualcargarunolisto()
 	{
 		$this->_verificarsesion();
-		$data['menu'] = $this->menu->general_menu();
-		$data['accionejecutada'] = 'gastomanualfiltrardouno';
 		$usuariocodgernow = $this->session->userdata('cod_entidad');
 		$userintran = $this->session->userdata('intranet');
 
@@ -238,8 +235,7 @@ class cargargastosucursalesadm extends CI_Controller {
 			return $this->gastomanualcargaruno( $mens );
 		}
 		$fecha_concepto = $this->input->get_post('fecha_concepto');
-		$dias	= (strtotime(date("Ymd"))-strtotime($fecha_concepto))/86400;
-		//$dias 	= abs($dias);
+		$dias = (strtotime(date("Ymd"))-strtotime($fecha_concepto))/86400;
 		$dias = floor($dias);
 		if ( $dias > 39)
 		{
@@ -263,31 +259,30 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_binX = 'no usado en crear nuevo'; // usado por estandar con codigo editar
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
+		// ******* monto no puede ser vacio
 		if ( trim($mon_registro) == '' OR trim($des_concepto) == '')
 		{
 			$mens = 'El monto y el concepto o descripcion no deben estar vacios';
 			log_message('info', $mens.'.');
 			return $this->gastomanualcargaruno( $mens );
 		}
-		// * Verificar que el numero de la factura dado no se encuentra en BBDD y evitar repetidos
-		if ($factura_tipo=='CONTRIBUYENTE')
+		// ******* si contribuyente, rif y numero factura no puede ser vacio ni repetido
+		if ( $factura_tipo == 'CONTRIBUYENTE' )
 		{
-			if ( trim($factura_num)<>'')
+			if ( ! (trim($factura_num) != '') AND !(trim($factura_rif) != '') )
 			{
-				$query="select count(*) as cuentarepetidos 
-						from  registro_gastos 
-						where factura_num = '". $this->db->escape_str($factura_num) . "' and factura_rif = '". $this->db->escape_str($factura_rif) ."'";
-			}
-			$data['myquery'] =  $query;
-			$myresult=$this->db->query($query);
-			$result=$myresult->row_array();
-			$cuantos=(int)$result['cuentarepetidos'];
-			if ($cuantos>0) 
-			{
-				//factura  YA existe en la bd 
-				$mens = 'El Número de factura contribuyente proporcionado ya ha sido registrado.';
-				log_message('info', $mens.'.');
+				$mens = 'El Número de factura contribuyente y el rif no pueden ser vacios, en este punto debe proporcionalrlos cuando es CONTRIBUYENTE';
 				return $this->gastomanualcargaruno( $mens );
+			}
+			else
+			{
+				$mens = 'El Número de factura contribuyente proporcionado ya ha sido registrado. DEBE REVISAR SUS CARGAS Y NO REPETIRLAS';
+				$facquery="select count(*) as facs from  registro_gastos where factura_num='".$this->db->escape_str($factura_num)."' and factura_rif='". $this->db->escape_str($factura_rif)."' and SUBSTRING( fecha_concepto, 1, 6) = SUBSTRING( '". $this->db->escape_str($fecha_concepto)."', 1, 6)";
+				$facresult=$this->db->query($facquery);
+				$rowquery=$facresult->row_array();
+				$cuantos=(int)$rowquery['facnums'];
+				if ($cuantos>0) // la factura no existe aun, en editar existe y es > 1 validacion
+					return $this->gastomanualcargaruno( $mens );
 			}
 		}
 		// ******* GENERACION de la carga id codigo de registro
@@ -326,10 +321,13 @@ class cargargastosucursalesadm extends CI_Controller {
 			$mens = '<h4>POR RESOLUCION DE LA GERENCIA TODO GASTO DEBE TENER SU ADJUNTO</h4> escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO';
 			if ( trim($factura_bin) == '' )
 			{
+				log_message('info', $mens.'.');
 				return $this->gastomanualcargaruno($mens);
 			}
 			else
 			{
+				$mens = '<h3>ADVERTENCIA!!!!</h3>, ' . $this->upload->display_errors() . 'Ocurrio un error, el archivo no se pudo cargar reporte esto por ticket enviando un correo a la intranet soporte@intranet1.net.ve! REPITA EL PROCESO';
+				log_message('info', $mens.'.');
 				if ( $isuploaded )
 					rename( $filenameorig, $filenamenewe); // TODO: rename
 				else
@@ -399,7 +397,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$data['menu'] = $this->menu->general_menu();
 		$data['mens'] = 'ADVERTENCIA!!!:'. $this->upload->display_errors() . 'parece que el proceso se completo <h3>REVISAR SI LOS DATOS ESTAN BUENOS</h3>';
 		$data['cod_registro'] = $cod_registro;
-		$data['accionejecutada'] = 'gastomanualfiltrardouno';
+		$data['accionejecutada'] = 'gastomanualfiltraruno';
 		$this->load->helper(array('form', 'url','html'));
 		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$this->load->view('header.php',$data);
@@ -427,7 +425,7 @@ class cargargastosucursalesadm extends CI_Controller {
 			$arreglocategoriaes[''.$row->cod_categoria] = '' . $row->des_categoria;
 		$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
 
-		// ########## ini cargar y listaar las SUBCATEGORIAS que se usaran para registros
+		// ########## ini cargar y listar las SUBCATEGORIAS que se usaran para registros
 		$sqlsubcategoria = "
 		SELECT ifnull(ca.cod_categoria,'99999') as cod_categoria,
 		ca.des_categoria,  sb.cod_subcategoria,  sb.des_subcategoria
@@ -443,11 +441,11 @@ class cargargastosucursalesadm extends CI_Controller {
 			$arreglosubcategoriaes[''.$row->cod_subcategoria] = $row->des_categoria . ' - ' . $row->des_subcategoria;
 		$data['list_subcategoria'] = $arreglosubcategoriaes; // agrega este arreglo una lista para el combo box
 
-		// ########## ini cargar y listaar EL TIPO DE GASTO que se usaran para registros
+		// ########## ini cargar y listar EL TIPO DE GASTO que se usaran para registros
 		$list_factura_tipo = array( 'EGRESO' => 'EGRESO', 'CONTRIBUYENTE' => 'CONTRIBUYENTE');
 		$data['list_factura_tipo'] = $list_factura_tipo;
 
-		// ########## ini cargar y listaar las UBICACIONES/ENTIDADES que se usaran para registros
+		// ########## ini cargar y listar las UBICACIONES/ENTIDADES que se usaran para registros
 		$sqlentidad = " select abr_entidad, abr_zona, des_entidad, ifnull(cod_entidad,'99999999999999') as cod_entidad
 		from entidad where ifnull(cod_entidad, '') <> '' and ( cod_entidad <> '' or cod_entidad = '".$usuariocodgernow."')";
 		if ( $this->nivel == 'ninguno' )
@@ -477,7 +475,7 @@ class cargargastosucursalesadm extends CI_Controller {
 			foreach ($rowdata as $rowkey => $valuekey)
 				$data[$rowkey] = $valuekey;
 
-		// ########## ini cargar y listaar el gasto editar
+		// ########## ini cargar y listar el gasto editar
 		if ( $this->nivel == 'administrador')
 			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn-primary btn" '));
 		$data['menu'] = $this->menu->general_menu();
@@ -512,10 +510,9 @@ class cargargastosucursalesadm extends CI_Controller {
 			return $this->gastomanualeditaruno( $mens, $cod_registro );
 		}
 		$fecha_concepto = $this->input->get_post('fecha_concepto');
-		$dias	= (strtotime(date("Ymd"))-strtotime($fecha_concepto))/86400;
-		$dias 	= abs($dias);
+		$dias = ( strtotime(date("Ymd")) - strtotime($fecha_concepto) )/86400;
 		$dias = floor($dias);
-		if ( $dias > 39 )
+		if ( $dias > 20 )
 		{
 			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
 			log_message('info', $mens.'.');
@@ -537,7 +534,32 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_binX = $_FILES['factura_binX']['name']; // si subio alguno, nombre del archivo sustituir o nuevo
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
-
+		// ******* monto no puede ser vacio
+		if ( trim($mon_registro) == '' OR trim($des_concepto) == '')
+		{
+			$mens = 'El monto y el concepto o descripcion no deben estar vacios, el monto debe ser mayor a cero';
+			log_message('info', $mens.'.');
+			return $this->gastomanualcargaruno( $mens );
+		}
+		// ******* si contribuyente, rif y numero factura no puede ser vacio ni repetido
+		if ( $factura_tipo == 'CONTRIBUYENTE' )
+		{
+			if ( ! (trim($factura_num) != '') AND !(trim($factura_rif) != '') )
+			{
+				$mens = 'El Número de factura contribuyente y el rif no pueden ser vacios, en este punto debe proporcionalrlos cuando es CONTRIBUYENTE';
+				return $this->gastomanualcargaruno( $mens );
+			}
+			else
+			{
+				$mens = 'El Número de factura contribuyente proporcionado ya ha sido registrado. DEBE REVISAR SUS CARGAS Y NO REPETIRLAS';
+				$facquery="select count(*) as facs from  registro_gastos where factura_num='".$this->db->escape_str($factura_num)."' and factura_rif='". $this->db->escape_str($factura_rif)."' and SUBSTRING( fecha_concepto, 1, 6) = SUBSTRING( '". $this->db->escape_str($fecha_concepto)."', 1, 6)";
+				$facresult=$this->db->query($facquery);
+				$rowquery=$facresult->row_array();
+				$cuantos=(int)$rowquery['facnums'];
+				if ($cuantos>1) // la factura ya existe o no existe, porque esta editando
+					return $this->gastomanualcargaruno( $mens );
+			}
+		}
 		// ******* GENERACION de la carga id codigo de registro
 		$cod_registro = $this->input->get_post('cod_registro');
 		// ******* CARGA DEL ARCHIVO ****************** */
@@ -569,13 +591,15 @@ class cargargastosucursalesadm extends CI_Controller {
 		//if ( $factura_tipo == 'CONTRIBUYENTE' )
 		//{
 			$mens = '<h4>POR RESOLUCION DE LA GERENCIA TODO GASTO DEBE TENER SU ADJUNTO</h4> escaneado <br>que avale el gasto que ud esta registrando! REPITA EL PROCESO';
-			if ( trim($factura_bin) == '' )
+			if ( trim($factura_bin) == '' and trim($factura_binX) == '')
 			{
+				log_message('info', $mens.'.');
 				return $this->gastomanualeditaruno($mens, $cod_registro);
 			}
-			else if ( trim($factura_binX) != '')
+			else
 			{
 				$mens = '<h3>ADVERTENCIA!!!!</h3>, ' . $this->upload->display_errors() . 'Ocurrio un error, el archivo no se pudo cargar reporte esto por ticket enviando un correo a la intranet soporte@intranet1.net.ve! REPITA EL PROCESO';
+				log_message('info', $mens.'.');
 				if( $isuploaded )
 					rename( $filenameorig, $filenamenewe ); // TODO: rename
 				else
@@ -642,7 +666,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$data['menu'] = $this->menu->general_menu();
 		$data['mens'] = 'ADVERTENCIA!!!: parece que el proceso se completo <h3>REVISAR SI LOS DATOS ESTAN BUENOS</h3>';
 		$data['cod_registro'] = $cod_registro;
-		$data['accionejecutada'] = 'gastomanualfiltrardouno';
+		$data['accionejecutada'] = 'gastomanualfiltraruno';
 		$this->load->helper(array('form', 'url','html'));
 		$data['haciacontrolador'] = 'cargargastosucursalesadm';	// para cargar parte especifica de la vista envio un parametro accion
 		$this->load->view('header.php',$data);

@@ -168,7 +168,7 @@
 		echo br().PHP_EOL;
 		echo $botonesgestion . PHP_EOL;
 	}
-	else if ($accionejecutada == 'gastomanualfiltrardouno')
+	else if ($accionejecutada == 'gastomanualfiltraruno')
 	{
 		echo br().PHP_EOL;
 		echo $botonesgestion . PHP_EOL;
