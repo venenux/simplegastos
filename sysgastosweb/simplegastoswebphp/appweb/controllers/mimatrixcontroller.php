@@ -201,7 +201,7 @@ group by cod_categoria
 			redirect('mimatrixcontroller/index/errorfechavacia');	// forzar enviar alguna fecha
 		if (count($list_entidad) < 2 AND !in_array("TODAS", $list_entidad))
 			redirect('mimatrixcontroller/index/errorminimotienda');	// dos tiendas minimos o dos entidades
-		if (count($list_entidad) < 3 AND in_array("TODAS", $list_entidad))
+		if (count($list_entidad) < 3 AND !in_array("TODAS", $list_entidad))
 			redirect('mimatrixcontroller/index/errorminimotienda');	// dos tiendas minimos o dos entidades
 		if ($this->_verificarduplicados($list_entidad) OR $this->_verificarduplicados($list_categoria) )
 			redirect('mimatrixcontroller/index/errorescojadenuevo');	// dos tiendas minimos o dos entidades
@@ -422,8 +422,25 @@ group by cod_categoria
 	}
 
 	public function _verificarduplicados($arreglo)
-	{
-		return FALSE;
+	{	
+		$i=0;
+		$repetido=false;
+			while ($i<count($arreglo) and !$repetido )  
+			{
+				$aguja=$arreglo[$i];
+				$j=$i+1;
+				
+				while ($j<count($arreglo) and !$repetido)
+				{	if ($aguja==$arreglo[$j]) 
+					{
+						$repetido=true;
+					}
+					else
+					 $j=$j+1;
+				} 
+			  $i=$i+1;
+			}
+	  return $repetido;
 	}
 
 	public function _redirecciontotalizadores($primary_key, $row)
