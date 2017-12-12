@@ -195,8 +195,10 @@ group by cod_categoria
 		$data['list_entidad'] = $list_entidad;
 
 		// ****** ini verificacion de datos formulario ***********************
-		if ( !is_array($list_categoria) OR !is_array($list_entidad) )
-			redirect('mimatrixcontroller/index/errorcateentivacia');	// OJO se envia solo los indices, no los strings o descripciones
+		if ( !is_array($list_entidad) AND $list_entidad == '')
+			$list_entidad = array('TODAS'=>'TODAS');
+		if ( !is_array($list_categoria) AND $list_categoria == '')
+			$list_categoria = array('TODAS'=>'TODAS');
 		if ($fechainimatrix== '' OR $fechafinmatrix== '')
 			redirect('mimatrixcontroller/index/errorfechavacia');	// forzar enviar alguna fecha
 		if (count($list_entidad) < 2 AND !in_array("TODAS", $list_entidad))
@@ -424,12 +426,16 @@ group by cod_categoria
 	{
 		$i=0;
 		$repetido=false;
-		while ($i<count($arreglo) and !$repetido )  
+		while ($i<count($arreglo) )  
 		{
+			if( !$repetido)
+				break;
 			$aguja=$arreglo[$i];
 			$j=$i+1;
-			while ($j<count($arreglo) and !$repetido)
+			while ($j<count($arreglo) )
 			{
+				if( !$repetido)
+					break;
 				if ($aguja==$arreglo[$j]) 
 				{
 					$repetido=true;
