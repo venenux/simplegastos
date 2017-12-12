@@ -201,8 +201,6 @@ group by cod_categoria
 			redirect('mimatrixcontroller/index/errorfechavacia');	// forzar enviar alguna fecha
 		if (count($list_entidad) < 2 AND !in_array("TODAS", $list_entidad))
 			redirect('mimatrixcontroller/index/errorminimotienda');	// dos tiendas minimos o dos entidades
-		if (count($list_entidad) < 3 AND !in_array("TODAS", $list_entidad))
-			redirect('mimatrixcontroller/index/errorminimotienda');	// dos tiendas minimos o dos entidades
 		if ($this->_verificarduplicados($list_entidad) OR $this->_verificarduplicados($list_categoria) )
 			redirect('mimatrixcontroller/index/errorescojadenuevo');	// dos tiendas minimos o dos entidades
 		// ****** fin verificacion de datos formulario ***********************
@@ -221,25 +219,26 @@ group by cod_categoria
 			$filtrofecha1 = " and CONVERT(a.fecha_concepto,UNSIGNED) >= CONVERT('".$this->db->escape_str($fechainimatrix)."',UNSIGNED)  ";
 		if ( trim(str_replace(' ', '', $fechafinmatrix)) != '')
 			$filtrofecha2 = " and CONVERT(a.fecha_concepto,UNSIGNED) <= CONVERT('".$this->db->escape_str($fechafinmatrix)."',UNSIGNED)  ";
-		$filtrocate1 = $filtroenti = '';// inicializar filtros de catagorias y entidades
-		// generar filtro para las categorias seleccionadas
+		$filtrocate1 = $filtrocate2 = '';
+		// ini filtro para las categorias seleccionadas
 		foreach($list_categoria as $cod_categorianow)
 		{
-			if ( $cod_categorianow == 'TODAS' )
-				$filtrocate1 .= " cod_categoria<>'' AND";
-			else
+			if ( $cod_categorianow != 'TODAS' )
 				$filtrocate1 .= " cod_categoria='".$this->db->escape_str($cod_categorianow)."' OR ";
 		}
 		$filtrocate1 = substr($filtrocate1, 0, -3);
-		//generar filtro de entidades o centro de costo seleccionadas
+		if( in_array('TODAS',$list_categoria) )
+			$filtrocate1 = " cod_categoria<>'' ";
+		// ini filtro de entidades o centro de costo seleccionadas
+		$filtroenti = $filtroenti2 = '';
 		foreach($list_entidad as $cod_entidadya)
 		{
-			if ( $cod_entidadya == 'TODAS' )
-				$filtroenti .= " cod_entidad<>'' AND";
-			else
+			if ( $cod_entidadya != 'TODAS' )
 				$filtroenti .= " cod_entidad='".$this->db->escape_str($cod_entidadya)."' OR ";
 		}
 		$filtroenti = substr($filtroenti, 0, -3);	
+		if( in_array('TODAS',$list_entidad) )
+			$filtroenti = " cod_entidad<>'' ";
 		// ******** fin filtros SQL base de casi todos (LEER NOJODA ARRIBA) **********
 
 		// ********************************************************************
@@ -422,25 +421,25 @@ group by cod_categoria
 	}
 
 	public function _verificarduplicados($arreglo)
-	{	
+	{
 		$i=0;
 		$repetido=false;
-			while ($i<count($arreglo) and !$repetido )  
+		while ($i<count($arreglo) and !$repetido )  
+		{
+			$aguja=$arreglo[$i];
+			$j=$i+1;
+			while ($j<count($arreglo) and !$repetido)
 			{
-				$aguja=$arreglo[$i];
-				$j=$i+1;
-				
-				while ($j<count($arreglo) and !$repetido)
-				{	if ($aguja==$arreglo[$j]) 
-					{
-						$repetido=true;
-					}
-					else
-					 $j=$j+1;
-				} 
-			  $i=$i+1;
-			}
-	  return $repetido;
+				if ($aguja==$arreglo[$j]) 
+				{
+					$repetido=true;
+				}
+				else
+					$j=$j+1;
+			} 
+			$i=$i+1;
+		}
+		return $repetido;
 	}
 
 	public function _redirecciontotalizadores($primary_key, $row)
