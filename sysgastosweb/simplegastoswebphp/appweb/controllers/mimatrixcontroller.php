@@ -2,10 +2,6 @@
 
 class mimatrixcontroller extends CI_Controller {
 
-	private $DBGASTO = null;
-	private $usuariologin, $sessionflag, $usuariocodger, $acc_lectura, $acc_escribe, $acc_modifi;
-
-
 /*
 
 LEER :
@@ -17,6 +13,7 @@ LEER :
 2) query base que da los totales de cada una categoria en todas las tiendas
 3) query de totales de tiendas en todas sus categorias ews agrupando el pimero sin mostrar categorias
 
+CONO LEER NOJODA filtro aplicado a este query filtra de una cualquier otra cosa
 
 ------- 1 inicio query 1 -------------
     select
@@ -83,6 +80,7 @@ group by cod_categoria
 
 
 */
+	private $nivel = 'ninguno';
 
 	function __construct()
 	{
@@ -96,7 +94,6 @@ group by cod_categoria
 		$this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT',TRUE);
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0', TRUE);
 		$this->output->set_header('Pragma: no-cache', TRUE);
-		$this->output->set_header("Expires: Mon, 26 Jul 1997 05:00:00 GMT", TRUE);
 		$this->output->enable_profiler(TRUE);
 	}
 
@@ -105,9 +102,18 @@ group by cod_categoria
 	 * y asi una llamada directa desde internet no se relize */
 	public function _verificarsesion()
 	{
-		// si el semaforo logeado no esta presente se sale por seguridad, solo usuarios validos
-		if( $this->session->userdata('logueado') != TRUE)
+		$usuariocodgernow = $this->session->userdata('cod_entidad');	// aun si es valido debe tener permisos
+
+		if( $this->session->userdata('logueado') < 1 OR $this->session->userdata('logueado') > 1)
 			redirect('manejousuarios/desverificarintranet');
+		if( $usuariocodgernow == null or trim($usuariocodgernow,'') == '')
+			redirect('manejousuarios/desverificarintranet');
+		else if( $usuariocodgernow >= 998 )
+			$this->nivel = 'administrador';
+		else if( $usuariocodgernow < 999 and $usuariocodgernow > 300  )
+			$this->nivel = 'sucursal';			// para matrix solo se ven o todo o solo el propio
+		else
+			redirect('indexcontroler');
 	}
 
 	/**
@@ -117,6 +123,7 @@ group by cod_categoria
 	 */
 	public function index()
 	{
+		$this->_verificarsesion();						// verifico este un usuario realizando la llamada
 		// si no se especifica mostrar seccion que pide que datos se filtran en la matrix
 		$this->mimatrixfiltrar();
 	}
@@ -126,27 +133,35 @@ group by cod_categoria
 	 * le indica que mes inicial y que campos tiene el formulario */
 	public function mimatrixfiltrar()
 	{
-		$userdata = $this->session->all_userdata();		// tomo los datos del usuario actual si existe
 		$this->_verificarsesion();						// verifico este un usuario realizando la llamada
+		$userdata = $this->session->all_userdata();		// tomo los datos del usuario actual si existe
 		$usuariocodgernow = $this->session->userdata('cod_entidad');	// aun si es valido debe tener permisos
-        if( $usuariocodgernow == null or trim($usuariocodgernow,'') == '')
-            redirect('manejousuarios/desverificarintranet'); 	// si el usuario no tiene alguna asociacion de entidad se le deniega
-        $data['menu'] = $this->menu->menudesktop();
+		$data['menu'] = $this->menu->menudesktop();
 		$data['seccionpagina'] = 'seccionfiltrarmatrix';		// se indica muestre formulario para filtrar que datos se mostraran
 
 		// ########## ini cargar y listaar las CATEGORIAS que se usaran para registros
 		$sqlcategoria = " select ifnull(cod_categoria,'99999999999999') as cod_categoria, ifnull(des_categoria,'sin_descripcion') as des_categoria
 		 from categoria where ifnull(cod_categoria, '') <> '' and cod_categoria <> '' ";
-		if ( $this->nivel == 'ninguno' )
-			$sqlcategoria .= " and cod_categoria = ''";
 		if ( $this->nivel != 'administrador' )
 			$sqlcategoria .= " and tipo_categoria <> 'ADMINISTRATIVO' and tipo_categoria NOT LIKE 'ADMINISTRATI%' "; // TODO "NOT LIKE" es mysql solamente
 		$sqlcategoria .= " ORDER BY des_categoria DESC ";
 		$resultadoscategoria = $this->db->query($sqlcategoria);
-		$arreglocategoriaes = array(''=>'');
+		$arreglocategoriaes = array('TODAS'=>'TODAS');
 		foreach ($resultadoscategoria->result() as $row)
 			$arreglocategoriaes[''.$row->cod_categoria] = '' . $row->des_categoria;
 		$data['list_categoria'] = $arreglocategoriaes; // agrega este arreglo una lista para el combo box
+
+		// ########## ini cargar y listaar las ENTIDADES que se usaran para registros
+		$sqlentidad = " select abr_entidad, abr_zona, des_entidad, ifnull(cod_entidad,'99999999999999') as cod_entidad
+		from entidad where ifnull(cod_entidad, '') <> '' and ( cod_entidad <> '' or cod_entidad = '".$usuariocodgernow."')";
+		if ( $this->nivel != 'administrador' )
+			$sqlentidad .= " and (tipo_entidad <> 'ADMINISTRATIVO' or cod_entidad = '".$usuariocodgernow."') and (tipo_entidad NOT LIKE 'ADMINISTRATI%' or cod_entidad = '".$usuariocodgernow."') ";
+		$sqlentidad .= " ORDER BY des_entidad DESC ";
+		$resultadosentidad = $this->db->query($sqlentidad);
+		$arregloentidades = array('TODAS'=>'TODAS');
+		foreach ($resultadosentidad->result() as $row)
+			$arregloentidades[$row->cod_entidad] = $row->abr_entidad .' - ' . $row->des_entidad . ' ('. $row->abr_zona .')';
+		$data['list_entidad'] = $arregloentidades; // agrega este arreglo una lista para el combo box 
 
 		$this->load->view('header.php',$data);
 		$this->load->view('mivistamatrix.php',$data);
@@ -162,60 +177,61 @@ group by cod_categoria
 	public function secciontablamatrix( $fechainiparam = '', $fechafinparam = '')
 	{
 		/* ***** ini manejo de sesion ******************* */
-		$userdata = $this->session->all_userdata();		// tomo los datos del usuario actual si existe
 		$this->_verificarsesion();						// verifico este un usuario realizando la llamada
+		$userdata = $this->session->all_userdata();		// tomo los datos del usuario actual si existe
 		$usuariocodgernow = $this->session->userdata('cod_entidad');	// aun si es valido debe tener permisos
-        if( $usuariocodgernow == null or trim($usuariocodgernow,'') == '')
-            redirect('manejousuarios/desverificarintranet'); 	// si el usuario no tiene alguna asociacion de entidad se le deniega
 		$usercorreo = $userdata['correo'];
 		$userintranet = $userdata['intranet'];
 		/* ***** fin manejo de sesion ******************* */
 
-		/* ***** ini OBTENER DATOS DE FORMULARIO **************************** */
+		// ***** ini OBTENER DATOS DE FORMULARIO **************************** 
 		$fechainimatrix = $this->input->get_post('fechainimatrix'); // tomo la fecha del formulario de filtro
 		$fechafinmatrix = $this->input->get_post('fechafinmatrix'); // tomo la fecha del formulario de filtro
-		if ($fechainimatrix== '')
-		{
-			if($fechainiparam=='')					// si no se envio inicializo
-				$fechainimatrix=date('Ymd');
-			else
-				$fechainimatrix=$fechainiparam;	// asigno para despues tomar solo mes
-		}
-		if ($fechafinmatrix== '')
-		{
-			if($fechafinparam=='')					// si no se envio inicializo
-				$fechafinmatrix=date('Ymd');
-			else
-				$fechafinmatrix=$fechafinparam;	// asigno para despues tomar solo mes
-		}
-		/* ***** fin OBTENER DATOS DE FORMULARIO ***************************** */
+		$list_categoria = $this->input->get_post('list_categoria');
+		$list_entidad = $this->input->get_post('list_entidad');
+		// ***** fin OBTENER DATOS DE FORMULARIO **************************** 
 
-        $usuariocodgernow = $this->session->userdata('cod_entidad');
-		// averiguar si elusuario es administrativo o usuario de tienda
-		if( $this->session->userdata('logueado') == FALSE)
-            redirect('manejousuarios/desverificarintranet');
-        if( $usuariocodgernow == null)
-            redirect('manejousuarios/desverificarintranet');
-        $cod_entidad = $cod_categoria = ''; /* por ahora no se usa, se usara en futuro */
+		$data['list_categoria'] = $list_categoria;
+		$data['list_entidad'] = $list_entidad;
 
-		/* ******************************************* */
-		/* ******** inicio calculo matrix ************* */
-		/* ******************************************* */
+		// ****** ini verificacion de datos formulario ***********************
+		if ( !is_array($list_categoria) OR !is_array($list_entidad) )
+			redirect('mimatrixcontroller/index/errorcateentivacia');	// OJO se envia solo los indices, no los strings o descripciones
+		if ($fechainimatrix== '' OR $fechafinmatrix== '')
+			redirect('mimatrixcontroller/index/errorfechavacia');	// forzar enviar alguna fecha
+		// ****** fin verificacion de datos formulario ***********************
+
+		//// ****************************************** 
+		//// ******** inicio calculo matrix *************
+		//// *******************************************
 		$this->load->helper(array('form', 'url','inflector'));
-		$filtro1 = $filtro2 = $filtro3 = $filtro4 = '';
-		if ( trim(str_replace(' ', '', $cod_entidad)) != '')
-			$filtro1 = " and	a.cod_entidad = '".$this->db->escape_str($cod_entidad)."' ";
+
+
+		// ******** ini filtros SQL base de casi todos (LEER NOJODA ARRIBA) **********
+		$sqlfiltro_enti_con_cate="";
+		// ini filtrar fechas ******************
+		$filtrofecha1 = $filtrofecha2 = '';
 		if ( trim(str_replace(' ', '', $fechainimatrix)) != '')
-			$filtro2 = " and CONVERT(a.fecha_concepto,UNSIGNED) >= CONVERT('".$this->db->escape_str($fechainimatrix)."',UNSIGNED)  ";
+			$filtrofecha1 = " and CONVERT(a.fecha_concepto,UNSIGNED) >= CONVERT('".$this->db->escape_str($fechainimatrix)."',UNSIGNED)  ";
 		if ( trim(str_replace(' ', '', $fechafinmatrix)) != '')
-			$filtro3 = " and CONVERT(a.fecha_concepto,UNSIGNED) <= CONVERT('".$this->db->escape_str($fechafinmatrix)."',UNSIGNED)  ";
-		if ( trim(str_replace(' ', '', $cod_categoria)) != '')
-			$filtro4 = " and a.cod_categoria = '".$this->db->escape_str($cod_categoria)."' ";
-		
-        $sqlfiltro_enti_con_cate=
-		"
-		 and a.estado <> 'RECHAZADO'
-		";
+			$filtrofecha2 = " and CONVERT(a.fecha_concepto,UNSIGNED) <= CONVERT('".$this->db->escape_str($fechafinmatrix)."',UNSIGNED)  ";
+		// ini filtro varios de categoria ********
+		$filtrocate1 = $filtrocate2 = '';
+		foreach($list_categoria as $cod_categorianow)
+		{
+			if ( $cod_categorianow == 'TODAS' )
+				$filtrocate1 .= " cod_categoria<>'' ";
+			else
+				$filtrocate1 .= " cod_categoria='".$this->db->escape_str($cod_categorianow)."' OR ";
+		}
+		if ( strpos($filtrocate1, 'OR') !== FALSE)
+			$filtrocate1 = substr($filtrocate1, 0, -3);
+		// ******** fin filtros SQL base de casi todos (LEER NOJODA ARRIBA) **********
+
+		// ********************************************************************
+		// ini SQL base para sacar totales, categorias y descripciones, todo filtro aqui aplica a los dos recorridos mas abajo
+		// abajo hay un segundo SQL que obtiene subtotales de entidades en las categorias
+		// cualqueir filtro de entidad aplicado en este debe despues revisarse abajo
 		$sqltotales_enti_con_cate="
 			select
 				*
@@ -238,9 +254,10 @@ group by cod_categoria
 						left join
 							`categoria` as `c` ON `a`.`cod_categoria` = `c`.`cod_categoria`
 						where ifnull(`a`.`cod_registro`,'') <> ''
+							and a.estado <> 'RECHAZADO' 
 							".$sqlfiltro_enti_con_cate."	/* // TODO justo aqui se debe colcoar los filtros de fecha, esto traeta todo si no se hace */
-							".$filtro2."
-							".$filtro3."
+							".$filtrofecha1."
+							".$filtrofecha2."
 						group by `a`.`cod_entidad` , `a`.`cod_categoria`
 
 					union
@@ -262,15 +279,21 @@ group by cod_categoria
 						group by `s`.`cod_entidad` , `d`.`cod_categoria`
 				)
 				as `inter`
+			where 1=1 and (".$filtrocate1.") 
 			group by `cod_entidad` , `cod_categoria`
 			order by `cod_entidad` , `cod_categoria`
 		";
+		// fin SQL base para sacar totales, categorias y descripciones, todo filtro aqui aplica a los dos recorridos mas abajo
+		// abajo hay un segundo SQL que obtiene subtotales de tienda por categorias
+		// cualqueir filtro de entidad aplicado en este debe despues revisarse abajo
+		// ********************************************************************
+
 		// inicializa la tabla html donde se van adosando los montos que iteramos en cada tienda
 		$tablestyle = array( 'table_open'  => '<table border="1" cellpadding="0" cellspacing="0" class="table display groceryCrudTable dataTable ui default ">' );
 		$this->table->set_caption(NULL);
 		$this->table->clear();
 		$this->table->set_template($tablestyle);
-		// ejecutamos la consulta, devolvera n veces la tienda cuantas categorias aya, X tienda * y categorias = total filas
+		// ejecutamos SQL base, devolvera n veces la tienda cuantas categorias aya, X tienda * y categorias = total filas
 		$db_obj_enti_con_cate = $this->db->query($sqltotales_enti_con_cate);
 		$db_res_enti_con_cate = $db_obj_enti_con_cate->result_array();			// por ende hay que "saltar en cada cambio de entidad" pues es cuando se repiten las categorias
 		// ****** 1) inicializando los ciclos y detectando la primera fila a ver repetida n veces
@@ -291,7 +314,7 @@ group by cod_categoria
 			if($tieantes != $tieahora)	// inicializar la columna 1 de la matrix, y si cambio la entidad es una nueva fila
 			{
 				$tieahora = $fila['cod_entidad'];
-				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'TOTAL ENTIDAD' UNION SELECT " .$sqltotales_cruza_fila_uno;
+				$sqltotales_enti_cruza_cate=$sqltotales_enti_cruza_cate.",'TOTAL ENTIDAD' /* fin SQL titulos, ini totals */ UNION SELECT " .$sqltotales_cruza_fila_uno;
 				break;//terminar el ciclo cuando sea otra tienda para volver iterar sus categorias entre "rows" (filas) de el resultado del query array
 			}
 			else 	// se va iterar entre cada rown de la misma tienda hasta que cambie, estas son las categorias como un indice de cada monto
