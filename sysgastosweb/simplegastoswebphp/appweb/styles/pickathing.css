@@ -95,7 +95,7 @@
   max-height: 400px; }
 
 .Pickathing--multiple .Pickathing-selectedField {
-  min-height: 35px;
+  min-height: 25px;
   height: auto; }
 
 .Pickathing--multiple .Pickathing-dropdown {

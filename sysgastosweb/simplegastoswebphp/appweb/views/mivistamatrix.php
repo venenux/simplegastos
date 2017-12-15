@@ -27,8 +27,8 @@
 		echo form_open_multipart('/mimatrixcontroller/secciontablamatrix/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
 			$this->table->add_row('Periodo entre',form_input($inputfechainiattr) . ' y hasta ' . form_input($inputfechafinattr)) ;
-			$this->table->add_row('Por Categoria:', form_multiselect('list_categoria[]', $list_categoria,null,'id="list_categoria"').br().PHP_EOL);
-			$this->table->add_row('Centro de Costo:', form_multiselect('list_entidad[]', $list_entidad, null,'id="list_entidad"').br().PHP_EOL );
+			$this->table->add_row('Por Categoria:', form_multiselect('list_categoria[]', $list_categoria,null,'id="list_categoria"').PHP_EOL);
+			$this->table->add_row('Centro de Costo:', form_multiselect('list_entidad[]', $list_entidad, null,'id="list_entidad"').PHP_EOL );
 		echo $this->table->generate();
 		echo form_submit('vermatrix', 'Ver matrix', 'class="btn btn-primary btn-large b10"');
 		echo form_close() . PHP_EOL;
