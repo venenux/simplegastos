@@ -29,6 +29,18 @@
 class CI_Input {
 
 	/**
+	 * original, unprocessed $_FILES array
+	 *
+	 * @var array
+	 */
+	var $_files = array();
+	/**
+	 * parsed array of file data
+	 *
+	 * @var array
+	 */
+	var $files = array();
+	/**
 	 * IP address of the current user
 	 *
 	 * @var string
@@ -83,8 +95,6 @@ class CI_Input {
 	 */
 	public function __construct()
 	{
-		log_message('debug', "Input Class Initialized");
-
 		$this->_allow_get_array	= (config_item('allow_get_array') === TRUE);
 		$this->_enable_xss		= (config_item('global_xss_filtering') === TRUE);
 		$this->_enable_csrf		= (config_item('csrf_protection') === TRUE);
@@ -101,6 +111,11 @@ class CI_Input {
 
 		// Sanitize global arrays
 		$this->_sanitize_globals();
+
+		// prepare input array upload file (do not use to upload, use the upload class)
+		$this->_clean_input_files();
+
+		log_message('debug', "Input Class Initialized");
 	}
 
 	// --------------------------------------------------------------------
@@ -134,11 +149,93 @@ class CI_Input {
 	// --------------------------------------------------------------------
 
 	/**
+	 * clean input files
+	 *
+	 * This is a helper function to parse and reorder $_FILES array
+	 *
+	 * @access	private
+	 */
+	function _clean_input_files()
+	{
+		//save current $_FILES array
+		$this->_files = $_FILES;
+
+		//reset array of parsed files
+		$this->files = array();
+
+		//check $_FILES array is valid
+		if(is_array($this->_files) && count($this->_files) > 0)
+		{
+			//reset $_FILES array
+			$_FILES = array();
+
+			//loop through array of $_FILES
+			foreach($this->_files as $outer_key => $outer_value)
+			{
+				//count array of files
+				$count = (is_array($outer_value['name']) ? count($outer_value['name']) : 0);
+
+				//check outer value for array of file data
+				if($count > 0)
+				{
+					//loop through array of file data
+					foreach($outer_value['name'] as $inner_key => $inner_value)
+					{
+						//compile file data array key
+						$key = $outer_key . ($count > 1 ? "_" . $inner_key : "");
+
+						//array of file data
+						$file = array();
+
+						//gather file data from array of outer values
+						$file['error'] = $outer_value['error'][$inner_key];
+						$file['name'] = $outer_value['name'][$inner_key];
+						$file['size'] = $outer_value['size'][$inner_key];
+						$file['tmp_name'] = $outer_value['tmp_name'][$inner_key];
+						$file['type'] = $outer_value['type'][$inner_key];
+
+						//append file key
+						$file['key'] = $key;
+
+						//save file data to $_FILES array
+						$_FILES[$key] = $file;
+
+						//check for single file
+						if($count == 1)
+						{
+							//save file data to array of parsed data
+							$this->files[$outer_key] = $file;
+						}
+						else
+						{
+							//save file data to array of parsed data
+							$this->files[$outer_key][$inner_key] = $file;
+						}
+					}
+				}
+				else
+				{
+					//append file key
+					$outer_value['key'] = $outer_key;
+
+					//save file data to $_FILES array
+					$_FILES[$outer_key] = $outer_value;
+
+					//save file data to array of parsed data
+					$this->files[$outer_key] = $outer_value;
+				}
+			}
+		}
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
 	* Fetch an item from the GET array
 	*
 	* @access	public
-	* @param	string
-	* @param	bool
+	* @param	string	The index key
+	* @param	bool	XSS cleaning
 	* @return	string
 	*/
 	function get($index = NULL, $xss_clean = FALSE)
@@ -165,8 +262,8 @@ class CI_Input {
 	* Fetch an item from the POST array
 	*
 	* @access	public
-	* @param	string
-	* @param	bool
+	* @param	string	The index key
+	* @param	bool	XSS cleaning
 	* @return	string
 	*/
 	function post($index = NULL, $xss_clean = FALSE)
@@ -208,6 +305,80 @@ class CI_Input {
 		{
 			return $this->post($index, $xss_clean);
 		}
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	* fetch an item from parsed array of file data
+	*
+	* @access	public
+	* @param	string	The index key
+	* @param	bool	XSS cleaning
+	* @return	string
+	*/
+	function file($index = null, $xss_clean = false)
+	{
+		// Check if a field has been provided
+		if ($index === NULL AND ! empty($_POST))
+		{
+			$this->_clean_input_files();
+			return $this->files;
+		}
+
+		//return item from parsed array of files
+		return $this->_fetch_from_array($this->files, $index, $xss_clean);
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	* fetch an item from original array of $_FILES data
+	*
+	* @access	public
+	* @param	string	The index key
+	* @param	bool	XSS cleaning
+	* @return	string
+	*/
+	function _file($index = "", $xss_clean = false)
+	{
+		// Check if a field has been provided
+		if ($index === NULL AND ! empty($_POST))
+		{
+			$this->_clean_input_files();
+			return $this->_files;
+		}
+
+		//return item from $_FILES array
+		return $this->_fetch_from_array($this->_files, $index, $xss_clean);
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	* return array of parsed file data
+	*
+	* @access	public
+	* @return	array
+	*/
+	function files()
+	{
+		//return parsed file array
+		return $this->files;
+	}
+
+	// --------------------------------------------------------------------
+
+	/**
+	* return array of original $_FILES
+	*
+	* @access	public
+	* @return	array
+	*/
+	function _files()
+	{
+		//return original $_FILES array
+		return $this->_files;
 	}
 
 	// --------------------------------------------------------------------
