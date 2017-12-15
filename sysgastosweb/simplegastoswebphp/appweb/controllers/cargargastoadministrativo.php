@@ -186,19 +186,15 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->set_relation('cod_subcategoria','subcategoria','{des_subcategoria}'); // ,'{des_subcategoria}<br> ({cod_subcategoria})'
 		$crud->add_action('Auditar', '', '','ui-icon-plus',array($this,'_cargargastosucursalauditar'));
 		$crud->required_fields('cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','tipo_concepto','des_estado');
-		$longdate=date('Ymd');//la fecha larga
-		$leyear=substr($longdate,0,4);//solo interesa año
-		$directoriofacturas = 'archivoscargas/GAS'.$leyear;//$directoriofacturas = 'archivoscargas/2016'; // $directoriofacturas = 'archivoscargas/' . date("Y");
+		$directoriofacturas = 'archivoscargas';
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )
 			{	unlink($directoriofacturas);	}
-			mkdir($directoriofacturas, 0777, true);
+			mkdir($directoriofacturas . 'GAS'.date('Y'), 0777, true);
 			chmod($directoriofacturas,0777);
 		}
 		$urlsegmentos = $this->uri->segment_array();
-		if ( ! in_array("todos", $urlsegmentos) )
-			$crud->set_field_upload('factura_bin',$directoriofacturas);
 		$data['rutas'] = $urlsegmentos;
 		$crud->set_field_upload('factura_bin',$directoriofacturas);
 		$crud->set_rules('des_concepto', 'Concepto', 'trim|alphanumeric');
@@ -233,7 +229,8 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->callback_before_update(array($this,'echapajacuando'));
 		$crud->callback_before_insert(array($this,'generarcodigo'));
 		$crud->callback_before_delete(array($this,'echapajaborrando'));
-		//$crud->callback_after_insert(array($this,'_ver_after_insert'));
+		$crud->callback_after_insert(array($this,'_manejarfileinserts'));
+		$crud->callback_after_update(array($this,'_manejarfileuploads'));
 		//$crud->callback_column('sessionflag',array($this,'_callback_verusuario'));
 		//$crud->callback_column('sessionficha',array($this,'_callback_verusuario'));
 
@@ -301,18 +298,58 @@ class cargargastoadministrativo extends CI_Controller {
 		return ;
 	}
 
-	/* antes de cada insercion se autogenera el codigo de nuevo, y a que hora lo hace, por si tardo mucho rellenando los datos se genera con hora exacta */
+	/* antes de cada insercion se autogenera el codigo de nuevo, ruta archivo, y a que hora lo hace, por si tardo mucho rellenando los datos se genera con hora exacta */
 	function generarcodigo($post_array)
 	{
 		$fec_registro=date('Ymd');
 		$post_array['cod_registro'] = 'GAS'.date("YmdHis");
 		$post_array['fecha_registro'] = $fec_registro;
 		$post_array['sessionficha'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
-		$operacion = $this->session->userdata('username').' borrando el gasto ' . $primary_key;
+		$operacion = $this->session->userdata('username').' creando un nuevo gasto en '.date('YmdHis');
 		$sessionficha = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
 		$this->db->insert('log',array('cod_log' => date('YmdHis'), 'operacion' => $operacion, 'sessionficha' => $sessionficha));
 		log_message('info', $operacion . ' en  ' . $sessionficha);
 		return $post_array;
+	}
+
+	function _manejarfileinserts($post_array,$primary_key)
+	{
+		$filesub = 'GAS'.date('Y').'/';
+		$fileold = $post_array['factura_bin'];
+		$filenew = $filesub.$post_array['factura_bin'];
+		if (stripos($fileold, $filesub) !== FALSE)
+			return TRUE;	// la unica manera que fileold ya tenga el subdir es que no lo hayan alterado ademas el archivo no tendra "/" en su nombre
+		$directoriofacturas = 'archivoscargas/';
+		rename($directoriofacturas . $fileold, $directoriofacturas . $filenew);
+		$cod_registro = $post_array['cod_registro'];
+		$sqlupload = array('cod_registro' => $cod_registro, 'factura_bin' => $filenew);
+		$sqlwhere = array('cod_registro' => $cod_registro);
+		$this->db->update('registro_gastos',$sqlupload,$sqlwhere);
+		$sessionficha = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
+		$post_array['factura_bin'] = $filenew;
+		$operacion = $this->session->userdata('username').' ajustando archivo editado en directorio ' .$filenew . ' de '.$fileold ;
+		log_message('info', $operacion . ' en  ' . $sessionficha);
+		return $sqlresult;
+	}
+
+	function _manejarfileuploads($post_array,$primary_key)
+	{
+		$filesub = 'GAS'.date('Y') . '/';
+		$fileold = $post_array['factura_bin'];
+		$filenew = $filesub.$post_array['factura_bin'];
+		if (stripos($fileold, $filesub) !== FALSE)
+			return TRUE;	// la unica manera que fileold ya tenga el subdir es que no lo hayan alterado ademas el archivo no tendra "/" en su nombre
+		$directoriofacturas = 'archivoscargas/';
+		rename($directoriofacturas . $fileold, $directoriofacturas . $filenew);
+		$cod_registro = $primary_key;
+		$sqlupload = array('cod_registro' => $cod_registro, 'factura_bin' => $filenew);
+		$sqlwhere = array('cod_registro' => $cod_registro);
+		$this->db->update('registro_gastos',$sqlupload,$sqlwhere);
+		$sessionficha = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
+		$post_array['factura_bin'] = $filenew;
+		$operacion = $this->session->userdata('username').' ajustando archivo editado en directorio ' .$filenew . ' de '.$fileold ;
+		log_message('info', $operacion . ' en  ' . $sessionficha);
+		return TRUE;
 	}
 
 	function _ver_after_insert($post_array,$primary_key)
