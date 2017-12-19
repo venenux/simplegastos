@@ -23,7 +23,7 @@
 	/* ********* ini seccion del formulario filtrara ******************** */
 	if ($seccionpagina == 'seccionfiltrarmatrix')
 	{
-		echo form_fieldset('Por favor seleccionar fecha, categoria y entidad',array('class'=>'container_blue containerin')) . PHP_EOL;
+		echo form_fieldset('Por favor seleccionar fecha, categoria y minimo 2 centro de costos',array('class'=>'container_blue containerin')) . PHP_EOL;
 		echo form_open_multipart('/mimatrixcontroller/secciontablamatrix/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
 			$this->table->add_row('Periodo entre',form_input($inputfechainiattr) . ' y hasta ' . form_input($inputfechafinattr)) ;

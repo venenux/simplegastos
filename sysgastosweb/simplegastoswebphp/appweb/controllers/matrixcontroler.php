@@ -151,7 +151,9 @@ class matrixcontroler extends CI_Controller {
 		$cod_categoria = $this->input->get_post('cod_categoria');
 		$des_concepto = $this->input->get_post('des_concepto');
 		$ind_concepto = $this->input->get_post('ind_concepto');
+		$ind_intranet = $this->input->get_post('ind_intranet');
 		$sessioncarga = $this->input->get_post('sessioncarga');
+		// if i set a form with validation error before render a predefined GC, the ajax list will not work!
 		//if ( trim(str_replace(' ', '', $cod_entidad)) != '')
 		//$this->form_validation->set_rules('cod_entidad', 'Entidad o de quien es la suma', 'required');
 		//if ( trim(str_replace(' ', '', $cod_categoria)) != '')
@@ -190,6 +192,16 @@ class matrixcontroler extends CI_Controller {
 			$sqlcolum1 = $sqlcolum2 = "";
 			$filtro5 = "";
 		}
+		if ( $ind_intranet == 'conintranet' )
+		{
+			$sqlcolum3 = ",a.sessionficha";
+			$sqlcolum4 = ", '".date("YmdHis").".999.al.total' as sessionficha";
+		}
+		else
+		{
+			$sqlcolum3 = $sqlcolum4 = "";
+			$filtro6 = "";
+		}
 		/* ******** inicio filtrar y resultado query cualquiera ejemplo ************* */
 		$this->load->helper(array('form', 'url','inflector'));
 		// creanos nuestro query sql que trae datos
@@ -204,7 +216,7 @@ class matrixcontroler extends CI_Controller {
 						ifnull(a.mon_registro,0) as mon_registro,
 						SUBSTRING(a.fecha_concepto,1,8) as fecha_concepto, a.fecha_registro,
 						a.fecha_concepto as fecha_gasto
-						,a.sessionficha
+						".$sqlcolum3."
 					FROM registro_gastos a 
 						LEFT JOIN entidad b on a.cod_entidad=b.cod_entidad /* todas las entiddes deben registrar gasto*/
 						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
@@ -219,16 +231,16 @@ class matrixcontroler extends CI_Controller {
 						IFNULL(SUM(IFNULL(a.mon_registro,0)),0) as mon_registro,
 						SUBSTRING(a.fecha_concepto,1,8) as fecha_concepto, a.fecha_registro,
 						a.fecha_concepto as fecha_gasto
-						, '".date("YmdHis").".999.al.total' as sessionficha
+						".$sqlcolum4."
 					FROM registro_gastos a 
 						LEFT JOIN entidad b on a.cod_entidad=b.cod_entidad /* todas las entiddes deben registrar gasto*/
 						LEFT JOIN categoria c ON a.cod_categoria=c.cod_categoria /*solo en las categorias que haya gasto */
 					where 
 						a.cod_registro <> '' " . $filtro1 . $filtro2 . $filtro3 . $filtro4 . $filtro5 . $filtro6 . " 
 			) AS tablatotaltemp
-			ORDER BY sessionficha DESC			
+			ORDER BY cod_entidad DESC			
 			";
-		
+		$this->db->query("DROP TABLE IF EXISTS ".$tablatempototales); // ejecuto el query
 		$this->db->query($sqlregistro); // ejecuto el query
 		/* ***** fin filtrar y resultados del query segun formulario **************** */
 		
@@ -236,11 +248,14 @@ class matrixcontroler extends CI_Controller {
 		$this->load->library('grocery_CRUD');
 		$crud = new grocery_CRUD();
 		$crud->set_table($tablatempototales);
-		$crud->set_theme('bootstrap'); // flexigrid tiene bugs en varias cosas
-		$crud->set_primary_key('sessionficha');
+		$crud->set_theme('datatables'); // flexigrid tiene bugs en varias cosas
+		if ( $ind_intranet == 'conintranet' )
+		    $crud->set_primary_key('sessionficha');
+		else
+		    $crud->set_primary_key('cod_entidad');
 		$crud->display_as('des_entidad','Entidad')
-			 ->display_as('des_categoria','Centro<br>Coste')
-			 ->display_as('des_concepto','Detalle<br>Coste')
+			 ->display_as('des_categoria','Categoria')
+			 ->display_as('des_concepto','Concepto')
 			 ->display_as('mon_registro','Monto')
 			 ->display_as('fecha_gasto','Fecha<br>Estimada')
 			 ->display_as('fecha_concepto','Fecha<br>Gasto')
@@ -248,13 +263,29 @@ class matrixcontroler extends CI_Controller {
 			 ->display_as('sessionficha','Registro<br>Autor');
 		if ( $ind_concepto != 'condetalle' )
 		{
+			if ( $ind_intranet != 'conintranet' )
+			{
+					$crud->columns('des_entidad','des_categoria','mon_registro','fecha_gasto');
+					$crud->fields('des_entidad','des_categoria','mon_registro','fecha_gasto');
+			}
+			else
+			{
 			$crud->columns('des_entidad','des_categoria','mon_registro','fecha_gasto','sessionficha');
 			$crud->fields('des_entidad','des_categoria','mon_registro','fecha_gasto','sessionficha');
+			}
 		}
 		else
 		{
-			$crud->columns('des_entidad','des_categoria','mon_registro','fecha_gasto','des_concepto','sessionficha');
-			$crud->fields('des_entidad','des_categoria','mon_registro','fecha_gasto','des_concepto','sessionficha');
+			if ( $ind_intranet != 'conintranet' )
+			{
+					$crud->columns('des_entidad','des_categoria','mon_registro','fecha_gasto','des_concepto');
+					$crud->fields('des_entidad','des_categoria','mon_registro','fecha_gasto','des_concepto');
+			}
+			else
+			{
+				$crud->columns('des_entidad','des_categoria','mon_registro','fecha_gasto','des_concepto','sessionficha');
+				$crud->fields('des_entidad','des_categoria','mon_registro','fecha_gasto','des_concepto','sessionficha');
+			}
 		}
 		$crud->unset_add();
 		$crud->unset_read();
@@ -274,8 +305,9 @@ class matrixcontroler extends CI_Controller {
 		$data['cod_categoria'] = $cod_categoria;
 		$data['des_concepto'] = $des_concepto;
 		$data['sessioncarga'] = ' cargado por ' . $sessioncarga;
+		$data['ind_intranet'] = $ind_intranet;
 		$data['ind_concepto'] = $ind_concepto;
-		$this->db->query("DROP TABLE IF EXISTS ".$tablatempototales); // ejecuto el query
+		$this->db->query("DROP TABLE IF EXISTS ".$tablatempototales); // si limpia la db solo datatables buscar funciona, el resto no
 		$this->load->view('header.php',$data);
 		$this->load->view('matrixvista.php',$data);
 		$this->load->view('footer.php',$data);

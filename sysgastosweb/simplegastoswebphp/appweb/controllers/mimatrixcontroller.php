@@ -94,6 +94,7 @@ group by cod_categoria
 		$this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT',TRUE);
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0', TRUE);
 		$this->output->set_header('Pragma: no-cache', TRUE);
+		$this->output->set_header("Expires: Mon, 26 Jul 1997 05:00:00 GMT", TRUE);
 		$this->output->enable_profiler(TRUE);
 	}
 
@@ -392,6 +393,7 @@ group by cod_categoria
 		$this->db->query($sqltotales_enti_cruza_cate_final_nohea); // eliminar el query union que sirve para que se definan los nombres de columnas (select from query en vez de table)
 		$this->load->helper(array('inflector','url'));	// inicar el pintar bonito los datos de una tabla temporal matrix cruzada
 		$this->load->library('grocery_CRUD');		// uso la libreria que pinga bonito una tabla
+		$this->config->set_item('grocery_crud_default_per_page',300);
 		$crud = new grocery_CRUD();			// creo el objeto crud a mostrar en html
 		$crud->set_theme('datatables'); 		// flexigrid tiene bugs pero exporta solo openoffice
 		$crud->set_table($sqltotales_enti_cruza_cate_table);	// la tabal es temporal pero del usuario

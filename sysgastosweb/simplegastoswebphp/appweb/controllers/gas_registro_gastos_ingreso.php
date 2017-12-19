@@ -57,14 +57,14 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		/* cargar y listaar las UBIUCACIONES que se usaran para registros */
 			$sqlentidad = "
 			select
-			 abr_entidad, abr_zona, cod_sello, cod_msc, 
+			 abr_entidad, abr_zona, '' as cod_sello, 
 			 ifnull(cod_entidad,'99999999999999') as cod_entidad,      -- YYYYMMDDhhmmss
 			 ifnull(des_entidad,'sin_descripcion') as des_entidad
-			from sysdbadmins.adm_entidad
+			from entidad
 			  where ifnull(cod_entidad, '') <> '' and cod_entidad <> ''
 			order by des_entidad
 			";
-			$resultadosentidad = $this->sysdbadmins->query($sqlentidad);
+			$resultadosentidad = $this->db->query($sqlentidad);
 			$arregloentidades = array(''=>'');
 			foreach ($resultadosentidad->result() as $row)
 			{
@@ -169,9 +169,7 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		$crud->set_relation('cod_categoria','categoria','{des_categoria}'); // ,'{des_categoria}<br> ({cod_categoria})'
 		//$crud->set_relation('cod_juridico','adm_juridico','{des_razonsocial} - {cod_rif}'); // ,'{des_juridico}<br> ({cod_juridico})'
 		//$crud->add_action('Auditar', '', '','ui-icon-plus',array($this,'_cargargastosucursalauditar'));
-		$longdate=date('Ymd');//la fecha larga
-		$leyear=substr($longdate,0,4);//solo interesa año
-		$directoriofacturas = 'archivoscargas/gas_registro_gastos_ingreso/'.$leyear;//$directoriofacturas = 'archivoscargas/gas_registro_gastos_ingreso/2017'; // $directoriofacturas = 'archivoscargas/' . date("Y");
+		$directoriofacturas = 'archivoscargas/gas_registro_gastos_ingreso/'; // $directoriofacturas = 'archivoscargas/' . date("Y");
 		if ( ! is_dir($directoriofacturas) )
 		{
 			if ( is_file($directoriofacturas) )

@@ -47,7 +47,7 @@
 	if( !isset($botongestion0) ) $botongestion0 = '';
 	$botongestion1 = anchor('cargargastosucursalesadm/gastomanualcargaruno',form_button('cargargastomanual/gastomanualcargaruno/add', 'Cargar Gasto interno', 'class="btn-primary btn" '));
 	$botongestion2 = anchor('cargargastosucursalesadm/gastosucursalesrevisarlos',form_button('cargargastomanual/gastomanualrevisarlos/list', 'Revisar Ultimos', 'class="btn-primary btn" '));
-	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastomanual/gastomanualfiltrarlos/veruno', 'Filtrar Gasto (RAPIDO)', 'class="btn-primary btn" '));
+	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastomanual/gastomanualfiltrarlos/veruno', 'Filtrar Gasto interno', 'class="btn-primary btn" '));
 	$this->table->clear();
 	$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' );
 	$this->table->set_template($tmplnewtable);
@@ -68,7 +68,7 @@
 	else if ($accionejecutada == 'gastomanualfiltrarlos')
 	{
 		echo br().PHP_EOL;
-		echo form_fieldset('Puede dejar campos en blanco para filtrar : <strong>'. date("Y/M") .' y '.date("Y/M", strtotime('-1 month')).'</strong> SOLO LOS ULTIMOS 500 GASTOS!!!',array('class'=>'containerin ')) . PHP_EOL;
+		echo form_fieldset('Puede dejar campos en blanco para filtrar <strong>'. date("Y/M") .' y '.date("Y/M", strtotime('-1 month')).'</strong> SOLO LOS ULTIMOS 500 GASTOS!!! y use punto para decimal, sin comas ',array('class'=>'containerin ')) . PHP_EOL;
 		echo $botonesgestion . PHP_EOL;
 				$htmlformaattributos = array('name'=>'formularioordendespachogenerar','class'=>'formularios','onSubmit'=>'return validageneric(this);');
 		echo form_open_multipart('cargargastosucursalesadm/gastosucursalesrevisarlos', $htmlformaattributos) . PHP_EOL;
@@ -77,7 +77,7 @@
 			$this->table->add_row('Fecha de factura o egreso el/entre:',form_input($valoresinputfecha2ini).PHP_EOL.' y '.form_input($valoresinputfecha2fin).br().PHP_EOL);
 			$this->table->add_row('Por Categoria/Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria,null,'id="list_subcategoria"').br().PHP_EOL);
 			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad, $usercodger,'id="list_entidad"').'(automatico)'.br().PHP_EOL );
-			$this->table->add_row('Monto exacto o cantidad igual a', form_input('mon_registroigual','').br().PHP_EOL);
+			$this->table->add_row('Monto similar o real a', form_input('mon_registroigual','').br().PHP_EOL);
 			$this->table->add_row('Monto mayor o igual a', form_input('mon_registromayor','').br().PHP_EOL);
 			$this->table->add_row('Por Concepto similar a:', form_input('des_registrolike','').br().PHP_EOL);
 			$this->table->add_row('Por intranet:', form_input('sessioncarga','').br().PHP_EOL);
@@ -121,7 +121,7 @@
 			$this->table->add_row('De quien es el gasto:', form_dropdown('cod_entidad', $list_entidad, $usuariocodgernow, 'id="list_entidad"' ));
 			$this->table->add_row('Monto (punto para decimal, sin coma)', form_input('mon_registro', '0.00', $classinput).' OJO: sin separador de miles!'.br().PHP_EOL);
 			$this->table->add_row('Concepto o Detalle:', form_input('des_concepto', '', $classinput).br().PHP_EOL);
-			$this->table->add_row('Concepto tipo:', form_dropdown('tipo_concepto', $list_tipo_concepto , 'SUCURSAL', $classinput).br().PHP_EOL);
+			/*$this->table->add_row('Concepto tipo:', form_dropdown('tipo_concepto', $list_tipo_concepto , 'SUCURSAL', $classinput).br().PHP_EOL);*/
 			$this->table->add_row('Factura tipo:', form_dropdown('factura_tipo', $list_factura_tipo , 'CONTRIBUYENTE', $classinput));
 			$this->table->add_row('Factura Numero (contribuyente):', form_input('factura_num', '', $classinput).br().PHP_EOL);
 			$this->table->add_row('Factura RIF (contribuyente):', form_input('factura_rif', '', $classinput).br().PHP_EOL);

@@ -126,6 +126,7 @@ class cargargastoadministrativo extends CI_Controller {
 			$cod_categoria = $this->input->get_post('cod_categoria');
 			$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 			$sessioncarga = $this->input->get_post('sessioncarga');
+			$cod_registro = $this->input->get_post('cod_registro');
 		}
 		$this->load->helper(array('inflector','url'));
 		$data['seguir']=$this->uri->segment(1).$this->uri->segment(2).$this->uri->segment(3);
@@ -137,6 +138,8 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->set_primary_key('cod_registro');
 			if ( $cod_entidad != '')
 				$crud->where($tablaregistros.'.cod_entidad' ,$cod_entidad);
+			if ( $cod_registro != '')
+				$crud->where($tablaregistros.'.cod_registro' ,$cod_registro);
 			if ( $cod_categoria != '')
 				$crud->where($tablaregistros.'.cod_categoria', $cod_categoria);
 			if ( $cod_subcategoria != '')
@@ -162,21 +165,21 @@ class cargargastoadministrativo extends CI_Controller {
 		$crud->set_subject('Gasto');
 		$crud
 			 ->display_as('cod_registro','Codigo')
-			 ->display_as('cod_entidad','Centro<br>Coste')
+			 ->display_as('cod_entidad','Entidad')
 			 ->display_as('cod_categoria','Categoria')
 			 ->display_as('cod_subcategoria','Subcategoria')
 			 ->display_as('mon_registro','Monto')
 			 ->display_as('des_concepto','Concepto')
 			 ->display_as('des_detalle','Detalles')
 			 ->display_as('des_estado','Justificacion')
-			 ->display_as('tipo_concepto','Tipo<br>Gasto')
+			 ->display_as('tipo_concepto','Tipo')
 			 ->display_as('fecha_concepto','Fecha<br>Gastado')
 			 ->display_as('fecha_registro','Fecha<br>Ingresado')
 			 ->display_as('factura_tipo','Factura<br>Tipo')
 			 ->display_as('factura_num','Factura<br>Numero')
 			 ->display_as('factura_rif','Factura<br>Rif')
 			 ->display_as('factura_bin','Factura<br>Escaneada')
-			 ->display_as('sessionflag','Modificado')
+			 ->display_as('sessionflag','Alterador')
 			 ->display_as('sessionficha','Creador');
 		$crud->columns('fecha_concepto','fecha_registro','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','des_estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','fecha_registro','sessionficha','sessionflag');
 		$crud->add_fields('fecha_registro','fecha_concepto','cod_entidad','cod_categoria','cod_subcategoria','mon_registro','des_concepto','estado','tipo_concepto','factura_tipo','factura_num','factura_rif','factura_bin','cod_registro','sessionficha');
@@ -302,11 +305,12 @@ class cargargastoadministrativo extends CI_Controller {
 	function generarcodigo($post_array)
 	{
 		$fec_registro=date('Ymd');
-		$post_array['cod_registro'] = 'GAS'.date("YmdHis");
-		$post_array['fecha_registro'] = $fec_registro;
-		$post_array['sessionficha'] = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
-		$operacion = $this->session->userdata('username').' creando un nuevo gasto en '.date('YmdHis');
+		$cod_registronuevo = 'GAS'.date("YmdHis");
+		$operacion = $this->session->userdata('username').' creando gasto nuevo ' . $cod_registronuevo . ' descripcion: ' . $post_array['des_concepto'] ;
 		$sessionficha = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
+		$post_array['cod_registro'] = $cod_registronuevo;
+		$post_array['fecha_registro'] = $fec_registro;
+		$post_array['sessionficha'] = $sessionficha;
 		$this->db->insert('log',array('cod_log' => date('YmdHis'), 'operacion' => $operacion, 'sessionficha' => $sessionficha));
 		log_message('info', $operacion . ' en  ' . $sessionficha);
 		return $post_array;
@@ -352,18 +356,10 @@ class cargargastoadministrativo extends CI_Controller {
 		return TRUE;
 	}
 
-	function _ver_after_insert($post_array,$primary_key)
-	{
-		$enlace = site_url('cargargastoadministrativo/gastoregistros/read/'.$post_array['cod_registro']).'?cod_registro='.$post_array['cod_registro'];
-		log_message('info', $this->session->userdata('username').' insertado el gasto ' . $post_array['cod_registro']);
-		//redirect($enlace);
-		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
-	}
-
 	function _cargargastosucursalauditar($primary_key, $row)
 	{
 		$enlace = site_url('cargargastosucursalesadm/auditar/'.$row->cod_registro).'?cod_registro='.$row->cod_registro;
-		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
+		return "javascript:void(window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=650,height=450'));";
 	}
 
 }

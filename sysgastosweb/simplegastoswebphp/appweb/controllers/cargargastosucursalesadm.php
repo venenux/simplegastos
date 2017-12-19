@@ -40,7 +40,7 @@ class cargargastosucursalesadm extends CI_Controller {
 				$this->nivel = 'especial';
 		}
 		else
-		{ 
+		{
 			if( $usuariocodgernow == '998' or $usuariocodgernow == '1000' )
 				$this->nivel = 'administrador';
 			else if( ( $usuariocodgernow > 399 and $usuariocodgernow < 998) or $usuariocodgernow == '196' or $usuariocodgernow == '252' or $usuariocodgernow == '200' )
@@ -237,9 +237,9 @@ class cargargastosucursalesadm extends CI_Controller {
 		$fecha_concepto = $this->input->get_post('fecha_concepto');
 		$dias = (strtotime(date("Ymd"))-strtotime($fecha_concepto))/86400;
 		$dias = floor($dias);
-		if ( $dias > 39)
+		if ( $dias > 12)
 		{
-			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . abs($dias) . " dias es muy atras!";
+			$mens = "La fecha maxima es 12 dias atras o ser del mes en curso, semana en curso : " . abs($dias) . " dias es muy atras!";
 			log_message('info', $mens.'.');
 			return $this->gastomanualcargaruno( $mens );
 		}
@@ -251,11 +251,11 @@ class cargargastosucursalesadm extends CI_Controller {
 		}
 		$mon_registro = $this->input->get_post('mon_registro');
 		$des_concepto = $this->input->get_post('des_concepto');
-		$tipo_concepto = $this->input->get_post('tipo_concepto');
+		$tipo_concepto = 'SUCURSAL';		//$tipo_concepto = $this->input->get_post('tipo_concepto');
 		$factura_tipo = $this->input->get_post('factura_tipo');
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
-		$factura_bin = $_FILES['factura_bin']['name']; // nombre del archivo adjuntar
+		$factura_bin = $this->input->file('factura_bin')['name']; // nombre del archivo adjuntar
 		$factura_binX = 'no usado en crear nuevo'; // usado por estandar con codigo editar
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
@@ -512,9 +512,9 @@ class cargargastosucursalesadm extends CI_Controller {
 		$fecha_concepto = $this->input->get_post('fecha_concepto');
 		$dias = ( strtotime(date("Ymd")) - strtotime($fecha_concepto) )/86400;
 		$dias = floor($dias);
-		if ( $dias > 20 )
+		if ( $dias > 27 )
 		{
-			$mens = "La fecha maxima es 16 dias atras o ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
+			$mens = "La fecha maxima es 20 dias atras o ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
 			log_message('info', $mens.'.');
 			return $this->gastomanualeditaruno( $mens, $cod_registro );
 		}
@@ -531,7 +531,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
 		$factura_bin = $this->input->get_post('factura_bin'); // nombre file anterior, segun html no se permite set_value
-		$factura_binX = $_FILES['factura_binX']['name']; // si subio alguno, nombre del archivo sustituir o nuevo
+		$factura_binX = $this->input->file('factura_binX')['name']; // si subio alguno, nombre del archivo sustituir o nuevo
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 		// ******* monto no puede ser vacio
@@ -616,7 +616,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		else
 		{
 			$conadjunto = FALSE;
-			$factura_bin = $this->input->get_post('factura_bin'); // subdir ya viene de db con subdir
+			$factura_bin = $this->input->file('factura_bin'); // subdir ya viene de db con subdir
 			$linkadjunto = anchor_popup( '../' . $dircargabase . $factura_bin, $factura_bin,array('width'=>'800','height'=>'600','resizable'=>'yes'));
 			$mens = '<h3>ADVERTENCIA!!!!</h3>, REVISE SI LOS DATOS SE CARGARON CORRECTOS, vea bien el resultado.';
 		}
@@ -780,7 +780,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$crud->display_as('cod_registro','Codigo')
 			 ->display_as('cod_categoria','Categoria')
 			 ->display_as('cod_subcategoria','Subcategoria')
-			 ->display_as('cod_entidad','Centro<br>Coste')
+			 ->display_as('cod_entidad','Entidad')
 			 ->display_as('mon_registro','Monto')
 			 ->display_as('des_concepto','Concepto')
 			 ->display_as('des_detalle','Detalles')
@@ -803,19 +803,17 @@ class cargargastosucursalesadm extends CI_Controller {
 		$crud->unset_delete();
 		if ( $this->nivel == 'especial' or $this->nivel == 'administrador')
 		{
-			$crud->add_action('Auditar', '', '','ui-icon-plus',array($this,'_cargargastosucursalauditar'));
-			$crud->add_action('Editar', '', '','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
+			$crud->add_action('Auditar', 'a', 'b','ui-icon-plus',array($this,'_cargargastosucursalauditar'));
+			$crud->add_action('Editar', 'a', 'b','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
 		}
 		if ($this->nivel == 'administrador')
 		{
-			$crud->add_action('Editar', '', '','ui-icon-plus',array($this,'_cargargastoadministraeditandocodigo'));
-			$crud->add_action('Eliminar', '', '','ui-icon-plus',array($this,'_cargargastoadministraeliminacodigo'));
+			$crud->add_action('Editar', 'a', 'b','ui-icon-plus',array($this,'_cargargastoadministraeditandocodigo'));
+			$crud->add_action('Eliminar', 'a', 'b','ui-icon-plus',array($this,'_cargargastoadministraeliminacodigo'));
 			$data['botongestion0'] = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar directo', 'class="btn-primary btn" '));
 		}
 		else if ( $this->nivel == 'sucursal')
-			$crud->add_action('Editar', '', '','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
-		$longdate=date('Ymd');//la fecha larga
-		$leyear=substr($longdate,0,4);//solo interesa año
+			$crud->add_action('Editar', 'a', 'b','ui-icon-plus',array($this,'_cargargastosucursaleditandocodigo'));
 		$dircargafull = 'archivoscargas/'; // el resto de la ruta esta ya en db en cada imagen
 		if ( ! is_dir($dircargafull) )
 		{
@@ -879,13 +877,13 @@ class cargargastosucursalesadm extends CI_Controller {
 	function _cargargastoadministraeliminacodigo($primary_key , $row)
 	{
 		$enlace = site_url('cargargastoadministrativo/gastoregistros/delete/'.$row->cod_registro).'?cod_registro='.$row->cod_registro;
-		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
+		return "javascript:void(window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=650,height=350'));";
 	}
 
 	function _cargargastosucursalauditar($primary_key, $row)
 	{
 		$enlace = site_url('cargargastosucursalesadm/auditar/'.$row->cod_registro).'?cod_registro='.$row->cod_registro;
-		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
+		return "javascript:void(window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=650,height=4250'));";
 	}
 
 	public function auditar($codigo = '')
@@ -940,7 +938,6 @@ class cargargastosucursalesadm extends CI_Controller {
 			$quiendebe = $quienlocreo;
 		else
 			$quiendebe = $quienaltero;
-
 
 		/* ******** obtencion de datos * **** */
 		$correoaenviar = $this->session->userdata('correo') . ', systemasvnz@intranet1.net.ve, ';
@@ -1001,6 +998,7 @@ class cargargastosucursalesadm extends CI_Controller {
 			return;
 		}
 
+		$this->load->helper('url');
 		if ( $estado == 'PENDIENTE' )
 		{
 			$mens = "esta pendiente";
@@ -1017,13 +1015,15 @@ class cargargastosucursalesadm extends CI_Controller {
 		$this->table->clear();
 		$this->table->set_template(array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' ) );
 			$this->table->add_row($codigo. ' ', ' ('. $des_concepto.')');
-			$this->table->add_row('Accion', form_dropdown('estado', $list_estado, '', 'class="btn btn-primary btn-large"' ));
-			$this->table->add_row('Razon:', form_input('msg_errado','', 'class="btn btn-primary btn-large"'));
+			$this->table->add_row('Accion', form_dropdown('estado', $list_estado));
+			$this->table->add_row('Razon:', form_input('msg_errado',''));
 			$this->table->add_row('',form_submit('auditagasto1', 'Auditar', 'class="btn btn-primary btn-large b10"'));
 		$htmlauditarcodigo .= $this->table->generate().br().PHP_EOL;
 		$htmlauditarcodigo .= form_hidden('accionauditar', 'terminado'); // no se puede resubir archivos, entonces comparo si cambio el nombre y tomo el subido nuevo, sino esta variable es el nombre viejo inalterado
 		$htmlauditarcodigo .= form_close() . PHP_EOL;
-		$data['htmlauditarcodigo'] = $htmlauditarcodigo;
+		$codigolinkcssp = '<link type="text/css" rel="stylesheet" href="'.base_url().'/appweb/styles/pickathing.css" />';
+		$codigolinkcssm = '<link type="text/css" rel="stylesheet" href="'.base_url().'/appweb/styles/bootstrap.css" />';
+		$data['htmlauditarcodigo'] = $codigolinkcssm.$codigolinkcssp.br().$htmlauditarcodigo;
 		log_message('info', $this->session->userdata('username').' cargado pagina auditar gasto ' . $codigo . ' descripcion ' . $des_concepto);
 		$this->load->view('cargargastosucursales.php',$data);
 	}

@@ -5,8 +5,8 @@
 	// pintar botones de gestion para carga manual ya que las acciones de agregar y ver son customizadas
 	$botongestion0 = anchor('cargargastoadministrativo/gastoregistros/add',form_button('cargargastoadministrativo/gastoregistros/add', 'Cargar Gasto interno', 'class="btn-primary btn b10" '));
 	$botongestion1 = anchor('gas_registro_gastos_ingreso',form_button('gas_registro_gastos_ingreso', 'Ir a Gastos Mayorista', 'class="btn-primary btn" '));
-	$botongestion2 = anchor('cargargastoadministrativo/index',form_button('cargargastoadministrativo/index', 'Gastos internos (directo)', 'class="btn-primary btn" '));
-	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastosucursalesadm/gastomanualfiltrarlos', 'Gastos internos (RAPIDO)', 'class="btn-primary btn b10" '));
+	$botongestion2 = anchor('cargargastoadministrativo/index',form_button('cargargastoadministrativo/index', 'Filtrar internos (directo)', 'class="btn-primary btn" '));
+	$botongestion3 = anchor('cargargastosucursalesadm/gastomanualfiltrarlos',form_button('cargargastosucursalesadm/gastomanualfiltrarlos', 'Filtrar internos (RAPIDO)', 'class="btn-primary btn b10" '));
 	$this->table->clear();
 	$tmplnewtable = array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">' );
 	$this->table->set_template($tmplnewtable);
@@ -44,17 +44,19 @@
 	if ($accionejecutada == 'cargardatosadministrativosfiltrar')
 	{
 		$htmlformaattributos = array('name'=>'formularioordendespachogenerar','class'=>'formularios','onSubmit'=>'return validageneric(this);');
-		echo form_fieldset('Gastos internos, filtrar...',array('class'=>'container_blue containerin')) . PHP_EOL;
+		echo form_fieldset('Gastos internos, usar puntos para decimal, todos opcionales filtrar...',array('class'=>'container_blue containerin')) . PHP_EOL;
 		echo form_open_multipart('cargargastoadministrativo/gastoregistros/', $htmlformaattributos) . PHP_EOL;
+		echo 'LAS TIENDAS DEBEN ESPECIFICAR EL CODIGO DE GASTO PARA DETALLES POR MEDIO DE TICKET';
 		$this->table->clear();
 			$this->table->add_row('Fue Ingresado el/entre:',form_input($valoresinputfecha1ini).PHP_EOL.' y '.form_input($valoresinputfecha1fin).br().PHP_EOL);
 			$this->table->add_row('Fecha factura el/entre:',form_input($valoresinputfecha2ini).PHP_EOL.' y '.form_input($valoresinputfecha2fin).br().PHP_EOL);
 			$this->table->add_row('Por Categoria/Concepto:', form_dropdown('cod_subcategoria', $list_subcategoria,null,'id="list_subcategoria"').PHP_EOL);
 			$this->table->add_row('Por Centro de Costo:', form_dropdown('cod_entidad', $list_entidad,null,'id="list_entidad"').PHP_EOL );
-			$this->table->add_row('Monto similar a:', form_input('mon_registroigual','').br().PHP_EOL);
-			$this->table->add_row('Monto mayor o igual', form_input('mon_registromayor','').br().PHP_EOL);
+			$this->table->add_row('Monto similar a exacto:', form_input('mon_registroigual','').br().PHP_EOL);
+			$this->table->add_row('Monto mayor o igual a:', form_input('mon_registromayor','').br().PHP_EOL);
 			$this->table->add_row('Por Concepto :', form_input('des_registrolike','').br().PHP_EOL);
-			$this->table->add_row('Por intranet que carga :', form_input('sessioncarga','').'No se garantiza funcione'.br().PHP_EOL);
+			$this->table->add_row('Por intranet que carga :', form_input('sessioncarga','').br().PHP_EOL);
+			$this->table->add_row('Por Codigo gasto :', form_input('cod_registro','').br().PHP_EOL);
 		echo $this->table->generate();
 		echo form_hidden('accionejecutada',$accionejecutada).br().PHP_EOL;
 		echo form_submit('gastofiltrarya', 'Ver reporte gasto', 'class="btn-primary btn"');

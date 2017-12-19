@@ -6,7 +6,7 @@
     $config['grocery_crud_date_format'] = 'sql-date';
 
     // The default per page when a user firstly see a list page
-    $config['grocery_crud_default_per_page'] = 20;
+    $config['grocery_crud_default_per_page'] = 200;
 
     $config['grocery_crud_file_upload_allow_file_types'] = 'gif|jpeg|jpg|png|tiff|txt|odt|pdf|ods';
     $config['grocery_crud_file_upload_max_file_size'] = '20MB'; //ex. '10MB' (Mega Bytes), '1067KB' (Kilo Bytes), '5000B' (Bytes)
@@ -17,7 +17,7 @@
     $config['grocery_crud_text_editor_type'] = 'minimal';
 
     // The character limiter at the list page, zero(0) value if you don't want character limiter at your list page
-    $config['grocery_crud_character_limiter'] = 30;
+    $config['grocery_crud_character_limiter'] = 128;
 
     // All the forms are opening with dialog forms without refreshing the page once again.
     // IMPORTANT: PLease be aware that this functionality is still in BETA phase and it is
@@ -26,7 +26,7 @@
 
     // Having some options at the list paging. This is the default one that all the websites are using.
     // Make sure that the number of grocery_crud_default_per_page variable is included to this array.
-    $config['grocery_crud_paging_options'] = array('10','25','50','100');
+    $config['grocery_crud_paging_options'] = array('10','25','40','80','100','200');
 
     // Default theme for grocery CRUD
     $config['grocery_crud_default_theme'] = 'flexigrid';
