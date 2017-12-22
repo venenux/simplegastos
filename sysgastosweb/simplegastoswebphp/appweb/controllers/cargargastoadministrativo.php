@@ -245,7 +245,7 @@ class cargargastoadministrativo extends CI_Controller {
 		$configtablejoin = array(
 			'main_table' => 'registro_gastos',
 			'main_table_primary' => 'cod_registro',
-			'url' => base_url() . 'index.php/' . strtolower(__CLASS__) . '/' . strtolower(__FUNCTION__) . '/'	//'ajax_loader' => base_url() . 'style/images/'. 'ajax-loader.gif'//'segment_name' =>'Your_segment_name' // It's an optional parameter. by default "get_items"
+			'url' => site_url() . strtolower(__CLASS__) . '/' . strtolower(__FUNCTION__) . '/'	//'ajax_loader' => base_url() . 'style/images/'. 'ajax-loader.gif'//'segment_name' =>'Your_segment_name' // It's an optional parameter. by default "get_items"
 		);
 		$outputjoincatysubcat = new gc_dependent_select($crud, $configfielsjoin, $configtablejoin);
 		$crud->set_crud_url_path(site_url(strtolower(__CLASS__."/".__FUNCTION__)),site_url("/cargargastosucursalesadm/gastosucursalesrevisarlos/list/?sessionficha=".date("YmdH").'....'.$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username').""));

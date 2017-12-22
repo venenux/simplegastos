@@ -186,7 +186,7 @@ window.onload = function() {
 		<?php if (isset($sections['console'])) : ?>
 			<a href="#" id="ci-profiler-menu-console" onclick="ci_profiler_bar.show('ci-profiler-console', 'ci-profiler-menu-console'); return false;">
 				<span><?php echo is_array($sections['console']) ? $sections['console']['log_count'] + $sections['console']['memory_count'] : 0 ?></span>
-				Console
+				CMD
 			</a>
 		<?php endif; ?>
 
@@ -214,7 +214,7 @@ window.onload = function() {
 		<?php if (isset($sections['eloquent'])) : ?>
 			<a href="#" id="ci-profiler-menu-eloquent" onclick="ci_profiler_bar.show('ci-profiler-eloquent', 'ci-profiler-menu-eloquent'); return false;">
 				<span><?php echo is_array($sections['eloquent']) ? (count($sections['eloquent']) - 1) : 0 ?> Eloquent</span>
-				ILLUM\DB
+				ILLUMDB
 			</a>
 		<?php endif; ?>
 
@@ -441,7 +441,7 @@ window.onload = function() {
 	<!-- Files -->
 	<?php if (isset($sections['files'])) :?>
 		<div id="ci-profiler-files" class="ci-profiler-box" style="display: none">
-			<h2>LOAD-CARGA</h2>
+			<h2>LOAD</h2>
 
 			<?php if (is_array($sections['files'])) : ?>
 

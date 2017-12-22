@@ -692,13 +692,13 @@ class habladorcontrol extends CI_Controller {
 	function _cargargastoadministraeliminacodigo($primary_key , $row)
 	{
 		$enlace = site_url('cargargastoadministrativo/gastoregistros/delete/'.$row->cod_registro).'?cod_registro='.$row->cod_registro;
-		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
+		return "javascript:void(window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250'));";
 	}
 
 	function _cargargastosucursalauditar($primary_key, $row)
 	{
 		$enlace = site_url('cargargastosucursalesadm/auditar/'.$row->cod_registro).'?cod_registro='.$row->cod_registro;
-		return "javascript:window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250');";
+		return "javascript:void(window.open ('".$enlace."','NOtificador','menubar=1,resizable=1,width=350,height=250'));";
 	}
 
 	public function auditar($codigo = '')
