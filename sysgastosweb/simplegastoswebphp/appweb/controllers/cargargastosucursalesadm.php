@@ -255,7 +255,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_tipo = $this->input->get_post('factura_tipo');
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
-		$factura_bin = $this->input->file('factura_bin')['name']; // nombre del archivo adjuntar
+		$factura_bin = $_FILES['factura_bin']['name'];//$this->input->file('factura_bin')['name']; // nombre del archivo adjuntar
 		$factura_binX = 'no usado en crear nuevo'; // usado por estandar con codigo editar
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
@@ -531,7 +531,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
 		$factura_bin = $this->input->get_post('factura_bin'); // nombre file anterior, segun html no se permite set_value
-		$factura_binX = $this->input->file('factura_binX')['name']; // si subio alguno, nombre del archivo sustituir o nuevo
+		$factura_binX = $_FILES['factura_binX']['name']//$this->input->file('factura_binX')['name']; // si subio alguno, nombre del archivo sustituir o nuevo
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 		// ******* monto no puede ser vacio
