@@ -14,7 +14,10 @@
 | path to your installation.
 |
 */
-$config['base_url']	= '';
+//$config['base_url']	= '';
+$config['base_url'] = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
+$config['base_url'] .= '://' . $_SERVER['HTTP_HOST'];
+$config['base_url'] .= str_replace(basename($_SERVER['SCRIPT_NAME']), '', $_SERVER['SCRIPT_NAME']);
 $config['defsview'] = VIEWS.'/standars';
 $config['dataview'] = VIEWS.'/data';
 
@@ -29,7 +32,7 @@ $config['dataview'] = VIEWS.'/data';
 | variable so that it is blank.
 |
 */
-$config['index_page'] = 'index.php';
+$config['index_page'] = 'index.php/';
 
 /*
 |--------------------------------------------------------------------------
@@ -227,7 +230,7 @@ $config['cache_path'] = null;
 | MUST set an encryption key.  See the user guide for info.
 |
 */
-$config['encryption_key'] = 'l1nuxrul3sbyv3n3nux';
+$config['encryption_key'] = '4n3wRulessVenaimaux';
 
 /*
 |--------------------------------------------------------------------------
@@ -248,7 +251,7 @@ $config['encryption_key'] = 'l1nuxrul3sbyv3n3nux';
 |
 */
 $config['sess_cookie_name']		= 'ci_session';
-$config['sess_expiration']		= 7200;
+$config['sess_expiration']		= 1800;
 $config['sess_expire_on_close']	= FALSE;
 $config['sess_encrypt_cookie']	= FALSE;
 $config['sess_use_database']	= FALSE;
@@ -299,7 +302,7 @@ $config['global_xss_filtering'] = FALSE;
 $config['csrf_protection'] = FALSE;
 $config['csrf_token_name'] = 'csrf_test_name';
 $config['csrf_cookie_name'] = 'csrf_cookie_name';
-$config['csrf_expire'] = 7200;
+$config['csrf_expire'] = 1800;
 
 /*
 |--------------------------------------------------------------------------
