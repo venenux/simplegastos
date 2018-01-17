@@ -1,4 +1,3 @@
-	<h1>Matriz de Gastos Tiendas X Categorías</h1>
 	<?php
 
 	/* ********* ini valores predeterminados ******************** */
@@ -20,10 +19,28 @@
 	$seccionpagina = 'seccionformulario';
 	/* ********* fin valores predeterminados ******************** */
 
+	/* ********* ini seccion de pagina index ******************** */
+	if ($seccionpagina == 'seccionmatrixindex')
+	{
+		echo form_fieldset('Sub-modulo de MATRIX DE GASTO para administracion y gerencia',array('class'=>'containerin')) . PHP_EOL;
+		$this->table->clear();
+		$this->table->set_datatables(FALSE);
+			$this->table->add_row($menusub);
+		echo $this->table->generate();
+		echo form_fieldset_close() . PHP_EOL;
+		echo br().PHP_EOL;
+	}
+	/* ********* fin seccion de pagina formulario ******************** */
+
 	/* ********* ini seccion del formulario filtrara ******************** */
 	if ($seccionpagina == 'seccionfiltrarmatrix')
 	{
-		echo form_fieldset('Por favor seleccionar fecha, categoria y minimo 2 centro de costos',array('class'=>'container_blue containerin')) . PHP_EOL;
+		$this->table->clear();
+		$this->table->set_datatables(FALSE);
+			$this->table->add_row($menusub);
+		echo $this->table->generate();
+		echo '<h3>Matrix de gastos sucursales vs categorias</h3>';
+		echo form_fieldset('Por favor seleccionar fecha, categoria y minimo 2 sucursales o centro de costos',array('class'=>'container_blue containerin')) . PHP_EOL;
 		echo form_open_multipart('/mimatrixcontroller/secciontablamatrix/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
 			$this->table->add_row('Periodo entre',form_input($inputfechainiattr) . ' y hasta ' . form_input($inputfechafinattr)) ;
@@ -45,6 +62,11 @@
 		{	echo '<link type="text/css" rel="stylesheet" href="'.$file.'" />';	}
 		foreach($js_files as $file)
 		{	echo '<script src="'.$file.'"></script>';	}
+		$this->table->clear();
+		$this->table->set_datatables(FALSE);
+			$this->table->add_row($menusub);
+		echo $this->table->generate();
+		echo '<h3>Matrix de gastos sucursales vs categorias</h3>';
 		echo $output. PHP_EOL;
 	}
 	/* ********* fin seccion de pagina formulario ******************** */

@@ -61,8 +61,14 @@
 		{	echo '<script src="'.$file.'"></script>';	}
 
 	if( isset($mensage)) 		echo $mensage;
+	if( !isset($menusub) )		$menusub=array('sin acceso a este modulo, solo gerencia y presidencia, si esta mal solicitelo a gerenciavnz por correo');
 	if( !isset($fecha_mes) )	$fecha_mes=date('Ymd', strtotime('now - 1 month'));
 	if( !isset($accionformulario))	$accionformulario = 'gervisualizarventagasto';
+
+	$this->table->clear();
+	$this->table->set_datatables(FALSE);
+		$this->table->add_row($menusub);
+	echo $this->table->generate();
 
 	$idfecha_mes='fecha_mes';$inputfecha_mes = array('name'=>$idfecha_mes,'id'=>$idfecha_mes, 'onclick'=>'javascript:NewCssCal(\''.$idfecha_mes.'\',\'yyyyMMdd\' )','readonly'=>'readonly','value'=>set_value($fecha_mes, $$idfecha_mes));
 

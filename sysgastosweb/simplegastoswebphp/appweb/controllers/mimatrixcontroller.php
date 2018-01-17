@@ -117,6 +117,24 @@ group by cod_categoria
 			redirect('indexcontroler');
 	}
 
+	public function _menusub($codger = 999)
+	{
+		$menu = array();
+		$linkbut1 = form_button('matrixcontroler/seccionmatrixpedirla', 'Totalizadores', 'class="btn-primary btn" ');
+		$link1 = anchor('matrixcontroler/seccionmatrixpedirla', $linkbut1);
+		$linkbut2 = form_button('mimatrixcontroller/mimatrixfiltrar', 'Generar', 'class="btn-primary btn" ');
+		$link2 = anchor('mimatrixcontroller/mimatrixfiltrar', $linkbut2);
+		$linkbut3 = form_button('adm_indefi_ventagasto/gerpediraccionventagasto', 'Indicadores', 'class="btn-primary btn" ');
+		$link3 = anchor('adm_indefi_ventagasto/gerpediraccionventagasto', $linkbut3);
+		if ($codger == 998 OR $codger == 111 )
+			array_push($menu, $link1);
+		if ($codger == 998 OR $codger == 111 OR $codger == 1009 )
+			array_push($menu, $link2);
+		if ($codger == 998 OR $codger == 111 OR $codger == 1009 )
+			array_push($menu, $link3);
+		return $menu;
+	}
+
 	/**
 	 * Index Page cuando se invoca la url de este controlador,
 	 * aqui se invoca la vista o otro metodo que la invoque
@@ -125,8 +143,14 @@ group by cod_categoria
 	public function index()
 	{
 		$this->_verificarsesion();						// verifico este un usuario realizando la llamada
-		// si no se especifica mostrar seccion que pide que datos se filtran en la matrix
-		$this->mimatrixfiltrar();
+		$this->_verificarsesion();
+		$data['htmlquepintamatrix'] = '';
+		$data['menu'] = $this->menu->menudesktop();
+		$data['menusub'] = $this->_menusub($this->session->userdata('cod_entidad'));
+		$data['seccionpagina'] = 'seccionmatrixindex';
+		$this->load->view('header.php',$data);
+		$this->load->view('matrixvista.php',$data);
+		$this->load->view('footer.php',$data);
 	}
 
 	/* esta funciona inicializa datos para un formulario de filtro en la vista
@@ -138,6 +162,7 @@ group by cod_categoria
 		$userdata = $this->session->all_userdata();		// tomo los datos del usuario actual si existe
 		$usuariocodgernow = $this->session->userdata('cod_entidad');	// aun si es valido debe tener permisos
 		$data['menu'] = $this->menu->menudesktop();
+		$data['menusub'] = $this->_menusub($this->session->userdata('cod_entidad'));
 		$data['seccionpagina'] = 'seccionfiltrarmatrix';		// se indica muestre formulario para filtrar que datos se mostraran
 
 		// ########## ini cargar y listaar las CATEGORIAS que se usaran para registros
@@ -415,6 +440,7 @@ group by cod_categoria
 		$data['usercorreo'] = $usercorreo;
 		$data['userintranet'] = $userintranet;
 		$data['menu'] = $this->menu->menudesktop();
+		$data['menusub'] = $this->_menusub($this->session->userdata('cod_entidad'));
 		$data['seccionpagina'] = 'secciontablamatrix';
 		$data['fechainimatrix'] = $fechainimatrix;
 		$data['fechafinmatrix'] = $fechafinmatrix;

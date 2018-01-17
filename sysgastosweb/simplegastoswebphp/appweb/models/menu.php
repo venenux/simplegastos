@@ -28,9 +28,8 @@ class Menu extends CI_Model
 		$menugerencia=anchor('adm_indefi_ventagasto','Gerencia');
 		$menugerencianodos['adm_indefi_ventagasto']=anchor('adm_indefi_ventagasto/gervisualizarventagasto/','Gasto vs Venta');
 
-		$vistas=anchor('mimatrixcontroller','Matrix');
-		$vistaglobal['matrixcontroler']=anchor('matrixcontroler','Totalizadores');
-		$vistaglobal['cargargastover']=anchor('mimatrixcontroller/mimatrixfiltrar','Vista Reporte');
+		$vistas=anchor('mimatrixcontroller','Matriz');
+		$vistaglobal=array();
 		// enlaces de cargas para administrativo edita, ver etc con permisologia
 		$cargasadm=anchor('cargargastoadministrativo','Gastos');
 		$cargargastoadministrativo['cargargastoadministrativoadd']=anchor('cargargastoadministrativo/gastoregistros/add','Administrar gastos');

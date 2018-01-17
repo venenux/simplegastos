@@ -2,7 +2,7 @@
 
 class Adm_indefi_ventagasto extends CI_Controller {
 
-	private $mensage = 'Indicadores de Gestion: eficiencia de ventas vs gasto.';
+	private $mensage = '';
 	private $controlername = 'adm_indefi_ventagasto';
 	private $accionformulario  = null;
 	private $menurender = '';
@@ -63,15 +63,34 @@ class Adm_indefi_ventagasto extends CI_Controller {
 		}
 		$data['accionformulario'] = $this->accionformulario;
 		$data['menu'] = $this->menu->menudesktop();  // definir un menu segun perfil
+		$data['menusub'] = $this->_menusub($this->session->userdata('cod_entidad'));
 		$data['controlername'] = $this->controlername;
 		$this->load->view('header.php',$data);
 		$this->load->view('adm_indicadores_verdata.php',$data);
 		$this->load->view('footer.php',$data);
 	}
 
+	public function _menusub($codger = 999)
+	{
+		$menu = array();
+		$linkbut1 = form_button('matrixcontroler/seccionmatrixpedirla', 'Totalizadores', 'class="btn-primary btn" ');
+		$link1 = anchor('matrixcontroler/seccionmatrixpedirla', $linkbut1);
+		$linkbut2 = form_button('mimatrixcontroller/mimatrixfiltrar', 'Generar', 'class="btn-primary btn" ');
+		$link2 = anchor('mimatrixcontroller/mimatrixfiltrar', $linkbut2);
+		$linkbut3 = form_button('adm_indefi_ventagasto/gerpediraccionventagasto', 'Indicadores', 'class="btn-primary btn" ');
+		$link3 = anchor('adm_indefi_ventagasto/gerpediraccionventagasto', $linkbut3);
+		if ($codger == 998 OR $codger == 111 )
+			array_push($menu, $link1);
+		if ($codger == 998 OR $codger == 111 OR $codger == 1009 )
+			array_push($menu, $link2);
+		if ($codger == 998 OR $codger == 111 OR $codger == 1009 )
+			array_push($menu, $link3);
+		return $menu;
+	}
+
 	function index()
 	{
-		//$this->_verificarsesion();
+		$this->_verificarsesion();
 		$this->accionformulario = 'gervisualizarventagasto';
 		$data['accionformulario'] = $this->accionformulario;
 		$this->_esputereport($data, (object)array(
@@ -85,6 +104,13 @@ class Adm_indefi_ventagasto extends CI_Controller {
 	public function gerpediraccionventagasto()
 	{
 		$this->accionformulario = 'gervisualizarventagasto';
+		$data['accionformulario'] = $this->accionformulario;
+		$this->_esputereport($data, (object)array(
+				'js_files' => array(''),
+				'css_files' => array(''),
+				'output'	=> '',
+				'fecha_mes' => date('Ym')
+		));
 	}
 
 	public function gervisualizarventagasto($fecha_mes = null)
