@@ -27,29 +27,34 @@ class cargargastosucursalesadm extends CI_Controller {
 	{
 		if( $this->session->userdata('logueado') < 1)
 		{
-				redirect('manejousuarios/desverificarintranet');
+			redirect('manejousuarios/desverificarintranet');
 		}
-		$usuariocodgernow = $this->session->userdata('cod_entidad');
-		if( is_array($usuariocodgernow) )
+		if( $this->session->userdata('cod_entidad') )
 		{
-			if (in_array("998", $usuariocodgernow) or in_array("1000", $usuariocodgernow) )
-				$this->nivel = 'administrador';
-			else if (in_array("163", $usuariocodgernow) or in_array("251", $usuariocodgernow) )
-				$this->nivel = 'contabilidad';
+			$usuariocodgernow = $this->session->userdata('cod_entidad');
+			if( is_array($usuariocodgernow) )
+			{
+				if (in_array("998", $usuariocodgernow) or in_array("1000", $usuariocodgernow) )
+					$this->nivel = 'administrador';
+				else if (in_array("163", $usuariocodgernow) or in_array("251", $usuariocodgernow) )
+					$this->nivel = 'contabilidad';
+				else
+					$this->nivel = 'especial';
+			}
 			else
-				$this->nivel = 'especial';
+			{
+				if( $usuariocodgernow == '998' or $usuariocodgernow == '1000' )
+					$this->nivel = 'administrador';
+				else if( ( $usuariocodgernow > 399 and $usuariocodgernow < 998) or $usuariocodgernow == '196' or $usuariocodgernow == '252' or $usuariocodgernow == '200' )
+					$this->nivel = 'sucursal';
+				else if ( $usuariocodgernow == '163' or $usuariocodgernow == '251' )
+					$this->nivel = 'contabilidad';
+				else
+					$this->nivel = 'especial';
+			}
 		}
 		else
-		{
-			if( $usuariocodgernow == '998' or $usuariocodgernow == '1000' )
-				$this->nivel = 'administrador';
-			else if( ( $usuariocodgernow > 399 and $usuariocodgernow < 998) or $usuariocodgernow == '196' or $usuariocodgernow == '252' or $usuariocodgernow == '200' )
-				$this->nivel = 'sucursal';
-			else if ( $usuariocodgernow == '163' or $usuariocodgernow == '251' )
-				$this->nivel = 'contabilidad';
-			else
-				$this->nivel = 'especial';
-		}
+			$this->nivel = 'sucursal';
 	}
 
 	/**
@@ -255,7 +260,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_tipo = $this->input->get_post('factura_tipo');
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
-		$factura_bin = $this->input->file('factura_bin')['name']; // nombre del archivo adjuntar
+		$factura_bin = $_FILES['factura_bin']['name']; // nombre del archivo adjuntar
 		$factura_binX = 'no usado en crear nuevo'; // usado por estandar con codigo editar
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
@@ -276,11 +281,11 @@ class cargargastosucursalesadm extends CI_Controller {
 			}
 			else
 			{
-				$mens = 'El Número de factura contribuyente proporcionado ya ha sido registrado. DEBE REVISAR SUS CARGAS Y NO REPETIRLAS';
+				$mens = 'El Número de factura contribuyente proporcionado ya ha sido registrado o esta vacio. DEBE REVISAR SUS CARGAS Y NO REPETIRLAS DEBE TENER UN NUMERO DE FACTURA UNICO';
 				$facquery="select count(*) as facs from  registro_gastos where factura_num='".$this->db->escape_str($factura_num)."' and factura_rif='". $this->db->escape_str($factura_rif)."' and SUBSTRING( fecha_concepto, 1, 6) = SUBSTRING( '". $this->db->escape_str($fecha_concepto)."', 1, 6)";
 				$facresult=$this->db->query($facquery);
 				$rowquery=$facresult->row_array();
-				$cuantos=(int)$rowquery['facnums'];
+				$cuantos=(int)$rowquery['facs'];
 				if ($cuantos>0) // la factura no existe aun, en editar existe y es > 1 validacion
 					return $this->gastomanualcargaruno( $mens );
 			}
@@ -512,9 +517,9 @@ class cargargastosucursalesadm extends CI_Controller {
 		$fecha_concepto = $this->input->get_post('fecha_concepto');
 		$dias = ( strtotime(date("Ymd")) - strtotime($fecha_concepto) )/86400;
 		$dias = floor($dias);
-		if ( $dias > 27 )
+		if ( $dias > 36 )
 		{
-			$mens = "La fecha maxima es 20 dias atras o ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
+			$mens = "La fecha maxima es 36 dias atras o ser del mes en curso, semana en curso : " . $dias . " dias es muy atras!";
 			log_message('info', $mens.'.');
 			return $this->gastomanualeditaruno( $mens, $cod_registro );
 		}
@@ -531,7 +536,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
 		$factura_bin = $this->input->get_post('factura_bin'); // nombre file anterior, segun html no se permite set_value
-		$factura_binX = $this->input->file('factura_binX')['name']; // si subio alguno, nombre del archivo sustituir o nuevo
+		$factura_binX = $_FILES['factura_binX']['name']; // si subio alguno, nombre del archivo sustituir o nuevo
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 		// ******* monto no puede ser vacio
@@ -551,11 +556,11 @@ class cargargastosucursalesadm extends CI_Controller {
 			}
 			else
 			{
-				$mens = 'El Número de factura contribuyente proporcionado ya ha sido registrado. DEBE REVISAR SUS CARGAS Y NO REPETIRLAS';
+				$mens = 'El Número de factura contribuyente proporcionado ya ha sido registrado o esta vacio. DEBE REVISAR SUS CARGAS Y NO REPETIRLAS DEBE TENER UN NUMERO DE FACTURA UNICO';
 				$facquery="select count(*) as facs from  registro_gastos where factura_num='".$this->db->escape_str($factura_num)."' and factura_rif='". $this->db->escape_str($factura_rif)."' and SUBSTRING( fecha_concepto, 1, 6) = SUBSTRING( '". $this->db->escape_str($fecha_concepto)."', 1, 6)";
 				$facresult=$this->db->query($facquery);
 				$rowquery=$facresult->row_array();
-				$cuantos=(int)$rowquery['facnums'];
+				$cuantos=(int)$rowquery['facs'];
 				if ($cuantos>1) // la factura ya existe o no existe, porque esta editando
 					return $this->gastomanualcargaruno( $mens );
 			}
@@ -600,8 +605,8 @@ class cargargastosucursalesadm extends CI_Controller {
 			{
 				$mens = '<h3>ADVERTENCIA!!!!</h3>, ' . $this->upload->display_errors() . 'Ocurrio un error, el archivo no se pudo cargar reporte esto por ticket enviando un correo a la intranet soporte@intranet1.net.ve! REPITA EL PROCESO';
 				log_message('info', $mens.'.');
-				if( $isuploaded )
-					rename( $filenameorig, $filenamenewe ); // TODO: rename
+				if( trim($factura_binX) != '')
+				    if( $isuploaded ) rename( $filenameorig, $filenamenewe ); // TODO: rename
 				else
 					return $this->gastomanualeditaruno($mens, $cod_registro);
 			}
@@ -612,11 +617,12 @@ class cargargastosucursalesadm extends CI_Controller {
 			$factura_data = $file_data;
 			$factura_bin = $dircargasub . $filenamen; // en db se guarda parte de la ruta, ya que es dinamico segun fecha carga
 			$linkadjunto = anchor_popup( '../' . $dircargabase . $factura_bin, $factura_bin,array('width'=>'800','height'=>'600','resizable'=>'yes'));
+			$mens = '<h3>ADVERTENCIA!!!!</h3>, EL: ADJUNTO Y LOS DATOS REVISE SI ESTA CORRECTOS.';
 		}
 		else
 		{
 			$conadjunto = FALSE;
-			$factura_bin = $this->input->file('factura_bin'); // subdir ya viene de db con subdir
+			//$factura_bin = ('factura_bin'); // subdir ya viene de db con subdir
 			$linkadjunto = anchor_popup( '../' . $dircargabase . $factura_bin, $factura_bin,array('width'=>'800','height'=>'600','resizable'=>'yes'));
 			$mens = '<h3>ADVERTENCIA!!!!</h3>, REVISE SI LOS DATOS SE CARGARON CORRECTOS, vea bien el resultado.';
 		}
@@ -628,7 +634,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$resultadocarga = array('Error, no se completo el proceso', 'Sin datos', '0', '', '', '', '');
 		// ******* procesar el registro sin el adjunto
 		$sqlregistrargasto = "
-            UPDATE gastossystema.registro_gastos
+            UPDATE registro_gastos
 				SET
 					cod_entidad='".$cod_entidad."',
 					cod_categoria=(SELECT cod_categoria FROM subcategoria where cod_subcategoria = '".$cod_subcategoria."' LIMIT 1),
@@ -713,8 +719,8 @@ class cargargastosucursalesadm extends CI_Controller {
 
 		if ( ! in_array("edit", $urlsegmentos) or ! in_array("add", $urlsegmentos) )
 		{
-			$this->db->trans_strict(TRUE); // todo o nada
-			$this->db->trans_begin();	// en una tabla temporal solo registros ultimos y por perfil
+			//$this->db->trans_strict(TRUE); // todo o nada
+			//$this->db->trans_begin();	// en una tabla temporal solo registros ultimos y por perfil
 				$sqltablagastousr = "
 					CREATE TABLE IF NOT EXISTS `".$tablaregistros."` SELECT registro_gastos.* FROM (`registro_gastos`)
 					WHERE ( cod_registro <> '' or cod_entidad = '".$usuariocodgernow."') ";
@@ -752,12 +758,12 @@ class cargargastosucursalesadm extends CI_Controller {
 					$sqltablagastousr .= " ORDER BY fecha_concepto DESC, fecha_registro DESC ";
 			$sqldatostablasfiltrados = "DROP TABLE IF EXISTS ".$tablaregistros.";";
 			if ( $this->nivel != 'administrador')
-				$sqltablagastousr .= " LIMIT 800";
+				$sqltablagastousr .= " LIMIT 100";
 			else
 				$sqltablagastousr .= " LIMIT 2000";
 			$this->db->query($sqldatostablasfiltrados);	// remuevo la viejas o datos viejos si hay aun
 			$this->db->query($sqltablagastousr);		// recreo con el select la tabla temporal y se usara
-			if ($this->db->trans_status() === FALSE)
+			/*if ($this->db->trans_status() === FALSE)
 			{
 				$this->db->trans_rollback();
 				$data['output'] = "Error ejecutando su filtro, repita el proceso, si persiste consulte systemas";
@@ -767,7 +773,7 @@ class cargargastosucursalesadm extends CI_Controller {
 				return;
 			}
 			else
-				$this->db->trans_commit();
+				$this->db->trans_commit();*/
 		}
 
 		// ****** ini mostrar vita crud para todos los registros del mes actual y el mes anterior
@@ -912,7 +918,7 @@ class cargargastosucursalesadm extends CI_Controller {
 				substr(r.sessionflag, 1, 8) AS cuandoaltero,
 				substr(r.sessionficha, 1, 8) AS cuandolocreo,
 				r.cod_entidad, e.des_entidad, e.sello
-			FROM gastossystema.registro_gastos AS r
+			FROM registro_gastos AS r
 			LEFT JOIN entidad AS e
 				ON r.cod_entidad = e.cod_entidad
 			WHERE r.cod_registro = '".$codigo."'
@@ -950,12 +956,12 @@ class cargargastosucursalesadm extends CI_Controller {
 			$estado = $this->input->get_post('estado');
 			$razone = $this->input->get_post('msg_errado');
 			$sessionflag = date("YmdHis").$this->session->userdata('cod_entidad').'.'.$this->session->userdata('username');
-			$consultaprocesar = "UPDATE `gastossystema`.`registro_gastos` SET `estado`='".$estado."', des_estado= '".$razone."', sessionflag='".$sessionflag."' WHERE `cod_registro`='".$codigo."'";
+			$consultaprocesar = "UPDATE `registro_gastos` SET `estado`='".$estado."', des_estado= '".$razone."', sessionflag='".$sessionflag."' WHERE `cod_registro`='".$codigo."'";
 			$sqlentidaderror = $this->db->query($consultaprocesar);
 			$data['htmlauditarcodigo'] = "Gasto ha sido cambiado a ".$estado;
 			if ($estado == 'ERRONEO' )
 			{
-				$consultanotificar = "INSERT INTO `gastossystema`.`registro_errado` (`cod_registro`, `cod_entidad`, `intranet`, `msg_errado`, sessionflag) VALUES ('".$codigo."', '".$cod_entidad."', '".$quiendebe."', '".$razone."', '".$sessionflag."');";
+				$consultanotificar = "INSERT INTO `registro_errado` (`cod_registro`, `cod_entidad`, `intranet`, `msg_errado`, sessionflag) VALUES ('".$codigo."', '".$cod_entidad."', '".$quiendebe."', '".$razone."', '".$sessionflag."');";
 				$sqlentidaderror = $this->db->query($consultaprocesar);
 				$data['can_erroneos'] = $erroneos+1;
 			}
