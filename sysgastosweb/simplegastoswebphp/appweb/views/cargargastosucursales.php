@@ -90,7 +90,7 @@
 	else if ($accionejecutada == 'gastosucursalesrevisarlos')
 	{
 		echo br().PHP_EOL;
-		echo form_fieldset('Cargas del mes actual y el anterior : <strong>'. date("Y/M") .' y '.date("Y/M", strtotime('-1 month')).'</strong> SOLO LOS ULTIMOS 500 GASTOS!!!',array('class'=>'containerin ')) . PHP_EOL;
+		echo form_fieldset('SE MUESTRAN SOLO LAS 100 ULTIMAS CARGAS : <strong>'. date("Y/M") .' y '.date("Y/M", strtotime('-1 month')).'</strong> use los filtros para otras o para mas!!!',array('class'=>'containerin ')) . PHP_EOL;
 		echo form_hidden('accionejecutada',$accionejecutada).br().PHP_EOL;
 		echo $botonesgestion . PHP_EOL;
 		//echo $tabledelfiltrocualesgastos . PHP_EOL;
@@ -149,8 +149,8 @@
 
 		$this->table->set_template(array ( 'table_open'  => '<table border="0" cellpadding="0" cellspacing="0" class="table">','cell_start' => '<td class="form-field-box odd">', ) );
 			$this->table->add_row('Fecha del gasto (10 dias atras maximo):',form_input($valoresinputfecha).'(no mas de 10 dias atras)'.br().PHP_EOL, $classinput);
-			$this->table->add_row('De quien es el gasto:', form_dropdown('cod_entidad', $list_entidad, $usuariocodgernow, 'id="list_entidad"' ).$jspickathingjs.$jsentidadlis);
-			$this->table->add_row('Categoria y SubCategoria:', form_dropdown('cod_subcategoria', $list_subcategoria, $cod_subcategoria,'id="list_subcategoria"').br().$jspickathingjs.$jssubcategorialis.PHP_EOL);
+			$this->table->add_row('De quien es el gasto:', form_dropdown('cod_entidad', $list_entidad, $usuariocodgernow, 'id="list_entidad"' ));
+			$this->table->add_row('Categoria y SubCategoria:', form_dropdown('cod_subcategoria', $list_subcategoria, $cod_subcategoria,'id="list_subcategoria"').br().PHP_EOL);
 			$this->table->add_row('Monto (punto para decimal, sin coma)', form_input('mon_registro',$mon_registro, $classinput).' OJO: sin separador de miles!'.br().PHP_EOL);
 			$this->table->add_row('Concepto o Detalle:', form_input('des_concepto',$des_concepto, $classinput).br().PHP_EOL);
 			$this->table->add_row('Concepto tipo:', form_dropdown('tipo_concepto', $list_tipo_concepto , 'SUCURSAL', $classinput).br().PHP_EOL);
