@@ -15,7 +15,6 @@ class gas_registro_gastos_ingreso extends CI_Controller {
 		$this->load->library('session'); // debe estar primero que el menu
 		$this->load->model('menu');
 		$this->sysdbgastos = $this->load->database('gastossystema', TRUE);
-		$this->sysdbadmins = $this->load->database('sysdbadmins', TRUE);
 		$this->load->database('gastossystema');
 		$this->output->set_header('Last-Modified: ' . gmdate("D, d M Y H:i:s") . ' GMT',TRUE);
 		$this->output->set_header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-check=0', TRUE);
