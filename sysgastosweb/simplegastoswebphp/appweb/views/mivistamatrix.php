@@ -39,7 +39,7 @@
 		$this->table->set_datatables(FALSE);
 			$this->table->add_row($menusub);
 		echo $this->table->generate();
-		echo '<h3>Matrix de gastos sucursales vs categorias</h3>';
+		echo '<h4>Matrix de gastos sucursales vs categorias</h4>';
 		echo form_fieldset('Por favor seleccionar fecha, categoria y minimo 2 sucursales o centro de costos',array('class'=>'container_blue containerin')) . PHP_EOL;
 		echo form_open_multipart('/mimatrixcontroller/secciontablamatrix/', $htmlformaattributos) . PHP_EOL;
 		$this->table->clear();
@@ -66,7 +66,10 @@
 		$this->table->set_datatables(FALSE);
 			$this->table->add_row($menusub);
 		echo $this->table->generate();
-		echo '<h3>Matrix de gastos sucursales vs categorias</h3>';
+		$botoncorte = form_button('matrixcontroler/matrixgenerarcorte/'.$fechainimatrix.'/'.$fechafinmatrix, 'Generar corte para ventas', 'class="btn-primary btn" ');
+		$linkcorte = anchor('matrixcontroler/matrixgenerarcorte/'.$fechainimatrix.'/'.$fechafinmatrix,$botoncorte);
+		$popupcorte = "javascript:void(window.open ('".$linkcorte."','Generar corte','menubar=1,resizable=1,width=650,height=4250'));";
+		echo '<h4>Matrix de gastos sucursales vs categorias '.$linkcorte.'</h4>';
 		echo $output. PHP_EOL;
 	}
 	/* ********* fin seccion de pagina formulario ******************** */

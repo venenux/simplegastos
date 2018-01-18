@@ -81,4 +81,15 @@
 	}
 	/* ********* fin seccion de pagina formulario ******************** */
 
+	/* ********* ini seccion de pagina pinta repuesta corte ******************** */
+	//$this->load->helper('html');
+	if ($seccionpagina == 'seccioncortegenerado')
+	{
+		echo form_fieldset('Generacion de corte de gastos vs ventas') . PHP_EOL;
+		echo $htmlquepintamatrix . br();
+		echo 'Desde '. $fechainimatrix . ' hasta '.$fechafinmatrix . ' se procesaron unos '. $procesados. 'registros.'.br();
+		echo $sessioncarga;
+		echo form_fieldset_close() . PHP_EOL;
+	}
+	/* ********* fin seccion de pagina pinta respuesta corte ******************** */
 	?>

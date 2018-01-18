@@ -348,7 +348,92 @@ class matrixcontroler extends CI_Controller {
 		return $formateado;
 	}
 
-	public function enviarcorreo()
+	public function matrixgenerarcorte($fechavermatrix=null,$fechasecmatrix=null)
+	{
+		$fechahoymatrix = date('Ymd');
+		$fechavermatrix = str_replace(' ', '', $fechavermatrix );
+		$fechavermatrix = preg_replace('/\s+/', '', $fechavermatrix );
+
+		$this->load->library('form_validation');
+		$this->form_validation->set_rules('fechainimatrix', 'Fecha inicio', 'trim|required|numeric');
+		$this->form_validation->set_rules('fechafinmatrix', 'Fecha final', 'trim|required|numeric');
+		if ($this->form_validation->run() == FALSE)
+		{
+			$fechainimatrix = $fechavermatrix;
+			$fechafinmatrix = $fechasecmatrix;
+			$mens = "Seleccion de fechas automaticas, se genera para el periodo calificado";
+		}
+		else
+		{
+			$fechainimatrix = $this->input->get_post('fechainimatrix');
+			$fechafinmatrix = $this->input->get_post('fechafinmatrix');
+			$mens = "Se ha reiniciado las cuentas de los datos de analisis de gastos para gerencia, la columna de vntas (copias) se reinicio";
+		}
+
+		if( $fechainimatrix == '')
+				$fechainimatrix = date('Ymd');
+		if( $fechafinmatrix == '')
+				$fechafinmatrix = date('Ymd');
+
+		$userdata = $this->session->all_userdata();
+		$usercodger = $this->session->userdata('cod_entidad');
+		$usercorreo = $userdata['correo'];
+		$userintranet = $userdata['intranet'];
+
+		$queryprepare="
+			DELETE 
+				FROM adm_indefi_ventagasto 
+				WHERE 
+					CONVERT( fecha_mes , UNSIGNED) >= CONVERT( SUBSTRING('".$fechainimatrix."', 1, 6) , UNSIGNED)
+				AND 
+					CONVERT( fecha_mes , UNSIGNED) <= CONVERT( SUBSTRING('".$fechafinmatrix."', 1, 6) , UNSIGNED);
+		";
+		$queryfilltab="
+		INSERT INTO adm_indefi_ventagasto 
+			SELECT 
+				CONVERT( CONVERT( DATE_FORMAT(NOW(),'%Y%m%d%H%i%s'), UNSIGNED) + CONVERT(a.cod_entidad,UNSIGNED), CHAR) as cod_indicador,
+				a.cod_entidad, 
+				-- b.des_entidad, 
+				IFNULL(SUM(IFNULL(a.mon_registro, 0)), 0) as mon_gastototal,
+				0 as mon_ventatotal,
+				SUBSTRING(a.fecha_concepto, 1, 6) as fecha_mes, 
+				'".$fechahoymatrix.$usercodger.$usercorreo."' as sessionficha, 
+				null as sessionflag
+			FROM
+				registro_gastos a
+			LEFT JOIN entidad b ON a.cod_entidad = b.cod_entidad
+			where
+				a.cod_registro <> ''
+					and b.status <> 'INACTIVO'
+					and CONVERT( a.fecha_concepto , UNSIGNED) >= CONVERT( '".$fechainimatrix."' , UNSIGNED)
+					and CONVERT( a.fecha_concepto , UNSIGNED) <= CONVERT( '".$fechafinmatrix."' , UNSIGNED)
+			group by cod_entidad
+			order by b.des_entidad
+		";
+		$queryprocesados = "
+			SELECT count(fecha_mes) as procesados FROM gastossystema.adm_indefi_ventagasto WHERE CONVERT( fecha_mes , UNSIGNED) = CONVERT( SUBSTRING('".$fechainimatrix."', 1, 6) , UNSIGNED) LIMIT 1 OFFSET 0;
+		";
+		$this->load->database('gastossystema');
+		$this->db->query($queryprepare); // ejecuto el query que limpia los viejos
+		$this->db->query($queryfilltab); // ejecuto el query que pone lso nuevos
+		$procesados = $this->db->query($queryprocesados); // ejecuto el query que pone lso nuevos
+		$rowprocs = $procesados->row_array();
+
+		$data['procesados'] = $rowprocs['procesados'];
+		$data['htmlquepintamatrix'] = $mens;
+		$data['menu'] = $this->menu->menudesktop();
+		$data['seccionpagina'] = 'seccioncortegenerado';
+		$data['fechainimatrix'] = $fechainimatrix;
+		$data['fechafinmatrix'] = $fechafinmatrix;
+		$data['sessioncarga'] = ' Generada por ' . $usercorreo . ' enviado correo (experimental)';
+		$this->load->view('header.php',$data);
+		$this->load->view('matrixvista.php',$data);
+		$this->load->view('footer.php',$data);
+		//$this->_enviarcorreo($mens)
+		return $mens;
+	}
+
+	public function _enviarcorreo()
 	{
 		// PROCESO POSTERIOR generacion de txt y envio por correo
 		$sql = "SELECT right('000000000'+DBA.td_orden_despacho.cod_interno,10) as cp, null as v2, DBA.td_orden_despacho.cantidad as ca, null as v3, '' as v4, ";//DBA.td_orden_despacho.precio_venta ";
