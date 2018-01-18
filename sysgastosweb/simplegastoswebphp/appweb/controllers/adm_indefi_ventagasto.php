@@ -6,6 +6,7 @@ class Adm_indefi_ventagasto extends CI_Controller {
 	private $controlername = 'adm_indefi_ventagasto';
 	private $accionformulario  = null;
 	private $menurender = '';
+	private $nivel = false;
 
 	public function __construct()
 	{
@@ -44,7 +45,7 @@ class Adm_indefi_ventagasto extends CI_Controller {
 			else
 				$this->nivel = true;
 		}
-		if ( $this-nivel )
+		if ( $this->nivel )
 		{
 			$this->menurender = $this->menu->menudesktop();
 		}

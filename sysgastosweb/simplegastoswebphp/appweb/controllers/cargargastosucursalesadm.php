@@ -536,7 +536,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		$factura_num = $this->input->get_post('factura_num');
 		$factura_rif = $this->input->get_post('factura_rif');
 		$factura_bin = $this->input->get_post('factura_bin'); // nombre file anterior, segun html no se permite set_value
-		$factura_binX = $_FILES['factura_binX']['name']//$this->input->file('factura_binX')['name']; // si subio alguno, nombre del archivo sustituir o nuevo
+		$factura_binX = $_FILES['factura_binX']['name'];//$this->input->file('factura_binX')['name']; // si subio alguno, nombre del archivo sustituir o nuevo
 		$cod_entidad = $this->input->get_post('cod_entidad');
 		$cod_subcategoria = $this->input->get_post('cod_subcategoria');
 		// ******* monto no puede ser vacio
@@ -1013,7 +1013,7 @@ class cargargastosucursalesadm extends CI_Controller {
 		else
 		{
 			$mens = "no esta pendiente";
-			$list_estado = array(''=>'','RECHAZADO' => 'RECHAZADO', 'ERRONEO' => 'ERRONEO');
+			$list_estado = array(''=>'','RECHAZADO' => 'RECHAZADO', 'ERRONEO' => 'ERRONEO','APROBADO' => 'APROBADO');
 		}
 
 		$htmlformaattributos = array('name'=>'cargargastoucursal','class'=>'formularios','onSubmit'=>'return validageneric(this);');
