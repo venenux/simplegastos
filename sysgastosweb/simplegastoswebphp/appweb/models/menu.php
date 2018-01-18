@@ -25,10 +25,10 @@ class Menu extends CI_Model
 		$admgeneral['admsubcategorias']=anchor('admsubcategorias','Categorias');
 
 		// enlaces de gerencia
-		$menugerencia=anchor('adm_indefi_ventagasto','Gerencia');
-		$menugerencianodos['adm_indefi_ventagasto']=anchor('adm_indefi_ventagasto/gervisualizarventagasto/','Gasto vs Venta');
+		$menugerencia=anchor('adm_indefi_ventagasto/gervisualizarventagasto/','Gerencia');
+		$menugerencianodos=array();
 
-		$vistas=anchor('mimatrixcontroller','Matriz');
+		$vistas=anchor('mimatrixcontroller','Matrix');
 		$vistaglobal=array();
 		// enlaces de cargas para administrativo edita, ver etc con permisologia
 		$cargasadm=anchor('cargargastoadministrativo','Gastos');

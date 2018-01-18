@@ -109,10 +109,12 @@ group by cod_categoria
 			redirect('manejousuarios/desverificarintranet');
 		if( $usuariocodgernow == null or trim($usuariocodgernow,'') == '')
 			redirect('manejousuarios/desverificarintranet');
-		else if( $usuariocodgernow >= 998 )
+		else if( $usuariocodgernow == 998 )
 			$this->nivel = 'administrador';
 		else if( $usuariocodgernow < 999 and $usuariocodgernow > 300  )
 			$this->nivel = 'sucursal';			// para matrix solo se ven o todo o solo el propio
+		else if( $usuariocodgernow == 111  )
+			$this->nivel = 'administrador';			// solucion temporal a menu matrix
 		else
 			redirect('indexcontroler');
 	}
@@ -143,7 +145,6 @@ group by cod_categoria
 	public function index()
 	{
 		$this->_verificarsesion();						// verifico este un usuario realizando la llamada
-		$this->_verificarsesion();
 		$data['htmlquepintamatrix'] = '';
 		$data['menu'] = $this->menu->menudesktop();
 		$data['menusub'] = $this->_menusub($this->session->userdata('cod_entidad'));
