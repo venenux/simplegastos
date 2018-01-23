@@ -411,7 +411,7 @@ class matrixcontroler extends CI_Controller {
 			order by b.des_entidad
 		";
 		$queryprocesados = "
-			SELECT count(fecha_mes) as procesados FROM gastossystema.adm_indefi_ventagasto WHERE CONVERT( fecha_mes , UNSIGNED) = CONVERT( SUBSTRING('".$fechainimatrix."', 1, 6) , UNSIGNED) LIMIT 1 OFFSET 0;
+			SELECT count(fecha_mes) as procesados FROM adm_indefi_ventagasto WHERE CONVERT( fecha_mes , UNSIGNED) = CONVERT( SUBSTRING('".$fechainimatrix."', 1, 6) , UNSIGNED) LIMIT 1 OFFSET 0;
 		";
 		$this->load->database('gastossystema');
 		$this->db->query($queryprepare); // ejecuto el query que limpia los viejos
