@@ -1,6 +1,6 @@
 	<?php
 
-	$classinput = array('class'=>' form-input-box btn containerin');
+	$classinput = array('class'=>' form-input-box containerin');
 	if( !isset($mens) )
 		$mens = '<strong>Gastos semanales</strong>';
 
