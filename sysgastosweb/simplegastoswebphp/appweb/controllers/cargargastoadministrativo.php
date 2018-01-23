@@ -323,6 +323,8 @@ class cargargastoadministrativo extends CI_Controller {
 		$filenew = $filesub.$post_array['factura_bin'];
 		if (stripos($fileold, $filesub) !== FALSE)
 			return TRUE;	// la unica manera que fileold ya tenga el subdir es que no lo hayan alterado ademas el archivo no tendra "/" en su nombre
+		if ($post_array['factura_bin'] == '' OR $post_array['factura_bin'] == $filesub)
+			return TRUE;
 		$directoriofacturas = 'archivoscargas/';
 		rename($directoriofacturas . $fileold, $directoriofacturas . $filenew);
 		$cod_registro = $post_array['cod_registro'];
@@ -343,6 +345,8 @@ class cargargastoadministrativo extends CI_Controller {
 		$filenew = $filesub.$post_array['factura_bin'];
 		if (stripos($fileold, $filesub) !== FALSE)
 			return TRUE;	// la unica manera que fileold ya tenga el subdir es que no lo hayan alterado ademas el archivo no tendra "/" en su nombre
+		if ($post_array['factura_bin'] == '' OR $post_array['factura_bin'] == $filesub)
+			return TRUE;
 		$directoriofacturas = 'archivoscargas/';
 		rename($directoriofacturas . $fileold, $directoriofacturas . $filenew);
 		$cod_registro = $primary_key;
