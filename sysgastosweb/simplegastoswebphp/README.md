@@ -17,6 +17,20 @@ requisites/requisitos
 * mysql 5.1+
 * lighttpd/hiawatta
 
-please follow instructions in the [../../docs/INSTALL-instructions.md](../../docs/INSTALL-instructions.md) file
-por favor sigua las instrucciones en el [../../docs/INSTALAR-instrucciones.md](../../docs/INSTALAR-instrucciones.md)
+please follow instructions in the [INSTALL.md](INSTALL.md) file
+por favor sigua las instrucciones en el [INSTALAR.md](INSTALAR.md)
+
+# Usage/Uso
+
+Very easy, normal users can load and see own expenses, 
+admin users see all and stablished the relation between a user and a expense store/office.
+In "Gestion" can be defined that relationship, a categorya, subcategory and see the logs.
+In "Gastos" users can load, see and edit their expenses, normal users cannot delete expenses.
+
+Muy facil, usuarios normales pueden cargar sus propios gastos, 
+administradores pueden ver todo, y estableces una relacion entre un usuario y su centro de costo.
+En "Gestion" puede definirse esta relacion, categorias subcategorias y ver los registros.
+En "Gastos" usuarios pueden cargar, ver y editar sus gastos, usuarios normales no pueden borrar.
+
+
 

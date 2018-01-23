@@ -15,9 +15,10 @@ For english speaking please use the [README-english.md](README-english.md)
 
 Para habla speanol porfavor use el [README-latino.md](README-latino.md)
 
-## Screenshot / Capturas
+## Status
 
-[] TODO
+Este proyecto fue ya terminado y sobreescrito por uno nuevo "elsistema" solo acepta codigos arreglos y pequenos issues.
+This project was superseted and rewriten by new called "elsistema" and only acepts code fixeds and little minor issues.
 
 # LICENSE
 

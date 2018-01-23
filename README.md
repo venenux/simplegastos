@@ -18,7 +18,7 @@ The system its a mixed between a desktop administration systerm and a web interf
 El sistema es una mezcla entre la administracion en pc y una interfaz en internet web.
 
 * **Module web** : Codeigniter Expense Binnacle [sysgastosweb/simplegastoswebphp/](sysgastosweb/simplegastoswebphp/)
-* **Module pc** : Gambas Expense Administration [sysgastoadm](sysgastosadm)
+* **Module pc** : Gambas Expense Administration [sysgastoadm](sysgastosadm) (WIP under development)
 
 The features include
 
