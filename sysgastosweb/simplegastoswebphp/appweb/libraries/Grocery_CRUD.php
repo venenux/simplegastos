@@ -345,14 +345,14 @@ class grocery_CRUD_Field_Types
 					$file_url = base_url().$field_info->extras->upload_path."/$value";
 
 					$file_url_anchor = '<a href="'.$file_url.'"';
-					if($is_image)
-					{
-						$file_url_anchor .= ' class="image-thumbnail"><img src="'.$file_url.'" height="50px">';
-					}
-					else
-					{
+					//if($is_image AND )
+					//{
+					//	$file_url_anchor .= ' class="image-thumbnail"><img src="'.$file_url.'" height="50px">';
+					//}
+					//else
+					//{
 						$file_url_anchor .= ' target="_blank">'.$this->character_limiter($value,$this->character_limiter,'...',true);
-					}
+					//}
 					$file_url_anchor .= '</a>';
 
 					$value = $file_url_anchor;
